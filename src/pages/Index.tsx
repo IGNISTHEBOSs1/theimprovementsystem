@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Shield, Menu, X, Coins } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
 import { useTheme } from '@/hooks/useTheme';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { PlayerCard } from '@/components/game/PlayerCard';
 import { RadarChartComponent } from '@/components/game/RadarChart';
 import { QuestCard } from '@/components/game/QuestCard';
@@ -14,11 +15,13 @@ import { RewardCenter } from '@/components/game/RewardCenter';
 import { GateEncounter } from '@/components/game/GateEncounter';
 import { LevelUpNotification } from '@/components/game/LevelUpNotification';
 import { ThemeSwitcher } from '@/components/game/ThemeSwitcher';
+import { SoundToggle } from '@/components/game/SoundToggle';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('awakening');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { accent, setAccent } = useTheme();
+  const { soundEnabled, toggleSound, playQuestComplete, playLevelUp, playError } = useSoundEffects();
   
   const {
     gameState,
@@ -29,6 +32,28 @@ const Index = () => {
     showLevelUp,
     addXp,
   } = useGameState();
+
+  // Play level up sound when level increases
+  useEffect(() => {
+    if (showLevelUp) {
+      playLevelUp();
+    }
+  }, [showLevelUp, playLevelUp]);
+
+  const handleCompleteQuest = (questId: string) => {
+    playQuestComplete();
+    completeQuest(questId);
+  };
+
+  const handleFailQuest = (questId: string) => {
+    playError();
+    failQuest(questId);
+  };
+
+  const handlePomodoroComplete = () => {
+    playQuestComplete();
+    addXp(50);
+  };
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
@@ -73,6 +98,7 @@ const Index = () => {
               </div>
             </div>
             <div className="h-8 w-px bg-border" />
+            <SoundToggle enabled={soundEnabled} onToggle={toggleSound} />
             <ThemeSwitcher currentAccent={accent} onAccentChange={setAccent} />
             <div className="h-8 w-px bg-border" />
             <div className="text-right">
@@ -156,8 +182,8 @@ const Index = () => {
                   <QuestCard
                     key={quest.id}
                     quest={quest}
-                    onComplete={completeQuest}
-                    onFail={failQuest}
+                    onComplete={handleCompleteQuest}
+                    onFail={handleFailQuest}
                     index={index}
                   />
                 ))}
@@ -165,7 +191,7 @@ const Index = () => {
 
               {/* Right Column - Timer & Rewards */}
               <div className="space-y-6">
-                <PomodoroTimer onComplete={() => addXp(50)} />
+                <PomodoroTimer onComplete={handlePomodoroComplete} />
                 <RewardCenter credits={gameState.credits} onSpend={spendCredits} />
               </div>
             </motion.div>
