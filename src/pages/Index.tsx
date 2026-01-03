@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Shield, Menu, X, Coins } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
@@ -16,10 +16,12 @@ import { GateEncounter } from '@/components/game/GateEncounter';
 import { LevelUpNotification } from '@/components/game/LevelUpNotification';
 import { ThemeSwitcher } from '@/components/game/ThemeSwitcher';
 import { SoundToggle } from '@/components/game/SoundToggle';
+import { ParticleBackground } from '@/components/game/ParticleBackground';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('awakening');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [xpBurstTrigger, setXpBurstTrigger] = useState(0);
   const { accent, setAccent } = useTheme();
   const { soundEnabled, toggleSound, playQuestComplete, playLevelUp, playError } = useSoundEffects();
   
@@ -32,6 +34,8 @@ const Index = () => {
     showLevelUp,
     addXp,
   } = useGameState();
+  
+  const prevXp = useRef(gameState.currentXp);
 
   // Play level up sound when level increases
   useEffect(() => {
@@ -39,6 +43,14 @@ const Index = () => {
       playLevelUp();
     }
   }, [showLevelUp, playLevelUp]);
+
+  // Track XP changes for particle burst
+  useEffect(() => {
+    if (gameState.currentXp !== prevXp.current) {
+      setXpBurstTrigger(prev => prev + 1);
+      prevXp.current = gameState.currentXp;
+    }
+  }, [gameState.currentXp]);
 
   const handleCompleteQuest = (questId: string) => {
     playQuestComplete();
@@ -57,9 +69,16 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Particle Background */}
+      <ParticleBackground 
+        xpGainTrigger={xpBurstTrigger} 
+        levelUpTrigger={showLevelUp}
+        accentColor={accent}
+      />
+      
       {/* Background effects */}
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
-      <div className="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.015%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] pointer-events-none" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none z-[1]" />
+      <div className="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.015%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] pointer-events-none z-[1]" />
 
       {/* Level Up Notification */}
       <LevelUpNotification show={showLevelUp} level={gameState.level} />
