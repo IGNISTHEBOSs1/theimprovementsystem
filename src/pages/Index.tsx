@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Shield, Menu, X, Coins } from 'lucide-react';
+import { Zap, Shield, Menu, X, Coins, Trophy } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
 import { useTheme } from '@/hooks/useTheme';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { useAchievements } from '@/hooks/useAchievements';
 import { PlayerCard } from '@/components/game/PlayerCard';
 import { RadarChartComponent } from '@/components/game/RadarChart';
 import { QuestCard } from '@/components/game/QuestCard';
@@ -16,12 +17,14 @@ import { GateEncounter } from '@/components/game/GateEncounter';
 import { LevelUpNotification } from '@/components/game/LevelUpNotification';
 import { ThemeSwitcher } from '@/components/game/ThemeSwitcher';
 import { SoundToggle } from '@/components/game/SoundToggle';
+import { AchievementUnlockNotification } from '@/components/game/AchievementUnlockNotification';
+import { AchievementsPanel } from '@/components/game/AchievementsPanel';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('awakening');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { accent, setAccent } = useTheme();
-  const { soundEnabled, toggleSound, playQuestComplete, playLevelUp, playError } = useSoundEffects();
+  const { soundEnabled, toggleSound, playQuestComplete, playLevelUp, playError, playAchievement } = useSoundEffects();
   
   const {
     gameState,
@@ -33,12 +36,27 @@ const Index = () => {
     addXp,
   } = useGameState();
 
+  const { 
+    achievements, 
+    newlyUnlocked, 
+    dismissNotification, 
+    unlockedCount, 
+    totalCount 
+  } = useAchievements(gameState);
+
   // Play level up sound when level increases
   useEffect(() => {
     if (showLevelUp) {
       playLevelUp();
     }
   }, [showLevelUp, playLevelUp]);
+
+  // Play achievement unlock sound
+  useEffect(() => {
+    if (newlyUnlocked) {
+      playAchievement();
+    }
+  }, [newlyUnlocked, playAchievement]);
 
   const handleCompleteQuest = (questId: string) => {
     playQuestComplete();
@@ -63,6 +81,12 @@ const Index = () => {
 
       {/* Level Up Notification */}
       <LevelUpNotification show={showLevelUp} level={gameState.level} />
+      
+      {/* Achievement Unlock Notification */}
+      <AchievementUnlockNotification 
+        achievement={newlyUnlocked} 
+        onDismiss={dismissNotification} 
+      />
 
       {/* Header */}
       <header className="sticky top-0 z-40 glass-strong border-b border-white/5">
@@ -100,6 +124,10 @@ const Index = () => {
             <div className="h-8 w-px bg-border" />
             <SoundToggle enabled={soundEnabled} onToggle={toggleSound} />
             <ThemeSwitcher currentAccent={accent} onAccentChange={setAccent} />
+            <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-primary/10 border border-primary/20">
+              <Trophy className="w-4 h-4 text-primary" />
+              <span className="text-sm font-bold text-primary">{unlockedCount}/{totalCount}</span>
+            </div>
             <div className="h-8 w-px bg-border" />
             <div className="text-right">
               <p className="text-sm font-semibold text-foreground">{gameState.username}</p>
@@ -148,6 +176,11 @@ const Index = () => {
                   maxXp={gameState.maxXp}
                 />
                 <RadarChartComponent stats={gameState.stats} />
+                <AchievementsPanel 
+                  achievements={achievements} 
+                  unlockedCount={unlockedCount} 
+                  totalCount={totalCount} 
+                />
               </div>
 
               {/* Right Column - System Log */}
