@@ -152,6 +152,51 @@ export const useSoundEffects = () => {
     osc.stop(now + 0.2);
   }, [soundEnabled, getAudioContext]);
 
+  const playAchievement = useCallback(() => {
+    if (!soundEnabled) return;
+    
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    
+    // Magical achievement unlock sound - rising sparkle effect
+    const notes = [698.46, 880, 1046.50, 1318.51, 1567.98]; // F5, A5, C6, E6, G6
+    
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + i * 0.08);
+      
+      gain.gain.setValueAtTime(0, now + i * 0.08);
+      gain.gain.linearRampToValueAtTime(0.2, now + i * 0.08 + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.35);
+      
+      osc.start(now + i * 0.08);
+      osc.stop(now + i * 0.08 + 0.35);
+    });
+
+    // Add a sparkle/chime overlay
+    const chime = ctx.createOscillator();
+    const chimeGain = ctx.createGain();
+    
+    chime.connect(chimeGain);
+    chimeGain.connect(ctx.destination);
+    
+    chime.type = 'triangle';
+    chime.frequency.setValueAtTime(2637, now + 0.4); // E7
+    
+    chimeGain.gain.setValueAtTime(0, now + 0.4);
+    chimeGain.gain.linearRampToValueAtTime(0.15, now + 0.45);
+    chimeGain.gain.exponentialRampToValueAtTime(0.01, now + 1);
+    
+    chime.start(now + 0.4);
+    chime.stop(now + 1);
+  }, [soundEnabled, getAudioContext]);
+
   const toggleSound = useCallback(() => {
     setSoundEnabled((prev: boolean) => !prev);
   }, []);
@@ -163,5 +208,6 @@ export const useSoundEffects = () => {
     playLevelUp,
     playClick,
     playError,
+    playAchievement,
   };
 };
