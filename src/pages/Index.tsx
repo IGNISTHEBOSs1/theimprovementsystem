@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Shield, Menu, X, Coins } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
+import { useTheme } from '@/hooks/useTheme';
 import { PlayerCard } from '@/components/game/PlayerCard';
 import { RadarChartComponent } from '@/components/game/RadarChart';
 import { QuestCard } from '@/components/game/QuestCard';
@@ -12,10 +13,12 @@ import { PomodoroTimer } from '@/components/game/PomodoroTimer';
 import { RewardCenter } from '@/components/game/RewardCenter';
 import { GateEncounter } from '@/components/game/GateEncounter';
 import { LevelUpNotification } from '@/components/game/LevelUpNotification';
+import { ThemeSwitcher } from '@/components/game/ThemeSwitcher';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('awakening');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { accent, setAccent } = useTheme();
   
   const {
     gameState,
@@ -69,6 +72,8 @@ const Index = () => {
                 <p className="font-display font-bold text-accent">{gameState.credits}</p>
               </div>
             </div>
+            <div className="h-8 w-px bg-border" />
+            <ThemeSwitcher currentAccent={accent} onAccentChange={setAccent} />
             <div className="h-8 w-px bg-border" />
             <div className="text-right">
               <p className="text-sm font-semibold text-foreground">{gameState.username}</p>
