@@ -56,26 +56,30 @@ export interface GameState {
 
 const getTodayDateString = () => new Date().toISOString().split('T')[0];
 
-// Fresh account state for new users
+// Fresh account state for new users - zero stats, no achievements
 const freshAccountState: GameState = {
   username: 'Hunter',
   level: 1,
   rank: 'E-Rank Hunter',
   currentXp: 0,
   maxXp: 1000,
-  credits: 100,
+  credits: 0,
   stats: {
-    FIT: 50,
-    SOC: 50,
-    INT: 50,
-    DIS: 50,
-    FOC: 50,
-    FIN: 50,
+    FIT: 0,
+    SOC: 0,
+    INT: 0,
+    DIS: 0,
+    FOC: 0,
+    FIN: 0,
   },
-  quests: [],
+  quests: [
+    { id: 'default_1', title: '🏃 Morning Exercise', difficulty: 'Easy', xpReward: 25, creditReward: 5, timeFrame: 'Today', completed: false, failed: false, createdAt: new Date().toISOString() },
+    { id: 'default_2', title: '📚 Read for 20 minutes', difficulty: 'Easy', xpReward: 20, creditReward: 5, timeFrame: 'Today', completed: false, failed: false, createdAt: new Date().toISOString() },
+    { id: 'default_3', title: '💧 Drink 8 glasses of water', difficulty: 'Normal', xpReward: 15, creditReward: 3, timeFrame: 'Today', completed: false, failed: false, createdAt: new Date().toISOString() },
+  ],
   habits: [],
   systemMessages: [
-    { id: '1', type: 'achievement', message: '🎉 Welcome to The System, Hunter!', timestamp: new Date() },
+    { id: '1', type: 'achievement', message: '🎉 Welcome to The System, Hunter! Your journey begins.', timestamp: new Date() },
   ],
   totalQuestsCompleted: 0,
   lastQuestResetDate: getTodayDateString(),

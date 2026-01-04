@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import { Shield, Star, Zap } from 'lucide-react';
-import playerAvatar from '@/assets/player-avatar.png';
 
 interface PlayerCardProps {
   username: string;
@@ -8,11 +7,24 @@ interface PlayerCardProps {
   rank: string;
   currentXp: number;
   maxXp: number;
-  avatarUrl?: string;
+  avatarId?: string;
+  streak?: number;
+  questsCompleted?: number;
 }
 
-export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarUrl }: PlayerCardProps) => {
+// Avatar images mapping
+const avatarImages: Record<string, string> = {
+  default: 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=hunter1&backgroundColor=1a1a2e',
+  warrior: 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=warrior&backgroundColor=2d1b4e',
+  mage: 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=mage&backgroundColor=1b2d4e',
+  rogue: 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=rogue&backgroundColor=1b4e2d',
+  knight: 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=knight&backgroundColor=4e1b1b',
+  sage: 'https://api.dicebear.com/7.x/bottts-neutral/svg?seed=sage&backgroundColor=4e4e1b',
+};
+
+export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarId = 'default', streak = 0, questsCompleted = 0 }: PlayerCardProps) => {
   const xpPercentage = (currentXp / maxXp) * 100;
+  const avatarSrc = avatarImages[avatarId] || avatarImages.default;
   const rankLetter = rank.charAt(0);
 
   const getRankColor = () => {
@@ -38,9 +50,9 @@ export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarUrl 
       <div className="relative z-10 flex items-start gap-5">
         {/* Avatar */}
         <div className="relative">
-        <div className="w-24 h-24 rounded-xl overflow-hidden border-2 border-primary/30 bg-card">
+          <div className="w-24 h-24 rounded-xl overflow-hidden border-2 border-primary/30 bg-card shadow-lg shadow-primary/10">
             <img
-              src={avatarUrl || playerAvatar}
+              src={avatarSrc}
               alt={username}
               className="w-full h-full object-cover"
             />
@@ -88,9 +100,9 @@ export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarUrl 
 
       {/* Quick stats */}
       <div className="relative z-10 mt-6 grid grid-cols-3 gap-3">
-        <QuickStat icon={<Zap className="w-4 h-4" />} label="Active Boost" value="1.2x" color="accent" />
-        <QuickStat icon={<Star className="w-4 h-4" />} label="Streak" value="7 days" color="primary" />
-        <QuickStat icon={<Shield className="w-4 h-4" />} label="Quests Done" value="847" color="secondary" />
+        <QuickStat icon={<Zap className="w-4 h-4" />} label="Active Boost" value="1.0x" color="accent" />
+        <QuickStat icon={<Star className="w-4 h-4" />} label="Streak" value={`${streak} days`} color="primary" />
+        <QuickStat icon={<Shield className="w-4 h-4" />} label="Quests Done" value={questsCompleted.toString()} color="secondary" />
       </div>
     </motion.div>
   );
