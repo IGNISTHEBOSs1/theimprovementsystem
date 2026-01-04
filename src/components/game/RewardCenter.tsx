@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Coins, Gamepad2, Coffee, Film, Music, ShoppingBag, Clock, Sparkles, Ban } from 'lucide-react';
+import { Coins, Gamepad2, Coffee, Film, Music, ShoppingBag, Clock, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Reward {
@@ -9,25 +8,9 @@ interface Reward {
   icon: React.ReactNode;
   cost: number;
   description: string;
-  soldOutUntil?: Date | null;
 }
 
-const REWARDS_STORAGE_KEY = 'the-system-rewards-sold-out';
-
-const getStoredSoldOut = (): Record<string, string> => {
-  try {
-    const stored = localStorage.getItem(REWARDS_STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
-};
-
-const saveSoldOut = (soldOut: Record<string, string>) => {
-  localStorage.setItem(REWARDS_STORAGE_KEY, JSON.stringify(soldOut));
-};
-
-const defaultRewards: Omit<Reward, 'soldOutUntil'>[] = [
+const rewards: Reward[] = [
   { id: '1', name: '1 Hour Free Time', icon: <Clock className="w-6 h-6" />, cost: 50, description: 'Take a guilt-free break' },
   { id: '2', name: 'Gaming Session', icon: <Gamepad2 className="w-6 h-6" />, cost: 100, description: '2 hours of gaming' },
   { id: '3', name: 'Coffee Break', icon: <Coffee className="w-6 h-6" />, cost: 25, description: 'Treat yourself to coffee' },
@@ -42,36 +25,10 @@ interface RewardCenterProps {
 }
 
 export const RewardCenter = ({ credits, onSpend }: RewardCenterProps) => {
-  const [soldOutMap, setSoldOutMap] = useState<Record<string, string>>(() => getStoredSoldOut());
-
-  const rewards: Reward[] = defaultRewards.map(r => ({
-    ...r,
-    soldOutUntil: soldOutMap[r.id] ? new Date(soldOutMap[r.id]) : null,
-  }));
-
   const handlePurchase = (reward: Reward) => {
-    if (credits >= reward.cost && !isRewardSoldOut(reward)) {
+    if (credits >= reward.cost) {
       onSpend(reward.cost);
-      
-      // Mark as sold out for 1 week
-      const soldOutDate = new Date();
-      soldOutDate.setDate(soldOutDate.getDate() + 7);
-      
-      const newSoldOut = { ...soldOutMap, [reward.id]: soldOutDate.toISOString() };
-      setSoldOutMap(newSoldOut);
-      saveSoldOut(newSoldOut);
     }
-  };
-
-  const isRewardSoldOut = (reward: Reward): boolean => {
-    if (!reward.soldOutUntil) return false;
-    return new Date(reward.soldOutUntil) > new Date();
-  };
-
-  const getSoldOutDaysLeft = (reward: Reward): number => {
-    if (!reward.soldOutUntil) return 0;
-    const diff = new Date(reward.soldOutUntil).getTime() - new Date().getTime();
-    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
   };
 
   return (
@@ -97,8 +54,6 @@ export const RewardCenter = ({ credits, onSpend }: RewardCenterProps) => {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {rewards.map((reward, index) => {
           const canAfford = credits >= reward.cost;
-          const isSoldOut = isRewardSoldOut(reward);
-          const daysLeft = getSoldOutDaysLeft(reward);
           
           return (
             <motion.button
@@ -106,36 +61,20 @@ export const RewardCenter = ({ credits, onSpend }: RewardCenterProps) => {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.05 }}
-              whileHover={{ scale: (canAfford && !isSoldOut) ? 1.02 : 1 }}
-              whileTap={{ scale: (canAfford && !isSoldOut) ? 0.98 : 1 }}
+              whileHover={{ scale: canAfford ? 1.02 : 1 }}
+              whileTap={{ scale: canAfford ? 0.98 : 1 }}
               onClick={() => handlePurchase(reward)}
-              disabled={!canAfford || isSoldOut}
+              disabled={!canAfford}
               className={cn(
-                "p-4 rounded-xl border transition-all text-left relative overflow-hidden",
-                isSoldOut
-                  ? "bg-card/30 border-destructive/20 opacity-60"
-                  : canAfford
-                    ? "bg-card hover:bg-card-elevated border-white/10 hover:border-accent/30"
-                    : "bg-card/50 border-white/5 opacity-50 cursor-not-allowed"
+                "p-4 rounded-xl border transition-all text-left",
+                canAfford
+                  ? "bg-card hover:bg-card-elevated border-white/10 hover:border-accent/30"
+                  : "bg-card/50 border-white/5 opacity-50 cursor-not-allowed"
               )}
             >
-              {/* Sold Out Overlay */}
-              {isSoldOut && (
-                <div className="absolute inset-0 bg-destructive/10 flex items-center justify-center z-10">
-                  <div className="bg-destructive/90 text-destructive-foreground px-3 py-1 rounded-lg transform -rotate-12 flex items-center gap-2">
-                    <Ban className="w-4 h-4" />
-                    <span className="text-xs font-bold">SOLD OUT ({daysLeft}d)</span>
-                  </div>
-                </div>
-              )}
-              
               <div className={cn(
                 "w-12 h-12 rounded-lg flex items-center justify-center mb-3",
-                isSoldOut
-                  ? "bg-muted text-muted-foreground"
-                  : canAfford 
-                    ? "bg-accent/20 text-accent" 
-                    : "bg-muted text-muted-foreground"
+                canAfford ? "bg-accent/20 text-accent" : "bg-muted text-muted-foreground"
               )}>
                 {reward.icon}
               </div>

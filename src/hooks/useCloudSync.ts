@@ -51,7 +51,6 @@ export const useCloudSync = (
           habits: (data.habits as unknown as GameState['habits']) || [],
           systemMessages: (data.system_messages as unknown as GameState['systemMessages']) || [],
           totalQuestsCompleted: data.total_quests_completed,
-          lastQuestResetDate: new Date().toISOString().split('T')[0],
         };
         return cloudState;
       }

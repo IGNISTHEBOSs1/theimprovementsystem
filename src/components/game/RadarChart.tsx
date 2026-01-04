@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Radar,
@@ -10,20 +9,10 @@ import {
   Tooltip,
 } from 'recharts';
 import { PlayerStats } from '@/hooks/useGameState';
-import { Button } from '@/components/ui/button';
-import { Timer, Clock, Calendar, CalendarDays, Infinity } from 'lucide-react';
 
 interface RadarChartProps {
   stats: PlayerStats;
-  pomodoroStats?: {
-    totalSessions: number;
-    totalMinutes: number;
-    todaySessions: number;
-    todayMinutes: number;
-  };
 }
-
-type TimeFilter = 'today' | 'month' | 'year' | 'all';
 
 const statLabels: Record<keyof PlayerStats, { full: string; jp: string }> = {
   FIT: { full: 'Fitness', jp: 'フィットネス' },
@@ -34,18 +23,7 @@ const statLabels: Record<keyof PlayerStats, { full: string; jp: string }> = {
   FIN: { full: 'Finance', jp: '財務' },
 };
 
-const timeFilters: { key: TimeFilter; label: string; icon: React.ReactNode }[] = [
-  { key: 'today', label: 'Today', icon: <Clock className="w-3 h-3" /> },
-  { key: 'month', label: 'Month', icon: <Calendar className="w-3 h-3" /> },
-  { key: 'year', label: 'Year', icon: <CalendarDays className="w-3 h-3" /> },
-  { key: 'all', label: 'All Time', icon: <Infinity className="w-3 h-3" /> },
-];
-
-export const RadarChartComponent = ({ stats, pomodoroStats }: RadarChartProps) => {
-  const [activeFilter, setActiveFilter] = useState<TimeFilter>('all');
-
-  // For now, we show the same stats for all filters
-  // In a real implementation, you'd fetch historical data
+export const RadarChartComponent = ({ stats }: RadarChartProps) => {
   const data = Object.entries(stats).map(([key, value]) => ({
     stat: key,
     value,
@@ -85,26 +63,6 @@ export const RadarChartComponent = ({ stats, pomodoroStats }: RadarChartProps) =
           </span>
           <p className="text-xs text-muted-foreground">AVG</p>
         </div>
-      </div>
-
-      {/* Time Filter Tabs */}
-      <div className="flex gap-1 p-1 bg-muted/30 rounded-lg mb-4">
-        {timeFilters.map((filter) => (
-          <Button
-            key={filter.key}
-            variant="ghost"
-            size="sm"
-            onClick={() => setActiveFilter(filter.key)}
-            className={`flex-1 text-xs gap-1 ${
-              activeFilter === filter.key
-                ? 'bg-primary/20 text-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {filter.icon}
-            {filter.label}
-          </Button>
-        ))}
       </div>
 
       <div className="h-[280px] w-full">
@@ -160,32 +118,6 @@ export const RadarChartComponent = ({ stats, pomodoroStats }: RadarChartProps) =
           </div>
         ))}
       </div>
-
-      {/* Pomodoro Stats Section */}
-      {pomodoroStats && (
-        <div className="mt-4 pt-4 border-t border-white/10">
-          <div className="flex items-center gap-2 mb-3">
-            <Timer className="w-4 h-4 text-secondary" />
-            <span className="text-sm font-semibold text-foreground">Focus Stats</span>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-muted/30 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground">Today</p>
-              <p className="font-display font-bold text-foreground">
-                {pomodoroStats.todaySessions} <span className="text-xs text-muted-foreground">sessions</span>
-              </p>
-              <p className="text-xs text-muted-foreground">{pomodoroStats.todayMinutes} mins</p>
-            </div>
-            <div className="bg-muted/30 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground">All Time</p>
-              <p className="font-display font-bold text-foreground">
-                {pomodoroStats.totalSessions} <span className="text-xs text-muted-foreground">sessions</span>
-              </p>
-              <p className="text-xs text-muted-foreground">{pomodoroStats.totalMinutes} mins</p>
-            </div>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 };

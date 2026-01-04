@@ -30,10 +30,6 @@ import { AccountDropdown } from '@/components/game/AccountDropdown';
 import { EditProfileModal } from '@/components/game/EditProfileModal';
 import { DailyLoginBonus } from '@/components/game/DailyLoginBonus';
 import { AIAssistant } from '@/components/game/AIAssistant';
-import { FloatingAIButton } from '@/components/game/FloatingAIButton';
-import { MotivationQuote } from '@/components/game/MotivationQuote';
-import { StreakFire } from '@/components/game/StreakFire';
-import { SystemGifts } from '@/components/game/SystemGifts';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
