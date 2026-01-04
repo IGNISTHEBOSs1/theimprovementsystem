@@ -9,6 +9,7 @@ export interface Quest {
   timeFrame: string;
   completed: boolean;
   failed: boolean;
+  createdAt: string;
 }
 
 export interface Habit {
@@ -19,6 +20,7 @@ export interface Habit {
   loseXp: number;
   streak: number;
   completedDays: boolean[];
+  deletionDeniedUntil?: string;
 }
 
 export interface PlayerStats {
@@ -49,42 +51,34 @@ export interface GameState {
   habits: Habit[];
   systemMessages: SystemMessage[];
   totalQuestsCompleted: number;
+  lastQuestResetDate: string;
 }
 
-const defaultState: GameState = {
-  username: 'Adam',
-  level: 11,
-  rank: 'C-Rank Hunter',
-  currentXp: 790,
-  maxXp: 1500,
-  credits: 245,
+const getTodayDateString = () => new Date().toISOString().split('T')[0];
+
+// Fresh account state for new users
+const freshAccountState: GameState = {
+  username: 'Hunter',
+  level: 1,
+  rank: 'E-Rank Hunter',
+  currentXp: 0,
+  maxXp: 1000,
+  credits: 100,
   stats: {
-    FIT: 72,
-    SOC: 45,
-    INT: 88,
-    DIS: 65,
-    FOC: 78,
-    FIN: 52,
+    FIT: 50,
+    SOC: 50,
+    INT: 50,
+    DIS: 50,
+    FOC: 50,
+    FIN: 50,
   },
-  quests: [
-    { id: '1', title: 'Complete morning routine', difficulty: 'Easy', xpReward: 25, creditReward: 5, timeFrame: '6:00 - 8:00 AM', completed: false, failed: false },
-    { id: '2', title: 'Deep work session (2h)', difficulty: 'Normal', xpReward: 75, creditReward: 15, timeFrame: '9:00 - 11:00 AM', completed: false, failed: false },
-    { id: '3', title: 'Study new skill', difficulty: 'Normal', xpReward: 50, creditReward: 10, timeFrame: '2:00 - 3:30 PM', completed: true, failed: false },
-    { id: '4', title: 'Workout session', difficulty: 'Hard', xpReward: 100, creditReward: 20, timeFrame: '5:00 - 6:30 PM', completed: false, failed: false },
-    { id: '5', title: 'Read 30 pages', difficulty: 'Easy', xpReward: 30, creditReward: 5, timeFrame: 'Evening', completed: false, failed: false },
-  ],
-  habits: [
-    { id: '1', name: 'Touch Grass', icon: '🌿', winXp: 15, loseXp: 10, streak: 7, completedDays: [true, true, true, false, true, true, true, true, false, true, true, true, true, true, false, true, true, true, true, true, true, false, true, true, true, true, true, true, false, true] },
-    { id: '2', name: 'Workout', icon: '💪', winXp: 25, loseXp: 20, streak: 12, completedDays: [true, true, true, true, true, true, false, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, true, true, true, true, true] },
-    { id: '3', name: 'Cold Shower', icon: '🧊', winXp: 20, loseXp: 15, streak: 5, completedDays: [false, true, true, false, true, true, true, false, false, true, true, true, true, false, true, true, true, false, true, true, true, true, true, false, true, true, true, true, true, true] },
-    { id: '4', name: 'No Social Media', icon: '📵', winXp: 30, loseXp: 25, streak: 3, completedDays: [true, false, true, false, true, false, true, true, false, true, false, true, true, false, true, true, false, true, true, true, false, true, true, false, true, true, true, false, true, true] },
-  ],
+  quests: [],
+  habits: [],
   systemMessages: [
-    { id: '1', type: 'streak', message: '🔥 7-day streak on Touch Grass!', timestamp: new Date() },
-    { id: '2', type: 'boost', message: '⚡ System Gift: 1.2x XP boost active', timestamp: new Date() },
-    { id: '3', type: 'warning', message: '⚠️ 2 quests incomplete today', timestamp: new Date() },
+    { id: '1', type: 'achievement', message: '🎉 Welcome to The System, Hunter!', timestamp: new Date() },
   ],
-  totalQuestsCompleted: 847,
+  totalQuestsCompleted: 0,
+  lastQuestResetDate: getTodayDateString(),
 };
 
 const STORAGE_KEY = 'the-system-game-state';
@@ -95,15 +89,38 @@ export const useGameState = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        return { ...defaultState, ...parsed };
+        // Check if quests need to be reset (new day)
+        const today = getTodayDateString();
+        if (parsed.lastQuestResetDate !== today) {
+          // Reset quest completion status for new day
+          return {
+            ...freshAccountState,
+            ...parsed,
+            quests: parsed.quests?.map((q: Quest) => ({ ...q, completed: false, failed: false })) || [],
+            lastQuestResetDate: today,
+          };
+        }
+        return { ...freshAccountState, ...parsed };
       } catch {
-        return defaultState;
+        return freshAccountState;
       }
     }
-    return defaultState;
+    return freshAccountState;
   });
 
   const [showLevelUp, setShowLevelUp] = useState(false);
+
+  // Check for daily reset
+  useEffect(() => {
+    const today = getTodayDateString();
+    if (gameState.lastQuestResetDate !== today) {
+      setGameState(prev => ({
+        ...prev,
+        quests: prev.quests.map(q => ({ ...q, completed: false, failed: false })),
+        lastQuestResetDate: today,
+      }));
+    }
+  }, [gameState.lastQuestResetDate]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
@@ -114,6 +131,11 @@ export const useGameState = () => {
       let newXp = prev.currentXp + amount;
       let newLevel = prev.level;
       let newMaxXp = prev.maxXp;
+
+      // Handle negative XP
+      if (newXp < 0) {
+        newXp = 0;
+      }
 
       while (newXp >= newMaxXp) {
         newXp -= newMaxXp;
@@ -145,7 +167,7 @@ export const useGameState = () => {
   const addCredits = useCallback((amount: number) => {
     setGameState(prev => ({
       ...prev,
-      credits: prev.credits + amount,
+      credits: Math.max(0, prev.credits + amount),
     }));
   }, []);
 
@@ -180,17 +202,34 @@ export const useGameState = () => {
   }, []);
 
   const toggleHabitDay = useCallback((habitId: string, dayIndex: number) => {
-    setGameState(prev => ({
-      ...prev,
-      habits: prev.habits.map(h => {
-        if (h.id === habitId) {
-          const newCompletedDays = [...h.completedDays];
-          newCompletedDays[dayIndex] = !newCompletedDays[dayIndex];
-          return { ...h, completedDays: newCompletedDays };
-        }
-        return h;
-      }),
-    }));
+    setGameState(prev => {
+      const habit = prev.habits.find(h => h.id === habitId);
+      if (!habit) return prev;
+
+      const wasCompleted = habit.completedDays[dayIndex];
+      const xpChange = wasCompleted ? -habit.winXp : habit.winXp;
+
+      return {
+        ...prev,
+        habits: prev.habits.map(h => {
+          if (h.id === habitId) {
+            const newCompletedDays = [...h.completedDays];
+            newCompletedDays[dayIndex] = !newCompletedDays[dayIndex];
+            
+            // Calculate streak
+            let streak = 0;
+            for (let i = newCompletedDays.length - 1; i >= 0; i--) {
+              if (newCompletedDays[i]) streak++;
+              else break;
+            }
+            
+            return { ...h, completedDays: newCompletedDays, streak };
+          }
+          return h;
+        }),
+        currentXp: Math.max(0, prev.currentXp + xpChange),
+      };
+    });
   }, []);
 
   const spendCredits = useCallback((amount: number) => {
@@ -235,6 +274,55 @@ export const useGameState = () => {
     }));
   }, []);
 
+  const addQuest = useCallback((quest: Omit<Quest, 'id' | 'completed' | 'failed' | 'createdAt'>) => {
+    setGameState(prev => ({
+      ...prev,
+      quests: [
+        ...prev.quests,
+        {
+          ...quest,
+          id: Date.now().toString(),
+          completed: false,
+          failed: false,
+          createdAt: new Date().toISOString(),
+        },
+      ],
+    }));
+  }, []);
+
+  const deleteQuest = useCallback((questId: string) => {
+    setGameState(prev => ({
+      ...prev,
+      quests: prev.quests.filter(q => q.id !== questId),
+    }));
+  }, []);
+
+  const addSystemMessage = useCallback((message: Omit<SystemMessage, 'id' | 'timestamp'>) => {
+    setGameState(prev => ({
+      ...prev,
+      systemMessages: [
+        { ...message, id: Date.now().toString(), timestamp: new Date() },
+        ...prev.systemMessages.slice(0, 9),
+      ],
+    }));
+  }, []);
+
+  // Calculate if all today's tasks and habits are complete (for streak fire)
+  const isTodayComplete = useCallback(() => {
+    const allQuestsComplete = gameState.quests.length > 0 && 
+      gameState.quests.every(q => q.completed || q.failed);
+    const todayIndex = gameState.habits[0]?.completedDays.length - 1 || 29;
+    const allHabitsComplete = gameState.habits.length > 0 &&
+      gameState.habits.every(h => h.completedDays[todayIndex]);
+    return allQuestsComplete && allHabitsComplete;
+  }, [gameState.quests, gameState.habits]);
+
+  // Get current streak (consecutive days with all tasks complete)
+  const getCurrentStreak = useCallback(() => {
+    // Simplified: just return the longest habit streak
+    return Math.max(0, ...gameState.habits.map(h => h.streak));
+  }, [gameState.habits]);
+
   return {
     gameState,
     setGameState,
@@ -248,5 +336,10 @@ export const useGameState = () => {
     showLevelUp,
     addHabit,
     deleteHabit,
+    addQuest,
+    deleteQuest,
+    addSystemMessage,
+    isTodayComplete,
+    getCurrentStreak,
   };
 };
