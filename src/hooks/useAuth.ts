@@ -92,18 +92,15 @@ export const useAuth = () => {
     return { data, error };
   };
 
-  const signInWithGoogle = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`
-      }
-    });
-    
-    return { data, error };
-  };
-
   const signOut = async () => {
+    // Clear local storage on sign out
+    localStorage.removeItem('the-system-game-state');
+    localStorage.removeItem('the-system-achievements');
+    localStorage.removeItem('pomodoro-state');
+    localStorage.removeItem('pomodoro-stats');
+    localStorage.removeItem('the-system-rewards-sold-out');
+    localStorage.removeItem('the-system-gifts');
+    
     const { error } = await supabase.auth.signOut();
     return { error };
   };
@@ -135,6 +132,15 @@ export const useAuth = () => {
   const resetGameProgress = async () => {
     if (!user) return { error: new Error('Not authenticated') };
     
+    // Clear local storage first
+    localStorage.removeItem('the-system-game-state');
+    localStorage.removeItem('the-system-achievements');
+    localStorage.removeItem('pomodoro-state');
+    localStorage.removeItem('pomodoro-stats');
+    localStorage.removeItem('the-system-rewards-sold-out');
+    localStorage.removeItem('the-system-gifts');
+    
+    // Reset database state
     const { error } = await supabase
       .from('game_state')
       .update({
@@ -152,6 +158,11 @@ export const useAuth = () => {
       })
       .eq('user_id', user.id);
     
+    // Force page reload to reset all state
+    if (!error) {
+      window.location.reload();
+    }
+    
     return { error };
   };
 
@@ -162,7 +173,6 @@ export const useAuth = () => {
     loading,
     signUp,
     signIn,
-    signInWithGoogle,
     signOut,
     updateProfile,
     deleteAccount,

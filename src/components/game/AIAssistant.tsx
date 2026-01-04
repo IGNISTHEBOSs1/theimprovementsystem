@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { GameState } from '@/hooks/useGameState';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -15,18 +17,19 @@ interface Message {
 interface AIAssistantProps {
   isOpen: boolean;
   onClose: () => void;
+  gameState?: GameState;
 }
 
 const QUICK_PROMPTS = [
-  { label: '📋 Create Daily Tasks', prompt: 'Create 5 realistic daily tasks for self-improvement' },
-  { label: '🎯 New Habit', prompt: 'Help me create a new habit for better discipline' },
-  { label: '💪 Workout Plan', prompt: 'Give me a quick 30-minute workout routine' },
-  { label: '🧠 Productivity Tips', prompt: 'What are 3 actionable tips to improve focus today?' },
+  { label: '📋 Create Daily Tasks', prompt: 'Create 5 realistic daily tasks for me based on my current progress' },
+  { label: '🎯 New Habit', prompt: 'I want to start a new habit for better discipline. What do you suggest?' },
+  { label: '💪 Workout Plan', prompt: 'Give me a quick 30-minute workout routine I can do today' },
+  { label: '🔮 My Future Plans', prompt: 'Based on my progress and habits, what should be my future plans?' },
 ];
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
 
-export const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
+export const AIAssistant = ({ isOpen, onClose, gameState }: AIAssistantProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -69,6 +72,16 @@ export const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
         body: JSON.stringify({
           messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
           type: 'chat',
+          gameContext: gameState ? {
+            level: gameState.level,
+            rank: gameState.rank,
+            currentXp: gameState.currentXp,
+            maxXp: gameState.maxXp,
+            credits: gameState.credits,
+            stats: gameState.stats,
+            habits: gameState.habits,
+            quests: gameState.quests,
+          } : undefined,
         }),
       });
 
@@ -132,7 +145,6 @@ export const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
         content: `I apologize, but I encountered an issue: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again!`,
       };
       setMessages(prev => {
-        // Remove empty assistant message if exists
         const filtered = prev.filter(m => m.role !== 'assistant' || m.content.trim() !== '');
         return [...filtered, errorMsg];
       });
@@ -168,8 +180,8 @@ export const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-foreground">The System AI</h3>
-                  <p className="text-xs text-muted-foreground">Your improvement assistant</p>
+                  <h3 className="font-display font-bold text-foreground">System Assistant</h3>
+                  <p className="text-xs text-muted-foreground">AI-powered improvement coach</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -232,7 +244,25 @@ export const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
                             : 'bg-muted/50 text-foreground'
                         )}
                       >
-                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                        {msg.role === 'assistant' ? (
+                          <div className="prose prose-sm prose-invert max-w-none">
+                            <ReactMarkdown
+                              components={{
+                                h1: ({ children }) => <h1 className="text-lg font-bold text-foreground mb-2">{children}</h1>,
+                                h2: ({ children }) => <h2 className="text-base font-bold text-foreground mb-2">{children}</h2>,
+                                h3: ({ children }) => <h3 className="text-sm font-bold text-foreground mb-1">{children}</h3>,
+                                strong: ({ children }) => <strong className="font-bold text-primary">{children}</strong>,
+                                p: ({ children }) => <p className="text-sm mb-2 last:mb-0">{children}</p>,
+                                ul: ({ children }) => <ul className="list-disc list-inside text-sm space-y-1 mb-2">{children}</ul>,
+                                li: ({ children }) => <li className="text-sm">{children}</li>,
+                              }}
+                            >
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                        )}
                       </div>
                     </motion.div>
                   ))}
