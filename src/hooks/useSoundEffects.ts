@@ -21,6 +21,30 @@ export const useSoundEffects = () => {
     return audioContextRef.current;
   }, []);
 
+  const playTap = useCallback(() => {
+    if (!soundEnabled) return;
+    
+    const ctx = getAudioContext();
+    const now = ctx.currentTime;
+    
+    // Soft tap sound - short and subtle
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(880, now + 0.02);
+    
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+    
+    osc.start(now);
+    osc.stop(now + 0.06);
+  }, [soundEnabled, getAudioContext]);
+
   const playQuestComplete = useCallback(() => {
     if (!soundEnabled) return;
     
@@ -207,6 +231,7 @@ export const useSoundEffects = () => {
     playQuestComplete,
     playLevelUp,
     playClick,
+    playTap,
     playError,
     playAchievement,
   };

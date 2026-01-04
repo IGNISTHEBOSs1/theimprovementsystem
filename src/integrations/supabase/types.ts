@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      game_state: {
+        Row: {
+          achievements: Json
+          created_at: string
+          credits: number
+          current_xp: number
+          habits: Json
+          id: string
+          level: number
+          max_xp: number
+          quests: Json
+          rank: string
+          stats: Json
+          system_messages: Json
+          total_quests_completed: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievements?: Json
+          created_at?: string
+          credits?: number
+          current_xp?: number
+          habits?: Json
+          id?: string
+          level?: number
+          max_xp?: number
+          quests?: Json
+          rank?: string
+          stats?: Json
+          system_messages?: Json
+          total_quests_completed?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievements?: Json
+          created_at?: string
+          credits?: number
+          current_xp?: number
+          habits?: Json
+          id?: string
+          level?: number
+          max_xp?: number
+          quests?: Json
+          rank?: string
+          stats?: Json
+          system_messages?: Json
+          total_quests_completed?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_id: string
+          created_at: string
+          date_of_birth: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          avatar_id?: string
+          created_at?: string
+          date_of_birth?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          username?: string
+        }
+        Update: {
+          avatar_id?: string
+          created_at?: string
+          date_of_birth?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
