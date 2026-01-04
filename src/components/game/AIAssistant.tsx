@@ -1,0 +1,285 @@
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Bot, Send, X, Sparkles, Loader2, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
+
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+interface AIAssistantProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const QUICK_PROMPTS = [
+  { label: '📋 Create Daily Tasks', prompt: 'Create 5 realistic daily tasks for self-improvement' },
+  { label: '🎯 New Habit', prompt: 'Help me create a new habit for better discipline' },
+  { label: '💪 Workout Plan', prompt: 'Give me a quick 30-minute workout routine' },
+  { label: '🧠 Productivity Tips', prompt: 'What are 3 actionable tips to improve focus today?' },
+];
+
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
+
+export const AIAssistant = ({ isOpen, onClose }: AIAssistantProps) => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const sendMessage = async (messageText: string) => {
+    if (!messageText.trim() || isLoading) return;
+
+    const userMsg: Message = { 
+      id: Date.now().toString(), 
+      role: 'user', 
+      content: messageText.trim() 
+    };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setIsLoading(true);
+
+    let assistantContent = '';
+
+    try {
+      const response = await fetch(CHAT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
+          type: 'chat',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to get response');
+      }
+
+      if (!response.body) throw new Error('No response body');
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = '';
+      const assistantMsgId = (Date.now() + 1).toString();
+
+      // Add empty assistant message
+      setMessages(prev => [...prev, { id: assistantMsgId, role: 'assistant', content: '' }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (line.startsWith(':') || line.trim() === '') continue;
+          if (!line.startsWith('data: ')) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              assistantContent += content;
+              setMessages(prev => 
+                prev.map(m => 
+                  m.id === assistantMsgId 
+                    ? { ...m, content: assistantContent } 
+                    : m
+                )
+              );
+            }
+          } catch {
+            textBuffer = line + '\n' + textBuffer;
+            break;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('AI chat error:', error);
+      const errorMsg: Message = {
+        id: (Date.now() + 2).toString(),
+        role: 'assistant',
+        content: `I apologize, but I encountered an issue: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again!`,
+      };
+      setMessages(prev => {
+        // Remove empty assistant message if exists
+        const filtered = prev.filter(m => m.role !== 'assistant' || m.content.trim() !== '');
+        return [...filtered, errorMsg];
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const clearChat = () => {
+    setMessages([]);
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-background/80 backdrop-blur-sm"
+        >
+          <motion.div
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="relative w-full sm:max-w-2xl h-[85vh] sm:h-[600px] glass rounded-t-2xl sm:rounded-2xl border border-primary/30 overflow-hidden flex flex-col"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <Bot className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-foreground">The System AI</h3>
+                  <p className="text-xs text-muted-foreground">Your improvement assistant</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {messages.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={clearChat}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
+                <Button variant="ghost" size="icon" onClick={onClose}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Messages */}
+            <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+              {messages.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center px-4">
+                  <Sparkles className="w-12 h-12 text-primary mb-4" />
+                  <h4 className="font-display text-lg font-bold mb-2">How can I help you level up?</h4>
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Ask me to create tasks, habits, or get self-improvement advice!
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {QUICK_PROMPTS.map((qp) => (
+                      <Button
+                        key={qp.label}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => sendMessage(qp.prompt)}
+                        className="text-xs"
+                      >
+                        {qp.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {messages.map((msg) => (
+                    <motion.div
+                      key={msg.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={cn(
+                        "flex",
+                        msg.role === 'user' ? 'justify-end' : 'justify-start'
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "max-w-[85%] rounded-2xl px-4 py-3",
+                          msg.role === 'user'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted/50 text-foreground'
+                        )}
+                      >
+                        <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                  {isLoading && messages[messages.length - 1]?.role === 'user' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex justify-start"
+                    >
+                      <div className="bg-muted/50 rounded-2xl px-4 py-3">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              )}
+            </ScrollArea>
+
+            {/* Input */}
+            <div className="p-4 border-t border-white/10">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  sendMessage(input);
+                }}
+                className="flex gap-2"
+              >
+                <Input
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask about tasks, habits, workouts..."
+                  className="flex-1"
+                  disabled={isLoading}
+                />
+                <Button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <Send className="w-4 h-4" />
+                </Button>
+              </form>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
