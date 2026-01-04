@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Zap, Shield, Menu, X, Coins, Trophy, LogIn, Loader2, Bot } from 'lucide-react';
+import { Zap, Shield, Menu, X, Coins, Trophy, LogIn, Loader2 } from 'lucide-react';
 import { useGameState } from '@/hooks/useGameState';
 import { useTheme } from '@/hooks/useTheme';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useAuth } from '@/hooks/useAuth';
-import { useCloudSync } from '@/hooks/useCloudSync';
-import { useDailyLoginBonus } from '@/hooks/useDailyLoginBonus';
 import { PomodoroProvider } from '@/hooks/usePomodoroTimer';
 import { PlayerCard } from '@/components/game/PlayerCard';
 import { RadarChartComponent } from '@/components/game/RadarChart';
@@ -16,7 +14,6 @@ import { QuestCard } from '@/components/game/QuestCard';
 import { SystemLog } from '@/components/game/SystemLog';
 import { NavigationHub } from '@/components/game/NavigationHub';
 import { HabitHeatmap } from '@/components/game/HabitHeatmap';
-import { HabitManager } from '@/components/game/HabitManager';
 import { PomodoroTimerFull } from '@/components/game/PomodoroTimerFull';
 import { PomodoroMiniPlayer } from '@/components/game/PomodoroMiniPlayer';
 import { RewardCenter } from '@/components/game/RewardCenter';
@@ -28,8 +25,6 @@ import { AchievementUnlockNotification } from '@/components/game/AchievementUnlo
 import { AchievementsPanel } from '@/components/game/AchievementsPanel';
 import { AccountDropdown } from '@/components/game/AccountDropdown';
 import { EditProfileModal } from '@/components/game/EditProfileModal';
-import { DailyLoginBonus } from '@/components/game/DailyLoginBonus';
-import { AIAssistant } from '@/components/game/AIAssistant';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
@@ -37,7 +32,6 @@ const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showMiniPlayer, setShowMiniPlayer] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
-  const [showAIAssistant, setShowAIAssistant] = useState(false);
   const { accent, setAccent } = useTheme();
   const { soundEnabled, toggleSound, playQuestComplete, playLevelUp, playError, playAchievement, playTap } = useSoundEffects();
   const { user, profile, loading: authLoading } = useAuth();
@@ -45,25 +39,15 @@ const Index = () => {
   
   const {
     gameState,
-    setGameState,
     completeQuest,
     failQuest,
     toggleHabitDay,
     spendCredits,
     showLevelUp,
     addXp,
-    addCredits,
-    addHabit,
-    deleteHabit,
   } = useGameState();
 
-  // Cloud sync for logged-in users
-  useCloudSync(gameState, setGameState);
-
-  // Daily login bonus
-  const { bonusData, showBonusModal, dismissBonus } = useDailyLoginBonus();
-
-  const {
+  const { 
     achievements, 
     newlyUnlocked, 
     dismissNotification, 
@@ -123,16 +107,6 @@ const Index = () => {
     setActiveSection(section);
   };
 
-  // Claim daily login bonus
-  const handleClaimBonus = () => {
-    if (bonusData?.isNewDay) {
-      addXp(bonusData.bonusXp);
-      addCredits(bonusData.bonusCredits);
-      playAchievement();
-    }
-    dismissBonus();
-  };
-
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -179,22 +153,6 @@ const Index = () => {
           />
         )}
 
-        {/* Daily Login Bonus Modal */}
-        {bonusData && user && (
-          <DailyLoginBonus
-            isVisible={showBonusModal && bonusData.isNewDay}
-            bonusData={bonusData}
-            onClaim={handleClaimBonus}
-            onDismiss={dismissBonus}
-          />
-        )}
-
-        {/* AI Assistant */}
-        <AIAssistant 
-          isOpen={showAIAssistant} 
-          onClose={() => setShowAIAssistant(false)} 
-        />
-
         {/* Header */}
         <header className="sticky top-0 z-40 glass-strong border-b border-white/5">
           <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -235,20 +193,6 @@ const Index = () => {
                 <Trophy className="w-4 h-4 text-primary" />
                 <span className="text-sm font-bold text-primary">{unlockedCount}/{totalCount}</span>
               </div>
-              
-              {/* AI Assistant Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  playTap();
-                  setShowAIAssistant(true);
-                }}
-                className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 hover:from-primary/30 hover:to-accent/30 border border-primary/20"
-              >
-                <Bot className="w-5 h-5 text-primary" />
-              </Button>
-              
               <div className="h-8 w-px bg-border" />
               
               {/* Account Section */}
@@ -312,18 +256,6 @@ const Index = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        playTap();
-                        setShowAIAssistant(true);
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20"
-                    >
-                      <Bot className="w-4 h-4 text-primary" />
-                    </Button>
                     <SoundToggle enabled={soundEnabled} onToggle={() => { playTap(); toggleSound(); }} />
                     <ThemeSwitcher currentAccent={accent} onAccentChange={(a) => { playTap(); setAccent(a); }} />
                   </div>
@@ -443,21 +375,12 @@ const Index = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="font-display text-2xl font-bold text-foreground">Habit Tracking</h2>
-                    <p className="text-muted-foreground font-jp">習慣トラッキング</p>
-                  </div>
+                <div className="mb-6">
+                  <h2 className="font-display text-2xl font-bold text-foreground">Habit Tracking</h2>
+                  <p className="text-muted-foreground font-jp">習慣トラッキング</p>
                 </div>
 
-                {/* Habit Manager */}
-                <HabitManager
-                  habits={gameState.habits}
-                  onAddHabit={addHabit}
-                  onDeleteHabit={deleteHabit}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {gameState.habits.map((habit, index) => (
                     <HabitHeatmap
                       key={habit.id}
@@ -467,13 +390,6 @@ const Index = () => {
                     />
                   ))}
                 </div>
-
-                {gameState.habits.length === 0 && (
-                  <div className="text-center py-12 glass rounded-2xl border border-white/10">
-                    <p className="text-muted-foreground mb-2">No habits yet!</p>
-                    <p className="text-sm text-muted-foreground">Click "New Habit" to start tracking your consistency.</p>
-                  </div>
-                )}
               </motion.div>
             )}
 

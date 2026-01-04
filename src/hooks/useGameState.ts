@@ -213,28 +213,6 @@ export const useGameState = () => {
     }));
   }, []);
 
-  const addHabit = useCallback((habit: Omit<Habit, 'id' | 'streak' | 'completedDays'>) => {
-    setGameState(prev => ({
-      ...prev,
-      habits: [
-        ...prev.habits,
-        {
-          ...habit,
-          id: Date.now().toString(),
-          streak: 0,
-          completedDays: Array(30).fill(false),
-        },
-      ],
-    }));
-  }, []);
-
-  const deleteHabit = useCallback((habitId: string) => {
-    setGameState(prev => ({
-      ...prev,
-      habits: prev.habits.filter(h => h.id !== habitId),
-    }));
-  }, []);
-
   return {
     gameState,
     setGameState,
@@ -246,7 +224,5 @@ export const useGameState = () => {
     spendCredits,
     updateStat,
     showLevelUp,
-    addHabit,
-    deleteHabit,
   };
 };
