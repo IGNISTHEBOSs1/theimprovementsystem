@@ -15,13 +15,13 @@ const passwordSchema = z.string().min(6, 'Password must be at least 6 characters
 const usernameSchema = z.string().min(2, 'Username must be at least 2 characters').max(20, 'Username must be 20 characters or less');
 
 const Auth = () => {
-  const [mode, setMode] = useState<'signin' | 'signup'>('signin');
+  const [mode, setMode] = useState<'signin' | 'signup' | 'reset'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, user, loading: authLoading } = useAuth();
+  const { signIn, signUp, resetPassword, user, loading: authLoading } = useAuth();
   const { playClick, playQuestComplete, playError } = useSoundEffects();
   const navigate = useNavigate();
 
@@ -67,6 +67,32 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     playClick();
+
+    if (mode === 'reset') {
+      try {
+        emailSchema.parse(email);
+      } catch (err) {
+        if (err instanceof z.ZodError) {
+          toast({ title: 'Invalid email', description: err.errors[0].message, variant: 'destructive' });
+          playError();
+          return;
+        }
+      }
+      
+      setLoading(true);
+      const { error } = await resetPassword(email);
+      setLoading(false);
+      
+      if (error) {
+        playError();
+        toast({ title: 'Reset failed', description: error.message, variant: 'destructive' });
+      } else {
+        playQuestComplete();
+        toast({ title: 'Check your email!', description: 'Password reset instructions have been sent to your email.' });
+        setMode('signin');
+      }
+      return;
+    }
 
     if (!validateInputs()) {
       playError();
@@ -180,6 +206,15 @@ const Auth = () => {
             </button>
           </div>
 
+          {/* Password Reset Mode Header */}
+          {mode === 'reset' && (
+            <div className="p-4 bg-primary/5 border-b border-white/5">
+              <p className="text-sm text-muted-foreground text-center">
+                Enter your email to receive password reset instructions
+              </p>
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             {mode === 'signup' && (
@@ -219,29 +254,44 @@ const Auth = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm text-muted-foreground">
-                Password
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="pl-10 pr-10 bg-muted/50 border-white/10 focus:border-primary"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+            {mode !== 'reset' && (
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm text-muted-foreground">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pl-10 pr-10 bg-muted/50 border-white/10 focus:border-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
+
+            {mode === 'signin' && (
+              <button
+                type="button"
+                onClick={() => {
+                  playClick();
+                  setMode('reset');
+                }}
+                className="text-sm text-primary hover:underline w-full text-right"
+              >
+                Forgot password?
+              </button>
+            )}
 
             <Button
               type="submit"
@@ -252,10 +302,25 @@ const Auth = () => {
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : mode === 'signin' ? (
                 'Enter The System'
+              ) : mode === 'reset' ? (
+                'Send Reset Link'
               ) : (
                 'Awaken Your Power'
               )}
             </Button>
+
+            {mode === 'reset' && (
+              <button
+                type="button"
+                onClick={() => {
+                  playClick();
+                  setMode('signin');
+                }}
+                className="text-sm text-muted-foreground hover:text-foreground w-full text-center"
+              >
+                ← Back to Sign In
+              </button>
+            )}
           </form>
         </div>
 

@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Send, X, Sparkles, Loader2, Trash2 } from 'lucide-react';
+import { Bot, Send, X, Sparkles, Loader2, Trash2, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { GameState } from '@/hooks/useGameState';
 import ReactMarkdown from 'react-markdown';
+import { toast } from 'sonner';
 
 interface Message {
   id: string;
@@ -18,6 +19,8 @@ interface AIAssistantProps {
   isOpen: boolean;
   onClose: () => void;
   gameState?: GameState;
+  onAddQuest?: (quest: { title: string; difficulty: 'Easy' | 'Normal' | 'Hard' | 'Urgent'; xpReward: number; creditReward: number; timeFrame: string }) => void;
+  onAddHabit?: (habit: { name: string; icon: string; winXp: number; loseXp: number }) => void;
 }
 
 const QUICK_PROMPTS = [
@@ -29,7 +32,34 @@ const QUICK_PROMPTS = [
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
 
-export const AIAssistant = ({ isOpen, onClose, gameState }: AIAssistantProps) => {
+// Parse AI response for action blocks
+const parseAIActions = (content: string) => {
+  const questMatch = content.match(/```quest\s*([\s\S]*?)\s*```/);
+  const habitMatch = content.match(/```habit\s*([\s\S]*?)\s*```/);
+  
+  let quest = null;
+  let habit = null;
+  
+  if (questMatch) {
+    try {
+      quest = JSON.parse(questMatch[1]);
+    } catch (e) {
+      console.error('Failed to parse quest JSON:', e);
+    }
+  }
+  
+  if (habitMatch) {
+    try {
+      habit = JSON.parse(habitMatch[1]);
+    } catch (e) {
+      console.error('Failed to parse habit JSON:', e);
+    }
+  }
+  
+  return { quest, habit };
+};
+
+export const AIAssistant = ({ isOpen, onClose, gameState, onAddQuest, onAddHabit }: AIAssistantProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -136,6 +166,29 @@ export const AIAssistant = ({ isOpen, onClose, gameState }: AIAssistantProps) =>
             break;
           }
         }
+      }
+      // Check for action blocks in the final content
+      const actions = parseAIActions(assistantContent);
+      if (actions.quest && onAddQuest) {
+        onAddQuest({
+          title: actions.quest.title,
+          difficulty: actions.quest.difficulty || 'Normal',
+          xpReward: actions.quest.xpReward || 30,
+          creditReward: actions.quest.creditReward || 10,
+          timeFrame: actions.quest.timeFrame || 'Today',
+        });
+        toast.success('Quest added!', { description: actions.quest.title });
+      }
+      if (actions.habit && onAddHabit) {
+        const emoji = actions.habit.name.match(/^\p{Emoji}/u)?.[0] || '✨';
+        const cleanName = actions.habit.name.replace(/^\p{Emoji}\s*/u, '');
+        onAddHabit({
+          name: `${emoji} ${cleanName}`,
+          icon: emoji,
+          winXp: actions.habit.winXp || 15,
+          loseXp: actions.habit.loseXp || 10,
+        });
+        toast.success('Habit added!', { description: actions.habit.name });
       }
     } catch (error) {
       console.error('AI chat error:', error);

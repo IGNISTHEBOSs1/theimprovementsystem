@@ -59,6 +59,9 @@ const Index = () => {
     addCredits,
     addHabit,
     deleteHabit,
+    addQuest,
+    isTodayComplete,
+    getCurrentStreak,
   } = useGameState();
 
   // Cloud sync for logged-in users
@@ -196,7 +199,10 @@ const Index = () => {
         {/* AI Assistant */}
         <AIAssistant 
           isOpen={showAIAssistant} 
-          onClose={() => setShowAIAssistant(false)} 
+          onClose={() => setShowAIAssistant(false)}
+          gameState={gameState}
+          onAddQuest={(quest) => addQuest(quest)}
+          onAddHabit={(habit) => addHabit(habit)}
         />
 
         {/* Header */}
@@ -378,12 +384,34 @@ const Index = () => {
               >
                 {/* Left Column - Player Info */}
                 <div className="lg:col-span-2 space-y-6">
+                  {/* Streak Fire & System Gifts Row */}
+                  <div className="flex flex-wrap items-center gap-4">
+                    <StreakFire 
+                      isActive={isTodayComplete()} 
+                      streakCount={getCurrentStreak()} 
+                    />
+                    <SystemGifts 
+                      currentStreak={getCurrentStreak()} 
+                      onClaimGift={(xp, credits) => {
+                        addXp(xp);
+                        addCredits(credits);
+                        playAchievement();
+                      }} 
+                    />
+                  </div>
+                  
+                  {/* Motivation Quote */}
+                  <MotivationQuote section="awakening" />
+                  
                   <PlayerCard
                     username={displayUsername}
                     level={gameState.level}
                     rank={gameState.rank}
                     currentXp={gameState.currentXp}
                     maxXp={gameState.maxXp}
+                    avatarId={profile?.avatar_id}
+                    streak={getCurrentStreak()}
+                    questsCompleted={gameState.totalQuestsCompleted}
                   />
                   <RadarChartComponent stats={gameState.stats} />
                   <AchievementsPanel 
@@ -410,6 +438,9 @@ const Index = () => {
               >
                 {/* Left Column - Quests */}
                 <div className="lg:col-span-2 space-y-4">
+                  {/* Motivation Quote */}
+                  <MotivationQuote section="quests" />
+                  
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h2 className="font-display text-2xl font-bold text-foreground">Daily Quests</h2>
@@ -430,6 +461,13 @@ const Index = () => {
                       index={index}
                     />
                   ))}
+                  
+                  {gameState.quests.length === 0 && (
+                    <div className="text-center py-12 glass rounded-2xl border border-white/10">
+                      <p className="text-muted-foreground mb-2">No quests yet!</p>
+                      <p className="text-sm text-muted-foreground">Ask the AI assistant to generate daily tasks for you.</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Right Column - Timer & Rewards */}
@@ -447,7 +485,10 @@ const Index = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <div className="flex items-center justify-between mb-6">
+                {/* Motivation Quote */}
+                <MotivationQuote section="habits" />
+                
+                <div className="flex items-center justify-between mb-6 mt-6">
                   <div>
                     <h2 className="font-display text-2xl font-bold text-foreground">Habit Tracking</h2>
                     <p className="text-muted-foreground font-jp">習慣トラッキング</p>
@@ -475,7 +516,7 @@ const Index = () => {
                 {gameState.habits.length === 0 && (
                   <div className="text-center py-12 glass rounded-2xl border border-white/10">
                     <p className="text-muted-foreground mb-2">No habits yet!</p>
-                    <p className="text-sm text-muted-foreground">Click "New Habit" to start tracking your consistency.</p>
+                    <p className="text-sm text-muted-foreground">Ask the AI assistant to help you create habits, or click "New Habit" above.</p>
                   </div>
                 )}
               </motion.div>
@@ -500,6 +541,12 @@ const Index = () => {
             )}
           </AnimatePresence>
         </main>
+
+        {/* Floating AI Button - Always visible bottom right */}
+        <FloatingAIButton onClick={() => {
+          playTap();
+          setShowAIAssistant(true);
+        }} />
 
         {/* Footer */}
         <footer className="border-t border-white/5 py-6 mt-12">

@@ -92,6 +92,15 @@ export const useAuth = () => {
     return { data, error };
   };
 
+  const resetPassword = async (email: string) => {
+    const redirectUrl = `${window.location.origin}/auth`;
+    
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    });
+    
+    return { data, error };
+  };
   const signOut = async () => {
     // Clear local storage on sign out
     localStorage.removeItem('the-system-game-state');
@@ -140,7 +149,7 @@ export const useAuth = () => {
     localStorage.removeItem('the-system-rewards-sold-out');
     localStorage.removeItem('the-system-gifts');
     
-    // Reset database state
+    // Reset database state with zero stats for fresh start
     const { error } = await supabase
       .from('game_state')
       .update({
@@ -148,12 +157,16 @@ export const useAuth = () => {
         rank: 'E-Rank Hunter',
         current_xp: 0,
         max_xp: 1000,
-        credits: 100,
+        credits: 0,
         total_quests_completed: 0,
-        stats: { FIT: 50, SOC: 50, INT: 50, DIS: 50, FOC: 50, FIN: 50 },
-        quests: [],
+        stats: { FIT: 0, SOC: 0, INT: 0, DIS: 0, FOC: 0, FIN: 0 },
+        quests: [
+          { id: 'default_1', title: '🏃 Morning Exercise', difficulty: 'Easy', xpReward: 25, creditReward: 5, timeFrame: 'Today', completed: false, failed: false, createdAt: new Date().toISOString() },
+          { id: 'default_2', title: '📚 Read for 20 minutes', difficulty: 'Easy', xpReward: 20, creditReward: 5, timeFrame: 'Today', completed: false, failed: false, createdAt: new Date().toISOString() },
+          { id: 'default_3', title: '💧 Drink 8 glasses of water', difficulty: 'Normal', xpReward: 15, creditReward: 3, timeFrame: 'Today', completed: false, failed: false, createdAt: new Date().toISOString() },
+        ],
         habits: [],
-        system_messages: [],
+        system_messages: [{ id: '1', type: 'achievement', message: '🎉 Progress reset! Your journey begins anew.', timestamp: new Date().toISOString() }],
         achievements: []
       })
       .eq('user_id', user.id);
@@ -174,6 +187,7 @@ export const useAuth = () => {
     signUp,
     signIn,
     signOut,
+    resetPassword,
     updateProfile,
     deleteAccount,
     resetGameProgress,
