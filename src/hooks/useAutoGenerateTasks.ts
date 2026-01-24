@@ -45,17 +45,39 @@ export const useAutoGenerateTasks = (
 
       const statsContext = `Player stats - FIT: ${gameState.stats.FIT}, INT: ${gameState.stats.INT}, DIS: ${gameState.stats.DIS}, FOC: ${gameState.stats.FOC}, SOC: ${gameState.stats.SOC}, FIN: ${gameState.stats.FIN}`;
 
-      const prompt = `Generate 3-5 personalized daily tasks for me based on my habits and progress. 
+      // Determine difficulty distribution based on level
+      const getDifficultyGuidance = (level: number): string => {
+        if (level <= 5) return "Focus on EASY tasks (70%) with some NORMAL (30%). Keep tasks simple and achievable to build momentum.";
+        if (level <= 15) return "Mix of EASY (30%), NORMAL (50%), HARD (20%). Start introducing moderate challenges.";
+        if (level <= 30) return "Mostly NORMAL (40%) and HARD (50%), with occasional URGENT (10%). Push boundaries with compound tasks.";
+        if (level <= 50) return "Primarily HARD (60%) and URGENT (30%), some NORMAL (10%). Expect high performance and multi-step challenges.";
+        return "Elite level: Generate complex, multi-hour challenges. Mostly HARD and URGENT tasks with compound objectives.";
+      };
+
+      const xpMultiplier = 1 + Math.floor(gameState.level / 10) * 0.1;
+      const difficultyGuidance = getDifficultyGuidance(gameState.level);
+
+      const prompt = `Generate 3-5 personalized daily tasks for me based on my habits, progress, AND MY CURRENT LEVEL.
+
 ${habitContext}
 ${statsContext}
 Level: ${gameState.level}, Rank: ${gameState.rank}
 Quests completed: ${gameState.totalQuestsCompleted}
+XP Multiplier: ${xpMultiplier.toFixed(1)}x (apply to base XP values)
 
-Create realistic, achievable tasks for today that align with my habits and help improve my weakest stats. 
+**DIFFICULTY SCALING FOR MY LEVEL:**
+${difficultyGuidance}
+
+Create realistic, achievable tasks for today that:
+1. Match my current level's difficulty expectations
+2. Align with my existing habits and help improve my weakest stats
+3. Scale XP rewards by the multiplier (${xpMultiplier.toFixed(1)}x)
+4. Are progressively more challenging if I'm higher level
+
 Return ONLY a JSON array of tasks, nothing else. Each task should have:
 - title (string, with emoji)
-- difficulty (Easy/Normal/Hard/Urgent)
-- xpReward (number)
+- difficulty (Easy/Normal/Hard/Urgent - distributed according to level guidance)
+- xpReward (number, scaled by multiplier)
 - creditReward (number)
 - timeFrame (string like "Today" or "This morning")
 
