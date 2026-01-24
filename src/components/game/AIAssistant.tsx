@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Send, X, Sparkles, Loader2, Trash2, CheckCircle } from 'lucide-react';
+import { Bot, Send, X, Sparkles, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { GameState } from '@/hooks/useGameState';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -93,11 +94,18 @@ export const AIAssistant = ({ isOpen, onClose, gameState, onAddQuest, onAddHabit
     let assistantContent = '';
 
     try {
+      // Get the current user session for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        throw new Error('You must be logged in to use the AI assistant');
+      }
+
       const response = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           messages: [...messages, userMsg].map(m => ({ role: m.role, content: m.content })),
