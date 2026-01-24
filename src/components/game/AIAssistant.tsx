@@ -9,6 +9,22 @@ import { GameState } from '@/hooks/useGameState';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { z } from 'zod';
+
+// Validation schemas for AI-generated data
+const questSchema = z.object({
+  title: z.string().min(1).max(100),
+  difficulty: z.enum(['Easy', 'Normal', 'Hard', 'Urgent']).optional().default('Normal'),
+  xpReward: z.number().int().min(0).max(500).optional().default(30),
+  creditReward: z.number().int().min(0).max(200).optional().default(10),
+  timeFrame: z.string().max(50).optional().default('Today'),
+});
+
+const habitSchema = z.object({
+  name: z.string().min(1).max(100),
+  winXp: z.number().int().min(1).max(100).optional().default(15),
+  loseXp: z.number().int().min(1).max(100).optional().default(10),
+});
 
 interface Message {
   id: string;
@@ -33,17 +49,23 @@ const QUICK_PROMPTS = [
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
 
-// Parse AI response for action blocks
+// Parse AI response for action blocks with schema validation
 const parseAIActions = (content: string) => {
   const questMatch = content.match(/```quest\s*([\s\S]*?)\s*```/);
   const habitMatch = content.match(/```habit\s*([\s\S]*?)\s*```/);
   
-  let quest = null;
-  let habit = null;
+  let quest: z.infer<typeof questSchema> | null = null;
+  let habit: z.infer<typeof habitSchema> | null = null;
   
   if (questMatch) {
     try {
-      quest = JSON.parse(questMatch[1]);
+      const parsed = JSON.parse(questMatch[1]);
+      const result = questSchema.safeParse(parsed);
+      if (result.success) {
+        quest = result.data;
+      } else {
+        console.error('Invalid quest schema:', result.error.format());
+      }
     } catch (e) {
       console.error('Failed to parse quest JSON:', e);
     }
@@ -51,7 +73,13 @@ const parseAIActions = (content: string) => {
   
   if (habitMatch) {
     try {
-      habit = JSON.parse(habitMatch[1]);
+      const parsed = JSON.parse(habitMatch[1]);
+      const result = habitSchema.safeParse(parsed);
+      if (result.success) {
+        habit = result.data;
+      } else {
+        console.error('Invalid habit schema:', result.error.format());
+      }
     } catch (e) {
       console.error('Failed to parse habit JSON:', e);
     }
@@ -175,26 +203,28 @@ export const AIAssistant = ({ isOpen, onClose, gameState, onAddQuest, onAddHabit
           }
         }
       }
-      // Check for action blocks in the final content
+      // Check for action blocks in the final content (validated by Zod schemas)
       const actions = parseAIActions(assistantContent);
       if (actions.quest && onAddQuest) {
+        // Data is already validated and has defaults from Zod schema
         onAddQuest({
           title: actions.quest.title,
-          difficulty: actions.quest.difficulty || 'Normal',
-          xpReward: actions.quest.xpReward || 30,
-          creditReward: actions.quest.creditReward || 10,
-          timeFrame: actions.quest.timeFrame || 'Today',
+          difficulty: actions.quest.difficulty,
+          xpReward: actions.quest.xpReward,
+          creditReward: actions.quest.creditReward,
+          timeFrame: actions.quest.timeFrame,
         });
         toast.success('Quest added!', { description: actions.quest.title });
       }
       if (actions.habit && onAddHabit) {
+        // Data is already validated and has defaults from Zod schema
         const emoji = actions.habit.name.match(/^\p{Emoji}/u)?.[0] || '✨';
         const cleanName = actions.habit.name.replace(/^\p{Emoji}\s*/u, '');
         onAddHabit({
           name: `${emoji} ${cleanName}`,
           icon: emoji,
-          winXp: actions.habit.winXp || 15,
-          loseXp: actions.habit.loseXp || 10,
+          winXp: actions.habit.winXp,
+          loseXp: actions.habit.loseXp,
         });
         toast.success('Habit added!', { description: actions.habit.name });
       }
