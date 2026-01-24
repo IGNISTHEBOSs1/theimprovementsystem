@@ -9,6 +9,7 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { useAuth } from '@/hooks/useAuth';
 import { useCloudSync } from '@/hooks/useCloudSync';
 import { useDailyLoginBonus } from '@/hooks/useDailyLoginBonus';
+import { useAutoGenerateTasks } from '@/hooks/useAutoGenerateTasks';
 import { PomodoroProvider } from '@/hooks/usePomodoroTimer';
 import { PlayerCard } from '@/components/game/PlayerCard';
 import { RadarChartComponent } from '@/components/game/RadarChart';
@@ -70,6 +71,9 @@ const Index = () => {
   // Daily login bonus
   const { bonusData, showBonusModal, dismissBonus } = useDailyLoginBonus();
 
+  // Auto-generate daily tasks
+  const { generateDailyTasks, hasGeneratedToday } = useAutoGenerateTasks(gameState, addQuest);
+
   const {
     achievements, 
     newlyUnlocked, 
@@ -130,12 +134,19 @@ const Index = () => {
     setActiveSection(section);
   };
 
-  // Claim daily login bonus
-  const handleClaimBonus = () => {
+  // Claim daily login bonus and auto-generate tasks
+  const handleClaimBonus = async () => {
     if (bonusData?.isNewDay) {
       addXp(bonusData.bonusXp);
       addCredits(bonusData.bonusCredits);
       playAchievement();
+      
+      // Auto-generate daily tasks when claiming new day bonus
+      if (!hasGeneratedToday) {
+        setTimeout(() => {
+          generateDailyTasks();
+        }, 1000); // Delay to let UI settle
+      }
     }
     dismissBonus();
   };
