@@ -18,12 +18,14 @@ export const AchievementsPanel = ({
     { key: 'quests', label: 'Quests', japLabel: 'クエスト' },
     { key: 'level', label: 'Level', japLabel: 'レベル' },
     { key: 'habits', label: 'Habits', japLabel: '習慣' },
+    { key: 'streak', label: 'Streaks', japLabel: 'ストリーク' },
     { key: 'credits', label: 'Credits', japLabel: 'クレジット' },
     { key: 'special', label: 'Special', japLabel: '特別' },
   ] as const;
 
+  const rarityOrder = { godly: 0, mythic: 1, legendary: 2, epic: 3, rare: 4, uncommon: 5, common: 6 };
+
   const sortedAchievements = [...achievements].sort((a, b) => {
-    const rarityOrder = { legendary: 0, epic: 1, rare: 2, common: 3 };
     if (a.unlocked !== b.unlocked) return a.unlocked ? -1 : 1;
     return rarityOrder[a.rarity] - rarityOrder[b.rarity];
   });
@@ -61,6 +63,17 @@ export const AchievementsPanel = ({
             transition={{ duration: 1, ease: 'easeOut' }}
           />
         </div>
+      </div>
+
+      {/* Rarity Legend */}
+      <div className="flex flex-wrap gap-2 mb-6 text-[10px]">
+        <span className="px-2 py-0.5 rounded bg-slate-500/20 text-slate-400">Common</span>
+        <span className="px-2 py-0.5 rounded bg-green-500/20 text-green-400">Uncommon</span>
+        <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400">Rare</span>
+        <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">Epic</span>
+        <span className="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400">Legendary</span>
+        <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400">Mythic</span>
+        <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">Godly</span>
       </div>
 
       {/* Categories */}

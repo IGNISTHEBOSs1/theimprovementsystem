@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Shield, Target, Swords, Lock, ChevronRight } from 'lucide-react';
+import { Shield, Target, Swords, Lock, ChevronRight, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NavItem {
@@ -38,6 +38,14 @@ const navItems: NavItem[] = [
     color: 'from-amber-500/20 to-amber-600/10',
   },
   {
+    id: 'leaderboards',
+    title: 'Leaderboards',
+    jp: 'ランキング',
+    icon: <Users className="w-8 h-8" />,
+    description: 'Compare with other players',
+    color: 'from-green-500/20 to-green-600/10',
+  },
+  {
     id: 'gates',
     title: 'Gates',
     jp: 'ゲート',
@@ -55,7 +63,7 @@ interface NavigationHubProps {
 
 export const NavigationHub = ({ activeSection, onNavigate }: NavigationHubProps) => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
       {navItems.map((item, index) => (
         <motion.button
           key={item.id}
