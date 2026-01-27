@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Achievement } from '@/hooks/useAchievements';
-import { Lock, Sparkles } from 'lucide-react';
+import { Lock, Sparkles, Crown } from 'lucide-react';
 
 interface AchievementBadgeProps {
   achievement: Achievement;
@@ -9,23 +9,42 @@ interface AchievementBadgeProps {
 
 const rarityColors = {
   common: 'from-slate-400/30 to-slate-500/20 border-slate-400/50',
+  uncommon: 'from-green-500/30 to-emerald-500/20 border-green-400/60',
   rare: 'from-blue-500/30 to-cyan-500/20 border-blue-400/60',
   epic: 'from-purple-500/30 to-pink-500/20 border-purple-400/60',
   legendary: 'from-amber-400/40 to-orange-500/20 border-yellow-400/70',
+  mythic: 'from-rose-500/40 to-red-600/20 border-rose-400/70',
+  godly: 'from-cyan-300/50 via-white/30 to-yellow-300/50 border-cyan-300/80',
 };
 
 const rarityGlow = {
   common: '',
+  uncommon: 'shadow-[0_0_15px_rgba(34,197,94,0.3)]',
   rare: 'shadow-[0_0_20px_rgba(59,130,246,0.4)] animate-pulse',
   epic: 'shadow-[0_0_25px_rgba(168,85,247,0.5)]',
   legendary: 'shadow-[0_0_30px_rgba(251,191,36,0.6)] animate-[pulse_2s_ease-in-out_infinite]',
+  mythic: 'shadow-[0_0_35px_rgba(244,63,94,0.7)] animate-[pulse_1.5s_ease-in-out_infinite]',
+  godly: 'shadow-[0_0_50px_rgba(103,232,249,0.8)] animate-[pulse_1s_ease-in-out_infinite]',
 };
 
 const rarityRing = {
   common: '',
+  uncommon: 'ring-2 ring-green-400/30',
   rare: 'ring-2 ring-blue-400/30',
   epic: 'ring-2 ring-purple-400/40',
   legendary: 'ring-4 ring-yellow-400/50',
+  mythic: 'ring-4 ring-rose-400/60',
+  godly: 'ring-4 ring-cyan-300/70',
+};
+
+const rarityTextColor = {
+  common: 'text-slate-300',
+  uncommon: 'text-green-400',
+  rare: 'text-blue-400',
+  epic: 'text-purple-400',
+  legendary: 'text-yellow-400',
+  mythic: 'text-rose-400',
+  godly: 'text-cyan-300',
 };
 
 const sizeClasses = {
@@ -36,19 +55,44 @@ const sizeClasses = {
 
 export const AchievementBadge = ({ achievement, size = 'md' }: AchievementBadgeProps) => {
   const isUnlocked = achievement.unlocked;
+  const isGodly = achievement.rarity === 'godly';
+  const isMythic = achievement.rarity === 'mythic';
+  const isLegendary = achievement.rarity === 'legendary';
 
   return (
     <motion.div
       className="relative group"
-      whileHover={{ scale: 1.1, rotate: isUnlocked && achievement.rarity === 'legendary' ? [0, -2, 2, 0] : 0 }}
+      whileHover={{ scale: 1.1, rotate: (isUnlocked && (isLegendary || isMythic || isGodly)) ? [0, -2, 2, 0] : 0 }}
       transition={{ type: 'spring', stiffness: 400, damping: 17 }}
     >
-      {/* Outer glow for legendary */}
-      {isUnlocked && achievement.rarity === 'legendary' && (
+      {/* Outer glow for legendary+ */}
+      {isUnlocked && isLegendary && (
         <motion.div
           className="absolute inset-0 rounded-2xl bg-gradient-to-r from-yellow-400/30 via-amber-500/30 to-orange-400/30 blur-xl"
           animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
           transition={{ duration: 2, repeat: Infinity }}
+        />
+      )}
+      
+      {/* Mythic glow */}
+      {isUnlocked && isMythic && (
+        <motion.div
+          className="absolute inset-0 rounded-2xl bg-gradient-to-r from-rose-500/40 via-pink-500/40 to-red-500/40 blur-xl"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0.9, 0.6] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        />
+      )}
+      
+      {/* Godly glow - rainbow effect */}
+      {isUnlocked && isGodly && (
+        <motion.div
+          className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400/50 via-white/40 to-yellow-400/50 blur-2xl"
+          animate={{ 
+            scale: [1, 1.4, 1], 
+            opacity: [0.7, 1, 0.7],
+            rotate: [0, 360]
+          }}
+          transition={{ duration: 3, repeat: Infinity }}
         />
       )}
       
@@ -63,12 +107,12 @@ export const AchievementBadge = ({ achievement, size = 'md' }: AchievementBadgeP
           ${!isUnlocked ? 'grayscale opacity-40' : ''}
         `}
       >
-        {/* Shimmer effect for epic/legendary */}
-        {isUnlocked && (achievement.rarity === 'epic' || achievement.rarity === 'legendary') && (
+        {/* Shimmer effect for epic+ */}
+        {isUnlocked && (achievement.rarity === 'epic' || isLegendary || isMythic || isGodly) && (
           <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            className={`absolute inset-0 bg-gradient-to-r from-transparent ${isGodly ? 'via-cyan-200/40' : isMythic ? 'via-rose-200/30' : 'via-white/20'} to-transparent`}
             animate={{ x: ['-100%', '200%'] }}
-            transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+            transition={{ duration: isGodly ? 1.5 : 3, repeat: Infinity, repeatDelay: isGodly ? 0.5 : 2 }}
           />
         )}
         
@@ -81,8 +125,21 @@ export const AchievementBadge = ({ achievement, size = 'md' }: AchievementBadgeP
         )}
         
         {/* Sparkle for legendary */}
-        {isUnlocked && achievement.rarity === 'legendary' && (
+        {isUnlocked && isLegendary && (
           <Sparkles className="absolute top-1 right-1 w-3 h-3 text-yellow-300 animate-pulse" />
+        )}
+        
+        {/* Crown for mythic */}
+        {isUnlocked && isMythic && (
+          <Crown className="absolute top-0.5 right-0.5 w-3.5 h-3.5 text-rose-300 animate-pulse" />
+        )}
+        
+        {/* Double sparkle for godly */}
+        {isUnlocked && isGodly && (
+          <>
+            <Sparkles className="absolute top-0 left-1 w-3 h-3 text-cyan-200 animate-pulse" />
+            <Sparkles className="absolute bottom-1 right-1 w-3 h-3 text-yellow-200 animate-pulse" />
+          </>
         )}
       </div>
 
@@ -93,21 +150,11 @@ export const AchievementBadge = ({ achievement, size = 'md' }: AchievementBadgeP
         pointer-events-none z-50 w-52 text-center shadow-xl">
         
         {/* Rarity indicator */}
-        <div className={`text-[10px] uppercase tracking-wider font-bold mb-1 ${
-          achievement.rarity === 'legendary' ? 'text-yellow-400' :
-          achievement.rarity === 'epic' ? 'text-purple-400' :
-          achievement.rarity === 'rare' ? 'text-blue-400' :
-          'text-muted-foreground'
-        }`}>
+        <div className={`text-[10px] uppercase tracking-wider font-bold mb-1 ${rarityTextColor[achievement.rarity]}`}>
           {achievement.rarity}
         </div>
         
-        <p className={`font-bold text-sm ${
-          achievement.rarity === 'legendary' ? 'text-yellow-300' :
-          achievement.rarity === 'epic' ? 'text-purple-300' :
-          achievement.rarity === 'rare' ? 'text-blue-300' :
-          'text-foreground'
-        }`}>
+        <p className={`font-bold text-sm ${rarityTextColor[achievement.rarity]}`}>
           {achievement.name}
         </p>
         <p className="text-xs text-muted-foreground mt-1.5">{achievement.description}</p>

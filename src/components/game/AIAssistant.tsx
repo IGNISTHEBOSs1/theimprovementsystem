@@ -44,8 +44,44 @@ const QUICK_PROMPTS = [
   { label: '📋 Create Daily Tasks', prompt: 'Create 5 realistic daily tasks for me based on my current progress' },
   { label: '🎯 New Habit', prompt: 'I want to start a new habit for better discipline. What do you suggest?' },
   { label: '💪 Workout Plan', prompt: 'Give me a quick 30-minute workout routine I can do today' },
-  { label: '🔮 My Future Plans', prompt: 'Based on my progress and habits, what should be my future plans?' },
+  { label: '🔮 Future Plans', prompt: 'Based on my progress and habits, what should be my future plans?' },
 ];
+
+// Dynamic suggestion prompts based on conversation context
+const getContextualSuggestions = (lastAssistantMessage: string): string[] => {
+  const suggestions: string[] = [];
+  const lower = lastAssistantMessage.toLowerCase();
+  
+  if (lower.includes('habit') || lower.includes('routine')) {
+    suggestions.push('How do I stay consistent with this habit?');
+    suggestions.push('What happens if I miss a day?');
+  }
+  if (lower.includes('workout') || lower.includes('exercise') || lower.includes('fitness')) {
+    suggestions.push('Can you make it more challenging?');
+    suggestions.push('Give me a warm-up routine');
+  }
+  if (lower.includes('task') || lower.includes('quest')) {
+    suggestions.push('Add more tasks for tomorrow');
+    suggestions.push('Which task should I prioritize?');
+  }
+  if (lower.includes('goal') || lower.includes('plan')) {
+    suggestions.push('Break this down into weekly milestones');
+    suggestions.push('What obstacles might I face?');
+  }
+  if (lower.includes('level') || lower.includes('xp') || lower.includes('progress')) {
+    suggestions.push('How can I level up faster?');
+    suggestions.push('What achievements am I close to?');
+  }
+  
+  // Default suggestions if nothing matches
+  if (suggestions.length === 0) {
+    suggestions.push('Give me a motivational quote');
+    suggestions.push('What should I focus on today?');
+    suggestions.push('Analyze my current stats');
+  }
+  
+  return suggestions.slice(0, 3);
+};
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
 
@@ -366,6 +402,25 @@ export const AIAssistant = ({ isOpen, onClose, gameState, onAddQuest, onAddHabit
                       <div className="bg-muted/50 rounded-2xl px-4 py-3">
                         <Loader2 className="w-4 h-4 animate-spin" />
                       </div>
+                    </motion.div>
+                  )}
+                  
+                  {/* Contextual Suggestions after AI response */}
+                  {!isLoading && messages.length > 0 && messages[messages.length - 1]?.role === 'assistant' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-wrap gap-2 pt-2"
+                    >
+                      {getContextualSuggestions(messages[messages.length - 1].content).map((suggestion, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => sendMessage(suggestion)}
+                          className="text-xs px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
                     </motion.div>
                   )}
                 </div>

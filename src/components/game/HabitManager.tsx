@@ -25,6 +25,26 @@ import {
 
 const EMOJI_OPTIONS = ['🌿', '💪', '🧊', '📵', '📚', '🧘', '💧', '🏃', '😴', '🍎', '✍️', '🎯'];
 
+// System-determined XP values based on habit difficulty estimation
+const getSystemXpValues = (habitName: string) => {
+  const name = habitName.toLowerCase();
+  // Higher XP for more challenging habits
+  if (name.includes('workout') || name.includes('exercise') || name.includes('gym') || name.includes('run')) {
+    return { winXp: 30, loseXp: 25 };
+  }
+  if (name.includes('study') || name.includes('read') || name.includes('learn') || name.includes('code')) {
+    return { winXp: 25, loseXp: 20 };
+  }
+  if (name.includes('meditation') || name.includes('mindful') || name.includes('yoga')) {
+    return { winXp: 20, loseXp: 15 };
+  }
+  if (name.includes('water') || name.includes('sleep') || name.includes('wake')) {
+    return { winXp: 15, loseXp: 10 };
+  }
+  // Default balanced values
+  return { winXp: 20, loseXp: 15 };
+};
+
 interface HabitManagerProps {
   habits: Habit[];
   onAddHabit: (habit: Omit<Habit, 'id' | 'streak' | 'completedDays'>) => void;
@@ -38,24 +58,23 @@ export const HabitManager = ({ habits, onAddHabit, onDeleteHabit }: HabitManager
   // Form state
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('🎯');
-  const [winXp, setWinXp] = useState(20);
-  const [loseXp, setLoseXp] = useState(15);
 
   const resetForm = () => {
     setName('');
     setIcon('🎯');
-    setWinXp(20);
-    setLoseXp(15);
   };
 
   const handleAddHabit = () => {
     if (!name.trim()) return;
     
+    // System determines XP values based on habit type
+    const xpValues = getSystemXpValues(name);
+    
     onAddHabit({
       name: name.trim(),
       icon,
-      winXp,
-      loseXp,
+      winXp: xpValues.winXp,
+      loseXp: xpValues.loseXp,
     });
     
     resetForm();
@@ -89,7 +108,7 @@ export const HabitManager = ({ habits, onAddHabit, onDeleteHabit }: HabitManager
           <DialogHeader>
             <DialogTitle className="font-display">Create New Habit</DialogTitle>
             <DialogDescription>
-              Add a new habit to track. Be consistent for XP gains!
+              Add a new habit to track. The System will determine appropriate XP rewards.
             </DialogDescription>
           </DialogHeader>
 
@@ -125,34 +144,22 @@ export const HabitManager = ({ habits, onAddHabit, onDeleteHabit }: HabitManager
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="win-xp">Win XP</Label>
-                <Input
-                  id="win-xp"
-                  type="number"
-                  min={5}
-                  max={50}
-                  value={winXp}
-                  onChange={(e) => setWinXp(Number(e.target.value))}
-                  className="bg-muted/50"
-                />
-                <p className="text-xs text-muted-foreground">XP gained on completion</p>
+            {/* XP Preview (System-determined) */}
+            {name.trim() && (
+              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <p className="text-xs text-muted-foreground mb-2">System-determined XP values:</p>
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">+{getSystemXpValues(name).winXp}</span>
+                    <span className="text-xs text-muted-foreground">on completion</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-400">-{getSystemXpValues(name).loseXp}</span>
+                    <span className="text-xs text-muted-foreground">on miss</span>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="lose-xp">Lose XP</Label>
-                <Input
-                  id="lose-xp"
-                  type="number"
-                  min={5}
-                  max={50}
-                  value={loseXp}
-                  onChange={(e) => setLoseXp(Number(e.target.value))}
-                  className="bg-muted/50"
-                />
-                <p className="text-xs text-muted-foreground">XP lost on miss</p>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-2">

@@ -35,6 +35,7 @@ import { FloatingAIButton } from '@/components/game/FloatingAIButton';
 import { MotivationQuote } from '@/components/game/MotivationQuote';
 import { StreakFire } from '@/components/game/StreakFire';
 import { SystemGifts } from '@/components/game/SystemGifts';
+import { Leaderboard } from '@/components/game/Leaderboard';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
@@ -530,6 +531,20 @@ const Index = () => {
                     <p className="text-sm text-muted-foreground">Ask the AI assistant to help you create habits, or click "New Habit" above.</p>
                   </div>
                 )}
+              </motion.div>
+            )}
+
+            {activeSection === 'leaderboards' && (
+              <motion.div
+                key="leaderboards"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <Leaderboard 
+                  currentUsername={displayUsername}
+                  currentLevel={gameState.level}
+                />
               </motion.div>
             )}
 
