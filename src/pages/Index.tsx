@@ -446,10 +446,10 @@ const Index = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+                className="space-y-6"
               >
-                {/* Left Column - Quests */}
-                <div className="lg:col-span-2 space-y-4">
+                {/* Quests Section */}
+                <div className="space-y-4">
                   {/* Motivation Quote */}
                   <MotivationQuote section="quests" />
                   
@@ -482,10 +482,14 @@ const Index = () => {
                   )}
                 </div>
 
-                {/* Right Column - Timer & Rewards */}
-                <div className="space-y-6">
-                  <PomodoroTimerFull />
-                  <RewardCenter credits={gameState.credits} onSpend={spendCredits} />
+                {/* Timer & Rewards - Full Width */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-1">
+                    <PomodoroTimerFull />
+                  </div>
+                  <div className="lg:col-span-2">
+                    <RewardCenter credits={gameState.credits} onSpend={spendCredits} />
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -560,7 +564,7 @@ const Index = () => {
                   <p className="text-muted-foreground font-jp">ゲート</p>
                 </div>
 
-                <div className="max-w-2xl mx-auto">
+                <div className="max-w-4xl mx-auto">
                   <GateEncounter />
                 </div>
               </motion.div>

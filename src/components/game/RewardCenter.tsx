@@ -188,7 +188,7 @@ export const RewardCenter = ({ credits, onSpend }: RewardCenterProps) => {
       </div>
 
       {/* Rewards Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 max-h-[400px] overflow-y-auto pr-1">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 max-h-[500px] overflow-y-auto pr-1">
         {filteredRewards.length === 0 ? (
           <div className="col-span-full text-center py-8 text-muted-foreground text-sm">
             No rewards match "{searchQuery}"
@@ -228,7 +228,7 @@ export const RewardCenter = ({ credits, onSpend }: RewardCenterProps) => {
                 )}
                 
                 <div className={cn(
-                  "w-8 h-8 rounded-lg flex items-center justify-center mb-2",
+                  "w-10 h-10 rounded-lg flex items-center justify-center mb-2",
                   isSoldOut
                     ? "bg-muted text-muted-foreground"
                     : canAfford 
@@ -238,12 +238,12 @@ export const RewardCenter = ({ credits, onSpend }: RewardCenterProps) => {
                   {reward.icon}
                 </div>
                 
-                <h4 className="font-semibold text-foreground text-xs mb-0.5 line-clamp-1">{reward.name}</h4>
-                <p className="text-[10px] text-muted-foreground mb-2 line-clamp-2">{reward.description}</p>
+                <h4 className="font-semibold text-foreground text-sm mb-1 line-clamp-1">{reward.name}</h4>
+                <p className="text-xs text-muted-foreground mb-2 line-clamp-2">{reward.description}</p>
                 
                 <div className="flex items-center gap-1">
-                  <Coins className="w-3 h-3 text-accent" />
-                  <span className="font-display font-bold text-accent text-sm">{reward.cost}</span>
+                  <Coins className="w-3.5 h-3.5 text-accent" />
+                  <span className="font-display font-bold text-accent text-base">{reward.cost}</span>
                 </div>
               </motion.button>
             );
