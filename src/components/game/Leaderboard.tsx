@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Crown, Flame, Target, Star, Users, ChevronRight } from 'lucide-react';
+import { Trophy, Medal, Crown, Flame, Target, Star, Users, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
 
 interface LeaderboardEntry {
   id: string;
@@ -20,41 +21,16 @@ interface LeaderboardCategory {
   icon: React.ReactNode;
   description: string;
   valueLabel: string;
+  dbColumn: string;
 }
 
 const categories: LeaderboardCategory[] = [
-  { id: 'level', title: 'Highest Level', japLabel: '最高レベル', icon: <Crown className="w-5 h-5" />, description: 'Players with the highest levels', valueLabel: 'Level' },
-  { id: 'dedication', title: 'Most Dedicated', japLabel: '献身的', icon: <Flame className="w-5 h-5" />, description: 'Longest active streaks', valueLabel: 'Day Streak' },
-  { id: 'quests', title: 'Quest Masters', japLabel: 'クエストマスター', icon: <Target className="w-5 h-5" />, description: 'Most quests completed', valueLabel: 'Quests' },
-  { id: 'achievements', title: 'Achievement Hunters', japLabel: '実績ハンター', icon: <Trophy className="w-5 h-5" />, description: 'Most achievements unlocked', valueLabel: 'Achievements' },
-  { id: 'credits', title: 'Wealthiest', japLabel: '富裕層', icon: <Star className="w-5 h-5" />, description: 'Highest credit balance', valueLabel: 'Credits' },
+  { id: 'level', title: 'Highest Level', japLabel: '最高レベル', icon: <Crown className="w-5 h-5" />, description: 'Players with the highest levels', valueLabel: 'Level', dbColumn: 'level' },
+  { id: 'dedication', title: 'Most Dedicated', japLabel: '献身的', icon: <Flame className="w-5 h-5" />, description: 'Longest active streaks', valueLabel: 'Day Streak', dbColumn: 'longest_streak' },
+  { id: 'quests', title: 'Quest Masters', japLabel: 'クエストマスター', icon: <Target className="w-5 h-5" />, description: 'Most quests completed', valueLabel: 'Quests', dbColumn: 'total_quests_completed' },
+  { id: 'achievements', title: 'Achievement Hunters', japLabel: '実績ハンター', icon: <Trophy className="w-5 h-5" />, description: 'Most achievements unlocked', valueLabel: 'Achievements', dbColumn: 'achievements' },
+  { id: 'credits', title: 'Wealthiest', japLabel: '富裕層', icon: <Star className="w-5 h-5" />, description: 'Highest credit balance', valueLabel: 'Credits', dbColumn: 'credits' },
 ];
-
-// Simulated leaderboard data (in a real app, this would come from a database)
-const generateLeaderboardData = (category: string): LeaderboardEntry[] => {
-  const names = [
-    'ShadowMonarch', 'IronWill', 'PhoenixRise', 'DarkHunter', 'StormBreaker',
-    'NightBlade', 'FrostBite', 'ThunderStrike', 'SilentAssassin', 'GoldenWarrior',
-    'CrimsonKnight', 'AzurePhoenix', 'EternalFlame', 'VoidWalker', 'StarSeeker'
-  ];
-  
-  const baseValues: Record<string, number[]> = {
-    level: [87, 72, 65, 58, 52, 48, 43, 39, 35, 31, 28, 25, 22, 19, 16],
-    dedication: [156, 124, 98, 87, 76, 65, 54, 45, 38, 32, 27, 22, 18, 14, 10],
-    quests: [1247, 985, 834, 723, 612, 534, 467, 398, 342, 289, 245, 198, 156, 124, 89],
-    achievements: [78, 65, 54, 47, 42, 38, 34, 30, 27, 24, 21, 18, 15, 12, 9],
-    credits: [8750, 6234, 5123, 4567, 3890, 3245, 2876, 2456, 2123, 1876, 1567, 1234, 987, 765, 543],
-  };
-  
-  return names.map((name, index) => ({
-    id: `${category}-${index}`,
-    rank: index + 1,
-    username: name,
-    avatarId: ['bottts', 'avataaars', 'lorelei', 'micah', 'adventurer'][index % 5],
-    value: baseValues[category]?.[index] || 100 - index * 5,
-    label: categories.find(c => c.id === category)?.valueLabel || 'Points',
-  }));
-};
 
 interface LeaderboardProps {
   currentUsername?: string;
@@ -65,9 +41,97 @@ export const Leaderboard = ({ currentUsername = 'You', currentLevel = 1 }: Leade
   const [selectedCategory, setSelectedCategory] = useState('level');
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [loading, setLoading] = useState(false);
+  const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
+  const [currentUserValue, setCurrentUserValue] = useState<number>(0);
+
+  const fetchLeaderboard = async (categoryId: string) => {
+    setLoading(true);
+    try {
+      const category = categories.find(c => c.id === categoryId);
+      if (!category) return;
+
+      // Query the view
+      let query = supabase
+        .from('leaderboard_view')
+        .select('user_id, username, avatar_id, level, total_quests_completed, credits, achievements, longest_streak, current_streak');
+
+      const { data, error } = await query;
+      
+      if (error) {
+        console.error('Leaderboard fetch error:', error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        setLeaderboardData([]);
+        return;
+      }
+
+      // Sort and map based on category
+      const sorted = [...data].sort((a, b) => {
+        if (categoryId === 'achievements') {
+          const aCount = Array.isArray(a.achievements) ? a.achievements.length : 0;
+          const bCount = Array.isArray(b.achievements) ? b.achievements.length : 0;
+          return bCount - aCount;
+        }
+        const aVal = (a as any)[category.dbColumn] || 0;
+        const bVal = (b as any)[category.dbColumn] || 0;
+        return bVal - aVal;
+      });
+
+      const entries: LeaderboardEntry[] = sorted.slice(0, 15).map((entry, index) => {
+        let value: number;
+        if (categoryId === 'achievements') {
+          value = Array.isArray(entry.achievements) ? entry.achievements.length : 0;
+        } else if (categoryId === 'dedication') {
+          value = entry.longest_streak || entry.current_streak || 0;
+        } else {
+          value = (entry as any)[category.dbColumn] || 0;
+        }
+
+        return {
+          id: entry.user_id,
+          rank: index + 1,
+          username: entry.username || 'Hunter',
+          avatarId: entry.avatar_id || 'default',
+          value,
+          label: category.valueLabel,
+        };
+      });
+
+      setLeaderboardData(entries);
+
+      // Find current user rank
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const userEntry = entries.find(e => e.id === user.id);
+        if (userEntry) {
+          setCurrentUserRank(userEntry.rank);
+          setCurrentUserValue(userEntry.value);
+        } else {
+          // User exists but not in top 15
+          const userInAll = sorted.findIndex(e => e.user_id === user.id);
+          setCurrentUserRank(userInAll >= 0 ? userInAll + 1 : null);
+          if (userInAll >= 0) {
+            const entry = sorted[userInAll];
+            if (categoryId === 'achievements') {
+              setCurrentUserValue(Array.isArray(entry.achievements) ? entry.achievements.length : 0);
+            } else {
+              setCurrentUserValue((entry as any)[category.dbColumn] || 0);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Leaderboard error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    setLeaderboardData(generateLeaderboardData(selectedCategory));
+    fetchLeaderboard(selectedCategory);
   }, [selectedCategory]);
 
   useEffect(() => {
@@ -144,58 +208,66 @@ export const Leaderboard = ({ currentUsername = 'You', currentLevel = 1 }: Leade
       )}
 
       {/* Leaderboard List */}
-      <div className="space-y-2">
-        {leaderboardData.slice(0, 10).map((entry, index) => (
-          <motion.div
-            key={entry.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.05 }}
-            className={cn(
-              "flex items-center gap-4 p-3 rounded-xl border transition-all hover:scale-[1.01]",
-              getRankStyle(entry.rank)
-            )}
-          >
-            {/* Rank */}
-            <div className="w-10 h-10 rounded-lg bg-background/50 flex items-center justify-center">
-              {getRankIcon(entry.rank)}
-            </div>
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </div>
+      ) : leaderboardData.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <p>No players yet. Be the first!</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {leaderboardData.map((entry, index) => (
+            <motion.div
+              key={entry.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className={cn(
+                "flex items-center gap-4 p-3 rounded-xl border transition-all hover:scale-[1.01]",
+                getRankStyle(entry.rank)
+              )}
+            >
+              <div className="w-10 h-10 rounded-lg bg-background/50 flex items-center justify-center">
+                {getRankIcon(entry.rank)}
+              </div>
 
-            {/* Avatar */}
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
-              <img 
-                src={`https://api.dicebear.com/7.x/${entry.avatarId}/svg?seed=${entry.username}`}
-                alt={entry.username}
-                className="w-full h-full object-cover"
-              />
-            </div>
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-muted">
+                <img 
+                  src={`https://api.dicebear.com/7.x/${entry.avatarId === 'default' ? 'bottts' : entry.avatarId}/svg?seed=${entry.username}`}
+                  alt={entry.username}
+                  className="w-full h-full object-cover"
+                />
+              </div>
 
-            {/* Username */}
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-foreground truncate">{entry.username}</p>
-              <p className="text-xs text-muted-foreground">{entry.label}: {entry.value.toLocaleString()}</p>
-            </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-foreground truncate">{entry.username}</p>
+                <p className="text-xs text-muted-foreground">{entry.label}: {entry.value.toLocaleString()}</p>
+              </div>
 
-            {/* Value */}
-            <div className="text-right">
-              <p className="font-bold text-primary text-lg">{entry.value.toLocaleString()}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+              <div className="text-right">
+                <p className="font-bold text-primary text-lg">{entry.value.toLocaleString()}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       {/* Your Position */}
       <div className="mt-6 p-4 rounded-xl bg-primary/10 border border-primary/30">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-            <span className="text-sm font-bold text-primary">You</span>
+            <span className="text-sm font-bold text-primary">
+              {currentUserRank ? `#${currentUserRank}` : 'You'}
+            </span>
           </div>
           <div className="flex-1">
             <p className="font-semibold text-foreground">{currentUsername}</p>
             <p className="text-xs text-muted-foreground">Keep pushing to climb the ranks!</p>
           </div>
           <div className="flex items-center gap-2 text-primary">
-            <span className="font-bold">Level {currentLevel}</span>
+            <span className="font-bold">{currentUserValue > 0 ? currentUserValue.toLocaleString() : `Level ${currentLevel}`}</span>
             <ChevronRight className="w-4 h-4" />
           </div>
         </div>

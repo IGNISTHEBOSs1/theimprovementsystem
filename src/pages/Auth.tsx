@@ -23,6 +23,7 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const { signIn, signUp, resetPassword, user, loading: authLoading } = useAuth();
   const { playClick, playQuestComplete, playError } = useSoundEffects();
   const navigate = useNavigate();
@@ -369,22 +370,22 @@ const Auth = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={googleLoading}
+                  disabled={appleLoading}
                   onClick={async () => {
                     playClick();
-                    setGoogleLoading(true);
+                    setAppleLoading(true);
                     const { error } = await lovable.auth.signInWithOAuth("apple", {
                       redirect_uri: window.location.origin,
                     });
                     if (error) {
                       playError();
                       toast({ title: 'Apple sign-in failed', description: String(error), variant: 'destructive' });
-                      setGoogleLoading(false);
+                      setAppleLoading(false);
                     }
                   }}
                   className="w-full border-white/10 hover:bg-white/5 gap-2"
                 >
-                  {googleLoading ? (
+                  {appleLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
