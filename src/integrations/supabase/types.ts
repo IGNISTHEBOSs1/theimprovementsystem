@@ -133,7 +133,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      leaderboard_view: {
+        Row: {
+          achievements: Json | null
+          avatar_id: string | null
+          credits: number | null
+          current_streak: number | null
+          current_xp: number | null
+          level: number | null
+          longest_streak: number | null
+          stats: Json | null
+          total_quests_completed: number | null
+          user_id: string | null
+          username: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
