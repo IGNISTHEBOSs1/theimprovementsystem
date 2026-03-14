@@ -92,7 +92,7 @@ export const PomodoroProvider = ({ children, onComplete }: PomodoroProviderProps
     return getDefaultStats();
   });
 
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const onCompleteRef = useRef(onComplete);
   const sessionStartTimeRef = useRef<number | null>(null);
   

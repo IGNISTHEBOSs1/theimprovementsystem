@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, Calendar, Sparkles } from 'lucide-react';
 import { Achievement } from '@/hooks/useAchievements';
@@ -40,6 +40,7 @@ const getImageCache = (): Record<string, string> => {
 const setImageCache = (id: string, url: string) => {
   const cache = getImageCache();
   cache[id] = url;
+  // Keep cache size manageable - max 50 entries
   const keys = Object.keys(cache);
   if (keys.length > 50) {
     delete cache[keys[0]];
@@ -51,18 +52,12 @@ export const AchievementDetailModal = ({ achievement, onClose }: AchievementDeta
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
 
-  // Check cache instantly via useMemo
-  const cachedImage = useMemo(() => {
-    if (!achievement) return null;
-    return getImageCache()[achievement.id] || null;
-  }, [achievement]);
-
   useEffect(() => {
     if (!achievement) return;
     
-    // If cached, use instantly — no loading state
-    if (cachedImage) {
-      setImageUrl(cachedImage);
+    const cached = getImageCache()[achievement.id];
+    if (cached) {
+      setImageUrl(cached);
       return;
     }
 
@@ -97,7 +92,7 @@ export const AchievementDetailModal = ({ achievement, onClose }: AchievementDeta
     };
 
     generateImage();
-  }, [achievement, cachedImage]);
+  }, [achievement]);
 
   if (!achievement) return null;
 
@@ -107,15 +102,13 @@ export const AchievementDetailModal = ({ achievement, onClose }: AchievementDeta
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.15 }}
         className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
-          initial={{ scale: 0.92, opacity: 0, y: 16 }}
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.92, opacity: 0, y: 16 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
           onClick={(e) => e.stopPropagation()}
           className={`w-full max-w-md rounded-2xl border bg-gradient-to-br ${rarityBg[achievement.rarity]} backdrop-blur-xl overflow-hidden`}
         >
@@ -127,7 +120,7 @@ export const AchievementDetailModal = ({ achievement, onClose }: AchievementDeta
                 {achievement.rarity} Achievement
               </span>
             </div>
-            <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/10 transition-colors duration-150">
+            <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/10 transition-colors">
               <X className="w-5 h-5 text-muted-foreground" />
             </button>
           </div>
@@ -140,14 +133,7 @@ export const AchievementDetailModal = ({ achievement, onClose }: AchievementDeta
                 <p className="text-xs text-muted-foreground">Generating achievement art...</p>
               </div>
             ) : imageUrl ? (
-              <motion.img
-                initial={{ opacity: 0, scale: 1.05 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
-                src={imageUrl}
-                alt={achievement.name}
-                className="w-full h-full object-cover"
-              />
+              <img src={imageUrl} alt={achievement.name} className="w-full h-full object-cover" />
             ) : (
               <span className="text-6xl">{achievement.icon}</span>
             )}

@@ -51,7 +51,8 @@ export const Leaderboard = ({ currentUsername = 'You', currentLevel = 1 }: Leade
       const category = categories.find(c => c.id === categoryId);
       if (!category) return;
 
-      const query = supabase
+      // Query the view
+      let query = supabase
         .from('leaderboard_view')
         .select('user_id, username, avatar_id, level, total_quests_completed, credits, achievements, longest_streak, current_streak');
 
@@ -67,6 +68,7 @@ export const Leaderboard = ({ currentUsername = 'You', currentLevel = 1 }: Leade
         return;
       }
 
+      // Sort and map based on category
       const sorted = [...data].sort((a, b) => {
         if (categoryId === 'achievements') {
           const aCount = Array.isArray(a.achievements) ? a.achievements.length : 0;
@@ -100,6 +102,7 @@ export const Leaderboard = ({ currentUsername = 'You', currentLevel = 1 }: Leade
 
       setLeaderboardData(entries);
 
+      // Find current user rank
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const userEntry = entries.find(e => e.id === user.id);
@@ -107,6 +110,7 @@ export const Leaderboard = ({ currentUsername = 'You', currentLevel = 1 }: Leade
           setCurrentUserRank(userEntry.rank);
           setCurrentUserValue(userEntry.value);
         } else {
+          // User exists but not in top 15
           const userInAll = sorted.findIndex(e => e.user_id === user.id);
           setCurrentUserRank(userInAll >= 0 ? userInAll + 1 : null);
           if (userInAll >= 0) {
@@ -155,7 +159,6 @@ export const Leaderboard = ({ currentUsername = 'You', currentLevel = 1 }: Leade
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
       className="glass rounded-2xl p-6 border border-white/10"
     >
       {/* Header */}
@@ -179,9 +182,9 @@ export const Leaderboard = ({ currentUsername = 'You', currentLevel = 1 }: Leade
             key={category.id}
             onClick={() => setSelectedCategory(category.id)}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all",
               selectedCategory === category.id
-                ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                ? "bg-primary text-primary-foreground"
                 : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
@@ -220,11 +223,10 @@ export const Leaderboard = ({ currentUsername = 'You', currentLevel = 1 }: Leade
               key={entry.id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: Math.min(index * 0.03, 0.3), type: 'spring', stiffness: 300, damping: 25 }}
+              transition={{ delay: index * 0.05 }}
               className={cn(
-                "flex items-center gap-4 p-3 rounded-xl border transition-all duration-200 hover:bg-white/[0.02]",
-                getRankStyle(entry.rank),
-                entry.rank <= 3 && "animate-shimmer"
+                "flex items-center gap-4 p-3 rounded-xl border transition-all hover:scale-[1.01]",
+                getRankStyle(entry.rank)
               )}
             >
               <div className="w-10 h-10 rounded-lg bg-background/50 flex items-center justify-center">
@@ -236,7 +238,6 @@ export const Leaderboard = ({ currentUsername = 'You', currentLevel = 1 }: Leade
                   src={`https://api.dicebear.com/7.x/${entry.avatarId === 'default' ? 'bottts' : entry.avatarId}/svg?seed=${entry.username}`}
                   alt={entry.username}
                   className="w-full h-full object-cover"
-                  loading="lazy"
                 />
               </div>
 

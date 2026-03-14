@@ -42,26 +42,21 @@ export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarId =
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
       className="glass rounded-2xl p-6 border-glow-primary relative overflow-hidden"
     >
       {/* Background gradient effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
       
       <div className="relative z-10 flex items-start gap-5">
-        {/* Avatar with float animation */}
+        {/* Avatar */}
         <div className="relative">
-          <motion.div
-            animate={{ y: [0, -6, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-24 h-24 rounded-xl overflow-hidden border-2 border-primary/30 bg-card shadow-lg shadow-primary/10"
-          >
+          <div className="w-24 h-24 rounded-xl overflow-hidden border-2 border-primary/30 bg-card shadow-lg shadow-primary/10">
             <img
               src={avatarSrc}
               alt={username}
               className="w-full h-full object-cover"
             />
-          </motion.div>
+          </div>
           {/* Level badge */}
           <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground font-display font-bold text-sm px-2 py-1 rounded-lg shadow-lg glow-primary">
             LV.{level}
@@ -76,13 +71,10 @@ export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarId =
           </div>
           
           {/* Rank badge */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border ${getRankColor()} mb-4 cursor-default transition-shadow duration-200 hover:shadow-lg`}
-          >
+          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border ${getRankColor()} mb-4`}>
             <Star className="w-4 h-4" />
             <span className="font-display font-semibold text-sm">{rank}</span>
-          </motion.div>
+          </div>
 
           {/* XP Bar */}
           <div className="space-y-2">
@@ -96,7 +88,7 @@ export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarId =
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${xpPercentage}%` }}
-                transition={{ type: 'spring', stiffness: 60, damping: 15, delay: 0.3 }}
+                transition={{ duration: 1, ease: "easeOut" }}
                 className="h-full bg-gradient-to-r from-primary via-purple-400 to-primary-glow rounded-full xp-bar"
               />
               {/* Shimmer effect */}
@@ -117,15 +109,11 @@ export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarId =
 };
 
 const QuickStat = ({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string; color: string }) => (
-  <motion.div
-    whileHover={{ scale: 1.03 }}
-    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-    className="bg-card-elevated/50 rounded-lg p-3 border border-white/5 transition-shadow duration-200 hover:shadow-md hover:shadow-primary/5"
-  >
+  <div className="bg-card-elevated/50 rounded-lg p-3 border border-white/5">
     <div className={`flex items-center gap-2 text-${color} mb-1`}>
       {icon}
       <span className="text-xs text-muted-foreground">{label}</span>
     </div>
     <span className="font-display font-bold text-foreground">{value}</span>
-  </motion.div>
+  </div>
 );

@@ -105,6 +105,7 @@ const Auth = () => {
     setLoading(true);
 
     if (mode === 'signup') {
+      // Clear any existing local storage data for fresh account
       localStorage.removeItem('the-system-game-state');
       localStorage.removeItem('the-system-achievements');
       localStorage.removeItem('pomodoro-state');
@@ -157,24 +158,19 @@ const Auth = () => {
       {/* Background effects */}
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent pointer-events-none" />
       <div className="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.015%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] pointer-events-none" />
-      
-      {/* Ambient glow orbs */}
-      <div className="fixed top-1/4 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-[100px] pointer-events-none animate-pulse" />
-      <div className="fixed bottom-1/4 right-1/4 w-48 h-48 bg-secondary/5 rounded-full blur-[80px] pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
 
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
         <div className="glass-strong rounded-2xl border-glow-primary overflow-hidden">
           {/* Header */}
           <div className="p-6 border-b border-white/5 text-center bg-gradient-to-br from-primary/10 to-transparent">
             <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 15 }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring' }}
               className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center"
             >
               <Shield className="w-8 h-8 text-white" />
@@ -190,7 +186,7 @@ const Auth = () => {
                 playClick();
                 setMode('signin');
               }}
-              className={`flex-1 py-3 text-sm font-semibold transition-all duration-200 ${
+              className={`flex-1 py-3 text-sm font-semibold transition-all ${
                 mode === 'signin'
                   ? 'text-primary border-b-2 border-primary bg-primary/5'
                   : 'text-muted-foreground hover:text-foreground'
@@ -203,7 +199,7 @@ const Auth = () => {
                 playClick();
                 setMode('signup');
               }}
-              className={`flex-1 py-3 text-sm font-semibold transition-all duration-200 ${
+              className={`flex-1 py-3 text-sm font-semibold transition-all ${
                 mode === 'signup'
                   ? 'text-primary border-b-2 border-primary bg-primary/5'
                   : 'text-muted-foreground hover:text-foreground'
@@ -279,7 +275,7 @@ const Auth = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors duration-200"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -294,7 +290,7 @@ const Auth = () => {
                   playClick();
                   setMode('reset');
                 }}
-                className="text-sm text-primary hover:underline w-full text-right transition-colors duration-200"
+                className="text-sm text-primary hover:underline w-full text-right"
               >
                 Forgot password?
               </button>
@@ -303,7 +299,7 @@ const Auth = () => {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/80 glow-primary font-display active:scale-[0.98] transition-transform duration-100"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/80 glow-primary font-display"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -323,7 +319,7 @@ const Auth = () => {
                   playClick();
                   setMode('signin');
                 }}
-                className="text-sm text-muted-foreground hover:text-foreground w-full text-center transition-colors duration-200"
+                className="text-sm text-muted-foreground hover:text-foreground w-full text-center"
               >
                 ← Back to Sign In
               </button>
@@ -356,7 +352,7 @@ const Auth = () => {
                       setGoogleLoading(false);
                     }
                   }}
-                  className="w-full border-white/10 hover:bg-white/5 gap-2 active:scale-[0.98] transition-transform duration-100"
+                  className="w-full border-white/10 hover:bg-white/5 gap-2"
                 >
                   {googleLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -387,7 +383,7 @@ const Auth = () => {
                       setAppleLoading(false);
                     }
                   }}
-                  className="w-full border-white/10 hover:bg-white/5 gap-2 active:scale-[0.98] transition-transform duration-100"
+                  className="w-full border-white/10 hover:bg-white/5 gap-2"
                 >
                   {appleLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

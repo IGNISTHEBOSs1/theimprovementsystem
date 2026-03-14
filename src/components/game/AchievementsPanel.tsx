@@ -1,26 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Achievement } from '@/hooks/useAchievements';
 import { AchievementBadge } from './AchievementBadge';
 import { AchievementDetailModal } from './AchievementDetailModal';
 import { Trophy } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-
-const CACHE_KEY = 'achievement-images-cache';
-
-const getImageCache = (): Record<string, string> => {
-  try {
-    return JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
-  } catch { return {}; }
-};
-
-const setImageCache = (id: string, url: string) => {
-  const cache = getImageCache();
-  cache[id] = url;
-  const keys = Object.keys(cache);
-  if (keys.length > 50) delete cache[keys[0]];
-  localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-};
 
 interface AchievementsPanelProps {
   achievements: Achievement[];
@@ -34,51 +17,6 @@ export const AchievementsPanel = ({
   totalCount 
 }: AchievementsPanelProps) => {
   const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
-  const preCacheStarted = useRef(false);
-
-  // Background pre-cache unlocked achievement images
-  useEffect(() => {
-    if (preCacheStarted.current) return;
-    preCacheStarted.current = true;
-
-    const cache = getImageCache();
-    const uncached = achievements.filter(a => a.unlocked && !cache[a.id]);
-    if (uncached.length === 0) return;
-
-    let cancelled = false;
-    const preCache = async () => {
-      for (const achievement of uncached) {
-        if (cancelled) break;
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          const prompt = `A mystical ${achievement.rarity} rarity game achievement badge icon for "${achievement.name}": ${achievement.description}. Fantasy RPG style, dark background, glowing effects. Square icon art, detailed, game UI style.`;
-          
-          const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-achievement-image`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            },
-            body: JSON.stringify({ prompt, achievementId: achievement.id }),
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.imageUrl) {
-              setImageCache(achievement.id, data.imageUrl);
-            }
-          }
-          // Small delay between requests to avoid flooding
-          await new Promise(r => setTimeout(r, 2000));
-        } catch {
-          // Silent fail for background pre-caching
-        }
-      }
-    };
-
-    preCache();
-    return () => { cancelled = true; };
-  }, [achievements]);
 
   const categories = [
     { key: 'quests', label: 'Quests', japLabel: 'クエスト' },
@@ -101,7 +39,6 @@ export const AchievementsPanel = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 20 }}
         className="bg-card/80 backdrop-blur-sm border border-border rounded-xl p-6"
       >
         {/* Header */}
@@ -128,7 +65,7 @@ export const AchievementsPanel = ({
               className="h-full bg-gradient-to-r from-primary to-primary/60"
               initial={{ width: 0 }}
               animate={{ width: `${(unlockedCount / totalCount) * 100}%` }}
-              transition={{ duration: 0.8, type: 'spring', stiffness: 60, damping: 15 }}
+              transition={{ duration: 1, ease: 'easeOut' }}
             />
           </div>
         </div>

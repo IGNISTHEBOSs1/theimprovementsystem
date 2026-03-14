@@ -56,18 +56,6 @@ const navItems: NavItem[] = [
   },
 ];
 
-const containerVariants = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.05 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
-};
-
 interface NavigationHubProps {
   activeSection: string;
   onNavigate: (section: string) => void;
@@ -75,47 +63,35 @@ interface NavigationHubProps {
 
 export const NavigationHub = ({ activeSection, onNavigate }: NavigationHubProps) => {
   return (
-    <motion.div
-      className="grid grid-cols-2 md:grid-cols-5 gap-4"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {navItems.map((item) => (
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      {navItems.map((item, index) => (
         <motion.button
           key={item.id}
-          variants={itemVariants}
-          whileHover={{ scale: item.locked ? 1 : 1.02, y: item.locked ? 0 : -4 }}
-          whileTap={{ scale: item.locked ? 1 : 0.97 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+          whileHover={{ scale: item.locked ? 1 : 1.02, y: item.locked ? 0 : -5 }}
+          whileTap={{ scale: item.locked ? 1 : 0.98 }}
           onClick={() => !item.locked && onNavigate(item.id)}
           disabled={item.locked}
           className={cn(
-            "relative glass rounded-2xl p-6 text-left border transition-all duration-200 group overflow-hidden will-animate",
+            "relative glass rounded-2xl p-6 text-left border transition-all duration-300 group overflow-hidden",
             activeSection === item.id 
               ? "border-primary/50 glow-primary" 
               : "border-white/10 hover:border-white/20",
             item.locked && "opacity-50 cursor-not-allowed"
           )}
         >
-          {/* Active indicator bar */}
-          {activeSection === item.id && (
-            <motion.div
-              layoutId="nav-active-bar"
-              className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-primary-glow to-primary"
-              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            />
-          )}
-
           {/* Background gradient */}
           <div className={cn(
-            "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+            "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity",
             item.color
           )} />
 
           <div className="relative z-10">
             {/* Icon */}
             <div className={cn(
-              "w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-all duration-300",
+              "w-14 h-14 rounded-xl flex items-center justify-center mb-4 transition-colors",
               activeSection === item.id 
                 ? "bg-primary text-primary-foreground" 
                 : "bg-muted text-muted-foreground group-hover:text-foreground"
@@ -143,7 +119,7 @@ export const NavigationHub = ({ activeSection, onNavigate }: NavigationHubProps)
             {!item.locked && (
               <div className="flex items-center gap-1 text-primary text-sm font-medium">
                 <span>Enter</span>
-                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             )}
 
@@ -155,6 +131,6 @@ export const NavigationHub = ({ activeSection, onNavigate }: NavigationHubProps)
           </div>
         </motion.button>
       ))}
-    </motion.div>
+    </div>
   );
 };
