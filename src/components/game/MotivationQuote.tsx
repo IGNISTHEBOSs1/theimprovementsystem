@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Quote, RefreshCw } from 'lucide-react';
 
 const quotes: Record<string, string[]> = {
@@ -65,22 +65,28 @@ export const MotivationQuote = ({ section }: MotivationQuoteProps) => {
   };
 
   return (
-    <motion.div
-      key={key}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="glass rounded-xl p-4 border border-white/10 flex items-start gap-3"
-    >
-      <Quote className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-      <p className="text-sm text-muted-foreground italic flex-1">
-        "{quote}"
-      </p>
-      <button
-        onClick={refreshQuote}
-        className="text-muted-foreground hover:text-primary transition-colors shrink-0"
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={key}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        className="glass rounded-xl p-4 border border-white/10 flex items-start gap-3"
       >
-        <RefreshCw className="w-4 h-4" />
-      </button>
-    </motion.div>
+        <Quote className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+        <p className="text-sm text-muted-foreground italic flex-1">
+          "{quote}"
+        </p>
+        <motion.button
+          onClick={refreshQuote}
+          whileHover={{ rotate: 180 }}
+          transition={{ duration: 0.3 }}
+          className="text-muted-foreground hover:text-primary transition-colors duration-200 shrink-0"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </motion.button>
+      </motion.div>
+    </AnimatePresence>
   );
 };

@@ -123,9 +123,18 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
+  }
+
+  /* Professional focus ring */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring/50 ring-offset-2 ring-offset-background;
   }
 
   /* Scrollbar styling */
@@ -151,11 +160,18 @@
 @layer utilities {
   /* Glassmorphism */
   .glass {
-    @apply bg-card/60 backdrop-blur-xl border border-white/5;
+    @apply bg-card/60 backdrop-blur-2xl border border-white/5;
+    -webkit-backdrop-filter: blur(24px);
   }
 
   .glass-strong {
-    @apply bg-card/80 backdrop-blur-2xl border border-white/10;
+    @apply bg-card/80 backdrop-blur-3xl border border-white/10;
+    -webkit-backdrop-filter: blur(40px);
+  }
+
+  /* GPU-accelerated animated elements */
+  .will-animate {
+    will-change: transform, opacity;
   }
 
   /* Glow effects */
@@ -250,6 +266,33 @@
     50% {
       box-shadow: 0 0 40px hsl(var(--primary) / 0.5);
     }
+  }
+
+  /* Float animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Shimmer effect */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--primary) / 0.08) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s ease-in-out infinite;
   }
 
   /* Stat card hover */

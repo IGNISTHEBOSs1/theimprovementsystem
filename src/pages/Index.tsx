@@ -38,6 +38,13 @@ import { SystemGifts } from '@/components/game/SystemGifts';
 import { Leaderboard } from '@/components/game/Leaderboard';
 import { Button } from '@/components/ui/button';
 
+const sectionTransition = {
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
+  transition: { type: 'spring' as const, stiffness: 300, damping: 28 },
+};
+
 const Index = () => {
   const [activeSection, setActiveSection] = useState('awakening');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -66,13 +73,9 @@ const Index = () => {
     getCurrentStreak,
   } = useGameState();
 
-  // Cloud sync for logged-in users
   useCloudSync(gameState, setGameState);
 
-  // Daily login bonus
   const { bonusData, showBonusModal, dismissBonus } = useDailyLoginBonus();
-
-  // Auto-generate daily tasks
   const { generateDailyTasks, hasGeneratedToday } = useAutoGenerateTasks(gameState, addQuest);
 
   const {
@@ -83,7 +86,6 @@ const Index = () => {
     totalCount 
   } = useAchievements(gameState);
 
-  // Show mini-player when not on quests section and timer was used
   useEffect(() => {
     const wasTimerActive = localStorage.getItem('pomodoro-state');
     if (wasTimerActive && activeSection !== 'quests') {
@@ -96,18 +98,12 @@ const Index = () => {
     }
   }, [activeSection]);
 
-  // Play level up sound when level increases
   useEffect(() => {
-    if (showLevelUp) {
-      playLevelUp();
-    }
+    if (showLevelUp) playLevelUp();
   }, [showLevelUp, playLevelUp]);
 
-  // Play achievement unlock sound
   useEffect(() => {
-    if (newlyUnlocked) {
-      playAchievement();
-    }
+    if (newlyUnlocked) playAchievement();
   }, [newlyUnlocked, playAchievement]);
 
   const handleCompleteQuest = (questId: string) => {
@@ -129,24 +125,21 @@ const Index = () => {
     playTap();
   };
 
-  // Navigation with sound
   const handleNavigate = (section: string) => {
     playTap();
     setActiveSection(section);
   };
 
-  // Claim daily login bonus and auto-generate tasks
   const handleClaimBonus = async () => {
     if (bonusData?.isNewDay) {
       addXp(bonusData.bonusXp);
       addCredits(bonusData.bonusCredits);
       playAchievement();
       
-      // Auto-generate daily tasks when claiming new day bonus
       if (!hasGeneratedToday) {
         setTimeout(() => {
           generateDailyTasks();
-        }, 1000); // Delay to let UI settle
+        }, 1000);
       }
     }
     dismissBonus();
@@ -169,16 +162,11 @@ const Index = () => {
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
         <div className="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.015%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] pointer-events-none" />
 
-        {/* Level Up Notification */}
         <LevelUpNotification show={showLevelUp} level={gameState.level} />
-        
-        {/* Achievement Unlock Notification */}
         <AchievementUnlockNotification 
           achievement={newlyUnlocked} 
           onDismiss={dismissNotification} 
         />
-
-        {/* Pomodoro Mini Player */}
         <PomodoroMiniPlayer 
           isVisible={showMiniPlayer} 
           onClose={() => setShowMiniPlayer(false)}
@@ -189,7 +177,6 @@ const Index = () => {
           }}
         />
 
-        {/* Edit Profile Modal */}
         {profile && (
           <EditProfileModal 
             isOpen={showEditProfile} 
@@ -198,7 +185,6 @@ const Index = () => {
           />
         )}
 
-        {/* Daily Login Bonus Modal */}
         {bonusData && user && (
           <DailyLoginBonus
             isVisible={showBonusModal && bonusData.isNewDay}
@@ -208,7 +194,6 @@ const Index = () => {
           />
         )}
 
-        {/* AI Assistant */}
         <AIAssistant 
           isOpen={showAIAssistant} 
           onClose={() => setShowAIAssistant(false)}
@@ -258,7 +243,6 @@ const Index = () => {
                 <span className="text-sm font-bold text-primary">{unlockedCount}/{totalCount}</span>
               </div>
               
-              {/* AI Assistant Button */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -266,14 +250,13 @@ const Index = () => {
                   playTap();
                   setShowAIAssistant(true);
                 }}
-                className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 hover:from-primary/30 hover:to-accent/30 border border-primary/20"
+                className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 hover:from-primary/30 hover:to-accent/30 border border-primary/20 transition-all duration-200"
               >
                 <Bot className="w-5 h-5 text-primary" />
               </Button>
               
               <div className="h-8 w-px bg-border" />
               
-              {/* Account Section */}
               {user && profile ? (
                 <AccountDropdown 
                   profile={profile} 
@@ -287,7 +270,7 @@ const Index = () => {
                     playTap();
                     navigate('/auth');
                   }}
-                  className="bg-primary/10 border-primary/30 hover:bg-primary/20"
+                  className="bg-primary/10 border-primary/30 hover:bg-primary/20 active:scale-[0.98] transition-transform duration-100"
                 >
                   <LogIn className="w-4 h-4 mr-2" />
                   Sign In
@@ -301,7 +284,7 @@ const Index = () => {
                 playTap();
                 setMobileMenuOpen(!mobileMenuOpen);
               }}
-              className="md:hidden w-10 h-10 rounded-lg bg-muted flex items-center justify-center"
+              className="md:hidden w-10 h-10 rounded-lg bg-muted flex items-center justify-center transition-colors duration-200"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -315,6 +298,7 @@ const Index = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
               className="md:hidden glass-strong border-b border-white/5"
             >
               <div className="container mx-auto px-4 py-4 space-y-4">
@@ -379,6 +363,7 @@ const Index = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
             className="mb-8"
           >
             <NavigationHub activeSection={activeSection} onNavigate={handleNavigate} />
@@ -389,14 +374,11 @@ const Index = () => {
             {activeSection === 'awakening' && (
               <motion.div
                 key="awakening"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                {...sectionTransition}
                 className="grid grid-cols-1 lg:grid-cols-3 gap-6"
               >
                 {/* Left Column - Player Info */}
                 <div className="lg:col-span-2 space-y-6">
-                  {/* Streak Fire & System Gifts Row */}
                   <div className="flex flex-wrap items-center gap-4">
                     <StreakFire 
                       isActive={isTodayComplete()} 
@@ -412,7 +394,6 @@ const Index = () => {
                     />
                   </div>
                   
-                  {/* Motivation Quote */}
                   <MotivationQuote section="awakening" />
                   
                   <PlayerCard
@@ -443,14 +424,10 @@ const Index = () => {
             {activeSection === 'quests' && (
               <motion.div
                 key="quests"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                {...sectionTransition}
                 className="space-y-6"
               >
-                {/* Quests Section */}
                 <div className="space-y-4">
-                  {/* Motivation Quote */}
                   <MotivationQuote section="quests" />
                   
                   <div className="flex items-center justify-between mb-4">
@@ -482,7 +459,6 @@ const Index = () => {
                   )}
                 </div>
 
-                {/* Timer & Rewards - Full Width */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-1">
                     <PomodoroTimerFull />
@@ -497,11 +473,8 @@ const Index = () => {
             {activeSection === 'habits' && (
               <motion.div
                 key="habits"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                {...sectionTransition}
               >
-                {/* Motivation Quote */}
                 <MotivationQuote section="habits" />
                 
                 <div className="flex items-center justify-between mb-6 mt-6">
@@ -511,7 +484,6 @@ const Index = () => {
                   </div>
                 </div>
 
-                {/* Habit Manager */}
                 <HabitManager
                   habits={gameState.habits}
                   onAddHabit={addHabit}
@@ -541,9 +513,7 @@ const Index = () => {
             {activeSection === 'leaderboards' && (
               <motion.div
                 key="leaderboards"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                {...sectionTransition}
               >
                 <Leaderboard 
                   currentUsername={displayUsername}
@@ -555,9 +525,7 @@ const Index = () => {
             {activeSection === 'gates' && (
               <motion.div
                 key="gates"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                {...sectionTransition}
               >
                 <div className="mb-6">
                   <h2 className="font-display text-2xl font-bold text-foreground">Gates</h2>
@@ -572,13 +540,11 @@ const Index = () => {
           </AnimatePresence>
         </main>
 
-        {/* Floating AI Button - Always visible bottom right */}
         <FloatingAIButton onClick={() => {
           playTap();
           setShowAIAssistant(true);
         }} />
 
-        {/* Footer */}
         <footer className="border-t border-white/5 py-6 mt-12">
           <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
             <p className="font-jp">システムに選ばれし者よ、前へ進め</p>

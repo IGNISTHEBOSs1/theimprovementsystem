@@ -11,7 +11,7 @@ export const PomodoroTimer = ({ onComplete }: PomodoroTimerProps) => {
   const [timeLeft, setTimeLeft] = useState(50 * 60); // 50 minutes in seconds
   const [isRunning, setIsRunning] = useState(false);
   const [totalTime] = useState(50 * 60);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (isRunning && timeLeft > 0) {
