@@ -12,7 +12,7 @@ export const useCloudSync = (
   const { user } = useAuth();
   const syncInProgress = useRef(false);
   const lastSyncTime = useRef<number>(0);
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load game state from cloud on login
   const loadFromCloud = useCallback(async () => {

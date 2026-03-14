@@ -34,7 +34,7 @@ const Landing = () => {
           </div>
           <Button
             onClick={() => navigate('/auth')}
-            className="bg-primary/10 border border-primary/30 hover:bg-primary/20 text-primary"
+            className="bg-primary/10 border border-primary/30 hover:bg-primary/20 text-primary active:scale-[0.98] transition-transform duration-100"
           >
             Sign In
           </Button>
@@ -46,7 +46,7 @@ const Landing = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              transition={{ delay: 0.1, type: 'spring', stiffness: 200, damping: 20 }}
             >
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8">
                 <Star className="w-4 h-4 text-primary" />
@@ -57,7 +57,7 @@ const Landing = () => {
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 20 }}
               className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6"
             >
               Become the{' '}
@@ -69,7 +69,7 @@ const Landing = () => {
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.3, type: 'spring', stiffness: 200, damping: 20 }}
               className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
             >
               Transform your daily habits into epic quests. Track your progress, 
@@ -79,13 +79,13 @@ const Landing = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.4, type: 'spring', stiffness: 200, damping: 20 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
               <Button
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary font-display text-lg px-8"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary font-display text-lg px-8 active:scale-[0.98] transition-transform duration-100"
               >
                 Start Your Journey
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -110,10 +110,12 @@ const Landing = () => {
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + index * 0.1 }}
-              className="glass rounded-2xl p-6 border border-white/10 hover:border-primary/30 transition-colors"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ delay: index * 0.1, type: 'spring', stiffness: 200, damping: 20 }}
+              whileHover={{ y: -4 }}
+              className="glass rounded-2xl p-6 border border-white/10 hover:border-primary/30 transition-all duration-200 hover:shadow-lg hover:shadow-primary/5"
             >
               <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-4">
                 <feature.icon className="w-6 h-6 text-primary" />
@@ -133,8 +135,9 @@ const Landing = () => {
       <section className="container mx-auto px-4 py-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.8 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
           className="glass-strong rounded-3xl p-8 md:p-12 text-center border-glow-primary"
         >
           <h2 className="font-display text-2xl md:text-4xl font-bold text-foreground mb-4">
@@ -146,7 +149,7 @@ const Landing = () => {
           <Button
             size="lg"
             onClick={() => navigate('/auth')}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary font-display"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 glow-primary font-display active:scale-[0.98] transition-transform duration-100"
           >
             Create Free Account
             <ArrowRight className="w-5 h-5 ml-2" />

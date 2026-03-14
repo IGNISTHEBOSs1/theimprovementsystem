@@ -19,6 +19,7 @@ export const SystemLog = ({ messages }: SystemLogProps) => {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
       className="glass rounded-2xl border-glow-primary h-full flex flex-col"
     >
       {/* Header */}
@@ -41,7 +42,7 @@ export const SystemLog = ({ messages }: SystemLogProps) => {
               key={msg.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: Math.min(index * 0.05, 0.25), type: 'spring', stiffness: 300, damping: 25 }}
               className={cn(
                 "p-3 rounded-lg border border-white/5",
                 style.bg
@@ -118,7 +119,7 @@ const ProgressItem = ({
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6, type: 'spring', stiffness: 80, damping: 15 }}
           className={cn(
             "h-full rounded-full",
             color === 'primary' && "bg-primary",
