@@ -84,7 +84,7 @@ export const EditProfileModal = ({ isOpen, onClose, profile }: EditProfileModalP
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg z-50"
+            className="fixed inset-0 flex items-center justify-center p-4 z-50"
           >
             <div className="bg-[#0d0d14] border border-white/10 rounded-2xl overflow-hidden h-full md:h-auto max-h-[90vh] overflow-y-auto shadow-2xl shadow-primary/10">
               
