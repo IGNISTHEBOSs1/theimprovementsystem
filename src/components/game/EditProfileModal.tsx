@@ -86,7 +86,7 @@ export const EditProfileModal = ({ isOpen, onClose, profile }: EditProfileModalP
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed inset-0 flex items-center justify-center p-4 z-50"
           >
-            <div className="bg-[#0d0d14] border border-white/10 rounded-2xl overflow-hidden h-full md:h-auto max-h-[90vh] overflow-y-auto shadow-2xl shadow-primary/10">
+            <div className="bg-[#0d0d14] border border-white/10 rounded-2xl overflow-hidden w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl shadow-primary/10">
               
               {/* Header */}
               <div className="relative px-6 pt-6 pb-4 border-b border-white/5">
