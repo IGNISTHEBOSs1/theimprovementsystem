@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Shield, Mail, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
-import { lovable } from '@/integrations/lovable/index';
+import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -105,7 +105,6 @@ const Auth = () => {
     setLoading(true);
 
     if (mode === 'signup') {
-      // Clear any existing local storage data for fresh account
       localStorage.removeItem('the-system-game-state');
       localStorage.removeItem('the-system-achievements');
       localStorage.removeItem('pomodoro-state');
@@ -155,7 +154,6 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center p-4">
-      {/* Background effects */}
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent pointer-events-none" />
       <div className="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.015%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] pointer-events-none" />
 
@@ -165,7 +163,6 @@ const Auth = () => {
         className="w-full max-w-md"
       >
         <div className="glass-strong rounded-2xl border-glow-primary overflow-hidden">
-          {/* Header */}
           <div className="p-6 border-b border-white/5 text-center bg-gradient-to-br from-primary/10 to-transparent">
             <motion.div
               initial={{ scale: 0 }}
@@ -179,37 +176,25 @@ const Auth = () => {
             <p className="text-sm text-muted-foreground font-jp mt-1">システム</p>
           </div>
 
-          {/* Mode Toggle */}
           <div className="flex border-b border-white/5">
             <button
-              onClick={() => {
-                playClick();
-                setMode('signin');
-              }}
+              onClick={() => { playClick(); setMode('signin'); }}
               className={`flex-1 py-3 text-sm font-semibold transition-all ${
-                mode === 'signin'
-                  ? 'text-primary border-b-2 border-primary bg-primary/5'
-                  : 'text-muted-foreground hover:text-foreground'
+                mode === 'signin' ? 'text-primary border-b-2 border-primary bg-primary/5' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Sign In
             </button>
             <button
-              onClick={() => {
-                playClick();
-                setMode('signup');
-              }}
+              onClick={() => { playClick(); setMode('signup'); }}
               className={`flex-1 py-3 text-sm font-semibold transition-all ${
-                mode === 'signup'
-                  ? 'text-primary border-b-2 border-primary bg-primary/5'
-                  : 'text-muted-foreground hover:text-foreground'
+                mode === 'signup' ? 'text-primary border-b-2 border-primary bg-primary/5' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Sign Up
             </button>
           </div>
 
-          {/* Password Reset Mode Header */}
           {mode === 'reset' && (
             <div className="p-4 bg-primary/5 border-b border-white/5">
               <p className="text-sm text-muted-foreground text-center">
@@ -218,65 +203,32 @@ const Auth = () => {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             {mode === 'signup' && (
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-sm text-muted-foreground">
-                  Hunter Name
-                </Label>
+                <Label htmlFor="username" className="text-sm text-muted-foreground">Hunter Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="username"
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter your hunter name"
-                    className="pl-10 bg-muted/50 border-white/10 focus:border-primary"
-                    maxLength={20}
-                  />
+                  <Input id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Enter your hunter name" className="pl-10 bg-muted/50 border-white/10 focus:border-primary" maxLength={20} />
                 </div>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm text-muted-foreground">
-                Email
-              </Label>
+              <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="hunter@example.com"
-                  className="pl-10 bg-muted/50 border-white/10 focus:border-primary"
-                />
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="hunter@example.com" className="pl-10 bg-muted/50 border-white/10 focus:border-primary" />
               </div>
             </div>
 
             {mode !== 'reset' && (
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm text-muted-foreground">
-                  Password
-                </Label>
+                <Label htmlFor="password" className="text-sm text-muted-foreground">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="pl-10 pr-10 bg-muted/50 border-white/10 focus:border-primary"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
+                  <Input id="password" type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className="pl-10 pr-10 bg-muted/50 border-white/10 focus:border-primary" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -284,43 +236,17 @@ const Auth = () => {
             )}
 
             {mode === 'signin' && (
-              <button
-                type="button"
-                onClick={() => {
-                  playClick();
-                  setMode('reset');
-                }}
-                className="text-sm text-primary hover:underline w-full text-right"
-              >
+              <button type="button" onClick={() => { playClick(); setMode('reset'); }} className="text-sm text-primary hover:underline w-full text-right">
                 Forgot password?
               </button>
             )}
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/80 glow-primary font-display"
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : mode === 'signin' ? (
-                'Enter The System'
-              ) : mode === 'reset' ? (
-                'Send Reset Link'
-              ) : (
-                'Awaken Your Power'
-              )}
+            <Button type="submit" disabled={loading} className="w-full bg-primary text-primary-foreground hover:bg-primary/80 glow-primary font-display">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : mode === 'signin' ? 'Enter The System' : mode === 'reset' ? 'Send Reset Link' : 'Awaken Your Power'}
             </Button>
 
             {mode === 'reset' && (
-              <button
-                type="button"
-                onClick={() => {
-                  playClick();
-                  setMode('signin');
-                }}
-                className="text-sm text-muted-foreground hover:text-foreground w-full text-center"
-              >
+              <button type="button" onClick={() => { playClick(); setMode('signin'); }} className="text-sm text-muted-foreground hover:text-foreground w-full text-center">
                 ← Back to Sign In
               </button>
             )}
@@ -336,27 +262,13 @@ const Auth = () => {
                   </div>
                 </div>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={googleLoading}
-                  onClick={async () => {
-                    playClick();
-                    setGoogleLoading(true);
-                    const { error } = await lovable.auth.signInWithOAuth("google", {
-                      redirect_uri: window.location.origin,
-                    });
-                    if (error) {
-                      playError();
-                      toast({ title: 'Google sign-in failed', description: String(error), variant: 'destructive' });
-                      setGoogleLoading(false);
-                    }
-                  }}
-                  className="w-full border-white/10 hover:bg-white/5 gap-2"
-                >
-                  {googleLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
+                <Button type="button" variant="outline" disabled={googleLoading} onClick={async () => {
+                  playClick();
+                  setGoogleLoading(true);
+                  const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
+                  if (error) { playError(); toast({ title: 'Google sign-in failed', description: String(error), variant: 'destructive' }); setGoogleLoading(false); }
+                }} className="w-full border-white/10 hover:bg-white/5 gap-2">
+                  {googleLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                     <svg className="w-4 h-4" viewBox="0 0 24 24">
                       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
                       <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
@@ -367,27 +279,13 @@ const Auth = () => {
                   Continue with Google
                 </Button>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={appleLoading}
-                  onClick={async () => {
-                    playClick();
-                    setAppleLoading(true);
-                    const { error } = await lovable.auth.signInWithOAuth("apple", {
-                      redirect_uri: window.location.origin,
-                    });
-                    if (error) {
-                      playError();
-                      toast({ title: 'Apple sign-in failed', description: String(error), variant: 'destructive' });
-                      setAppleLoading(false);
-                    }
-                  }}
-                  className="w-full border-white/10 hover:bg-white/5 gap-2"
-                >
-                  {appleLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
+                <Button type="button" variant="outline" disabled={appleLoading} onClick={async () => {
+                  playClick();
+                  setAppleLoading(true);
+                  const { error } = await supabase.auth.signInWithOAuth({ provider: 'apple', options: { redirectTo: window.location.origin } });
+                  if (error) { playError(); toast({ title: 'Apple sign-in failed', description: String(error), variant: 'destructive' }); setAppleLoading(false); }
+                }} className="w-full border-white/10 hover:bg-white/5 gap-2">
+                  {appleLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                     </svg>
