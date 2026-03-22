@@ -103,7 +103,7 @@ const AchieveBadge = ({ achievement, x, y, onClick }: {
           <text x={0} y={2} textAnchor="middle" fontSize={9} fontWeight="500" fill="rgb(240,240,255)">
             {achievement.name}
           </text>
-          <text x={0} y={14} textAnchor="middle" fontSize={7.5} fill="rgba(0,0,0,0.7)">
+          <text x={0} y={14} textAnchor="middle" fontSize={7.5} fill="rgba(200,200,220,0.7)">
             {achievement.description.length > 28 ? achievement.description.slice(0, 27) + '…' : achievement.description}
           </text>
         </g>
