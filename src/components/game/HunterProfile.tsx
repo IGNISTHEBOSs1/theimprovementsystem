@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
-import { GameState } from '@/hooks/useGameState';
+import { GameState, AttributeStat } from '@/hooks/useGameState';
 import { Achievement } from '@/hooks/useAchievements';
 import { AVATAR_OPTIONS } from './EditProfileModal';
 import { Trophy, Flame, Sword, Shield, Star, Crown, Zap, Target, Lock, CheckCircle2 } from 'lucide-react';
 import { RadarChartComponent } from './RadarChart';
+import { getHunterPower, getAttributeTitle } from '@/lib/attributeXp';
 import { cn } from '@/lib/utils';
 
 interface HunterProfileProps {
@@ -55,8 +56,12 @@ export const HunterProfile = ({ gameState, achievements, unlockedCount, avatarId
   const systemTitles = TITLES.filter(t => t.condition(gameState));
   const primaryTitle = systemTitles[systemTitles.length - 1];
 
-  const statEntries = Object.entries(gameState.stats || {}) as [string, number][];
-  const avgStat = statEntries.length > 0 ? Math.round(statEntries.reduce((s, [, v]) => s + v, 0) / statEntries.length) : 0;
+  // statEntries correctly typed as AttributeStat — never cast to number
+  const statEntries = Object.entries(gameState.stats || {}) as [string, AttributeStat][];
+  const avgLevel = statEntries.length > 0
+    ? Math.round(statEntries.reduce((sum, [, s]) => sum + s.level, 0) / statEntries.length)
+    : 1;
+  const hunterPower = getHunterPower(gameState.stats);
 
   return (
     <motion.div
@@ -121,9 +126,9 @@ export const HunterProfile = ({ gameState, achievements, unlockedCount, avatarId
               { icon: <Flame className="w-4 h-4 text-orange-400" />, label: 'Streak',   value: `${streak}d`,                        color: 'text-orange-400' },
               { icon: <Target className="w-4 h-4 text-primary" />,   label: 'Quests',   value: gameState.totalQuestsCompleted,       color: 'text-primary' },
               { icon: <Trophy className="w-4 h-4 text-accent" />,    label: 'Badges',   value: `${unlockedCount}/${achievements.length}`, color: 'text-accent' },
-              { icon: <Zap className="w-4 h-4 text-yellow-400" />,   label: 'Credits',  value: gameState.credits.toLocaleString(),   color: 'text-yellow-400' },
-              { icon: <Star className="w-4 h-4 text-violet-400" />,  label: 'Avg Stat', value: `${avgStat}/100`,                    color: 'text-violet-400' },
-              { icon: <Shield className="w-4 h-4 text-cyan-400" />,  label: 'Gates',    value: `${clearedGates.length}/6`,          color: 'text-cyan-400' },
+              { icon: <Zap    className="w-4 h-4 text-yellow-400" />, label: 'Credits',  value: gameState.credits.toLocaleString(),   color: 'text-yellow-400' },
+              { icon: <Zap    className="w-4 h-4 text-primary"    />, label: 'Power',    value: hunterPower,                          color: 'text-primary'    },
+              { icon: <Shield className="w-4 h-4 text-cyan-400"   />, label: 'Gates',    value: `${clearedGates.length}/6`,           color: 'text-cyan-400'   },
             ].map((stat, i) => (
               <div key={i} className="bg-white/3 rounded-xl p-3 border border-white/5">
                 <div className="flex items-center gap-1.5 mb-1">{stat.icon}<span className="text-label text-muted-foreground">{stat.label}</span></div>
@@ -137,7 +142,37 @@ export const HunterProfile = ({ gameState, achievements, unlockedCount, avatarId
       {/* Stats spider chart */}
       {gameState.stats && <RadarChartComponent stats={gameState.stats} />}
 
-      {/* Gates cleared */}
+      {/* Per-attribute breakdown — level + title for each stat */}
+      <div className="glass rounded-2xl p-5 border border-white/10">
+        <h3 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
+          <Shield className="w-4 h-4 text-secondary" />
+          Attributes
+        </h3>
+        <div className="grid grid-cols-1 gap-2">
+          {statEntries.map(([key, stat]) => {
+            const title = getAttributeTitle(stat.level);
+            return (
+              <div
+                key={key}
+                className="flex items-center justify-between py-1.5 px-1 border-b border-white/5 last:border-0"
+              >
+                {/* Stat key */}
+                <span className="font-display font-bold text-xs text-muted-foreground w-10">
+                  {key}
+                </span>
+                {/* Level — primary info */}
+                <span className="font-display font-bold text-sm text-foreground flex-1">
+                  Level {stat.level}
+                </span>
+                {/* Title — secondary, visually smaller */}
+                <span className="text-label text-muted-foreground">
+                  {title}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
       <div className="glass rounded-2xl p-5 border border-white/10 hover:border-white/15 transition-all duration-250">
         <h3 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
           <Crown className="w-4 h-4 text-accent" /> Defeated Bosses

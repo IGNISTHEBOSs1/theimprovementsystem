@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export const PomodoroTimerFull = () => {
-  const { state, toggleTimer, resetTimer, setTime, addTime, formatTime, progress } = usePomodoroTimer();
+  const { state, stats, toggleTimer, resetTimer, setTime, addTime, formatTime, progress, xpSessionsRemaining, isXpCapped } = usePomodoroTimer();
 
   const circumference = 2 * Math.PI * 90;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
@@ -133,9 +133,20 @@ export const PomodoroTimerFull = () => {
           ))}
         </div>
 
-        <p className="mt-4 text-caption text-muted-foreground">
-          Complete for <span className="text-primary font-display font-bold">+50 XP</span>
-        </p>
+        {isXpCapped ? (
+          <p className="mt-4 text-caption text-muted-foreground">
+            Daily XP cap reached —{' '}
+            <span className="text-orange-400 font-display font-bold">sessions still count</span>
+          </p>
+        ) : (
+          <p className="mt-4 text-caption text-muted-foreground">
+            Complete for{' '}
+            <span className="text-primary font-display font-bold">+50 XP</span>
+            <span className="text-muted-foreground/60 ml-1.5">
+              ({xpSessionsRemaining} of 5 today)
+            </span>
+          </p>
+        )}
       </div>
     </motion.div>
   );

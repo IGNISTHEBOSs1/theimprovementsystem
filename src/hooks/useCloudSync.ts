@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { GameState } from './useGameState';
+import { GameState, migrateGameState } from './useGameState';
 import { toast } from 'sonner';
 import { Json } from '@/integrations/supabase/types';
 
@@ -32,29 +32,41 @@ export const useCloudSync = (
       }
 
       if (data) {
-        const statsData = data.stats as Record<string, number>;
+        // Stats from Supabase may be in any of three shapes:
+        //   legacy number:       { FIT: 12 }
+        //   current AttributeStat: { FIT: { level: 12, xp: 340 } }
+        //   missing field:       {} or null
+        // We do NOT normalise here — migrateGameState() handles all three
+        // cases via normaliseStatValue() before setGameState is called.
+        const statsData = data.stats as Record<string, unknown>;
         const cloudState: GameState = {
           username: 'Hunter',
-          level: data.level,
-          rank: data.rank,
+          level:    data.level,
+          rank:     data.rank,
           currentXp: data.current_xp,
-          maxXp: data.max_xp,
-          credits: data.credits,
+          maxXp:     data.max_xp,
+          credits:   data.credits,
           stats: {
-            FIT: statsData?.FIT ?? 0,
-            SOC: statsData?.SOC ?? 0,
-            INT: statsData?.INT ?? 0,
-            DIS: statsData?.DIS ?? 0,
-            FOC: statsData?.FOC ?? 0,
-            FIN: statsData?.FIN ?? 0,
+            FIT: (statsData?.FIT ?? { level: 1, xp: 0 }) as any,
+            SOC: (statsData?.SOC ?? { level: 1, xp: 0 }) as any,
+            INT: (statsData?.INT ?? { level: 1, xp: 0 }) as any,
+            DIS: (statsData?.DIS ?? { level: 1, xp: 0 }) as any,
+            FOC: (statsData?.FOC ?? { level: 1, xp: 0 }) as any,
+            FIN: (statsData?.FIN ?? { level: 1, xp: 0 }) as any,
           },
-          quests: (data.quests as unknown as GameState['quests']) || [],
-          habits: (data.habits as unknown as GameState['habits']) || [],
+          quests:         (data.quests as unknown as GameState['quests']) || [],
+          habits:         (data.habits as unknown as GameState['habits']) || [],
           systemMessages: (data.system_messages as unknown as GameState['systemMessages']) || [],
           totalQuestsCompleted: data.total_quests_completed,
-          lastQuestResetDate: new Date().toISOString().split('T')[0],
-          xpMultiplier: (data as any).xp_multiplier || 1,
+          lastQuestResetDate:   new Date().toISOString().split('T')[0],
+          xpMultiplier:        (data as any).xp_multiplier || 1,
           xpMultiplierExpires: (data as any).xp_multiplier_expires || undefined,
+          // Shadow Army economy fields
+          permanentXpBonus: (data as any).permanent_xp_bonus ?? 0,
+          bellionLastUsed:  (data as any).bellion_last_used  ?? '',
+          dailyXpEarned:    (data as any).daily_xp_earned    ?? 0,
+          dailyXpResetDate: (data as any).daily_xp_reset_date ?? new Date().toISOString().split('T')[0],
+          dailyQuestsAdded: (data as any).daily_quests_added  ?? 0,
         };
         return cloudState;
       }
@@ -121,8 +133,11 @@ export const useCloudSync = (
     if (user && !initialLoadDone.current) {
       loadFromCloud().then((cloudState) => {
         if (cloudState) {
+          // Migrate legacy difficulty values before applying cloud state.
+          // This handles any data saved before the Difficulty system was introduced.
+          const migratedState = migrateGameState(cloudState);
           setGameState(prev => ({
-            ...cloudState,
+            ...migratedState,
             username: prev.username,
           }));
           toast.success('Progress loaded!');

@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, X, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Habit } from '@/hooks/useGameState';
+import { DIFFICULTIES, DIFFICULTY_META, getDifficultyRewards, type Difficulty } from '@/lib/difficulty';
 import {
   Dialog,
   DialogContent,
@@ -22,28 +23,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { cn } from '@/lib/utils';
 
 const EMOJI_OPTIONS = ['🌿', '💪', '🧊', '📵', '📚', '🧘', '💧', '🏃', '😴', '🍎', '✍️', '🎯'];
-
-// System-determined XP values based on habit difficulty estimation
-const getSystemXpValues = (habitName: string) => {
-  const name = habitName.toLowerCase();
-  // Higher XP for more challenging habits
-  if (name.includes('workout') || name.includes('exercise') || name.includes('gym') || name.includes('run')) {
-    return { winXp: 30, loseXp: 25 };
-  }
-  if (name.includes('study') || name.includes('read') || name.includes('learn') || name.includes('code')) {
-    return { winXp: 25, loseXp: 20 };
-  }
-  if (name.includes('meditation') || name.includes('mindful') || name.includes('yoga')) {
-    return { winXp: 20, loseXp: 15 };
-  }
-  if (name.includes('water') || name.includes('sleep') || name.includes('wake')) {
-    return { winXp: 15, loseXp: 10 };
-  }
-  // Default balanced values
-  return { winXp: 20, loseXp: 15 };
-};
 
 interface HabitManagerProps {
   habits: Habit[];
@@ -54,29 +36,21 @@ interface HabitManagerProps {
 export const HabitManager = ({ habits, onAddHabit, onDeleteHabit }: HabitManagerProps) => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  
+
   // Form state
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('🎯');
+  const [difficulty, setDifficulty] = useState<Difficulty>('Moderate');
 
   const resetForm = () => {
     setName('');
     setIcon('🎯');
+    setDifficulty('Moderate');
   };
 
   const handleAddHabit = () => {
     if (!name.trim()) return;
-    
-    // System determines XP values based on habit type
-    const xpValues = getSystemXpValues(name);
-    
-    onAddHabit({
-      name: name.trim(),
-      icon,
-      winXp: xpValues.winXp,
-      loseXp: xpValues.loseXp,
-    });
-    
+    onAddHabit({ name: name.trim(), icon, difficulty });
     resetForm();
     setIsAddOpen(false);
   };
@@ -89,6 +63,8 @@ export const HabitManager = ({ habits, onAddHabit, onDeleteHabit }: HabitManager
   };
 
   const habitToDelete = habits.find(h => h.id === deleteConfirmId);
+  const selectedRewards = getDifficultyRewards(difficulty);
+  const selectedMeta = DIFFICULTY_META[difficulty];
 
   return (
     <>
@@ -108,11 +84,12 @@ export const HabitManager = ({ habits, onAddHabit, onDeleteHabit }: HabitManager
           <DialogHeader>
             <DialogTitle className="font-display">Create New Habit</DialogTitle>
             <DialogDescription>
-              Add a new habit to track. The System will determine appropriate XP rewards.
+              Choose a difficulty to set your XP rewards.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-5 py-2">
+            {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="habit-name">Habit Name</Label>
               <Input
@@ -121,22 +98,25 @@ export const HabitManager = ({ habits, onAddHabit, onDeleteHabit }: HabitManager
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., Morning Meditation"
                 className="bg-muted/50"
+                onKeyDown={(e) => e.key === 'Enter' && handleAddHabit()}
               />
             </div>
 
+            {/* Icon */}
             <div className="space-y-2">
-              <Label>Choose Icon</Label>
+              <Label>Icon</Label>
               <div className="flex flex-wrap gap-2">
                 {EMOJI_OPTIONS.map((emoji) => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => setIcon(emoji)}
-                    className={`w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all ${
+                    className={cn(
+                      'w-10 h-10 rounded-lg text-xl flex items-center justify-center transition-all',
                       icon === emoji
                         ? 'bg-primary text-primary-foreground scale-110'
                         : 'bg-muted/50 hover:bg-muted'
-                    }`}
+                    )}
                   >
                     {emoji}
                   </button>
@@ -144,26 +124,61 @@ export const HabitManager = ({ habits, onAddHabit, onDeleteHabit }: HabitManager
               </div>
             </div>
 
-            {/* XP Preview (System-determined) */}
-            {name.trim() && (
-              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
-                <p className="text-xs text-muted-foreground mb-2">System-determined XP values:</p>
-                <div className="flex gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-400">+{getSystemXpValues(name).winXp}</span>
-                    <span className="text-xs text-muted-foreground">on completion</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-red-400">-{getSystemXpValues(name).loseXp}</span>
-                    <span className="text-xs text-muted-foreground">on miss</span>
-                  </div>
+            {/* Difficulty selector */}
+            <div className="space-y-2">
+              <Label>Difficulty</Label>
+              <div className="grid grid-cols-5 gap-1.5">
+                {DIFFICULTIES.map((d) => {
+                  const meta = DIFFICULTY_META[d];
+                  const isSelected = difficulty === d;
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setDifficulty(d)}
+                      className={cn(
+                        'py-2 px-1 rounded-lg border text-center transition-all',
+                        isSelected
+                          ? `${meta.bg} border-current scale-105`
+                          : 'bg-muted/30 border-white/10 text-muted-foreground hover:bg-muted/50'
+                      )}
+                    >
+                      <p className={cn('text-xs font-bold', isSelected ? meta.color : '')}>{d}</p>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground">{selectedMeta.description}</p>
+            </div>
+
+            {/* Reward preview */}
+            <div className="p-3 rounded-lg bg-primary/8 border border-primary/15">
+              <p className="text-xs text-muted-foreground mb-2 font-display uppercase tracking-wider">Rewards</p>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <p className={cn('text-lg font-display font-bold', selectedMeta.color)}>
+                    +{selectedRewards.xp}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">XP on win</p>
+                </div>
+                <div>
+                  <p className="text-lg font-display font-bold text-accent">
+                    +{selectedRewards.credits}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">Credits</p>
+                </div>
+                <div>
+                  <p className="text-lg font-display font-bold text-red-400">
+                    -{selectedRewards.loseXp}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">XP on miss</p>
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsAddOpen(false)}>
+            <Button variant="outline" onClick={() => { resetForm(); setIsAddOpen(false); }}>
               Cancel
             </Button>
             <Button onClick={handleAddHabit} disabled={!name.trim()}>
@@ -174,7 +189,7 @@ export const HabitManager = ({ habits, onAddHabit, onDeleteHabit }: HabitManager
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation */}
       <AlertDialog open={!!deleteConfirmId} onOpenChange={() => setDeleteConfirmId(null)}>
         <AlertDialogContent className="glass border-destructive/30">
           <AlertDialogHeader>
@@ -184,7 +199,7 @@ export const HabitManager = ({ habits, onAddHabit, onDeleteHabit }: HabitManager
             </AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete "{habitToDelete?.name}"? This will remove all
-              tracking history for this habit. This action cannot be undone.
+              tracking history. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

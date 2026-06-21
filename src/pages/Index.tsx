@@ -84,6 +84,8 @@ const Index = () => {
     gameState, setGameState, completeQuest, failQuest, toggleHabitDay, spendCredits,
     showLevelUp, addXp, addCredits, addHabit, deleteHabit, addQuest, deleteQuest,
     addSystemMessage, isTodayComplete, getCurrentStreak, grantXpMultiplier,
+    canAddQuest, dailyQuestsRemaining,
+    addPermanentXpBonus, activateBellion,
   } = useGameState();
 
   useCloudSync(gameState, setGameState);
@@ -358,6 +360,7 @@ const Index = () => {
                     currentXp={gameState.currentXp} maxXp={gameState.maxXp}
                     avatarId={profile?.avatar_id} streak={getCurrentStreak()}
                     questsCompleted={gameState.totalQuestsCompleted}
+                    stats={gameState.stats}
                   />
                   <RadarChartComponent stats={gameState.stats} />
                   <AchievementsPanel achievements={achievements} unlockedCount={unlockedCount} totalCount={totalCount} />
@@ -492,7 +495,16 @@ const Index = () => {
                         unlockedCount={unlockedCount || 0} avatarId={profile?.avatar_id}
                         bio={profile?.bio} streak={getCurrentStreak()} earnedTitles={earnedTitles}
                       />
-                      <ShadowArmy level={gameState.level || 1} totalQuestsCompleted={gameState.totalQuestsCompleted || 0} currentStreak={getCurrentStreak()} />
+                      <ShadowArmy
+                        level={gameState.level || 1}
+                        totalQuestsCompleted={gameState.totalQuestsCompleted || 0}
+                        currentStreak={getCurrentStreak()}
+                        onAddPermanentXpBonus={addPermanentXpBonus}
+                        onActivateBellion={activateBellion}
+                        permanentXpBonus={gameState.permanentXpBonus}
+                        bellionLastUsed={gameState.bellionLastUsed}
+                        xpMultiplierExpires={gameState.xpMultiplierExpires}
+                      />
                     </>
                   )}
                 </div>

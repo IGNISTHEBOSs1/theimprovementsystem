@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
-import { Shield, Star, Zap, Flame, Coins } from 'lucide-react';
+import { Shield, Star, Zap, Flame } from 'lucide-react';
 import { AVATAR_OPTIONS } from './EditProfileModal';
+import { PlayerStats } from '@/hooks/useGameState';
+import { getHunterPower } from '@/lib/attributeXp';
 
 interface PlayerCardProps {
   username: string;
@@ -12,6 +14,7 @@ interface PlayerCardProps {
   streak?: number;
   questsCompleted?: number;
   bio?: string;
+  stats?: PlayerStats;
 }
 
 const rankConfig: Record<string, { color: string; glow: string; bg: string; label: string; borderGlow: string }> = {
@@ -23,11 +26,12 @@ const rankConfig: Record<string, { color: string; glow: string; bg: string; labe
   E: { color: 'text-slate-400',  glow: 'shadow-slate-500/20',  bg: 'bg-slate-500/10 border-slate-500/30',   label: 'E-Rank', borderGlow: '0 0 8px rgba(148,163,184,0.2)' },
 };
 
-export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarId = 'shadow', streak = 0, questsCompleted = 0, bio }: PlayerCardProps) => {
+export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarId = 'shadow', streak = 0, questsCompleted = 0, bio, stats }: PlayerCardProps) => {
   const xpPct = Math.min((currentXp / maxXp) * 100, 100);
   const rankLetter = rank.charAt(0).toUpperCase();
   const cfg = rankConfig[rankLetter] || rankConfig.E;
   const avatar = AVATAR_OPTIONS.find(a => a.id === avatarId) || AVATAR_OPTIONS[0];
+  const hunterPower = stats ? getHunterPower(stats) : 0;
 
   return (
     <motion.div
@@ -102,9 +106,9 @@ export const PlayerCard = ({ username, level, rank, currentXp, maxXp, avatarId =
 
         {/* Stats row */}
         <div className="mt-5 grid grid-cols-3 gap-3">
-          <StatPill icon={<Zap className="w-3.5 h-3.5" />}   label="Boost"  value="1.0×"                  color="text-primary"     bg="bg-primary/10 border-primary/20" />
-          <StatPill icon={<Flame className="w-3.5 h-3.5" />}  label="Streak" value={`${streak}d`}          color="text-orange-400"  bg="bg-orange-500/10 border-orange-500/20" />
-          <StatPill icon={<Shield className="w-3.5 h-3.5" />} label="Quests" value={questsCompleted.toString()} color="text-violet-400" bg="bg-violet-500/10 border-violet-500/20" />
+          <StatPill icon={<Zap    className="w-3.5 h-3.5" />} label="Power"  value={hunterPower > 0 ? hunterPower.toString() : '—'} color="text-primary"    bg="bg-primary/10 border-primary/20" />
+          <StatPill icon={<Flame  className="w-3.5 h-3.5" />} label="Streak" value={`${streak}d`}                                    color="text-orange-400" bg="bg-orange-500/10 border-orange-500/20" />
+          <StatPill icon={<Shield className="w-3.5 h-3.5" />} label="Quests" value={questsCompleted.toString()}                      color="text-violet-400" bg="bg-violet-500/10 border-violet-500/20" />
         </div>
       </div>
     </motion.div>
