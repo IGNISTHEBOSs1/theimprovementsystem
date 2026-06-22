@@ -10,9 +10,8 @@ import {
   Tooltip,
 } from 'recharts';
 import { PlayerStats } from '@/hooks/useGameState';
-import { getHunterPower, getStatProgress, getStatXpRequired, zeroStat } from '@/lib/attributeXp';
 import { Button } from '@/components/ui/button';
-import { Timer, Clock, Calendar, CalendarDays, Infinity, Zap } from 'lucide-react';
+import { Timer, Clock, Calendar, CalendarDays, Infinity } from 'lucide-react';
 
 interface RadarChartProps {
   stats: PlayerStats;
@@ -27,94 +26,47 @@ interface RadarChartProps {
 type TimeFilter = 'today' | 'month' | 'year' | 'all';
 
 const statLabels: Record<keyof PlayerStats, { full: string; jp: string }> = {
-  FIT: { full: 'Fitness',      jp: 'フィットネス' },
-  SOC: { full: 'Social',       jp: 'ソーシャル'   },
-  INT: { full: 'Intelligence', jp: '知性'         },
-  DIS: { full: 'Discipline',   jp: '規律'         },
-  FOC: { full: 'Focus',        jp: '集中'         },
-  FIN: { full: 'Finance',      jp: '財務'         },
+  FIT: { full: 'Fitness', jp: 'フィットネス' },
+  SOC: { full: 'Social', jp: 'ソーシャル' },
+  INT: { full: 'Intelligence', jp: '知性' },
+  DIS: { full: 'Discipline', jp: '規律' },
+  FOC: { full: 'Focus', jp: '集中' },
+  FIN: { full: 'Finance', jp: '財務' },
 };
 
 const timeFilters: { key: TimeFilter; label: string; icon: React.ReactNode }[] = [
-  { key: 'today', label: 'Today',    icon: <Clock       className="w-3 h-3" /> },
-  { key: 'month', label: 'Month',    icon: <Calendar    className="w-3 h-3" /> },
-  { key: 'year',  label: 'Year',     icon: <CalendarDays className="w-3 h-3" /> },
-  { key: 'all',   label: 'All Time', icon: <Infinity    className="w-3 h-3" /> },
+  { key: 'today', label: 'Today', icon: <Clock className="w-3 h-3" /> },
+  { key: 'month', label: 'Month', icon: <Calendar className="w-3 h-3" /> },
+  { key: 'year', label: 'Year', icon: <CalendarDays className="w-3 h-3" /> },
+  { key: 'all', label: 'All Time', icon: <Infinity className="w-3 h-3" /> },
 ];
-
-// Fallback stat for safety — starts at level 1 per design decision
-const FALLBACK_STATS: PlayerStats = {
-  FIT: zeroStat(), SOC: zeroStat(), INT: zeroStat(),
-  DIS: zeroStat(), FOC: zeroStat(), FIN: zeroStat(),
-};
 
 export const RadarChartComponent = ({ stats, pomodoroStats }: RadarChartProps) => {
   const [activeFilter, setActiveFilter] = useState<TimeFilter>('all');
 
-  const safeStats: PlayerStats = stats || FALLBACK_STATS;
-
-  // Fixed soft-cap domain: 0–50.
-  // chartValue is clamped to 50 for rendering — prevents one outlier stat
-  // from compressing all other stats into the bottom 10% of the chart.
-  // The real level is always preserved in .value and shown in tooltip/bars.
-  const CHART_DOMAIN_MAX = 50;
-
-  const data = (Object.entries(safeStats) as [keyof PlayerStats, PlayerStats[keyof PlayerStats]][]).map(([key, stat]) => ({
-    stat:       key,
-    chartValue: Math.min(stat.level, CHART_DOMAIN_MAX), // drives chart shape only
-    value:      stat.level,                              // real level — used in display
-    progress:   getStatProgress(stat),                   // 0–100% within current level
-    xp:         stat.xp,
-    overflow:   stat.level > CHART_DOMAIN_MAX,           // true when stat exceeds soft cap
-    multiplier: stat.level > CHART_DOMAIN_MAX
-      ? (stat.level / CHART_DOMAIN_MAX).toFixed(1)
-      : null,
-    label: statLabels[key]?.full ?? key,
-    jp:    statLabels[key]?.jp   ?? key,
+  // For now, we show the same stats for all filters
+  // In a real implementation, you'd fetch historical data
+  const safeStats = stats || { FIT: 0, SOC: 0, INT: 0, DIS: 0, FOC: 0, FIN: 0 };
+  const data = Object.entries(safeStats).map(([key, value]) => ({
+    stat: key,
+    value,
+    fullMark: 100,
+    label: statLabels[key as keyof PlayerStats]?.full || key,
+    jp: statLabels[key as keyof PlayerStats]?.jp || key,
   }));
 
-  const hunterPower = getHunterPower(safeStats);
-  const avgLevel    = Math.round(data.reduce((sum, d) => sum + d.value, 0) / data.length);
-
-  // Tooltip always shows the real stat level and XP — never the clamped chartValue.
   const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload?.length) return null;
-    const d = payload[0].payload;
-    const statObj = safeStats[d.stat as keyof PlayerStats];
-    const xpRequired = getStatXpRequired(statObj.level);
-    return (
-      <div className="glass rounded-lg p-3 border border-primary/30 min-w-[160px]">
-        <div className="flex items-center justify-between gap-2 mb-1">
-          <p className="font-display font-bold text-primary text-sm">{d.label}</p>
-          {/* Overflow badge — only shown when stat exceeds the chart soft cap */}
-          {d.overflow && (
-            <span className="text-[10px] font-display font-bold text-accent bg-accent/15 border border-accent/30 px-1.5 py-0.5 rounded-full">
-              ×{d.multiplier}
-            </span>
-          )}
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="glass rounded-lg p-3 border border-primary/30">
+          <p className="font-display font-bold text-primary">{data.label}</p>
+          <p className="text-xs text-muted-foreground font-jp">{data.jp}</p>
+          <p className="text-lg font-bold mt-1">{data.value}/100</p>
         </div>
-        <p className="text-xs text-muted-foreground font-jp mb-2">{d.jp}</p>
-        {/* Real level — always the actual value, not the clamped chartValue */}
-        <p className="text-lg font-display font-bold">
-          Lv. <span className="text-primary">{d.value}</span>
-          {d.overflow && (
-            <span className="text-[10px] text-muted-foreground font-sans ml-1.5">
-              (chart capped at 50)
-            </span>
-          )}
-        </p>
-        {/* XP progress bar within current level */}
-        <div className="mt-1.5 h-1.5 bg-white/10 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-            style={{ width: `${d.progress}%` }}
-          />
-        </div>
-        <p className="text-[10px] text-muted-foreground mt-1">
-          {statObj.xp} / {xpRequired} XP to next level
-        </p>
-      </div>
-    );
+      );
+    }
+    return null;
   };
 
   return (
@@ -123,22 +75,16 @@ export const RadarChartComponent = ({ stats, pomodoroStats }: RadarChartProps) =
       animate={{ opacity: 1, scale: 1 }}
       className="glass rounded-2xl p-6 border-glow-secondary"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-display text-lg font-bold text-foreground">Player Stats</h3>
           <p className="text-sm text-muted-foreground font-jp">ステータス</p>
         </div>
-        <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-primary" />
-            <span className="font-display font-bold text-primary text-xl">
-              {hunterPower}
-            </span>
-          </div>
-          <p className="text-[10px] text-muted-foreground text-right">
-            Hunter Power · Avg Lv.{avgLevel}
-          </p>
+        <div className="text-right">
+          <span className="text-2xl font-display font-bold text-gradient-blue">
+            {Math.round(Object.values(safeStats).reduce((a, b) => a + b, 0) / 6)}
+          </span>
+          <p className="text-xs text-muted-foreground">AVG</p>
         </div>
       </div>
 
@@ -162,15 +108,17 @@ export const RadarChartComponent = ({ stats, pomodoroStats }: RadarChartProps) =
         ))}
       </div>
 
-      {/* Radar Chart */}
       <div className="h-[280px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <RechartsRadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
-            <PolarGrid stroke="hsl(var(--border))" strokeOpacity={0.3} />
+            <PolarGrid 
+              stroke="hsl(var(--border))" 
+              strokeOpacity={0.3}
+            />
             <PolarAngleAxis
               dataKey="stat"
-              tick={{
-                fill: 'hsl(var(--muted-foreground))',
+              tick={{ 
+                fill: 'hsl(var(--muted-foreground))', 
                 fontSize: 12,
                 fontFamily: 'Orbitron',
                 fontWeight: 600,
@@ -178,15 +126,14 @@ export const RadarChartComponent = ({ stats, pomodoroStats }: RadarChartProps) =
             />
             <PolarRadiusAxis
               angle={30}
-              domain={[0, CHART_DOMAIN_MAX]}
+              domain={[0, 100]}
               tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
-              tickCount={6}
+              tickCount={5}
               stroke="hsl(var(--border))"
             />
-            {/* dataKey uses chartValue (clamped to 50), not value (real level) */}
             <Radar
               name="Stats"
-              dataKey="chartValue"
+              dataKey="value"
               stroke="hsl(var(--primary))"
               fill="hsl(var(--primary))"
               fillOpacity={0.3}
@@ -197,40 +144,20 @@ export const RadarChartComponent = ({ stats, pomodoroStats }: RadarChartProps) =
         </ResponsiveContainer>
       </div>
 
-      {/* Stat bars — always show real level and XP progress within that level.
-          Overflow badge (×N.N) appears when stat.level > 50 (the chart soft cap). */}
+      {/* Stat bars below chart */}
       <div className="grid grid-cols-2 gap-3 mt-4">
         {data.map((stat) => (
-          <div key={stat.stat}>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-display font-semibold text-muted-foreground">
-                {stat.stat}
-              </span>
-              <div className="flex items-center gap-1.5">
-                {/* Overflow badge — visible when stat has exceeded the soft cap */}
-                {stat.overflow && (
-                  <span className="text-[9px] font-display font-bold text-accent bg-accent/15 border border-accent/25 px-1 py-0.5 rounded-full leading-none">
-                    ×{stat.multiplier}
-                  </span>
-                )}
-                <span className={`text-xs font-display font-bold ${stat.overflow ? 'text-accent' : 'text-foreground'}`}>
-                  Lv.{stat.value}
-                </span>
-              </div>
-            </div>
-            {/* XP progress within the current level */}
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div key={stat.stat} className="flex items-center gap-2">
+            <span className="text-xs font-display font-semibold text-muted-foreground w-8">{stat.stat}</span>
+            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${stat.progress}%` }}
+                animate={{ width: `${stat.value}%` }}
                 transition={{ duration: 0.8, delay: 0.1 }}
-                className={`h-full rounded-full ${
-                  stat.overflow
-                    ? 'bg-gradient-to-r from-accent to-yellow-400'
-                    : 'bg-gradient-to-r from-primary to-accent'
-                }`}
+                className="h-full bg-gradient-to-r from-primary to-accent"
               />
             </div>
+            <span className="text-xs font-display font-bold text-foreground w-6">{stat.value}</span>
           </div>
         ))}
       </div>
@@ -246,16 +173,14 @@ export const RadarChartComponent = ({ stats, pomodoroStats }: RadarChartProps) =
             <div className="bg-muted/30 rounded-lg p-3">
               <p className="text-xs text-muted-foreground">Today</p>
               <p className="font-display font-bold text-foreground">
-                {pomodoroStats.todaySessions}{' '}
-                <span className="text-xs text-muted-foreground">sessions</span>
+                {pomodoroStats.todaySessions} <span className="text-xs text-muted-foreground">sessions</span>
               </p>
               <p className="text-xs text-muted-foreground">{pomodoroStats.todayMinutes} mins</p>
             </div>
             <div className="bg-muted/30 rounded-lg p-3">
               <p className="text-xs text-muted-foreground">All Time</p>
               <p className="font-display font-bold text-foreground">
-                {pomodoroStats.totalSessions}{' '}
-                <span className="text-xs text-muted-foreground">sessions</span>
+                {pomodoroStats.totalSessions} <span className="text-xs text-muted-foreground">sessions</span>
               </p>
               <p className="text-xs text-muted-foreground">{pomodoroStats.totalMinutes} mins</p>
             </div>

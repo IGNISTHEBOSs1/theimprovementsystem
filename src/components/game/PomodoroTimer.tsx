@@ -169,10 +169,6 @@ export const PomodoroTimer = ({ onComplete }: PomodoroTimerProps) => {
           </motion.button>
         </div>
 
-        {/* XP Reward info */}
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          Complete for <span className="text-primary font-display font-bold">+50 XP</span>
-        </div>
       </div>
     </motion.div>
   );

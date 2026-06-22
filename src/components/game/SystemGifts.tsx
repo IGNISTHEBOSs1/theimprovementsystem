@@ -88,11 +88,7 @@ export const SystemGifts = ({ currentStreak, totalQuestsCompleted, level, onClai
     setGifts(prev => prev.map(g => g.id === gift.id ? { ...g, claimed: true } : g));
   };
 
-  // Mark dismissed gifts as claimed — prevents re-generation on next render cycle.
-  // Removing from array would cause the claimedTypes set to miss the type,
-  // letting the milestone useEffect re-create the gift immediately.
-  const dismissGift = (giftId: string) =>
-    setGifts(prev => prev.map(g => g.id === giftId ? { ...g, claimed: true } : g));
+  const dismissGift = (giftId: string) => setGifts(prev => prev.filter(g => g.id !== giftId));
 
   const getTimeRemaining = (expiresAt: Date) => {
     const diff = expiresAt.getTime() - Date.now();

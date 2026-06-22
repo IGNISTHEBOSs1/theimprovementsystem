@@ -1,23 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Difficulty, getDifficultyRewards, migrateDifficulty } from '@/lib/difficulty';
-import {
-  AttributeStat,
-  applyStatXp,
-  removeStatXp,
-  normaliseStatValue,
-  zeroStat,
-} from '@/lib/attributeXp';
-
-// Re-export so consumers can import from one place
-export type { Difficulty };
-export type { AttributeStat };
 
 export interface Quest {
   id: string;
   title: string;
-  difficulty: Difficulty;
-  xpReward: number;       // derived from getDifficultyRewards() — stored for display
-  creditReward: number;   // derived from getDifficultyRewards() — stored for display
+  difficulty: 'Easy' | 'Normal' | 'Hard' | 'Urgent';
+  xpReward: number;
+  creditReward: number;
   timeFrame: string;
   scheduledFor?: string;
   statCategory?: keyof PlayerStats;
@@ -30,7 +18,8 @@ export interface Habit {
   id: string;
   name: string;
   icon: string;
-  difficulty: Difficulty; // replaces winXp/loseXp — rewards derived at runtime
+  winXp: number;
+  loseXp: number;
   streak: number;
   completedDays: boolean[];
   statCategory?: keyof PlayerStats;
@@ -38,12 +27,12 @@ export interface Habit {
 }
 
 export interface PlayerStats {
-  FIT: AttributeStat;
-  SOC: AttributeStat;
-  INT: AttributeStat;
-  DIS: AttributeStat;
-  FOC: AttributeStat;
-  FIN: AttributeStat;
+  FIT: number;
+  SOC: number;
+  INT: number;
+  DIS: number;
+  FOC: number;
+  FIN: number;
 }
 
 export interface SystemMessage {
@@ -68,65 +57,9 @@ export interface GameState {
   lastQuestResetDate: string;
   xpMultiplier: number;
   xpMultiplierExpires?: string;
-  /**
-   * Permanent additive XP bonus from unlocked Shadow Army passives.
-   * Iron:    +0.05 (5%)
-   * Antares: +0.25 (25%)
-   * Accumulated additively. Applied as: effectiveXp = raw × xpMultiplier × (1 + permanentXpBonus)
-   * Default: 0 (no permanent bonus).
-   */
-  permanentXpBonus: number;
-  /**
-   * ISO date string (YYYY-MM-DD) of the last day Bellion's 2× boost was activated.
-   * Guards against activating Bellion multiple times per day and retroactive exploits.
-   * Empty string = never activated.
-   */
-  bellionLastUsed: string;
-  /**
-   * Telemetry — player XP earned today (player level XP only).
-   * Does NOT include attribute XP or credits.
-   * Resets to 0 at midnight alongside lastQuestResetDate.
-   * Used for future fatigue system and beta analytics.
-   */
-  dailyXpEarned: number;
-  dailyXpResetDate: string;
-  /**
-   * Exploit protection — manually added quests today.
-   * Hard cap: DAILY_QUEST_ADD_LIMIT per day. Prevents quest spam.
-   * AI auto-generated quests bypass this via the skipDailyLimit flag.
-   * Resets at midnight.
-   */
-  dailyQuestsAdded: number;
 }
 
 const getTodayDateString = () => new Date().toISOString().split('T')[0];
-
-/**
- * Applies all active XP multipliers to a raw XP amount.
- *
- * Formula: Math.round(rawXp × timedMultiplier × (1 + permanentBonus))
- *
- * - timedMultiplier:  xpMultiplier from GameState (1× by default, 2× when Bellion is active)
- * - permanentBonus:   permanentXpBonus from GameState (additive: Iron 0.05, Antares 0.25)
- *
- * Stacking examples:
- *   Iron only:              1 × 1.05 = 1.05×
- *   Antares only:           1 × 1.25 = 1.25×
- *   Iron + Antares:         1 × 1.30 = 1.30×
- *   Bellion only:           2 × 1.00 = 2.00×
- *   Bellion + Iron:         2 × 1.05 = 2.10×
- *   Bellion + Iron + Antares: 2 × 1.30 = 2.60×
- *
- * Pure function — no state access, safe to call anywhere.
- */
-export function applyXpMultipliers(
-  rawXp: number,
-  timedMultiplier: number,
-  permanentBonus: number,
-): number {
-  if (rawXp <= 0) return 0;
-  return Math.round(rawXp * timedMultiplier * (1 + permanentBonus));
-}
 
 // XP required per level — easy early, exponential later
 export const getXpForLevel = (level: number): number => {
@@ -147,9 +80,7 @@ const getRankForLevel = (level: number): string => {
   return 'E-Rank Hunter';
 };
 
-// Map quest/habit title to stat category — keyword-based heuristic.
-// This is ONLY used for stat routing, not for XP calculation.
-// XP is now always derived from getDifficultyRewards(difficulty).
+// Map quest/habit keywords to stat categories
 export const inferStatCategory = (title: string): keyof PlayerStats => {
   const t = title.toLowerCase();
   if (/workout|gym|run|exercise|push.?up|squat|yoga|sport|walk|swim|fitness|stretch/.test(t)) return 'FIT';
@@ -157,17 +88,8 @@ export const inferStatCategory = (title: string): keyof PlayerStats => {
   if (/meditat|focus|pomodoro|deep.?work|distract|concentration|mindful/.test(t)) return 'FOC';
   if (/friend|family|call|social|meet|network|talk|message|reach.?out|community/.test(t)) return 'SOC';
   if (/budget|save|invest|money|finance|expense|income|spend|earn|credit|debt/.test(t)) return 'FIN';
-  return 'DIS';
+  return 'DIS'; // discipline is the default for everything else
 };
-
-/**
- * Maximum quests a player can manually add per calendar day.
- * AI auto-generated quests (useAutoGenerateTasks) are exempt.
- * Set to 10 — covers all legitimate use cases (planning a full day)
- * while blocking the spam exploit (adding 100 trivial quests).
- * Adjust based on beta telemetry from dailyQuestsAdded.
- */
-const DAILY_QUEST_ADD_LIMIT = 10;
 
 export const freshAccountState: GameState = {
   username: 'Hunter',
@@ -176,18 +98,11 @@ export const freshAccountState: GameState = {
   currentXp: 0,
   maxXp: getXpForLevel(1),
   credits: 0,
-  stats: {
-    FIT: zeroStat(),
-    SOC: zeroStat(),
-    INT: zeroStat(),
-    DIS: zeroStat(),
-    FOC: zeroStat(),
-    FIN: zeroStat(),
-  },
+  stats: { FIT: 0, SOC: 0, INT: 0, DIS: 0, FOC: 0, FIN: 0 },
   quests: [
-    { id: 'default_1', title: '🏃 Morning Exercise',        difficulty: 'Easy'     as Difficulty, xpReward: getDifficultyRewards('Easy').xp,     creditReward: getDifficultyRewards('Easy').credits,     timeFrame: 'Today', statCategory: 'FIT', completed: false, failed: false, createdAt: new Date().toISOString() },
-    { id: 'default_2', title: '📚 Read for 20 minutes',     difficulty: 'Easy'     as Difficulty, xpReward: getDifficultyRewards('Easy').xp,     creditReward: getDifficultyRewards('Easy').credits,     timeFrame: 'Today', statCategory: 'INT', completed: false, failed: false, createdAt: new Date().toISOString() },
-    { id: 'default_3', title: '💧 Drink 8 glasses of water',difficulty: 'Trivial'  as Difficulty, xpReward: getDifficultyRewards('Trivial').xp,  creditReward: getDifficultyRewards('Trivial').credits,  timeFrame: 'Today', statCategory: 'DIS', completed: false, failed: false, createdAt: new Date().toISOString() },
+    { id: 'default_1', title: '🏃 Morning Exercise', difficulty: 'Easy', xpReward: 25, creditReward: 5, timeFrame: 'Today', statCategory: 'FIT', completed: false, failed: false, createdAt: new Date().toISOString() },
+    { id: 'default_2', title: '📚 Read for 20 minutes', difficulty: 'Easy', xpReward: 20, creditReward: 5, timeFrame: 'Today', statCategory: 'INT', completed: false, failed: false, createdAt: new Date().toISOString() },
+    { id: 'default_3', title: '💧 Drink 8 glasses of water', difficulty: 'Normal', xpReward: 15, creditReward: 3, timeFrame: 'Today', statCategory: 'DIS', completed: false, failed: false, createdAt: new Date().toISOString() },
   ],
   habits: [],
   systemMessages: [
@@ -196,88 +111,10 @@ export const freshAccountState: GameState = {
   totalQuestsCompleted: 0,
   lastQuestResetDate: getTodayDateString(),
   xpMultiplier: 1,
-  permanentXpBonus: 0,
-  bellionLastUsed: '',
-  dailyXpEarned: 0,
-  dailyXpResetDate: getTodayDateString(),
-  dailyQuestsAdded: 0,
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Migration
-// Runs once on load (both from localStorage via useState initializer and from
-// cloud via useCloudSync). Always safe to call — passes valid data unchanged.
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Migrates a raw GameState (possibly loaded from old localStorage or Supabase)
- * to the current schema. Returns a corrected copy — never mutates the input.
- *
- * Rules applied:
- *   Quest difficulty 'Normal'  → 'Moderate'
- *   Quest difficulty 'Urgent'  → 'Elite'
- *   Quest difficulty missing / unknown → 'Moderate'
- *   Habit difficulty missing / unknown → 'Moderate'
- *   Stat plain number (e.g. FIT: 12) → { level: 12, xp: 0 }
- *   Stat missing / null               → { level: 1, xp: 0 }
- *   Stat already { level, xp }        → validated and passed through
- */
-export function migrateGameState(raw: GameState): GameState {
-  // ── Quests ──────────────────────────────────────────────────────────────────
-  const migratedQuests = raw.quests.map(q => {
-    const difficulty = migrateDifficulty(q.difficulty);
-    const rewards    = getDifficultyRewards(difficulty);
-    return {
-      ...q,
-      difficulty,
-      xpReward:     rewards.xp,
-      creditReward: rewards.credits,
-    };
-  });
-
-  // ── Habits ──────────────────────────────────────────────────────────────────
-  const migratedHabits = raw.habits.map(h => ({
-    ...h,
-    difficulty: migrateDifficulty((h as any).difficulty),
-  }));
-
-  // ── Stats ───────────────────────────────────────────────────────────────────
-  // normaliseStatValue handles legacy numbers (FIT: 12 → {level:12, xp:0}),
-  // already-valid AttributeStat objects, and missing/null values.
-  const rawStats = ((raw.stats ?? {}) as Record<string, unknown>);
-  const migratedStats: PlayerStats = {
-    FIT: normaliseStatValue(rawStats.FIT),
-    SOC: normaliseStatValue(rawStats.SOC),
-    INT: normaliseStatValue(rawStats.INT),
-    DIS: normaliseStatValue(rawStats.DIS),
-    FOC: normaliseStatValue(rawStats.FOC),
-    FIN: normaliseStatValue(rawStats.FIN),
-  };
-
-  return {
-    ...raw,
-    quests: migratedQuests,
-    habits: migratedHabits,
-    stats: migratedStats,
-    // Telemetry fields — safe defaults for any existing user loading new code
-    dailyXpEarned:    (raw as any).dailyXpEarned    ?? 0,
-    dailyXpResetDate: (raw as any).dailyXpResetDate ?? getTodayDateString(),
-    dailyQuestsAdded: (raw as any).dailyQuestsAdded ?? 0,
-    // Shadow Army economy fields — zero defaults for all existing users
-    permanentXpBonus: typeof (raw as any).permanentXpBonus === 'number'
-      ? (raw as any).permanentXpBonus
-      : 0,
-    bellionLastUsed:  (raw as any).bellionLastUsed ?? '',
-  };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-
 export const useGameState = () => {
-  // Apply migration on first render — handles stale localStorage data
-  const [gameState, setGameState] = useState<GameState>(() =>
-    migrateGameState(freshAccountState)
-  );
+  const [gameState, setGameState] = useState<GameState>(freshAccountState);
   const [showLevelUp, setShowLevelUp] = useState(false);
 
   // Daily quest reset — checks every minute against real date
@@ -309,10 +146,6 @@ export const useGameState = () => {
             return { ...h, completedDays: newDays };
           }),
           lastQuestResetDate: today,
-          // Reset daily telemetry counters — new day, fresh slate
-          dailyXpEarned:    0,
-          dailyXpResetDate: today,
-          dailyQuestsAdded: 0,
         };
       });
     };
@@ -333,11 +166,7 @@ export const useGameState = () => {
 
   const addXp = useCallback((amount: number) => {
     setGameState(prev => {
-      const multiplied = applyXpMultipliers(
-        amount,
-        prev.xpMultiplier || 1,
-        prev.permanentXpBonus || 0,
-      );
+      const multiplied = Math.round(amount * (prev.xpMultiplier || 1));
       let newXp = prev.currentXp + multiplied;
       let newLevel = prev.level;
       let newMaxXp = prev.maxXp;
@@ -357,21 +186,12 @@ export const useGameState = () => {
         setTimeout(() => setShowLevelUp(false), 4000);
       }
 
-      // Telemetry — accumulate player XP earned today for analytics and future fatigue
-      const today = getTodayDateString();
-      const dailyXpEarned = prev.dailyXpResetDate === today
-        ? prev.dailyXpEarned + multiplied
-        : multiplied; // new day — reset counter
-      const dailyXpResetDate = today;
-
       return {
         ...prev,
         currentXp: newXp,
         level: newLevel,
         maxXp: newMaxXp,
         rank: getRankForLevel(newLevel),
-        dailyXpEarned,
-        dailyXpResetDate,
       };
     });
   }, []);
@@ -385,23 +205,13 @@ export const useGameState = () => {
       const quest = prev.quests.find(q => q.id === questId);
       if (!quest || quest.completed) return prev;
 
-      // Derive rewards from difficulty tier — never use stored xpReward directly
-      const cat     = quest.statCategory || inferStatCategory(quest.title);
-      const rewards = getDifficultyRewards(quest.difficulty);
+      // Update stat based on quest category
+      const cat = quest.statCategory || inferStatCategory(quest.title);
+      const statGain = quest.difficulty === 'Easy' ? 1 : quest.difficulty === 'Normal' ? 2 : quest.difficulty === 'Hard' ? 3 : 4;
+      const newStats = { ...prev.stats, [cat]: Math.min(100, prev.stats[cat] + statGain) };
 
-      // Apply attribute XP via the progression engine (handles multi-level-ups)
-      const newStats = {
-        ...prev.stats,
-        [cat]: applyStatXp(prev.stats[cat], rewards.statXp),
-      };
-
-      // Player XP (main level) — applies xpMultiplier, attribute XP does not
-      const multiplied = applyXpMultipliers(
-        rewards.xp,
-        prev.xpMultiplier || 1,
-        prev.permanentXpBonus || 0,
-      );
-      let newXp    = prev.currentXp + multiplied;
+      const multiplied = Math.round(quest.xpReward * (prev.xpMultiplier || 1));
+      let newXp = prev.currentXp + multiplied;
       let newLevel = prev.level;
       let newMaxXp = prev.maxXp;
       let didLevelUp = false;
@@ -418,24 +228,16 @@ export const useGameState = () => {
         setTimeout(() => setShowLevelUp(false), 4000);
       }
 
-      // Telemetry — accumulate daily player XP
-      const today = getTodayDateString();
-      const dailyXpEarned = prev.dailyXpResetDate === today
-        ? prev.dailyXpEarned + multiplied
-        : multiplied;
-
       return {
         ...prev,
         quests: prev.quests.map(q => q.id === questId ? { ...q, completed: true } : q),
         totalQuestsCompleted: prev.totalQuestsCompleted + 1,
         currentXp: newXp,
-        maxXp:     newMaxXp,
-        level:     newLevel,
-        rank:      getRankForLevel(newLevel),
-        credits:   prev.credits + rewards.credits,
-        stats:     newStats,
-        dailyXpEarned,
-        dailyXpResetDate: today,
+        maxXp: newMaxXp,
+        level: newLevel,
+        rank: getRankForLevel(newLevel),
+        credits: prev.credits + quest.creditReward,
+        stats: newStats,
       };
     });
   }, []);
@@ -444,17 +246,9 @@ export const useGameState = () => {
     setGameState(prev => {
       const quest = prev.quests.find(q => q.id === questId);
       if (!quest) return prev;
-
-      const cat     = quest.statCategory || inferStatCategory(quest.title);
-      const rewards = getDifficultyRewards(quest.difficulty);
-
-      // Penalty: lose a portion of the difficulty's loseXp as stat XP.
-      // Never causes a level regression — xp floor is 0 within current level.
-      const newStats = {
-        ...prev.stats,
-        [cat]: removeStatXp(prev.stats[cat], rewards.loseXp),
-      };
-
+      const cat = quest.statCategory || inferStatCategory(quest.title);
+      const statLoss = 1;
+      const newStats = { ...prev.stats, [cat]: Math.max(0, prev.stats[cat] - statLoss) };
       return {
         ...prev,
         quests: prev.quests.map(q => q.id === questId ? { ...q, failed: true } : q),
@@ -467,23 +261,15 @@ export const useGameState = () => {
     setGameState(prev => {
       const habit = prev.habits.find(h => h.id === habitId);
       if (!habit) return prev;
-
       const wasCompleted = habit.completedDays[dayIndex];
-      const rewards = getDifficultyRewards(habit.difficulty);
+      const xpChange = wasCompleted ? -habit.winXp : Math.round(habit.winXp * (prev.xpMultiplier || 1));
 
-      // Player XP change (main level) — completion gains, un-completion loses
-      const xpChange = wasCompleted
-        ? -rewards.loseXp
-        : applyXpMultipliers(rewards.xp, prev.xpMultiplier || 1, prev.permanentXpBonus || 0);
+      // Update stat
+      const cat = habit.statCategory || inferStatCategory(habit.name);
+      const statChange = wasCompleted ? -1 : 2;
+      const newStats = { ...prev.stats, [cat]: Math.min(100, Math.max(0, prev.stats[cat] + statChange)) };
 
-      // Attribute XP — uses progression engine; never regresses levels
-      const cat      = habit.statCategory || inferStatCategory(habit.name);
-      const newStats = wasCompleted
-        ? { ...prev.stats, [cat]: removeStatXp(prev.stats[cat], rewards.loseXp) }
-        : { ...prev.stats, [cat]: applyStatXp(prev.stats[cat], rewards.statXp) };
-
-      // Main level XP update
-      let newXp    = prev.currentXp + xpChange;
+      let newXp = prev.currentXp + xpChange;
       let newLevel = prev.level;
       let newMaxXp = prev.maxXp;
       let didLevelUp = false;
@@ -500,13 +286,6 @@ export const useGameState = () => {
         setTimeout(() => setShowLevelUp(false), 4000);
       }
 
-      // Telemetry — only accumulate on gain path (not on un-check removal)
-      const today = getTodayDateString();
-      const xpGained = wasCompleted ? 0 : Math.max(0, xpChange);
-      const dailyXpEarned = prev.dailyXpResetDate === today
-        ? prev.dailyXpEarned + xpGained
-        : xpGained;
-
       return {
         ...prev,
         habits: prev.habits.map(h => {
@@ -521,12 +300,10 @@ export const useGameState = () => {
           return { ...h, completedDays: newDays, streak };
         }),
         currentXp: newXp,
-        maxXp:     newMaxXp,
-        level:     newLevel,
-        rank:      getRankForLevel(newLevel),
-        stats:     newStats,
-        dailyXpEarned,
-        dailyXpResetDate: today,
+        maxXp: newMaxXp,
+        level: newLevel,
+        rank: getRankForLevel(newLevel),
+        stats: newStats,
       };
     });
   }, []);
@@ -538,8 +315,12 @@ export const useGameState = () => {
     });
   }, []);
 
-  // updateStat removed — stats are now AttributeStat objects driven by
-  // applyStatXp() / removeStatXp() only. Direct number assignment is no longer valid.
+  const updateStat = useCallback((stat: keyof PlayerStats, value: number) => {
+    setGameState(prev => ({
+      ...prev,
+      stats: { ...prev.stats, [stat]: Math.min(100, Math.max(0, value)) },
+    }));
+  }, []);
 
   const addHabit = useCallback((habit: Omit<Habit, 'id' | 'streak' | 'completedDays'>) => {
     const now = new Date();
@@ -551,8 +332,6 @@ export const useGameState = () => {
         id: Date.now().toString(),
         streak: 0,
         completedDays: Array(daysInMonth).fill(false),
-        // Default to Moderate if difficulty somehow missing (backwards compat)
-        difficulty: habit.difficulty ?? 'Moderate',
         statCategory: habit.statCategory || inferStatCategory(habit.name),
       }],
     }));
@@ -562,52 +341,18 @@ export const useGameState = () => {
     setGameState(prev => ({ ...prev, habits: prev.habits.filter(h => h.id !== habitId) }));
   }, []);
 
-  const addQuest = useCallback((
-    quest: Omit<Quest, 'id' | 'completed' | 'failed' | 'createdAt'>,
-    options?: {
-      /**
-       * When true, bypasses the daily quest creation cap.
-       * Set by useAutoGenerateTasks — AI-generated quests are pre-validated
-       * and should not count against the player's manual limit.
-       */
-      skipDailyLimit?: boolean;
-    }
-  ) => {
-    const rewards = getDifficultyRewards(quest.difficulty);
-    const today = getTodayDateString();
-
-    setGameState(prev => {
-      // Enforce daily quest creation limit for manually added quests
-      if (!options?.skipDailyLimit) {
-        const currentCount = prev.dailyXpResetDate === today
-          ? prev.dailyQuestsAdded
-          : 0; // new day — counter reset
-        if (currentCount >= DAILY_QUEST_ADD_LIMIT) {
-          // Silently return — caller (UI) should check canAddQuest before calling
-          return prev;
-        }
-      }
-
-      const dailyQuestsAdded = options?.skipDailyLimit
-        ? prev.dailyQuestsAdded // AI quests don't increment the counter
-        : (prev.dailyXpResetDate === today ? prev.dailyQuestsAdded + 1 : 1);
-
-      return {
-        ...prev,
-        quests: [...prev.quests, {
-          ...quest,
-          id: Date.now().toString(),
-          xpReward: rewards.xp,
-          creditReward: rewards.credits,
-          completed: false,
-          failed: false,
-          createdAt: new Date().toISOString(),
-          statCategory: quest.statCategory || inferStatCategory(quest.title),
-        }],
-        dailyQuestsAdded,
-        dailyXpResetDate: today,
-      };
-    });
+  const addQuest = useCallback((quest: Omit<Quest, 'id' | 'completed' | 'failed' | 'createdAt'>) => {
+    setGameState(prev => ({
+      ...prev,
+      quests: [...prev.quests, {
+        ...quest,
+        id: Date.now().toString(),
+        completed: false,
+        failed: false,
+        createdAt: new Date().toISOString(),
+        statCategory: quest.statCategory || inferStatCategory(quest.title),
+      }],
+    }));
   }, []);
 
   const deleteQuest = useCallback((questId: string) => {
@@ -619,65 +364,6 @@ export const useGameState = () => {
       ...prev,
       systemMessages: [{ ...message, id: Date.now().toString(), timestamp: new Date() }, ...prev.systemMessages.slice(0, 9)],
     }));
-  }, []);
-
-  /**
-   * Adds a permanent additive XP bonus from a Shadow Army passive.
-   * Iron:    call with 0.05
-   * Antares: call with 0.25
-   * Multiple passives accumulate additively: Iron + Antares = 0.30 (30% permanent boost).
-   * The bonus stacks multiplicatively with timed boosts (Bellion):
-   *   effectiveXp = raw × timedMultiplier × (1 + permanentXpBonus)
-   */
-  const addPermanentXpBonus = useCallback((bonus: number) => {
-    setGameState(prev => ({
-      ...prev,
-      permanentXpBonus: Math.round((prev.permanentXpBonus + bonus) * 1000) / 1000,
-      systemMessages: [{
-        id: Date.now().toString(),
-        type: 'boost',
-        message: `🌟 Permanent XP bonus +${Math.round(bonus * 100)}% activated! Total permanent boost: ${Math.round((prev.permanentXpBonus + bonus) * 100)}%`,
-        timestamp: new Date(),
-      }, ...prev.systemMessages.slice(0, 9)],
-    }));
-  }, []);
-
-  /**
-   * Activates Bellion's 2× XP boost for 1 hour.
-   *
-   * Guards:
-   *   1. Once per calendar day — bellionLastUsed must not equal today's date.
-   *   2. Only applies to XP earned AFTER activation, never retroactively.
-   *
-   * Returns true if activated, false if already used today.
-   */
-  const activateBellion = useCallback((): boolean => {
-    const today = getTodayDateString();
-    let activated = false;
-
-    setGameState(prev => {
-      if (prev.bellionLastUsed === today) {
-        // Already used today — no-op, activated stays false
-        return prev;
-      }
-      activated = true;
-      const expires = new Date();
-      expires.setHours(expires.getHours() + 1);
-      return {
-        ...prev,
-        xpMultiplier: 2,
-        xpMultiplierExpires: expires.toISOString(),
-        bellionLastUsed: today,
-        systemMessages: [{
-          id: Date.now().toString(),
-          type: 'boost',
-          message: `⚡ BELLION ACTIVATED — 2× XP for the next hour! Expires at ${expires.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`,
-          timestamp: new Date(),
-        }, ...prev.systemMessages.slice(0, 9)],
-      };
-    });
-
-    return activated;
   }, []);
 
   const grantXpMultiplier = useCallback((multiplier: number, durationHours: number) => {
@@ -707,22 +393,10 @@ export const useGameState = () => {
     return Math.max(0, ...gameState.habits.map(h => h.streak));
   }, [gameState.habits]);
 
-  // Derived telemetry values — consumed by UI to show rate-limit feedback
-  const today = getTodayDateString();
-  const dailyQuestsUsed = gameState.dailyXpResetDate === today
-    ? gameState.dailyQuestsAdded
-    : 0;
-  const canAddQuest = dailyQuestsUsed < DAILY_QUEST_ADD_LIMIT;
-  const dailyQuestsRemaining = Math.max(0, DAILY_QUEST_ADD_LIMIT - dailyQuestsUsed);
-
   return {
     gameState, setGameState, addXp, addCredits, completeQuest, failQuest,
-    toggleHabitDay, spendCredits, showLevelUp, addHabit,
+    toggleHabitDay, spendCredits, updateStat, showLevelUp, addHabit,
     deleteHabit, addQuest, deleteQuest, addSystemMessage, grantXpMultiplier,
     isTodayComplete, getCurrentStreak,
-    // Exploit protection / telemetry
-    canAddQuest, dailyQuestsRemaining,
-    dailyXpEarned: gameState.dailyXpEarned,
-    addPermanentXpBonus, activateBellion,
   };
 };

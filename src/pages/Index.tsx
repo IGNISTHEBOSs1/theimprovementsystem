@@ -84,8 +84,6 @@ const Index = () => {
     gameState, setGameState, completeQuest, failQuest, toggleHabitDay, spendCredits,
     showLevelUp, addXp, addCredits, addHabit, deleteHabit, addQuest, deleteQuest,
     addSystemMessage, isTodayComplete, getCurrentStreak, grantXpMultiplier,
-    canAddQuest, dailyQuestsRemaining,
-    addPermanentXpBonus, activateBellion,
   } = useGameState();
 
   useCloudSync(gameState, setGameState);
@@ -111,7 +109,6 @@ const Index = () => {
 
   const handleCompleteQuest = (questId: string) => { playQuestComplete(); completeQuest(questId); };
   const handleFailQuest = (questId: string) => { playError(); failQuest(questId); };
-  const handlePomodoroComplete = () => { playQuestComplete(); addXp(50); };
   const handleNavigate = (section: string) => { playTap(); setActiveSection(section); setMobileMenuOpen(false); };
 
   const handleClaimBonus = async () => {
@@ -134,7 +131,7 @@ const Index = () => {
   const completedTodayQuests = todayQuests.filter(q => q.completed).length;
 
   return (
-    <PomodoroProvider onComplete={handlePomodoroComplete}>
+    <PomodoroProvider>
       <div className="min-h-screen bg-background relative overflow-hidden">
         {/* Background */}
         <div className="orb-1" />
@@ -360,7 +357,6 @@ const Index = () => {
                     currentXp={gameState.currentXp} maxXp={gameState.maxXp}
                     avatarId={profile?.avatar_id} streak={getCurrentStreak()}
                     questsCompleted={gameState.totalQuestsCompleted}
-                    stats={gameState.stats}
                   />
                   <RadarChartComponent stats={gameState.stats} />
                   <AchievementsPanel achievements={achievements} unlockedCount={unlockedCount} totalCount={totalCount} />
@@ -495,16 +491,7 @@ const Index = () => {
                         unlockedCount={unlockedCount || 0} avatarId={profile?.avatar_id}
                         bio={profile?.bio} streak={getCurrentStreak()} earnedTitles={earnedTitles}
                       />
-                      <ShadowArmy
-                        level={gameState.level || 1}
-                        totalQuestsCompleted={gameState.totalQuestsCompleted || 0}
-                        currentStreak={getCurrentStreak()}
-                        onAddPermanentXpBonus={addPermanentXpBonus}
-                        onActivateBellion={activateBellion}
-                        permanentXpBonus={gameState.permanentXpBonus}
-                        bellionLastUsed={gameState.bellionLastUsed}
-                        xpMultiplierExpires={gameState.xpMultiplierExpires}
-                      />
+                      <ShadowArmy level={gameState.level || 1} totalQuestsCompleted={gameState.totalQuestsCompleted || 0} currentStreak={getCurrentStreak()} />
                     </>
                   )}
                 </div>

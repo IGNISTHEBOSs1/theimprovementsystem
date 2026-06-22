@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Check, X, Clock, Coins, Zap } from 'lucide-react';
 import { Quest } from '@/hooks/useGameState';
-import { DIFFICULTY_META } from '@/lib/difficulty';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -21,9 +20,7 @@ const difficultyConfig = {
 
 export const QuestCard = ({ quest, onComplete, onFail, index }: QuestCardProps) => {
   const isActionable = !quest.completed && !quest.failed;
-  // Use DIFFICULTY_META from shared module. Falls back to Moderate if stored value is old format.
-  const meta = DIFFICULTY_META[quest.difficulty] ?? DIFFICULTY_META.Moderate;
-  const diff = { style: meta.bg, bar: meta.barColor, barGlow: meta.barGlow };
+  const diff = difficultyConfig[quest.difficulty] || difficultyConfig.Normal;
 
   return (
     <TooltipProvider>

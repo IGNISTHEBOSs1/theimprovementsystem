@@ -13,9 +13,9 @@ import { z } from 'zod';
 // Validation schemas for AI-generated data
 const questSchema = z.object({
   title: z.string().min(1).max(100),
-  difficulty: z.enum(['Trivial', 'Easy', 'Moderate', 'Hard', 'Elite']).optional().default('Moderate'),
-  xpReward: z.number().int().min(0).max(100).optional().default(20),      // display only; addQuest re-derives from difficulty
-  creditReward: z.number().int().min(0).max(100).optional().default(5),   // display only; addQuest re-derives from difficulty
+  difficulty: z.enum(['Easy', 'Normal', 'Hard', 'Urgent']).optional().default('Normal'),
+  xpReward: z.number().int().min(0).max(500).optional().default(30),
+  creditReward: z.number().int().min(0).max(200).optional().default(10),
   timeFrame: z.string().max(50).optional().default('Today'),
   scheduledFor: z.string().optional().default(''),
 });
@@ -36,7 +36,7 @@ interface AIAssistantProps {
   isOpen: boolean;
   onClose: () => void;
   gameState?: GameState;
-  onAddQuest?: (quest: { title: string; difficulty: 'Trivial' | 'Easy' | 'Moderate' | 'Hard' | 'Elite'; xpReward: number; creditReward: number; timeFrame: string }) => void;
+  onAddQuest?: (quest: { title: string; difficulty: 'Easy' | 'Normal' | 'Hard' | 'Urgent'; xpReward: number; creditReward: number; timeFrame: string }) => void;
   onAddHabit?: (habit: { name: string; icon: string; winXp: number; loseXp: number }) => void;
 }
 
@@ -173,14 +173,7 @@ export const AIAssistant = ({ isOpen, onClose, gameState, onAddQuest, onAddHabit
             currentXp: gameState.currentXp,
             maxXp: gameState.maxXp,
             credits: gameState.credits,
-            // Flatten AttributeStat objects → readable strings for the AI model.
-            // Sending raw { level, xp } objects produces unreadable JSON in the prompt.
-            stats: Object.fromEntries(
-              Object.entries(gameState.stats).map(([key, stat]) => [
-                key,
-                `Lv.${stat.level} (${stat.xp}xp)`,
-              ])
-            ),
+            stats: gameState.stats,
             habits: gameState.habits,
             quests: gameState.quests,
           } : undefined,

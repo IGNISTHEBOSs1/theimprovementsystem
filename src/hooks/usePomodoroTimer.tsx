@@ -12,9 +12,6 @@ interface PomodoroStats {
   todaySessions: number;
   todayMinutes: number;
   lastSessionDate: string;
-  // Telemetry: how many sessions awarded XP today vs were capped.
-  // Resets with todaySessions each midnight.
-  todayXpSessions: number;   // sessions that actually granted player XP today
 }
 
 interface PomodoroContextType {
@@ -26,28 +23,11 @@ interface PomodoroContextType {
   addTime: (seconds: number) => void;
   formatTime: (seconds: number) => string;
   progress: number;
-  /** How many more sessions will earn player XP today. 0 = cap reached. */
-  xpSessionsRemaining: number;
-  /** True when today's XP-earning sessions have been exhausted. */
-  isXpCapped: boolean;
 }
 
 const PomodoroContext = createContext<PomodoroContextType | null>(null);
 
 const STATS_STORAGE_KEY = 'pomodoro-stats';
-
-/**
- * Maximum number of completed sessions that award player XP per calendar day.
- * Sessions beyond this cap still count toward totalSessions and todaySessions
- * (stats, achievements, display) but do NOT call onComplete (which triggers addXp).
- *
- * Set to 5 based on the economy audit: 5 × 50 XP = 250 XP/day from Pomodoro.
- * Beyond 5 sessions (2+ hrs of focused work) the player is either in flow or exploiting.
- * Attribute XP and credits are NOT affected by this cap — only player level XP.
- *
- * Beta note: expose todayXpSessions in UI so players can see their cap usage.
- */
-const DAILY_XP_SESSION_CAP = 5;
 
 const getDefaultStats = (): PomodoroStats => ({
   totalSessions: 0,
@@ -55,7 +35,6 @@ const getDefaultStats = (): PomodoroStats => ({
   todaySessions: 0,
   todayMinutes: 0,
   lastSessionDate: '',
-  todayXpSessions: 0,
 });
 
 const getTodayDateString = () => new Date().toISOString().split('T')[0];
@@ -70,10 +49,9 @@ export const usePomodoroTimer = () => {
 
 interface PomodoroProviderProps {
   children: ReactNode;
-  onComplete?: () => void;
 }
 
-export const PomodoroProvider = ({ children, onComplete }: PomodoroProviderProps) => {
+export const PomodoroProvider = ({ children }: PomodoroProviderProps) => {
   const [state, setState] = useState<PomodoroState>(() => {
     const saved = localStorage.getItem('pomodoro-state');
     if (saved) {
@@ -102,12 +80,10 @@ export const PomodoroProvider = ({ children, onComplete }: PomodoroProviderProps
             ...parsed,
             todaySessions: 0,
             todayMinutes: 0,
-            todayXpSessions: 0,
             lastSessionDate: getTodayDateString(),
           };
         }
-        // Backfill todayXpSessions if loading from older localStorage (migration)
-        return { ...parsed, todayXpSessions: parsed.todayXpSessions ?? 0 };
+        return parsed;
       } catch {
         return getDefaultStats();
       }
@@ -116,12 +92,7 @@ export const PomodoroProvider = ({ children, onComplete }: PomodoroProviderProps
   });
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const onCompleteRef = useRef(onComplete);
   const sessionStartTimeRef = useRef<number | null>(null);
-  
-  useEffect(() => {
-    onCompleteRef.current = onComplete;
-  }, [onComplete]);
 
   // Save state to localStorage
   useEffect(() => {
@@ -161,30 +132,15 @@ export const PomodoroProvider = ({ children, onComplete }: PomodoroProviderProps
       intervalRef.current = setInterval(() => {
         setState(prev => {
           if (prev.timeLeft <= 1) {
-            // Session completed — always increment session counts for stats/achievements.
-            // Only fire onComplete (which triggers addXp) when under the daily XP cap.
-            setStats(prevStats => {
-              const isNewDay = prevStats.lastSessionDate !== getTodayDateString();
-              const todaySessions  = isNewDay ? 1 : prevStats.todaySessions + 1;
-              const todayXpSessions = isNewDay ? 0 : prevStats.todayXpSessions;
-              const willEarnXp = todayXpSessions < DAILY_XP_SESSION_CAP;
-
-              // Fire XP callback only when under cap.
-              // Deferred via setTimeout(0) to avoid React state update during render.
-              if (willEarnXp) {
-                setTimeout(() => onCompleteRef.current?.(), 0);
-              }
-
-              return {
-                ...prevStats,
-                totalSessions: prevStats.totalSessions + 1,
-                todaySessions,
-                totalMinutes: prevStats.totalMinutes + Math.floor(prev.totalTime / 60),
-                todayMinutes: (isNewDay ? 0 : prevStats.todayMinutes) + Math.floor(prev.totalTime / 60),
-                todayXpSessions: isNewDay ? (willEarnXp ? 1 : 0) : prevStats.todayXpSessions + (willEarnXp ? 1 : 0),
-                lastSessionDate: getTodayDateString(),
-              };
-            });
+            // Session completed
+            setStats(prevStats => ({
+              ...prevStats,
+              totalSessions: prevStats.totalSessions + 1,
+              todaySessions: prevStats.todaySessions + 1,
+              totalMinutes: prevStats.totalMinutes + Math.floor(prev.totalTime / 60),
+              todayMinutes: prevStats.todayMinutes + Math.floor(prev.totalTime / 60),
+              lastSessionDate: getTodayDateString(),
+            }));
             sessionStartTimeRef.current = null;
             return { ...prev, timeLeft: 0, isRunning: false };
           }
@@ -232,11 +188,8 @@ export const PomodoroProvider = ({ children, onComplete }: PomodoroProviderProps
     ? ((state.totalTime - state.timeLeft) / state.totalTime) * 100 
     : 0;
 
-  const xpSessionsRemaining = Math.max(0, DAILY_XP_SESSION_CAP - (stats.todayXpSessions ?? 0));
-  const isXpCapped = xpSessionsRemaining === 0;
-
   return (
-    <PomodoroContext.Provider value={{ state, stats, toggleTimer, resetTimer, setTime, addTime, formatTime, progress, xpSessionsRemaining, isXpCapped }}>
+    <PomodoroContext.Provider value={{ state, stats, toggleTimer, resetTimer, setTime, addTime, formatTime, progress }}>
       {children}
     </PomodoroContext.Provider>
   );
