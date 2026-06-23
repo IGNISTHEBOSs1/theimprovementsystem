@@ -134,7 +134,6 @@ export const PomodoroTimerFull = () => {
         </div>
 
         <p className="mt-4 text-caption text-muted-foreground">
-        <p className="mt-4 text-caption text-muted-foreground">
           Focus session complete — stats updated
         </p>
       </div>
