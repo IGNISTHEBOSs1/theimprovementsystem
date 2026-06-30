@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { SystemLogo } from '@/components/game/Logo';
+import { SystemLogo } from '@/components/branding/Logo';
 import { z } from 'zod';
 
 const emailSchema = z.string().email('Please enter a valid email address');

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Shield, Zap, Target, Flame, Trophy, ArrowRight, Star, Users, CheckCircle2, Brain, Swords } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SystemLogo } from '@/components/game/Logo';
+import { SystemLogo } from '@/components/branding/Logo';
 
 const features = [
   {
