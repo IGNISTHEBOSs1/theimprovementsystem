@@ -10,15 +10,15 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        "rounded-2xl transition-all duration-250",
+        "rounded-2xl transition-colors duration-200",
         variant === "default" &&
           "bg-card border border-border shadow-[var(--shadow-card)]",
         variant === "glass" &&
           "glass-card rounded-2xl",
         variant === "elevated" &&
-          "bg-card-elevated border border-white/8 shadow-[var(--shadow-elevated)]",
+          "bg-card-elevated border border-border shadow-sm",
         variant === "neon" &&
-          "bg-card-elevated border border-white/8 shadow-[var(--shadow-elevated)] hover:border-primary/40 hover:shadow-[var(--shadow-glow-primary)]",
+          "bg-card-elevated border border-primary/30 shadow-sm hover:border-primary/50",
         className,
       )}
       {...props}
@@ -46,7 +46,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-xl font-semibold leading-none tracking-tight font-display",
+      "text-xl font-semibold leading-none tracking-tight",
       className,
     )}
     {...props}
