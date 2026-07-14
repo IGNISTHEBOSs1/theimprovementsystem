@@ -97,8 +97,6 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex-center p-4">
       {/* Background */}
-      <div className="orb-1" />
-      <div className="orb-2" />
       <div className="fixed inset-0 pointer-events-none opacity-20"
         style={{ backgroundImage: `linear-gradient(hsl(var(--primary)/0.05) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)/0.05) 1px, transparent 1px)`, backgroundSize: '60px 60px' }}
       />
