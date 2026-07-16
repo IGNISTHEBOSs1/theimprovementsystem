@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { getRankForLevel } from '@/lib/identity';
 
 export interface Quest {
   id: string;
@@ -68,16 +69,6 @@ export const getXpForLevel = (level: number): number => {
   if (level <= 20) return 1500 + (level - 10) * 300;   // 1500→4500
   if (level <= 35) return 4500 + (level - 20) * 500;   // 4500→12000
   return 12000 + (level - 35) * 1000;                   // 12000+
-};
-
-const getRankForLevel = (level: number): string => {
-  if (level >= 60) return 'National-Level Hunter';
-  if (level >= 50) return 'S-Rank Hunter';
-  if (level >= 40) return 'A-Rank Hunter';
-  if (level >= 30) return 'B-Rank Hunter';
-  if (level >= 20) return 'C-Rank Hunter';
-  if (level >= 10) return 'D-Rank Hunter';
-  return 'E-Rank Hunter';
 };
 
 // Map quest/habit keywords to stat categories
