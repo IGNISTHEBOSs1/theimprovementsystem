@@ -53,14 +53,14 @@ export default function SystemBar({ username, level, rank }: SystemBarProps) {
     <>
       {/* ── Desktop rail ─────────────────────────────────────────── */}
       <aside
-        className="system-surface hidden md:flex md:flex-col md:w-56 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
+        className="system-surface hidden md:flex md:flex-col md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
         aria-label="System navigation"
       >
         {/* Identity block — occupies real space; asserts who before where. */}
-        <div className="px-5 pt-3 pb-2 border-b border-white/[0.06]">
+        <div className="px-5 pt-6 pb-5 border-b border-white/[0.06]">
           <div
             className={cn(
-              "w-12 h-12 rounded-xl overflow-hidden mb-2",
+              "w-11 h-11 rounded-xl overflow-hidden mb-3",
               justLeveledUp && "animate-glow-pulse-once",
             )}
           >
@@ -69,14 +69,14 @@ export default function SystemBar({ username, level, rank }: SystemBarProps) {
           <div className="text-body-md font-display font-bold text-foreground truncate">
             {username}
           </div>
-          <div className="flex items-center gap-1.5 mt-0.5">
+          <div className="flex items-center gap-1.5 mt-1">
             <span className="w-1.5 h-1.5 rounded-full bg-primary" />
             <span className="text-caption text-muted-foreground truncate">{rank}</span>
           </div>
         </div>
 
         {/* Nav rail */}
-        <nav className="flex-1 flex flex-col gap-0.5 px-3 py-2">
+        <nav className="flex-1 flex flex-col gap-1 px-3 py-4">
           {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
             const active = isActive(to);
             return (
@@ -84,7 +84,7 @@ export default function SystemBar({ username, level, rank }: SystemBarProps) {
                 key={to}
                 to={to}
                 end={to === "/"}
-                className="relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors duration-150"
+                className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150"
               >
                 {active && (
                   <motion.div
@@ -115,11 +115,11 @@ export default function SystemBar({ username, level, rank }: SystemBarProps) {
         </nav>
 
         {/* Voice slot — the Bar asserting "Pages are temporary; the System remains." */}
-        <div className="px-5 py-2 border-t border-white/[0.06]">
+        <div className="px-5 py-5 border-t border-white/[0.06]">
           <p className="text-body-sm text-muted-foreground leading-relaxed italic">
             "Small, consistent actions forge extraordinary transformation."
           </p>
-          <p className="text-caption text-primary mt-1">— The System</p>
+          <p className="text-caption text-primary mt-2">— The System</p>
         </div>
       </aside>
 
