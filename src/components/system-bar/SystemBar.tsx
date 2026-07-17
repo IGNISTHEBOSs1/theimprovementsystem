@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { useLocation, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LayoutDashboard, Compass, CheckSquare, MessageSquare, User } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,33 +17,13 @@ const INDICATOR_TRANSITION = { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }
 
 interface SystemBarProps {
   username: string;
-  level: number;
   rank: string;
+  /** Finished signal, computed upstream. The Bar renders this — it never infers it. */
+  justLeveledUp: boolean;
 }
 
-/** Detects a change in an already-supplied identity value to decide *when* to
- *  play the one-shot motion — this is Bar behavior (Motion as Consequence),
- *  not identity computation. The Bar still never derives what the rank *is*. */
-function useLeveledUp(level: number) {
-  const prevLevel = useRef(level);
-  const [justLeveledUp, setJustLeveledUp] = useState(false);
-
-  useEffect(() => {
-    if (level > prevLevel.current) {
-      setJustLeveledUp(true);
-      const timeout = setTimeout(() => setJustLeveledUp(false), 900);
-      prevLevel.current = level;
-      return () => clearTimeout(timeout);
-    }
-    prevLevel.current = level;
-  }, [level]);
-
-  return justLeveledUp;
-}
-
-export default function SystemBar({ username, level, rank }: SystemBarProps) {
+export default function SystemBar({ username, rank, justLeveledUp }: SystemBarProps) {
   const location = useLocation();
-  const justLeveledUp = useLeveledUp(level);
 
   const isActive = (to: string) =>
     to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
@@ -53,30 +32,39 @@ export default function SystemBar({ username, level, rank }: SystemBarProps) {
     <>
       {/* ── Desktop rail ─────────────────────────────────────────── */}
       <aside
-        className="system-surface hidden md:flex md:flex-col md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
+        className="system-surface hidden md:flex md:flex-col md:justify-between md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
         aria-label="System navigation"
       >
-        {/* Identity block — occupies real space; asserts who before where. */}
-        <div className="px-5 pt-6 pb-5 border-b border-white/[0.06]">
-          <div
-            className={cn(
-              "w-11 h-11 rounded-xl overflow-hidden mb-3",
-              justLeveledUp && "animate-glow-pulse-once",
-            )}
-          >
-            <SystemLogo size={44} className="w-full h-full" />
-          </div>
-          <div className="text-body-md font-display font-bold text-foreground truncate">
-            {username}
-          </div>
-          <div className="flex items-center gap-1.5 mt-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-            <span className="text-caption text-muted-foreground truncate">{rank}</span>
+        {/* Identity block — anchors the top. Logo is the anchor point; name/rank
+            are set tight against it rather than stacked as equal-weight lines. */}
+        <div className="system-identity-glow px-6 pt-8 pb-6">
+          <div className="flex items-center gap-3">
+            <div
+              className={cn(
+                "w-10 h-10 rounded-lg overflow-hidden shrink-0",
+                justLeveledUp && "animate-glow-pulse-once",
+              )}
+            >
+              <SystemLogo size={40} className="w-full h-full" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-body-md font-display font-bold text-foreground leading-tight truncate">
+                {username}
+              </div>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
+                <span className="text-[11px] tracking-wide text-muted-foreground truncate">
+                  {rank}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Nav rail */}
-        <nav className="flex-1 flex flex-col gap-1 px-3 py-4">
+        {/* Nav cluster — sits at its own natural height, not stretched to fill
+            the rail. The surrounding space is left empty on purpose. */}
+        <nav className="relative flex flex-col gap-1 px-4">
+          <div className="absolute left-4 top-1 bottom-1 w-px bg-white/[0.06]" aria-hidden />
           {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
             const active = isActive(to);
             return (
@@ -84,17 +72,24 @@ export default function SystemBar({ username, level, rank }: SystemBarProps) {
                 key={to}
                 to={to}
                 end={to === "/"}
-                className="relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors duration-150"
+                className="relative flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-md text-sm transition-colors duration-150"
               >
                 {active && (
                   <motion.div
                     layoutId="system-bar-active-indicator"
-                    className="absolute inset-0 rounded-lg system-nav-active"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-px h-4 bg-primary"
+                    transition={INDICATOR_TRANSITION}
+                  />
+                )}
+                {active && (
+                  <motion.div
+                    layoutId="system-bar-active-fill"
+                    className="absolute inset-y-0.5 left-2 right-0 rounded-md system-nav-active"
                     transition={INDICATOR_TRANSITION}
                   />
                 )}
                 <Icon
-                  size={17}
+                  size={16}
                   strokeWidth={active ? 2 : 1.5}
                   className={cn(
                     "relative shrink-0 transition-colors duration-150",
@@ -114,12 +109,15 @@ export default function SystemBar({ username, level, rank }: SystemBarProps) {
           })}
         </nav>
 
-        {/* Voice slot — the Bar asserting "Pages are temporary; the System remains." */}
-        <div className="px-5 py-5 border-t border-white/[0.06]">
-          <p className="text-body-sm text-muted-foreground leading-relaxed italic">
+        {/* Voice slot — anchors the bottom. Quieter and smaller than the identity
+            block above; a closing mark, not a footer. */}
+        <div className="px-6 pb-7 pt-6">
+          <p className="text-[12px] leading-relaxed text-muted-foreground/70 italic tracking-wide">
             "Small, consistent actions forge extraordinary transformation."
           </p>
-          <p className="text-caption text-primary mt-2">— The System</p>
+          <p className="text-[10px] tracking-[0.08em] uppercase text-primary/70 mt-2">
+            — The System
+          </p>
         </div>
       </aside>
 

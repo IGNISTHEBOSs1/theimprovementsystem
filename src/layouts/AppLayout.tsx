@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { useJustLeveledUp } from "@/hooks/useJustLeveledUp";
 import { getRankForLevel } from "@/lib/identity";
 import SystemBar from "@/components/system-bar/SystemBar";
 
@@ -10,17 +11,18 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { user, profile } = useAuth();
   const { state } = useDashboardData(user?.id);
+  const justLeveledUp = useJustLeveledUp(state.level);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       <SystemBar
         username={profile?.username ?? "Hunter"}
-        level={state.level}
         rank={getRankForLevel(state.level)}
+        justLeveledUp={justLeveledUp}
       />
 
       {/* ── Content area ─────────────────────────────────────────────── */}
-      <main className="flex-1 min-w-0 overflow-y-auto pb-[60px] md:pb-0">
+      <main className="flex-1 min-w-0 overflow-y-auto pb-[60px] md:pb-0 workspace-surface">
         {children}
       </main>
     </div>
