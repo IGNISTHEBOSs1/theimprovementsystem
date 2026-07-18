@@ -15,6 +15,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
+      <div className="env-light-layer" aria-hidden="true" />
+
       <SystemBar
         username={profile?.username ?? "Hunter"}
         rank={getRankForLevel(state.level)}
@@ -22,7 +24,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       />
 
       {/* ── Content area ─────────────────────────────────────────────── */}
-      <main className="flex-1 min-w-0 overflow-y-auto pb-[60px] md:pb-0 workspace-surface">
+      <main className="flex-1 min-w-0 overflow-y-auto pb-[60px] md:pb-0 material-surface material-workspace">
         {children}
       </main>
     </div>

@@ -32,12 +32,14 @@ export default function SystemBar({ username, rank, justLeveledUp }: SystemBarPr
     <>
       {/* ── Desktop rail ─────────────────────────────────────────── */}
       <aside
-        className="system-surface hidden md:flex md:flex-col md:justify-between md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
+        className="material-surface material-structural hidden md:flex md:flex-col md:justify-between md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
         aria-label="System navigation"
       >
         {/* Identity block — anchors the top. Logo is the anchor point; name/rank
-            are set tight against it rather than stacked as equal-weight lines. */}
-        <div className="system-identity-glow px-6 pt-8 pb-6">
+            are set tight against it rather than stacked as equal-weight lines.
+            No local glow here — brightness comes from the Structural elevation
+            responding to the shared environmental light, not a bespoke effect. */}
+        <div className="px-6 pt-8 pb-6">
           <div className="flex items-center gap-3">
             <div
               className={cn(
@@ -123,7 +125,7 @@ export default function SystemBar({ username, rank, justLeveledUp }: SystemBarPr
 
       {/* ── Mobile dock ──────────────────────────────────────────── */}
       <nav
-        className="system-surface md:hidden fixed bottom-0 left-0 right-0 z-40 h-[60px] flex items-stretch"
+        className="material-surface material-structural md:hidden fixed bottom-0 left-0 right-0 z-40 h-[60px] flex items-stretch"
         aria-label="System navigation"
       >
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => {

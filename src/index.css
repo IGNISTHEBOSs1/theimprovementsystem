@@ -44,6 +44,26 @@
     --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.2);
     --shadow-elevated: 0 4px 24px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.04) inset;
     --shadow-glow-primary: 0 0 0 1px hsl(var(--primary)/0.15), 0 0 24px hsl(var(--primary)/0.25);
+
+    /* ── Environmental Light (Material System §7) ──
+       ONE light for the whole application. Every material surface below
+       derives its brightness, edge, and shadow from this — nothing else
+       may define its own position, color, or gradient. */
+    --env-light-x: 22%;
+    --env-light-y: -8%;
+    --env-light-hue: 262;
+    --env-light-sat: 40%;
+    --env-light-intensity: 0.05;
+
+    /* ── Elevation Scale (Material System §6, §9) ──
+       One ordered scale. A surface declares which step it occupies;
+       everything visual is computed from that number via .material-surface. */
+    --elevation-void: 0;
+    --elevation-workspace: 0.4;
+    --elevation-content: 2;
+    --elevation-structural: 3;
+    --elevation-transient: 4.5;
+
     --sidebar-background: 0 0% 4%;
     --sidebar-foreground: 0 0% 85%;
     --sidebar-primary: 270 91% 55%;
@@ -257,51 +277,56 @@
      The Bar is a distinct plane from page content, not the same background
      at a different opacity. Deeper base, directional top-light, and a hairline
      edge that separates it — this is the "premium material vs. gray blur" fix. */
-  /* ── Workspace plane ──
-     Sits between page background (root, darkest) and the System Bar
-     (most elevated). Without this the workspace was visually identical
-     to the page root — two planes reading as one. */
-  .workspace-surface {
-    background: hsl(0 0% 3%);
-    position: relative;
-    box-shadow: inset 10px 0 28px -20px rgba(0, 0, 0, 0.7);
-  }
+  /* ══════════════════════════════════════════════════════════════
+     MATERIAL SYSTEM — single source of truth for light, elevation,
+     and depth. See Design System Phase II, "The Material System."
+     ══════════════════════════════════════════════════════════════ */
 
-  .system-surface {
-    background: linear-gradient(180deg, hsl(0 0% 5.5%) 0%, hsl(0 0% 3.5%) 100%);
-    position: relative;
-    box-shadow:
-      1px 0 0 rgba(255,255,255,0.08),
-      0 0 40px rgba(0,0,0,0.35);
-  }
-  .system-surface::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(var(--primary)/0.18), transparent);
-    pointer-events: none;
-  }
-
-  /* Light source implied behind the identity block, tapering down the rail —
-     the light relates to identity, it isn't an ambient effect on the whole panel. */
-  .system-identity-glow {
-    position: relative;
-  }
-  .system-identity-glow::after {
-    content: '';
-    position: absolute;
+  /* The one environmental light. Fixed, full-viewport, behind everything.
+     No other element may define a radial gradient / light source. */
+  .env-light-layer {
+    position: fixed;
     inset: 0;
-    background: radial-gradient(120% 100% at 20% 0%, hsl(var(--primary)/0.07), transparent 70%);
+    z-index: -1;
     pointer-events: none;
+    background: radial-gradient(
+      120% 80% at var(--env-light-x) var(--env-light-y),
+      hsl(var(--env-light-hue) var(--env-light-sat) 60% / var(--env-light-intensity)),
+      transparent 60%
+    );
   }
 
-  /* Active nav item — deliberately high contrast against the resting state,
-     so the two states visibly compete rather than politely coexist. */
+  /* Every surface expresses ONE number — its elevation — and everything
+     visual (brightness, edge, shadow) is computed from it. Direction is
+     always top-down, matching the environmental light's position, so no
+     two surfaces in the app can disagree about where the light is. */
+  .material-surface {
+    --elevation: var(--elevation-content);
+    position: relative;
+    background: hsl(0 0% calc(2% + var(--elevation) * 1.3%));
+    border: 1px solid hsl(0 0% 100% / calc(0.025 + var(--elevation) * 0.016));
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / calc(0.02 + var(--elevation) * 0.02)),
+      0 calc(var(--elevation) * 1.5px) calc(var(--elevation) * 10px) hsl(0 0% 0% / calc(0.12 + var(--elevation) * 0.045));
+  }
+
+  /* Material Hierarchy categories (§6) — each just sets the elevation input. */
+  .material-void        { --elevation: var(--elevation-void); }
+  .material-workspace   { --elevation: var(--elevation-workspace); }
+  .material-content     { --elevation: var(--elevation-content); }
+  .material-structural  { --elevation: var(--elevation-structural); }
+  .material-transient   { --elevation: var(--elevation-transient); }
+
+  /* Active nav item — a state expression (Ch.08 Interaction), not a new light
+     source. Computed as one step above the Structural elevation through the
+     SAME formula .material-surface uses — not an independently authored
+     gradient. This is the Ch.04 Light correction: light is never hand-tuned
+     to match the environment, it is derived from the one elevation model. */
   .system-nav-active {
-    background: linear-gradient(135deg, hsl(var(--primary)/0.16), hsl(var(--primary)/0.05));
-    border: 1px solid hsl(var(--primary)/0.28);
-    box-shadow: inset 0 1px 0 hsl(var(--primary)/0.12);
+    --elevation: calc(var(--elevation-structural) + 1);
+    background: hsl(0 0% calc(2% + var(--elevation) * 1.3%));
+    border: 1px solid hsl(0 0% 100% / calc(0.025 + var(--elevation) * 0.016));
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / calc(0.02 + var(--elevation) * 0.02));
   }
 
   /* Inner glow for active/selected states */
