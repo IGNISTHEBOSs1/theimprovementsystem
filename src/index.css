@@ -53,7 +53,7 @@
     --env-light-y: -8%;
     --env-light-hue: 262;
     --env-light-sat: 40%;
-    --env-light-intensity: 0.05;
+    --env-light-intensity: 0.09;
 
     /* ── Elevation Scale (Material System §6, §9) ──
        One ordered scale. A surface declares which step it occupies;
@@ -282,18 +282,29 @@
      and depth. See Design System Phase II, "The Material System."
      ══════════════════════════════════════════════════════════════ */
 
-  /* The one environmental light. Fixed, full-viewport, behind everything.
-     No other element may define a radial gradient / light source. */
+  /* The one environmental light + atmosphere. Fixed, full-viewport, behind
+     everything. No other element may define a radial gradient, light source,
+     or texture of its own — this is the single shared environment every
+     surface exists inside (Ch.04 Light, Ch.03 Material). */
   .env-light-layer {
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
     background: radial-gradient(
-      120% 80% at var(--env-light-x) var(--env-light-y),
+      140% 90% at var(--env-light-x) var(--env-light-y),
       hsl(var(--env-light-hue) var(--env-light-sat) 60% / var(--env-light-intensity)),
-      transparent 60%
+      transparent 65%
     );
+  }
+  .env-light-layer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.018;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 128px;
+    mix-blend-mode: overlay;
   }
 
   /* Every surface expresses ONE number — its elevation — and everything
