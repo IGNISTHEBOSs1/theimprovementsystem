@@ -16,16 +16,27 @@ export default function Dashboard() {
   const chooseQuest = () => navigate("/quests");
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-8 sm:py-12">
-      <PageHeader
-        eyebrow="Your system"
-        title={`Welcome back, ${name}.`}
-        description="A quiet place to reconnect with what matters and take the next meaningful step."
-      />
-
-      <div className="mt-10 space-y-8">
+    <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
+      {/* ── Tier 1 — Identity / Current State ──────────────────────────
+          PageHeader (identity) and DirectionCard (direction) are two
+          distinct responsibilities that read as one ambient band: tight
+          internal spacing, no card chrome, no border. Nothing here
+          competes with Tier 2 — it establishes state, not action. */}
+      <div className="space-y-5">
+        <PageHeader
+          eyebrow="Your system"
+          title={`Welcome back, ${name}.`}
+          description="A quiet place to reconnect with what matters and take the next meaningful step."
+        />
         <DirectionCard name={name} />
+      </div>
 
+      {/* ── Tier 2 — Next Meaningful Action + Evidence of Progress ─────
+          Same tier, side by side: Action and Progress are genuinely
+          related (both describe current effort), so proximity groups
+          them. The Action column is given more flexible width so it
+          visibly dominates — not a fixed ratio, just fr-based growth. */}
+      <div className="mt-9 grid grid-cols-1 gap-5 lg:grid-cols-[3fr_2fr] lg:items-stretch">
         {loading ? (
           <section className="rounded-2xl border border-border bg-card p-7" aria-label="Loading today’s focus">
             <div className="h-3 w-24 animate-pulse rounded bg-muted" />
@@ -46,9 +57,14 @@ export default function Dashboard() {
           maxXp={state.maxXp}
           totalQuestsCompleted={state.totalQuestsCompleted}
         />
-
-        {!loading && !activeQuest && <RecoveryState onChooseQuest={chooseQuest} />}
       </div>
+
+      {/* ── Tier 3 — Supporting information ─────────────────────────── */}
+      {!loading && !activeQuest && (
+        <div className="mt-6">
+          <RecoveryState onChooseQuest={chooseQuest} />
+        </div>
+      )}
     </div>
   );
 }
