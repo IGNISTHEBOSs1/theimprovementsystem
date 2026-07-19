@@ -1,5 +1,22 @@
-import { useState, useEffect, useCallback } from 'react';
-import { GameState } from './useGameState';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
+import { PlayerStats } from '@/lib/attributes';
+
+// Structural subset of GameState containing only the fields achievement
+// conditions read. A full GameState (used by the dead useGameState.ts path)
+// satisfies this interface unchanged, so no condition logic below changed.
+// This exists so the canonical live state (useDashboardData's DashboardState,
+// which has no habits array) can also be evaluated without needing every
+// GameState field. See TIS-INFRA-005.
+export interface AchievementEvalState {
+  level: number;
+  totalQuestsCompleted: number;
+  credits: number;
+  currentXp: number;
+  stats: PlayerStats;
+  habits: { streak: number }[];
+}
 
 export interface Achievement {
   id: string;
@@ -10,10 +27,10 @@ export interface Achievement {
   rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic' | 'godly';
   unlocked: boolean;
   unlockedAt?: Date;
-  condition: (state: GameState) => boolean;
+  condition: (state: AchievementEvalState) => boolean;
 }
 
-const achievementDefinitions: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = [
+export const achievementDefinitions: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = [
   // ===== GODLY (2) =====
   { id: 'true_monarch', name: 'True Monarch', description: 'Reach level 100 - You have become absolute', icon: '👑', category: 'level', rarity: 'godly', condition: (s) => s.level >= 100 },
   { id: 'eternal_flame', name: 'Eternal Flame', description: 'Maintain a 365-day streak', icon: '🌟', category: 'streak', rarity: 'godly', condition: (s) => s.habits.some(h => h.streak >= 365) },
@@ -129,48 +146,88 @@ const achievementDefinitions: Omit<Achievement, 'unlocked' | 'unlockedAt'>[] = [
   { id: 'system_activated', name: 'System Activated', description: 'Begin your journey', icon: '🔮', category: 'special', rarity: 'common', condition: (s) => s.level >= 1 },
 ];
 
-const ACHIEVEMENTS_STORAGE_KEY = 'the-system-achievements';
+type PersistedAchievements = Record<string, { unlocked: boolean; unlockedAt?: string }>;
 
-export const useAchievements = (gameState: GameState) => {
-  const [achievements, setAchievements] = useState<Achievement[]>(() => {
-    const saved = localStorage.getItem(ACHIEVEMENTS_STORAGE_KEY);
-    if (saved) {
-      try {
-        const savedUnlocks = JSON.parse(saved) as Record<string, { unlocked: boolean; unlockedAt?: string }>;
-        return achievementDefinitions.map(def => ({
-          ...def,
-          unlocked: savedUnlocks[def.id]?.unlocked || false,
-          unlockedAt: savedUnlocks[def.id]?.unlockedAt ? new Date(savedUnlocks[def.id].unlockedAt) : undefined,
-        }));
-      } catch {
-        return achievementDefinitions.map(def => ({ ...def, unlocked: false }));
-      }
-    }
-    return achievementDefinitions.map(def => ({ ...def, unlocked: false }));
+const hydrateFromPersisted = (persisted: PersistedAchievements): Achievement[] =>
+  achievementDefinitions.map(def => ({
+    ...def,
+    unlocked: persisted[def.id]?.unlocked || false,
+    unlockedAt: persisted[def.id]?.unlockedAt ? new Date(persisted[def.id].unlockedAt) : undefined,
+  }));
+
+const serializeAchievements = (achievements: Achievement[]): PersistedAchievements => {
+  const toSave: PersistedAchievements = {};
+  achievements.forEach(a => {
+    toSave[a.id] = { unlocked: a.unlocked, unlockedAt: a.unlockedAt?.toISOString() };
   });
+  return toSave;
+};
 
+export const useAchievements = (userId: string | undefined, evalState: AchievementEvalState) => {
+  const [achievements, setAchievements] = useState<Achievement[]>(() =>
+    achievementDefinitions.map(def => ({ ...def, unlocked: false })),
+  );
   const [newlyUnlocked, setNewlyUnlocked] = useState<Achievement | null>(null);
 
-  // Save to localStorage
+  // Guards writes/checks until the initial load from game_state.achievements
+  // completes, so an empty in-memory default never overwrites real
+  // persisted unlocks before they've been read.
+  const hasLoadedRef = useRef(false);
+
+  // Load persisted unlocks from the canonical game_state.achievements
+  // column — the single source of truth (no localStorage involved).
   useEffect(() => {
-    const toSave: Record<string, { unlocked: boolean; unlockedAt?: string }> = {};
-    achievements.forEach(a => {
-      toSave[a.id] = { unlocked: a.unlocked, unlockedAt: a.unlockedAt?.toISOString() };
-    });
-    localStorage.setItem(ACHIEVEMENTS_STORAGE_KEY, JSON.stringify(toSave));
-  }, [achievements]);
+    hasLoadedRef.current = false;
+    if (!userId) {
+      setAchievements(achievementDefinitions.map(def => ({ ...def, unlocked: false })));
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from('game_state')
+        .select('achievements')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (cancelled) return;
+
+      const persisted: PersistedAchievements =
+        !error && data?.achievements && typeof data.achievements === 'object' && !Array.isArray(data.achievements)
+          ? (data.achievements as unknown as PersistedAchievements)
+          : {};
+
+      setAchievements(hydrateFromPersisted(persisted));
+      hasLoadedRef.current = true;
+    })();
+
+    return () => { cancelled = true; };
+  }, [userId]);
+
+  // Persist to game_state.achievements whenever the achievement set changes
+  // as a result of a new unlock (see checkAchievements below).
+  const persist = useCallback(async (next: Achievement[]) => {
+    if (!userId) return;
+    await supabase
+      .from('game_state')
+      .update({ achievements: serializeAchievements(next) as unknown as Json })
+      .eq('user_id', userId);
+  }, [userId]);
 
   // Check for new achievements
   const checkAchievements = useCallback(() => {
+    if (!hasLoadedRef.current) return;
+
     setAchievements(prev => {
       let hasNewUnlock = false;
       let firstNewUnlock: Achievement | null = null;
 
       const updated = prev.map(achievement => {
         if (achievement.unlocked) return achievement;
-        
+
         const def = achievementDefinitions.find(d => d.id === achievement.id);
-        if (def && def.condition(gameState)) {
+        if (def && def.condition(evalState)) {
           hasNewUnlock = true;
           const unlockedAchievement = { ...achievement, unlocked: true, unlockedAt: new Date() };
           if (!firstNewUnlock) firstNewUnlock = unlockedAchievement;
@@ -184,14 +241,18 @@ export const useAchievements = (gameState: GameState) => {
         setTimeout(() => setNewlyUnlocked(null), 4000);
       }
 
-      return hasNewUnlock ? updated : prev;
+      if (hasNewUnlock) {
+        void persist(updated);
+        return updated;
+      }
+      return prev;
     });
-  }, [gameState]);
+  }, [evalState, persist]);
 
-  // Check achievements whenever game state changes
+  // Check achievements whenever the evaluated state changes
   useEffect(() => {
     checkAchievements();
-  }, [gameState.totalQuestsCompleted, gameState.level, gameState.credits, gameState.habits, checkAchievements]);
+  }, [evalState.totalQuestsCompleted, evalState.level, evalState.credits, evalState.habits, checkAchievements]);
 
   const dismissNotification = useCallback(() => {
     setNewlyUnlocked(null);

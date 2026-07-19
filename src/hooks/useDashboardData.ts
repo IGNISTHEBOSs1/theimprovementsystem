@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Quest } from "./useGameState";
 import { applyXpDelta } from "@/lib/progression";
 import { PlayerStats, inferStatCategory, getStatGainForDifficulty, applyStatGain } from "@/lib/attributes";
+import { useAchievements } from "@/hooks/useAchievements";
 import { Json } from "@/integrations/supabase/types";
 
 export interface DashboardState {
@@ -101,5 +102,27 @@ export function useDashboardData(userId?: string) {
     setSaving(false);
   }, [load, saving, state, userId]);
 
-  return { state, loading, saving, completeQuest };
+  // Achievements are evaluated against the canonical live state and persist
+  // to game_state.achievements — the single source of truth (TIS-INFRA-005).
+  // habits is passed as an empty array: the live app has no connected habit
+  // data (see TIS-INFRA-001), so habit/streak-based achievements cannot
+  // unlock here until that system is separately reconnected. This is not a
+  // fabricated value — it accurately reflects that zero habits currently
+  // exist in the live application.
+  const { achievements, newlyUnlocked, dismissNotification, unlockedCount, totalCount } = useAchievements(
+    userId,
+    {
+      level: state.level,
+      totalQuestsCompleted: state.totalQuestsCompleted,
+      credits: state.credits,
+      currentXp: state.currentXp,
+      stats: state.stats,
+      habits: [],
+    },
+  );
+
+  return {
+    state, loading, saving, completeQuest,
+    achievements, newlyUnlocked, dismissNotification, unlockedCount, totalCount,
+  };
 }
