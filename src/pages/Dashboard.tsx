@@ -5,12 +5,12 @@ import { PrimaryActionPanel } from "@/components/dashboard/PrimaryActionPanel";
 import { QuietProgress } from "@/components/dashboard/QuietProgress";
 import { RecoveryState } from "@/components/dashboard/RecoveryState";
 import { useAuth } from "@/hooks/useAuth";
-import { useDashboardData } from "@/hooks/useDashboardData";
+import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
-  const { state, loading, saving, completeQuest } = useDashboardData(user?.id);
+  const { profile } = useAuth();
+  const { state, loading, saving, completeQuest } = useDashboardDataContext();
   const activeQuest = state.quests.find((quest) => !quest.completed && !quest.failed);
   const name = profile?.username || "there";
   const chooseQuest = () => navigate("/quests");

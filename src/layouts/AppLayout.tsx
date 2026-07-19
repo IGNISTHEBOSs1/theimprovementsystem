@@ -1,8 +1,8 @@
 import { useAuth } from "@/hooks/useAuth";
-import { useDashboardData } from "@/hooks/useDashboardData";
 import { useJustLeveledUp } from "@/hooks/useJustLeveledUp";
 import { getRankForLevel } from "@/lib/identity";
 import SystemBar from "@/components/system-bar/SystemBar";
+import { DashboardDataProvider, useDashboardDataContext } from "@/providers/DashboardDataProvider";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -10,7 +10,15 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
   const { user, profile } = useAuth();
-  const { state } = useDashboardData(user?.id);
+  return (
+    <DashboardDataProvider userId={user?.id}>
+      <AppLayoutContent profile={profile}>{children}</AppLayoutContent>
+    </DashboardDataProvider>
+  );
+}
+
+function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: ReturnType<typeof useAuth>['profile'] }) {
+  const { state } = useDashboardDataContext();
   const justLeveledUp = useJustLeveledUp(state.level);
 
   return (
