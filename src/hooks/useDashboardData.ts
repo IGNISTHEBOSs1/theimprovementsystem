@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { getXpForLevel, Quest } from "./useGameState";
+import { Quest } from "./useGameState";
+import { applyXpDelta } from "@/lib/progression";
 import { Json } from "@/integrations/supabase/types";
 
 export interface DashboardState {
@@ -61,19 +62,12 @@ export function useDashboardData(userId?: string) {
     if (!quest || quest.completed) return;
 
     const nextQuests = state.quests.map((item) => item.id === questId ? { ...item, completed: true } : item);
-    let nextXp = state.currentXp + quest.xpReward;
-    let nextLevel = state.level;
-    let nextMaxXp = state.maxXp;
-    while (nextXp >= nextMaxXp) {
-      nextXp -= nextMaxXp;
-      nextLevel += 1;
-      nextMaxXp = getXpForLevel(nextLevel);
-    }
+    const progression = applyXpDelta(state, quest.xpReward);
     const nextState = {
       ...state,
-      level: nextLevel,
-      currentXp: nextXp,
-      maxXp: nextMaxXp,
+      level: progression.level,
+      currentXp: progression.currentXp,
+      maxXp: progression.maxXp,
       credits: state.credits + quest.creditReward,
       totalQuestsCompleted: state.totalQuestsCompleted + 1,
       quests: nextQuests,
@@ -84,9 +78,9 @@ export function useDashboardData(userId?: string) {
     const { error } = await supabase
       .from("game_state")
       .update({
-        level: nextLevel,
-        current_xp: nextXp,
-        max_xp: nextMaxXp,
+        level: progression.level,
+        current_xp: progression.currentXp,
+        max_xp: progression.maxXp,
         credits: nextState.credits,
         total_quests_completed: nextState.totalQuestsCompleted,
         quests: nextQuests as unknown as Json,

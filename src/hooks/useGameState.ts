@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getRankForLevel } from '@/lib/identity';
+import { getXpForLevel, applyXpDelta } from '@/lib/progression';
+
+// Re-exported for backward compatibility — useDashboardData.ts and any
+// other consumers import getXpForLevel from this module. The canonical
+// implementation now lives in @/lib/progression (see TIS-INFRA-003).
+export { getXpForLevel };
 
 export interface Quest {
   id: string;
@@ -61,15 +66,6 @@ export interface GameState {
 }
 
 const getTodayDateString = () => new Date().toISOString().split('T')[0];
-
-// XP required per level — easy early, exponential later
-export const getXpForLevel = (level: number): number => {
-  if (level <= 5)  return 200 + (level - 1) * 100;     // 200, 300, 400, 500, 600
-  if (level <= 10) return 700 + (level - 5) * 150;     // 700→1450
-  if (level <= 20) return 1500 + (level - 10) * 300;   // 1500→4500
-  if (level <= 35) return 4500 + (level - 20) * 500;   // 4500→12000
-  return 12000 + (level - 35) * 1000;                   // 12000+
-};
 
 // Map quest/habit keywords to stat categories
 export const inferStatCategory = (title: string): keyof PlayerStats => {
@@ -158,31 +154,19 @@ export const useGameState = () => {
   const addXp = useCallback((amount: number) => {
     setGameState(prev => {
       const multiplied = Math.round(amount * (prev.xpMultiplier || 1));
-      let newXp = prev.currentXp + multiplied;
-      let newLevel = prev.level;
-      let newMaxXp = prev.maxXp;
-      let didLevelUp = false;
+      const result = applyXpDelta(prev, multiplied);
 
-      if (newXp < 0) newXp = 0;
-
-      while (newXp >= newMaxXp) {
-        newXp -= newMaxXp;
-        newLevel++;
-        newMaxXp = getXpForLevel(newLevel);
-        didLevelUp = true;
-      }
-
-      if (didLevelUp) {
+      if (result.leveledUp) {
         setShowLevelUp(true);
         setTimeout(() => setShowLevelUp(false), 4000);
       }
 
       return {
         ...prev,
-        currentXp: newXp,
-        level: newLevel,
-        maxXp: newMaxXp,
-        rank: getRankForLevel(newLevel),
+        currentXp: result.currentXp,
+        level: result.level,
+        maxXp: result.maxXp,
+        rank: result.rank,
       };
     });
   }, []);
@@ -202,19 +186,9 @@ export const useGameState = () => {
       const newStats = { ...prev.stats, [cat]: Math.min(100, prev.stats[cat] + statGain) };
 
       const multiplied = Math.round(quest.xpReward * (prev.xpMultiplier || 1));
-      let newXp = prev.currentXp + multiplied;
-      let newLevel = prev.level;
-      let newMaxXp = prev.maxXp;
-      let didLevelUp = false;
+      const result = applyXpDelta(prev, multiplied);
 
-      while (newXp >= newMaxXp) {
-        newXp -= newMaxXp;
-        newLevel++;
-        newMaxXp = getXpForLevel(newLevel);
-        didLevelUp = true;
-      }
-
-      if (didLevelUp) {
+      if (result.leveledUp) {
         setShowLevelUp(true);
         setTimeout(() => setShowLevelUp(false), 4000);
       }
@@ -223,10 +197,10 @@ export const useGameState = () => {
         ...prev,
         quests: prev.quests.map(q => q.id === questId ? { ...q, completed: true } : q),
         totalQuestsCompleted: prev.totalQuestsCompleted + 1,
-        currentXp: newXp,
-        maxXp: newMaxXp,
-        level: newLevel,
-        rank: getRankForLevel(newLevel),
+        currentXp: result.currentXp,
+        maxXp: result.maxXp,
+        level: result.level,
+        rank: result.rank,
         credits: prev.credits + quest.creditReward,
         stats: newStats,
       };
@@ -260,19 +234,8 @@ export const useGameState = () => {
       const statChange = wasCompleted ? -1 : 2;
       const newStats = { ...prev.stats, [cat]: Math.min(100, Math.max(0, prev.stats[cat] + statChange)) };
 
-      let newXp = prev.currentXp + xpChange;
-      let newLevel = prev.level;
-      let newMaxXp = prev.maxXp;
-      let didLevelUp = false;
-
-      if (newXp < 0) newXp = 0;
-      while (newXp >= newMaxXp) {
-        newXp -= newMaxXp;
-        newLevel++;
-        newMaxXp = getXpForLevel(newLevel);
-        didLevelUp = true;
-      }
-      if (didLevelUp) {
+      const result = applyXpDelta(prev, xpChange);
+      if (result.leveledUp) {
         setShowLevelUp(true);
         setTimeout(() => setShowLevelUp(false), 4000);
       }
@@ -290,10 +253,10 @@ export const useGameState = () => {
           }
           return { ...h, completedDays: newDays, streak };
         }),
-        currentXp: newXp,
-        maxXp: newMaxXp,
-        level: newLevel,
-        rank: getRankForLevel(newLevel),
+        currentXp: result.currentXp,
+        maxXp: result.maxXp,
+        level: result.level,
+        rank: result.rank,
         stats: newStats,
       };
     });
