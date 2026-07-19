@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getXpForLevel, applyXpDelta } from '@/lib/progression';
+import { PlayerStats, inferStatCategory, getStatGainForDifficulty, applyStatGain } from '@/lib/attributes';
 
-// Re-exported for backward compatibility — useDashboardData.ts and any
-// other consumers import getXpForLevel from this module. The canonical
-// implementation now lives in @/lib/progression (see TIS-INFRA-003).
+// Re-exported for backward compatibility — see @/lib/progression and
+// @/lib/attributes for the canonical implementations (TIS-INFRA-003,
+// TIS-INFRA-004).
 export { getXpForLevel };
+export type { PlayerStats };
+export { inferStatCategory };
 
 export interface Quest {
   id: string;
@@ -32,15 +35,6 @@ export interface Habit {
   deletionDeniedUntil?: string;
 }
 
-export interface PlayerStats {
-  FIT: number;
-  SOC: number;
-  INT: number;
-  DIS: number;
-  FOC: number;
-  FIN: number;
-}
-
 export interface SystemMessage {
   id: string;
   type: 'streak' | 'boost' | 'warning' | 'achievement';
@@ -66,17 +60,6 @@ export interface GameState {
 }
 
 const getTodayDateString = () => new Date().toISOString().split('T')[0];
-
-// Map quest/habit keywords to stat categories
-export const inferStatCategory = (title: string): keyof PlayerStats => {
-  const t = title.toLowerCase();
-  if (/workout|gym|run|exercise|push.?up|squat|yoga|sport|walk|swim|fitness|stretch/.test(t)) return 'FIT';
-  if (/read|study|learn|course|book|research|code|write|journal|essay|math|science/.test(t)) return 'INT';
-  if (/meditat|focus|pomodoro|deep.?work|distract|concentration|mindful/.test(t)) return 'FOC';
-  if (/friend|family|call|social|meet|network|talk|message|reach.?out|community/.test(t)) return 'SOC';
-  if (/budget|save|invest|money|finance|expense|income|spend|earn|credit|debt/.test(t)) return 'FIN';
-  return 'DIS'; // discipline is the default for everything else
-};
 
 export const freshAccountState: GameState = {
   username: 'Hunter',
@@ -182,8 +165,7 @@ export const useGameState = () => {
 
       // Update stat based on quest category
       const cat = quest.statCategory || inferStatCategory(quest.title);
-      const statGain = quest.difficulty === 'Easy' ? 1 : quest.difficulty === 'Normal' ? 2 : quest.difficulty === 'Hard' ? 3 : 4;
-      const newStats = { ...prev.stats, [cat]: Math.min(100, prev.stats[cat] + statGain) };
+      const newStats = applyStatGain(prev.stats, cat, getStatGainForDifficulty(quest.difficulty));
 
       const multiplied = Math.round(quest.xpReward * (prev.xpMultiplier || 1));
       const result = applyXpDelta(prev, multiplied);

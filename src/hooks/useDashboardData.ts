@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Quest } from "./useGameState";
 import { applyXpDelta } from "@/lib/progression";
+import { PlayerStats, inferStatCategory, getStatGainForDifficulty, applyStatGain } from "@/lib/attributes";
 import { Json } from "@/integrations/supabase/types";
 
 export interface DashboardState {
@@ -11,6 +12,7 @@ export interface DashboardState {
   credits: number;
   totalQuestsCompleted: number;
   quests: Quest[];
+  stats: PlayerStats;
 }
 
 const emptyState: DashboardState = {
@@ -20,6 +22,7 @@ const emptyState: DashboardState = {
   credits: 0,
   totalQuestsCompleted: 0,
   quests: [],
+  stats: { FIT: 50, SOC: 50, INT: 50, DIS: 50, FOC: 50, FIN: 50 },
 };
 
 export function useDashboardData(userId?: string) {
@@ -37,7 +40,7 @@ export function useDashboardData(userId?: string) {
     setLoading(true);
     const { data, error } = await supabase
       .from("game_state")
-      .select("level, current_xp, max_xp, credits, total_quests_completed, quests")
+      .select("level, current_xp, max_xp, credits, total_quests_completed, quests, stats")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -49,6 +52,9 @@ export function useDashboardData(userId?: string) {
         credits: data.credits,
         totalQuestsCompleted: data.total_quests_completed,
         quests: Array.isArray(data.quests) ? data.quests as unknown as Quest[] : [],
+        stats: data.stats && typeof data.stats === "object" && !Array.isArray(data.stats)
+          ? { ...emptyState.stats, ...(data.stats as unknown as Partial<PlayerStats>) }
+          : emptyState.stats,
       });
     }
     setLoading(false);
@@ -63,6 +69,8 @@ export function useDashboardData(userId?: string) {
 
     const nextQuests = state.quests.map((item) => item.id === questId ? { ...item, completed: true } : item);
     const progression = applyXpDelta(state, quest.xpReward);
+    const statCategory = quest.statCategory || inferStatCategory(quest.title);
+    const nextStats = applyStatGain(state.stats, statCategory, getStatGainForDifficulty(quest.difficulty));
     const nextState = {
       ...state,
       level: progression.level,
@@ -71,6 +79,7 @@ export function useDashboardData(userId?: string) {
       credits: state.credits + quest.creditReward,
       totalQuestsCompleted: state.totalQuestsCompleted + 1,
       quests: nextQuests,
+      stats: nextStats,
     };
 
     setSaving(true);
@@ -84,6 +93,7 @@ export function useDashboardData(userId?: string) {
         credits: nextState.credits,
         total_quests_completed: nextState.totalQuestsCompleted,
         quests: nextQuests as unknown as Json,
+        stats: nextStats as unknown as Json,
       })
       .eq("user_id", userId);
 
