@@ -31,40 +31,50 @@ export default function Dashboard() {
         <DirectionCard name={name} />
       </div>
 
-      {/* ── Tier 2 — Next Meaningful Action + Evidence of Progress ─────
-          Same tier, side by side: Action and Progress are genuinely
-          related (both describe current effort), so proximity groups
-          them. The Action column is given more flexible width so it
-          visibly dominates — not a fixed ratio, just fr-based growth. */}
-      <div className="mt-9 grid grid-cols-1 gap-5 lg:grid-cols-[3fr_2fr] lg:items-stretch">
+      {/* ── Tier 2 — Primary Action ─────────────────────────────────────
+          Exactly one dominant element occupies this tier: the active
+          Quest if one exists, or the Recovery message if it doesn't.
+          These are never rendered together — showing both produced two
+          competing "start something" buttons for the same situation. */}
+      <div className="mt-9">
         {loading ? (
           <section className="rounded-2xl border border-border bg-card p-7" aria-label="Loading today’s focus">
             <div className="h-3 w-24 animate-pulse rounded bg-muted" />
             <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
           </section>
-        ) : (
+        ) : activeQuest ? (
           <PrimaryActionPanel
             quest={activeQuest}
             completing={saving}
-            onComplete={() => activeQuest && void completeQuest(activeQuest.id)}
+            onComplete={() => void completeQuest(activeQuest.id)}
             onChooseQuest={chooseQuest}
           />
+        ) : (
+          <RecoveryState onChooseQuest={chooseQuest} />
         )}
-
-        <QuietProgress
-          level={state.level}
-          currentXp={state.currentXp}
-          maxXp={state.maxXp}
-          totalQuestsCompleted={state.totalQuestsCompleted}
-        />
       </div>
 
-      {/* ── Tier 3 — Supporting information ─────────────────────────── */}
-      {!loading && !activeQuest && (
-        <div className="mt-6">
-          <RecoveryState onChooseQuest={chooseQuest} />
-        </div>
-      )}
+      {/* ── Tier 3 — Evidence of progress ───────────────────────────────
+          Deliberately narrower and positioned below the dominant action
+          rather than beside it, so it reads as subordinate rather than
+          competing for attention. Gated behind `loading` so a returning
+          user never briefly sees Level 1 / 0 XP before their real
+          progress loads. */}
+      <div className="mt-6 max-w-md">
+        {loading ? (
+          <section className="rounded-2xl bg-card/30 p-5 sm:p-6" aria-label="Loading progress">
+            <div className="h-3 w-32 animate-pulse rounded bg-muted" />
+            <div className="mt-4 h-5 w-2/3 animate-pulse rounded bg-muted" />
+          </section>
+        ) : (
+          <QuietProgress
+            level={state.level}
+            currentXp={state.currentXp}
+            maxXp={state.maxXp}
+            totalQuestsCompleted={state.totalQuestsCompleted}
+          />
+        )}
+      </div>
     </div>
   );
 }
