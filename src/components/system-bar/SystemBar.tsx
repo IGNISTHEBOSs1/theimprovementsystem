@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { LayoutDashboard, Compass, CheckSquare, MessageSquare, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SystemLogo } from "@/components/branding/Logo";
+import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 
 const NAV_ITEMS = [
   { to: "/",        label: "Dashboard", icon: LayoutDashboard },
@@ -33,7 +34,7 @@ export default function SystemBar({ username, rank, justLeveledUp }: SystemBarPr
       {/* ── Desktop rail ─────────────────────────────────────────── */}
       <aside
         className="material-surface material-structural hidden md:flex md:flex-col md:justify-between md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
-        aria-label="System navigation"
+        aria-label="Primary navigation"
       >
         {/* Identity block — anchors the top. Logo is the anchor point; name/rank
             are set tight against it rather than stacked as equal-weight lines.
@@ -74,6 +75,7 @@ export default function SystemBar({ username, rank, justLeveledUp }: SystemBarPr
                 key={to}
                 to={to}
                 end={to === "/"}
+                aria-current={active ? "page" : undefined}
                 className="relative flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-md text-sm transition-colors duration-150"
               >
                 {active && (
@@ -125,17 +127,19 @@ export default function SystemBar({ username, rank, justLeveledUp }: SystemBarPr
 
       {/* ── Mobile dock ──────────────────────────────────────────── */}
       <nav
-        className="material-surface material-structural md:hidden fixed bottom-0 left-0 right-0 z-40 h-[60px] flex items-stretch"
-        aria-label="System navigation"
+        className="material-surface material-structural md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch h-[60px] pb-[env(safe-area-inset-bottom)]"
+        aria-label="Primary navigation, mobile"
       >
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
           const active = isActive(to);
+          const isProfile = to === "/profile";
           return (
             <NavLink
               key={to}
               to={to}
               end={to === "/"}
-              className="relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors duration-150"
+              aria-current={active ? "page" : undefined}
+              className="relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors duration-150 active:scale-95 active:transition-none touch-manipulation"
             >
               {active && (
                 <motion.div
@@ -144,11 +148,15 @@ export default function SystemBar({ username, rank, justLeveledUp }: SystemBarPr
                   transition={INDICATOR_TRANSITION}
                 />
               )}
-              <Icon
-                size={19}
-                strokeWidth={active ? 2 : 1.5}
-                className={cn("relative", active ? "text-primary" : "text-muted-foreground")}
-              />
+              {isProfile ? (
+                <IdentityAvatar username={username} className="relative h-6 w-6 ring-1" />
+              ) : (
+                <Icon
+                  size={19}
+                  strokeWidth={active ? 2 : 1.5}
+                  className={cn("relative", active ? "text-primary" : "text-muted-foreground")}
+                />
+              )}
               <span
                 className={cn(
                   "relative text-[10px] font-medium leading-none",

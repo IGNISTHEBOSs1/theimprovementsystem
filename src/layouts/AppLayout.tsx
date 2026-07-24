@@ -32,7 +32,7 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
       />
 
       {/* ── Content area ─────────────────────────────────────────────── */}
-      <main className="flex-1 min-w-0 overflow-y-auto pb-[60px] md:pb-0 material-surface material-workspace">
+      <main className="flex-1 min-w-0 overflow-y-auto pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-0 material-surface material-workspace">
         {children}
       </main>
     </div>
