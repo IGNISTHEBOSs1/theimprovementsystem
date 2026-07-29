@@ -18,25 +18,39 @@ export const useAuth = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .maybeSingle();
-    if (!error && data) setProfile(data as Profile);
+  // Fetches the profile row, retrying briefly to cover the short window
+  // between a successful signup and the DB trigger (handle_new_user)
+  // committing the corresponding profiles row. Returns once a profile is
+  // found or attempts are exhausted — callers await this before treating
+  // auth state as settled, so the profile is never still-null at the
+  // moment `loading` flips to false on a successful sign-in/sign-up.
+  const fetchProfile = async (userId: string, attempts = 3, delayMs = 300) => {
+    for (let attempt = 0; attempt < attempts; attempt++) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (!error && data) {
+        setProfile(data as Profile);
+        return;
+      }
+      if (attempt < attempts - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+      }
+    }
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) await fetchProfile(session.user.id);
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) await fetchProfile(session.user.id);
       else setProfile(null);
       setLoading(false);
     });

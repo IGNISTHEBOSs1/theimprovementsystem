@@ -75,14 +75,18 @@ const Auth = () => {
       if (error) {
         playError();
         toast({ title: 'Sign up failed', description: error.message.includes('already registered') ? 'This email is already registered.' : error.message, variant: 'destructive' });
-      } else { playQuestComplete(); toast({ title: 'Welcome, Hunter!', description: 'Your account has been created' }); navigate('/'); }
+      } else { playQuestComplete(); toast({ title: 'Welcome, Hunter!', description: 'Your account has been created' }); }
     } else {
       const { error } = await signIn(email, password);
       if (error) {
         playError();
         toast({ title: 'Sign in failed', description: error.message.includes('Invalid login') ? 'Invalid email or password.' : error.message, variant: 'destructive' });
-      } else { playQuestComplete(); toast({ title: 'Welcome back, Hunter!' }); navigate('/'); }
+      } else { playQuestComplete(); toast({ title: 'Welcome back, Hunter!' }); }
     }
+    // Navigation to '/' is handled by the effect above once `user` is set
+    // AND `authLoading` resolves to false — which now only happens after
+    // the profile fetch has completed (see useAuth.ts). This prevents
+    // navigating to the Dashboard before the profile is available.
     setLoading(false);
   };
 
