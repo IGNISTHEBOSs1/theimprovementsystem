@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import { useAuth } from "./hooks/useAuth";
+import { AuthProvider } from "./providers/AuthProvider";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import AppLayout from "./layouts/AppLayout";
 
@@ -46,43 +47,45 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Suspense fallback={<div className="min-h-screen bg-background" />}>
-          <Routes>
-            {/* Auth — no layout */}
-            <Route path="/auth" element={<Auth />} />
+        <AuthProvider>
+          <BrowserRouter>
+            <Suspense fallback={<div className="min-h-screen bg-background" />}>
+            <Routes>
+              {/* Auth — no layout */}
+              <Route path="/auth" element={<Auth />} />
 
-            {/* Protected app routes — all wrapped in AppLayout */}
-            <Route path="/" element={
-              <ProtectedRoute>
-                <AppLayout><Dashboard /></AppLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/journey" element={
-              <ProtectedRoute>
-                <AppLayout><Journey /></AppLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/quests" element={
-              <ProtectedRoute>
-                <AppLayout><Quests /></AppLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/mentor" element={
-              <ProtectedRoute>
-                <AppLayout><Mentor /></AppLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/profile" element={
-              <ProtectedRoute>
-                <AppLayout><Profile /></AppLayout>
-              </ProtectedRoute>
-            } />
+              {/* Protected app routes — all wrapped in AppLayout */}
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <AppLayout><Dashboard /></AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/journey" element={
+                <ProtectedRoute>
+                  <AppLayout><Journey /></AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/quests" element={
+                <ProtectedRoute>
+                  <AppLayout><Quests /></AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/mentor" element={
+                <ProtectedRoute>
+                  <AppLayout><Mentor /></AppLayout>
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <AppLayout><Profile /></AppLayout>
+                </ProtectedRoute>
+              } />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          </Suspense>
-        </BrowserRouter>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>

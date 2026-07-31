@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DirectionCard } from "@/components/dashboard/DirectionCard";
+import { FirstLaunchState } from "@/components/dashboard/FirstLaunchState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PrimaryActionPanel } from "@/components/dashboard/PrimaryActionPanel";
 import { QuietProgress } from "@/components/dashboard/QuietProgress";
@@ -9,11 +11,42 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile, loading: profileLoading, completeFirstLaunch } = useAuth();
   const { state, loading, saving, completeQuest } = useDashboardDataContext();
   const activeQuest = state.quests.find((quest) => !quest.completed && !quest.failed);
   const name = profile?.username || "there";
   const chooseQuest = () => navigate("/quests");
+  const [completingFirstLaunch, setCompletingFirstLaunch] = useState(false);
+
+  // Gate on this component's own profile-loading state (not just the outer
+  // ProtectedRoute's) so a returning user is never briefly shown the
+  // first-launch state while `profile` is still resolving. See Milestone
+  // 2.1 — requirement 7 (do not modify returning-user behavior).
+  if (profileLoading) {
+    return (
+      <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
+        <section className="rounded-2xl border border-border bg-card p-7" aria-label="Loading">
+          <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+          <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
+        </section>
+      </div>
+    );
+  }
+
+  if (profile && !profile.has_completed_first_launch) {
+    const handleBegin = async () => {
+      setCompletingFirstLaunch(true);
+      await completeFirstLaunch();
+      setCompletingFirstLaunch(false);
+    };
+    return (
+      <FirstLaunchState
+        name={name}
+        completing={completingFirstLaunch}
+        onBegin={handleBegin}
+      />
+    );
+  }
 
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">

@@ -106,6 +106,7 @@ export type Database = {
           avatar_id: string
           created_at: string
           date_of_birth: string | null
+          has_completed_first_launch: boolean
           id: string
           updated_at: string
           user_id: string
@@ -115,6 +116,7 @@ export type Database = {
           avatar_id?: string
           created_at?: string
           date_of_birth?: string | null
+          has_completed_first_launch?: boolean
           id?: string
           updated_at?: string
           user_id: string
@@ -124,6 +126,7 @@ export type Database = {
           avatar_id?: string
           created_at?: string
           date_of_birth?: string | null
+          has_completed_first_launch?: boolean
           id?: string
           updated_at?: string
           user_id?: string
