@@ -8,6 +8,8 @@ import { useAuth } from "./hooks/useAuth";
 import { AuthProvider } from "./providers/AuthProvider";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import AppLayout from "./layouts/AppLayout";
+import { DevErrorBoundary } from "@/components/diagnostics/DevErrorBoundary";
+import { RenderProfiler } from "@/components/diagnostics/RenderProfiler";
 
 // New page structure
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -42,53 +44,55 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="Monarch" defaultMode="dark">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AuthProvider>
-          <BrowserRouter>
-            <Suspense fallback={<div className="min-h-screen bg-background" />}>
-            <Routes>
-              {/* Auth — no layout */}
-              <Route path="/auth" element={<Auth />} />
+  <DevErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="Monarch" defaultMode="dark">
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AuthProvider>
+            <BrowserRouter>
+              <Suspense fallback={<div className="min-h-screen bg-background" />}>
+              <Routes>
+                {/* Auth — no layout */}
+                <Route path="/auth" element={<RenderProfiler id="Auth"><Auth /></RenderProfiler>} />
 
-              {/* Protected app routes — all wrapped in AppLayout */}
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <AppLayout><Dashboard /></AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/journey" element={
-                <ProtectedRoute>
-                  <AppLayout><Journey /></AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/quests" element={
-                <ProtectedRoute>
-                  <AppLayout><Quests /></AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/mentor" element={
-                <ProtectedRoute>
-                  <AppLayout><Mentor /></AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <AppLayout><Profile /></AppLayout>
-                </ProtectedRoute>
-              } />
+                {/* Protected app routes — all wrapped in AppLayout */}
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <AppLayout><RenderProfiler id="Dashboard"><Dashboard /></RenderProfiler></AppLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/journey" element={
+                  <ProtectedRoute>
+                    <AppLayout><RenderProfiler id="Journey"><Journey /></RenderProfiler></AppLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/quests" element={
+                  <ProtectedRoute>
+                    <AppLayout><RenderProfiler id="Quests"><Quests /></RenderProfiler></AppLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/mentor" element={
+                  <ProtectedRoute>
+                    <AppLayout><RenderProfiler id="Mentor"><Mentor /></RenderProfiler></AppLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute>
+                    <AppLayout><RenderProfiler id="Profile"><Profile /></RenderProfiler></AppLayout>
+                  </ProtectedRoute>
+                } />
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </AuthProvider>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </DevErrorBoundary>
 );
 
 export default App;
