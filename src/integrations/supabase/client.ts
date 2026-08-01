@@ -55,69 +55,48 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 });
 
 // ---------------------------------------------------------------------
-// TEMPORARY DEBUG INSTRUMENTATION — GoTrueClient internals.
-// Do NOT refactor application code for this. This patches the actual
-// GoTrueClient prototype (supabase.auth is an instance of it) at
-// runtime — TypeScript's `private`/`protected` are compile-time only, so
-// these methods are plain, patchable instance methods in the compiled
-// build. This does not touch node_modules and does not change any
-// application-level auth logic — it only wraps entry/return logging
-// around the specific internal methods most likely to be where
-// execution stalls, per direct reading of
-// node_modules/@supabase/auth-js/dist/module/GoTrueClient.js:
-//   getSession -> _acquireLock -> __loadSession -> _callRefreshToken
-// Whichever method logs ENTER with no matching RETURN/THROW is the
-// exact function that never returns.
+// TEMPORARY DEBUG INSTRUMENTATION — caller identification only.
+// Patches supabase.auth.getSession() (the public method — same runtime
+// patchability rationale as before: TS `private`/`protected` are
+// compile-time only) to capture a full JS stack trace at the moment of
+// each call, before any await happens. This does not touch any other
+// GoTrueClient internals and does not change application behavior —
+// it only observes who is calling getSession() and how many times.
 // ---------------------------------------------------------------------
-(function instrumentGoTrueInternals() {
-  // Turns on supabase-js's own built-in lock tracing (acquire/acquired/
-  // released), a supported debug flag — not something we invented.
+(function traceGetSessionCallers() {
+  // Clean up: a previous instrumentation round enabled supabase-js's
+  // built-in lock debug flag. That instrumentation is retired now, so
+  // turn it back off to keep this round's output scoped to exactly what
+  // was asked for.
   try {
-    localStorage.setItem('supabase.gotrue-js.locks.debug', 'true');
+    localStorage.removeItem('supabase.gotrue-js.locks.debug');
   } catch {
     // ignore — storage may be unavailable
   }
 
   const authProto = Object.getPrototypeOf(supabase.auth);
-  const methodsToTrace = ['getSession', '_acquireLock', '__loadSession', '_callRefreshToken'];
+  const originalGetSession = authProto.getSession;
 
-  for (const methodName of methodsToTrace) {
-    const original = authProto[methodName];
-    if (typeof original !== 'function') {
-      console.log(`[GOTRUE TRACE] ${methodName} not found on prototype — skipping`);
-      continue;
-    }
-
-    authProto[methodName] = function (...args: unknown[]) {
-      const callId = Math.random().toString(36).slice(2, 8);
-      console.log(`[GOTRUE TRACE] ENTER ${methodName} #${callId}`, args.length ? args : '');
-      let result: unknown;
-      try {
-        result = original.apply(this, args);
-      } catch (syncErr) {
-        console.log(`[GOTRUE TRACE] THROW (sync) ${methodName} #${callId}`, syncErr);
-        throw syncErr;
-      }
-
-      if (result && typeof (result as Promise<unknown>).then === 'function') {
-        return (result as Promise<unknown>).then(
-          (value) => {
-            console.log(`[GOTRUE TRACE] RETURN ${methodName} #${callId}`);
-            return value;
-          },
-          (err) => {
-            console.log(`[GOTRUE TRACE] THROW (async) ${methodName} #${callId}`, err);
-            throw err;
-          }
-        );
-      }
-
-      console.log(`[GOTRUE TRACE] RETURN (sync) ${methodName} #${callId}`);
-      return result;
-    };
+  if (typeof originalGetSession !== 'function') {
+    console.log('[GETSESSION TRACE] getSession not found on prototype — skipping');
+    return;
   }
 
-  console.log('[GOTRUE TRACE] instrumentation installed on', methodsToTrace);
+  let callCount = 0;
+
+  authProto.getSession = function (...args: unknown[]) {
+    callCount += 1;
+    const callNumber = callCount;
+    // Captured synchronously, at the exact call site, before any await —
+    // this is the real caller's stack, not anything inside GoTrueClient.
+    const stack = new Error(`getSession call #${callNumber}`).stack;
+    console.log(`[GETSESSION TRACE] getSession CALL #${callNumber}`);
+    console.log(stack);
+
+    return originalGetSession.apply(this, args);
+  };
+
+  console.log('[GETSESSION TRACE] instrumentation installed');
 })();
 // ---------------------------------------------------------------------
 // END TEMPORARY DEBUG INSTRUMENTATION
