@@ -11,7 +11,7 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { profile, loading: profileLoading, completeFirstLaunch } = useAuth();
+  const { profile, profileLoading, completeFirstLaunch } = useAuth();
   const { state, loading, saving, completeQuest } = useDashboardDataContext();
   const activeQuest = state.quests.find((quest) => !quest.completed && !quest.failed);
   const name = profile?.username || "there";

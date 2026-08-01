@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -18,6 +18,7 @@ interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  profileLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -34,23 +35,36 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 // Owns the single, application-wide auth lifecycle: exactly one
 // getSession() call and exactly one onAuthStateChange() subscription for
 // the lifetime of the app. Every component reads this via useAuth() below
-// (a Context consumer) instead of starting its own lifecycle — see
-// Milestone 2.1 auth-restoration regression fix for why this matters:
-// supabase-js's internal auth lock (Web Locks API, no acquisition
-// timeout — see supabase/supabase-js#1594, #2013) can hang indefinitely
-// under concurrent callers to locked methods like getSession(). Reducing
-// to a single caller removes that concurrency.
+// (a Context consumer) instead of starting its own lifecycle.
+//
+// Auth state and profile state are deliberately handled by two separate
+// effects. The auth effect (getSession/onAuthStateChange) performs no
+// database requests at all — it only ever calls supabase.auth methods.
+// The profile effect watches `user` and performs the profiles query
+// independently, after auth state has already settled. This matters
+// because every PostgREST request (supabase.from(...)) indirectly calls
+// supabase.auth.getSession() again internally (via _getAccessToken(), to
+// attach the Authorization header) — source-verified in
+// @supabase/supabase-js's fetchWithAuth/_getAccessToken. Calling
+// fetchProfile() from inside the auth callback re-entered the same
+// no-acquisition-timeout auth lock (_acquireLock(-1, ...)) while it could
+// still be held by the in-flight getSession()/token-refresh call that
+// triggered the callback in the first place. Splitting these into two
+// effects means the profile fetch's internal getSession() call only ever
+// starts after the first getSession() call has already fully resolved
+// and released the lock, since `loading` (and therefore React rendering
+// past it) only flips once the auth effect's own callback has returned —
+// which no longer depends on the profile fetch completing.
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   // Fetches the profile row, retrying briefly to cover the short window
   // between a successful signup and the DB trigger (handle_new_user)
   // committing the corresponding profiles row. Returns once a profile is
-  // found or attempts are exhausted — callers await this before treating
-  // auth state as settled, so the profile is never still-null at the
-  // moment `loading` flips to false on a successful sign-in/sign-up.
+  // found or attempts are exhausted.
   const fetchProfile = async (userId: string, attempts = 3, delayMs = 300) => {
     for (let attempt = 0; attempt < attempts; attempt++) {
       const { data, error } = await supabase
@@ -68,28 +82,68 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Auth-only effect. Performs zero database requests — only
+  // supabase.auth.getSession() and supabase.auth.onAuthStateChange().
+  // `loading` represents auth state alone: whether we know yet if there
+  // is a user or not. It does not wait on profile data.
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      try {
-        if (session?.user) await fetchProfile(session.user.id);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      try {
-        if (session?.user) await fetchProfile(session.user.id);
-        else setProfile(null);
-      } finally {
-        setLoading(false);
-      }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Dedicated profile effect, watching the authenticated user. Runs
+  // independently of and after the auth effect above — the app can
+  // render past the auth-loading gate while this continues in the
+  // background. Not a database request inside onAuthStateChange; this is
+  // a normal effect reacting to state React already committed.
+  //
+  // Guard: during session restoration, onAuthStateChange can fire more
+  // than once for the same underlying user (e.g. INITIAL_SESSION, then
+  // TOKEN_REFRESHED once a needed refresh completes — confirmed in
+  // GoTrueClient's _notifyAllSubscribers/_callRefreshToken). Each of
+  // those emits a session with a newly-parsed `user` object, so this
+  // effect's [user] dependency (reference equality) would otherwise
+  // re-fire and re-fetch the same profile redundantly. lastFetchedUserId
+  // compares the stable user id, not object identity, so a duplicate
+  // event for the same user is a no-op.
+  const lastFetchedUserId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      lastFetchedUserId.current = null;
+      setProfile(null);
+      setProfileLoading(false);
+      return;
+    }
+
+    if (lastFetchedUserId.current === user.id) {
+      return;
+    }
+    lastFetchedUserId.current = user.id;
+
+    let cancelled = false;
+    setProfileLoading(true);
+
+    (async () => {
+      await fetchProfile(user.id);
+      if (!cancelled) {
+        setProfileLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -159,7 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const value: AuthContextValue = {
-    user, profile, loading,
+    user, profile, loading, profileLoading,
     signIn, signUp, signOut, resetPassword,
     updateProfile, completeFirstLaunch, resetGameProgress, deleteAccount, fetchProfile,
   };
