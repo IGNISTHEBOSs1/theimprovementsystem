@@ -63,12 +63,44 @@ export function useDashboardData(userId?: string) {
 
   useEffect(() => { void load(); }, [load]);
 
+  // Completion: the constitutional recognition that reality has changed
+  // (see Completion definition, §4 — "reality has been updated
+  // accordingly... Nothing more is required"). This performs only the
+  // reality change: marking the quest completed and persisting that fact.
+  // It does not touch XP, credits, stats, or level — see
+  // applyQuestProgression below for that, which this function does not
+  // call.
   const completeQuest = useCallback(async (questId: string) => {
     if (!userId || saving) return;
     const quest = state.quests.find((item) => item.id === questId);
     if (!quest || quest.completed) return;
 
     const nextQuests = state.quests.map((item) => item.id === questId ? { ...item, completed: true } : item);
+
+    setSaving(true);
+    setState((prev) => ({ ...prev, quests: nextQuests }));
+    const { error } = await supabase
+      .from("game_state")
+      .update({ quests: nextQuests as unknown as Json })
+      .eq("user_id", userId);
+
+    if (error) await load();
+    setSaving(false);
+  }, [load, saving, state, userId]);
+
+  // Progression: XP, level, stat gain, and credits for a quest. This is
+  // reward/progression logic, not reality-change — Completion's identity
+  // explicitly excludes it ("Completion must never become a reward
+  // system... Everything that follows belongs elsewhere"). Isolated here,
+  // unchanged from the prior completeQuest implementation, and not
+  // invoked by anything yet. It exists so a future Recognition experience
+  // has a single place to call into — this function does not constitute
+  // that experience; it's only the mechanics Recognition would need.
+  const applyQuestProgression = useCallback(async (questId: string) => {
+    if (!userId || saving) return;
+    const quest = state.quests.find((item) => item.id === questId);
+    if (!quest) return;
+
     const progression = applyXpDelta(state, quest.xpReward);
     const statCategory = quest.statCategory || inferStatCategory(quest.title);
     const nextStats = applyStatGain(state.stats, statCategory, getStatGainForDifficulty(quest.difficulty));
@@ -79,7 +111,6 @@ export function useDashboardData(userId?: string) {
       maxXp: progression.maxXp,
       credits: state.credits + quest.creditReward,
       totalQuestsCompleted: state.totalQuestsCompleted + 1,
-      quests: nextQuests,
       stats: nextStats,
     };
 
@@ -93,7 +124,6 @@ export function useDashboardData(userId?: string) {
         max_xp: progression.maxXp,
         credits: nextState.credits,
         total_quests_completed: nextState.totalQuestsCompleted,
-        quests: nextQuests as unknown as Json,
         stats: nextStats as unknown as Json,
       })
       .eq("user_id", userId);
@@ -159,7 +189,7 @@ export function useDashboardData(userId?: string) {
   );
 
   return {
-    state, loading, saving, completeQuest, commitToTodaysQuest,
+    state, loading, saving, completeQuest, applyQuestProgression, commitToTodaysQuest,
     achievements, newlyUnlocked, dismissNotification, unlockedCount, totalCount,
   };
 }
