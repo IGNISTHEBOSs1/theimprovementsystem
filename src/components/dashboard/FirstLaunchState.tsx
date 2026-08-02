@@ -5,14 +5,15 @@ import { PageHeader } from "@/components/dashboard/PageHeader";
 interface FirstLaunchStateProps {
   name: string;
   completing: boolean;
+  error?: boolean;
   onBegin: () => void;
 }
 
-// Milestone 2.1 — First Launch Experience.
+// Phase 1 — Milestone 1 — First Launch.
 // Renders in place of the normal Dashboard whenever
 // profile.has_completed_first_launch is false. Presents exactly one
 // primary action; no tutorial content, no additional mechanics.
-export function FirstLaunchState({ name, completing, onBegin }: FirstLaunchStateProps) {
+export function FirstLaunchState({ name, completing, error, onBegin }: FirstLaunchStateProps) {
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
       <PageHeader
@@ -41,6 +42,11 @@ export function FirstLaunchState({ name, completing, onBegin }: FirstLaunchState
             Begin Your Journey
             {!completing && <ArrowRight className="size-4" aria-hidden="true" />}
           </Button>
+          {error && (
+            <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
+              That didn't go through. You can try again.
+            </p>
+          )}
         </section>
       </div>
     </div>

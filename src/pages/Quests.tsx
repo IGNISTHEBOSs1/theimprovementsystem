@@ -1,9 +1,10 @@
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { TodaysCommitment } from "@/components/quests/TodaysCommitment";
 import { QuestCard } from "@/components/quests/QuestCard";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 
 export default function Quests() {
-  const { state, loading, saving, completeQuest } = useDashboardDataContext();
+  const { state, loading, saving, completeQuest, commitToTodaysQuest } = useDashboardDataContext();
 
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
@@ -21,11 +22,7 @@ export default function Quests() {
             <div className="h-20 animate-pulse rounded-2xl bg-muted" />
           </div>
         ) : state.quests.length === 0 ? (
-          <section className="rounded-2xl border border-border bg-muted/30 p-6" aria-labelledby="no-quests-heading">
-            <p id="no-quests-heading" className="text-body-md text-muted-foreground">
-              You have no quests right now.
-            </p>
-          </section>
+          <TodaysCommitment committing={saving} onCommit={commitToTodaysQuest} />
         ) : (
           <ul className="space-y-3">
             {state.quests.map((quest) => (

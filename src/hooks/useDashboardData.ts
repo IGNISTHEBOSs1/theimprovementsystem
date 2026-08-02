@@ -102,6 +102,43 @@ export function useDashboardData(userId?: string) {
     setSaving(false);
   }, [load, saving, state, userId]);
 
+  // Milestone 2 — First Mission: "Direction → Choice → Commitment." This is
+  // not a create-Quest operation — it's the persistence of a deliberate
+  // commitment the user has already made. The user's own words are the
+  // commitment itself; the System does not suggest, generate, or pre-fill
+  // them, preserving the autonomy the Quest definition requires.
+  // difficulty/xpReward/creditReward are fixed, unseen-at-commit-time
+  // defaults: they exist only because the existing Quest type (and the
+  // completion path this milestone does not touch) requires them, not
+  // because this milestone introduces reward mechanics.
+  const commitToTodaysQuest = useCallback(async (commitment: string) => {
+    const trimmed = commitment.trim();
+    if (!userId || saving || !trimmed) return;
+
+    const quest: Quest = {
+      id: crypto.randomUUID(),
+      title: trimmed,
+      difficulty: "Normal",
+      xpReward: 25,
+      creditReward: 10,
+      timeFrame: "Today",
+      completed: false,
+      failed: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    const nextQuests = [...state.quests, quest];
+    setSaving(true);
+    setState((prev) => ({ ...prev, quests: nextQuests }));
+    const { error } = await supabase
+      .from("game_state")
+      .update({ quests: nextQuests as unknown as Json })
+      .eq("user_id", userId);
+
+    if (error) await load();
+    setSaving(false);
+  }, [load, saving, state, userId]);
+
   // Achievements are evaluated against the canonical live state and persist
   // to game_state.achievements — the single source of truth (TIS-INFRA-005).
   // habits is passed as an empty array: the live app has no connected habit
@@ -122,7 +159,7 @@ export function useDashboardData(userId?: string) {
   );
 
   return {
-    state, loading, saving, completeQuest,
+    state, loading, saving, completeQuest, commitToTodaysQuest,
     achievements, newlyUnlocked, dismissNotification, unlockedCount, totalCount,
   };
 }

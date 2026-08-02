@@ -19,6 +19,7 @@ interface AuthContextValue {
   profile: Profile | null;
   loading: boolean;
   profileLoading: boolean;
+  profileError: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -60,26 +61,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
+  // Distinguishes "profile row could not be resolved after all retries"
+  // from "profile is still loading" and "profile resolved". Without this,
+  // an exhausted fetchProfile left `profile` as null with profileLoading
+  // false — indistinguishable, downstream, from a state that had simply
+  // never started loading. Consumers (e.g. Dashboard) must branch on this
+  // explicitly rather than inferring failure from `profile === null`.
+  const [profileError, setProfileError] = useState(false);
 
   // Fetches the profile row, retrying briefly to cover the short window
   // between a successful signup and the DB trigger (handle_new_user)
   // committing the corresponding profiles row. Returns once a profile is
-  // found or attempts are exhausted.
+  // found or attempts are exhausted. Also usable directly as a manual
+  // retry (e.g. from a profile-unavailable error state) since it owns its
+  // own profileLoading/profileError bookkeeping.
   const fetchProfile = async (userId: string, attempts = 3, delayMs = 300) => {
+    setProfileLoading(true);
     for (let attempt = 0; attempt < attempts; attempt++) {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', userId)
         .maybeSingle();
+      // If a newer fetch has since started for a different user (rapid
+      // account switch), abandon this one rather than clobbering state
+      // that no longer corresponds to the current user. Preserves the
+      // race protection the effect used to provide via its own
+      // `cancelled` flag, now centralized here so fetchProfile stays
+      // safe to call directly for a manual retry too.
+      if (lastFetchedUserId.current !== userId) return;
       if (!error && data) {
         setProfile(data as Profile);
+        setProfileError(false);
+        setProfileLoading(false);
         return;
       }
       if (attempt < attempts - 1) {
         await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
     }
+    if (lastFetchedUserId.current !== userId) return;
+    setProfileError(true);
+    setProfileLoading(false);
   };
 
   // Auth-only effect. Performs zero database requests — only
@@ -122,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       lastFetchedUserId.current = null;
       setProfile(null);
       setProfileLoading(false);
+      setProfileError(false);
       return;
     }
 
@@ -130,19 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     lastFetchedUserId.current = user.id;
 
-    let cancelled = false;
-    setProfileLoading(true);
-
-    (async () => {
-      await fetchProfile(user.id);
-      if (!cancelled) {
-        setProfileLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+    void fetchProfile(user.id);
   }, [user]);
 
   const signIn = async (email: string, password: string) => {
@@ -213,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const value: AuthContextValue = {
-    user, profile, loading, profileLoading,
+    user, profile, loading, profileLoading, profileError,
     signIn, signUp, signOut, resetPassword,
     updateProfile, completeFirstLaunch, resetGameProgress, deleteAccount, fetchProfile,
   };

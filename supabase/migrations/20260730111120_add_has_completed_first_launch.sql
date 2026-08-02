@@ -1,4 +1,4 @@
--- Milestone 2.1 — First Launch Experience
+-- Phase 1 — Milestone 1 — First Launch
 -- Adds a persistent, one-time flag distinguishing a Hunter who has never
 -- completed the first-launch experience's primary action from one who has.
 -- Defaults to false so every existing row (and every future row created by
