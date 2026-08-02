@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { DirectionCard } from "@/components/dashboard/DirectionCard";
@@ -12,13 +11,11 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user, profile, profileLoading, profileError, completeFirstLaunch, fetchProfile } = useAuth();
+  const { user, profile, profileLoading, profileError, fetchProfile } = useAuth();
   const { state, loading, saving, completeQuest } = useDashboardDataContext();
   const activeQuest = state.quests.find((quest) => !quest.completed && !quest.failed);
   const name = profile?.username || "there";
   const chooseQuest = () => navigate("/quests");
-  const [completingFirstLaunch, setCompletingFirstLaunch] = useState(false);
-  const [firstLaunchError, setFirstLaunchError] = useState(false);
 
   // Gate on this component's own profile-loading state (not just the outer
   // ProtectedRoute's) so a returning user is never briefly shown the
@@ -68,21 +65,7 @@ export default function Dashboard() {
   }
 
   if (!profile.has_completed_first_launch) {
-    const handleBegin = async () => {
-      setCompletingFirstLaunch(true);
-      setFirstLaunchError(false);
-      const { error } = await completeFirstLaunch();
-      setCompletingFirstLaunch(false);
-      if (error) setFirstLaunchError(true);
-    };
-    return (
-      <FirstLaunchState
-        name={name}
-        completing={completingFirstLaunch}
-        error={firstLaunchError}
-        onBegin={handleBegin}
-      />
-    );
+    return <FirstLaunchState name={name} />;
   }
 
   return (
