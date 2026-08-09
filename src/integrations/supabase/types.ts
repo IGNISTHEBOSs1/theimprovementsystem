@@ -62,6 +62,7 @@ export type Database = {
           stats: Json
           system_messages: Json
           total_quests_completed: number
+          trajectory: number
           updated_at: string
           user_id: string
         }
@@ -79,6 +80,7 @@ export type Database = {
           stats?: Json
           system_messages?: Json
           total_quests_completed?: number
+          trajectory?: number
           updated_at?: string
           user_id: string
         }
@@ -96,6 +98,7 @@ export type Database = {
           stats?: Json
           system_messages?: Json
           total_quests_completed?: number
+          trajectory?: number
           updated_at?: string
           user_id?: string
         }
@@ -108,6 +111,7 @@ export type Database = {
           date_of_birth: string | null
           has_completed_first_launch: boolean
           id: string
+          primary_goal: string | null
           updated_at: string
           user_id: string
           username: string
@@ -118,6 +122,7 @@ export type Database = {
           date_of_birth?: string | null
           has_completed_first_launch?: boolean
           id?: string
+          primary_goal?: string | null
           updated_at?: string
           user_id: string
           username?: string
@@ -128,6 +133,7 @@ export type Database = {
           date_of_birth?: string | null
           has_completed_first_launch?: boolean
           id?: string
+          primary_goal?: string | null
           updated_at?: string
           user_id?: string
           username?: string

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { DirectionCard } from "@/components/dashboard/DirectionCard";
@@ -12,10 +13,17 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, profile, profileLoading, profileError, fetchProfile } = useAuth();
-  const { state, loading, saving, completeQuest } = useDashboardDataContext();
-  const activeQuest = state.quests.find((quest) => !quest.completed && !quest.failed);
+  const { state, loading, error, saving, todaysQuest, completeQuest, reload } = useDashboardDataContext();
+  const activeQuest = todaysQuest;
   const name = profile?.username || "there";
   const chooseQuest = () => navigate("/quests");
+  const [completeError, setCompleteError] = useState(false);
+
+  const handleComplete = async (questId: string) => {
+    setCompleteError(false);
+    const { error: completeErr } = await completeQuest(questId);
+    if (completeErr) setCompleteError(true);
+  };
 
   // Gate on this component's own profile-loading state (not just the outer
   // ProtectedRoute's) so a returning user is never briefly shown the
@@ -68,6 +76,32 @@ export default function Dashboard() {
     return <FirstLaunchState name={name} />;
   }
 
+  // A failed game_state load (retries exhausted) must never render as if
+  // it were a legitimate fresh account — see useDashboardData.error. This
+  // is the same class of distinction Dashboard already makes for
+  // profileError above, applied to the sibling table.
+  if (error) {
+    return (
+      <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
+        <section
+          className="rounded-2xl border border-border bg-card p-7"
+          aria-label="Progress unavailable"
+        >
+          <p className="text-label text-muted-foreground">Your system</p>
+          <h2 className="mt-2 text-lg font-semibold text-foreground">
+            We couldn't load your progress.
+          </h2>
+          <p className="mt-2 text-body-md text-muted-foreground">
+            This is usually temporary. You can try again now.
+          </p>
+          <Button variant="neon" size="lg" className="mt-4" onClick={() => void reload()}>
+            Try again
+          </Button>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
       {/* ── Tier 1 — Identity / Current State ──────────────────────────
@@ -96,12 +130,19 @@ export default function Dashboard() {
             <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
           </section>
         ) : activeQuest ? (
-          <PrimaryActionPanel
-            quest={activeQuest}
-            completing={saving}
-            onComplete={() => void completeQuest(activeQuest.id)}
-            onChooseQuest={chooseQuest}
-          />
+          <>
+            <PrimaryActionPanel
+              quest={activeQuest}
+              completing={saving}
+              onComplete={() => void handleComplete(activeQuest.id)}
+              onChooseQuest={chooseQuest}
+            />
+            {completeError && (
+              <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
+                That didn't go through. You can try again.
+              </p>
+            )}
+          </>
         ) : (
           <RecoveryState onChooseQuest={chooseQuest} />
         )}

@@ -34,6 +34,7 @@ export function FirstLaunchState({ name }: FirstLaunchStateProps) {
   const [step, setStep] = useState<Step>("intro");
   const [finishing, setFinishing] = useState(false);
   const [completionError, setCompletionError] = useState(false);
+  const [commitError, setCommitError] = useState(false);
 
   const handleBegin = () => {
     setStep("transition");
@@ -46,8 +47,16 @@ export function FirstLaunchState({ name }: FirstLaunchStateProps) {
   }, [step]);
 
   const handleCommit = async (commitment: string) => {
-    await commitToTodaysQuest(commitment);
-    setStep("confirmation");
+    setCommitError(false);
+    const { error } = await commitToTodaysQuest(commitment);
+    // Only advance on success — the confirmation step asserts "your
+    // commitment now exists," which must never be shown for a write that
+    // failed and was rolled back.
+    if (error) {
+      setCommitError(true);
+    } else {
+      setStep("confirmation");
+    }
   };
 
   const handleEnter = async () => {
@@ -108,6 +117,11 @@ export function FirstLaunchState({ name }: FirstLaunchStateProps) {
           />
           <div className="mt-9">
             <TodaysCommitment committing={saving} onCommit={handleCommit} />
+            {commitError && (
+              <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
+                That didn't go through. You can try again.
+              </p>
+            )}
           </div>
         </>
       )}

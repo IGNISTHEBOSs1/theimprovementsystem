@@ -18,6 +18,10 @@ export interface Quest {
   timeFrame: string;
   scheduledFor?: string;
   statCategory?: keyof PlayerStats;
+  // Explicit, user-set linkage to the account's single primary goal. Never
+  // inferred from title/content — set only when the user checks the box
+  // at commit time. Absent/false means "not goal-aligned," not "unknown."
+  linkedToGoal?: boolean;
   completed: boolean;
   failed: boolean;
   createdAt: string;

@@ -9,6 +9,11 @@ export interface Profile {
   avatar_id: string;
   date_of_birth: string | null;
   bio: string | null;
+  // The account's single primary goal. Nullable — goal-setting is
+  // optional, not a required step of any existing flow (First Launch is
+  // untouched by this). Free text, not a referenced entity — see Chunk 3
+  // report for why a full Goal model wasn't built.
+  primary_goal: string | null;
   has_completed_first_launch: boolean;
   created_at: string;
   updated_at: string;
@@ -24,7 +29,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
-  updateProfile: (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio'>>) => Promise<{ error: Error | null }>;
+  updateProfile: (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal'>>) => Promise<{ error: Error | null }>;
   completeFirstLaunch: () => Promise<{ error: Error | null }>;
   resetGameProgress: () => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -182,7 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const updateProfile = async (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio'>>) => {
+  const updateProfile = async (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal'>>) => {
     if (!user) return { error: new Error('Not authenticated') };
     const { data, error } = await supabase
       .from('profiles')
