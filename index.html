@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Improvement System | Gamified Productivity</title>
+    <meta name="description" content="The Improvement System - A gamified productivity app inspired by Solo Leveling. Level up your life through quests, habits, and discipline." />
+    <meta name="author" content="The Improvement System" />
+    <meta name="theme-color" content="#050505" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="The Improvement System | Level Up Your Life" />
+    <meta property="og:description" content="A gamified productivity app inspired by Solo Leveling. Complete quests, build habits, and unlock your potential." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/icon-512.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="/icon-512.png" />
+
+    <!-- Favicon / App Icons (canonical micro mark, TIS-BRAND-001) -->
+    <!-- Primary: single SVG with theme switching embedded via internal
+         @media (prefers-color-scheme: dark) — required because Chrome does
+         not reliably honor the media attribute on <link rel="icon">. -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Fallback for browsers without SVG favicon support (unconditional,
+         always the default light-surface mark). sizes="32x32" (not "any")
+         is required — Chrome has a known bug where sizes="any" on the ICO
+         link causes it to prefer the ICO over the SVG favicon. -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Preconnect for fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
