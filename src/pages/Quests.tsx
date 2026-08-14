@@ -8,7 +8,7 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 
 export default function Quests() {
   const { profile } = useAuth();
-  const { state, loading, error, saving, completeQuest, commitToTodaysQuest, reload } = useDashboardDataContext();
+  const { state, loading, error, saving, activeQuest, completeQuest, commitToTodaysQuest, reload } = useDashboardDataContext();
   const [commitError, setCommitError] = useState(false);
   const [completeError, setCompleteError] = useState(false);
 
@@ -61,19 +61,23 @@ export default function Quests() {
           </section>
         ) : (
           <>
-            {/* Committing is never gated on whether quests already exist —
-                a user can hold multiple active quests at once, so this is
-                always available, not just when the list is empty. The goal
-                checkbox only appears if a primary goal is actually set. */}
-            <TodaysCommitment
-              committing={saving}
-              onCommit={handleCommit}
-              goalLabel={profile?.primary_goal ?? undefined}
-            />
-            {commitError && (
-              <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
-                That didn't go through. You can try again.
-              </p>
+            {/* P0 Decision B — one active Quest at a time. Committing is
+                only offered when none is currently active; completion or
+                expiry clears it, and this reappears. The goal checkbox
+                only appears if a primary goal is actually set. */}
+            {!activeQuest && (
+              <>
+                <TodaysCommitment
+                  committing={saving}
+                  onCommit={handleCommit}
+                  goalLabel={profile?.primary_goal ?? undefined}
+                />
+                {commitError && (
+                  <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
+                    That didn't go through. You can try again.
+                  </p>
+                )}
+              </>
             )}
 
             {state.quests.length > 0 && (

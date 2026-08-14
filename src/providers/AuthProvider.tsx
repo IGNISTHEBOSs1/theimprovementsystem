@@ -29,7 +29,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
-  updateProfile: (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal'>>) => Promise<{ error: Error | null }>;
+  updateProfile: (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal'>>) => Promise<{ error: Error | null; profile: Profile | null }>;
   completeFirstLaunch: () => Promise<{ error: Error | null }>;
   resetGameProgress: () => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -188,7 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProfile = async (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal'>>) => {
-    if (!user) return { error: new Error('Not authenticated') };
+    if (!user) return { error: new Error('Not authenticated'), profile: null };
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
@@ -196,7 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select()
       .single();
     if (!error && data) setProfile(data as Profile);
-    return { error };
+    return { error, profile: !error && data ? (data as Profile) : null };
   };
 
   // Marks the first-launch experience's primary action as completed.

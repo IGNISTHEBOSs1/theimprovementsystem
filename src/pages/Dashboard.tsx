@@ -13,8 +13,7 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, profile, profileLoading, profileError, fetchProfile } = useAuth();
-  const { state, loading, error, saving, todaysQuest, completeQuest, reload } = useDashboardDataContext();
-  const activeQuest = todaysQuest;
+  const { state, loading, error, saving, activeQuest, completeQuest, reload } = useDashboardDataContext();
   const name = profile?.username || "there";
   const chooseQuest = () => navigate("/quests");
   const [completeError, setCompleteError] = useState(false);

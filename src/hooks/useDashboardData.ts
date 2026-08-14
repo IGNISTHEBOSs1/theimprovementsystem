@@ -267,6 +267,12 @@ export function useDashboardData(userId?: string) {
   const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false) => {
     const trimmed = commitment.trim();
     if (!userId || writeLockRef.current || !trimmed) return { error: null };
+    // P0 Decision B — one active Quest at a time. A second commitment
+    // cannot be made while one is already active; the caller (Quests.tsx)
+    // shouldn't offer the option in this state, but this guard is the
+    // actual enforcement, not the UI.
+    const hasActiveQuest = state.quests.some((item) => !item.completed && !item.failed && !isQuestExpired(item));
+    if (hasActiveQuest) return { error: null };
 
     const quest: Quest = {
       id: crypto.randomUUID(),
@@ -315,19 +321,15 @@ export function useDashboardData(userId?: string) {
     },
   );
 
-  // Multiple quests may be active simultaneously (no cap is imposed here —
-  // see report). "Today's Quest" selection: goal-linked active quests are
-  // preferred; among those (or, if none, among all active quests), the
-  // earliest by creation order (array order) wins. This is the full
-  // selection rule — no scoring, no inference from quest text.
-  const activeQuests = state.quests.filter(
+  // P0 Decision B — one active Quest at a time. `activeQuest` is that
+  // Quest, if one exists (not completed, not failed, not expired). No
+  // selection/ranking logic — there is nothing to choose among.
+  const activeQuest = state.quests.find(
     (quest) => !quest.completed && !quest.failed && !isQuestExpired(quest)
   );
-  const goalLinkedActiveQuests = activeQuests.filter((quest) => quest.linkedToGoal);
-  const todaysQuest = goalLinkedActiveQuests[0] ?? activeQuests[0];
 
   return {
-    state, loading, error, saving, activeQuests, todaysQuest, completeQuest, applyQuestProgression, commitToTodaysQuest, reload: load,
+    state, loading, error, saving, activeQuest, completeQuest, applyQuestProgression, commitToTodaysQuest, reload: load,
     achievements, newlyUnlocked, dismissNotification, unlockedCount, totalCount,
   };
 }

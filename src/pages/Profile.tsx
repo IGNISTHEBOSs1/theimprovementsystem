@@ -12,7 +12,15 @@ export default function Profile() {
   const [goal, setGoal] = useState(profile?.primary_goal ?? "");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  // Distinct from `saving`/`saveError` — this is the third state the
+  // sync fix needs to be visible: "the save that just happened worked."
+  // Cleared as soon as the user edits again, so it never lingers as a
+  // stale confirmation for a different draft.
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Covers the case where `profile` is still loading (or changes for any
+  // other reason, e.g. a retry elsewhere) after this page has already
+  // mounted — not the save path itself, which is handled directly below.
   useEffect(() => {
     setGoal(profile?.primary_goal ?? "");
   }, [profile?.primary_goal]);
@@ -21,9 +29,24 @@ export default function Profile() {
     event.preventDefault();
     setSaving(true);
     setSaveError(false);
-    const { error } = await updateProfile({ primary_goal: goal.trim() || null });
+    setSaveSuccess(false);
+    const trimmed = goal.trim();
+    const { error, profile: saved } = await updateProfile({ primary_goal: trimmed || null });
     setSaving(false);
-    if (error) setSaveError(true);
+    if (error || !saved) {
+      // Keep the previously saved goal intact — revert the draft to what
+      // is actually persisted rather than leaving an unsaved edit
+      // displayed as if it were current.
+      setGoal(profile?.primary_goal ?? "");
+      setSaveError(true);
+      return;
+    }
+    // Sync directly from the response this same request produced, rather
+    // than waiting on the effect above to notice the Context update — this
+    // is what makes /profile itself reflect the save immediately, not just
+    // other pages reading `profile` fresh on their next render.
+    setGoal(saved.primary_goal ?? "");
+    setSaveSuccess(true);
   };
 
   return (
@@ -39,7 +62,10 @@ export default function Profile() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
             <Input
               value={goal}
-              onChange={(event) => setGoal(event.target.value)}
+              onChange={(event) => {
+                setGoal(event.target.value);
+                setSaveSuccess(false);
+              }}
               placeholder="What are you working toward?"
               aria-label="Primary goal"
               disabled={saving}
@@ -52,6 +78,11 @@ export default function Profile() {
           {saveError && (
             <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
               That didn't go through. You can try again.
+            </p>
+          )}
+          {saveSuccess && !saveError && (
+            <p className="mt-3 text-body-sm text-muted-foreground" role="status">
+              Saved.
             </p>
           )}
         </section>
