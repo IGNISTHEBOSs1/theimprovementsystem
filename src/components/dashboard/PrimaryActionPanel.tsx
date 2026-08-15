@@ -1,6 +1,6 @@
 import { Check, ChevronRight, CircleDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Quest } from "@/hooks/useGameState";
+import { Quest } from "@/types/quest";
 
 interface PrimaryActionPanelProps {
   quest?: Quest;

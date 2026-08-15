@@ -12,9 +12,9 @@ export default function Quests() {
   const [commitError, setCommitError] = useState(false);
   const [completeError, setCompleteError] = useState(false);
 
-  const handleCommit = async (commitment: string, linkedToGoal: boolean) => {
+  const handleCommit = async (commitment: string, linkedToGoal: boolean, recurrenceDays?: number[]) => {
     setCommitError(false);
-    const { error: commitErr } = await commitToTodaysQuest(commitment, linkedToGoal);
+    const { error: commitErr } = await commitToTodaysQuest(commitment, linkedToGoal, recurrenceDays);
     if (commitErr) setCommitError(true);
   };
 

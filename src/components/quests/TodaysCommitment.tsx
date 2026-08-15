@@ -4,10 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+
+const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 interface TodaysCommitmentProps {
   committing: boolean;
-  onCommit: (commitment: string, linkedToGoal: boolean) => void;
+  onCommit: (commitment: string, linkedToGoal: boolean, recurrenceDays?: number[]) => void;
   // The account's primary goal, if one is set. When present, an explicit
   // opt-in checkbox is shown so the user can mark this commitment as
   // supporting that goal. When absent, no checkbox is shown at all —
@@ -23,14 +26,26 @@ interface TodaysCommitmentProps {
 // preserving the autonomy the Quest definition requires. Goal linkage
 // (Chunk 3) is the same principle applied to relevance: explicit and
 // user-set, never guessed from what they typed.
+//
+// Recurrence (Founder Decision, Quest recurrence chunk): also explicit
+// and user-set — a plain "Repeat" toggle revealing day selection, off by
+// default. Leaving it off produces byte-for-byte the same one-shot
+// commitment behavior as before this decision existed.
 export function TodaysCommitment({ committing, onCommit, goalLabel }: TodaysCommitmentProps) {
   const [commitment, setCommitment] = useState("");
   const [linkedToGoal, setLinkedToGoal] = useState(false);
+  const [repeating, setRepeating] = useState(false);
+  const [days, setDays] = useState<number[]>([]);
+
+  const toggleDay = (day: number) => {
+    setDays((prev) => prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort());
+  };
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     if (!commitment.trim() || committing) return;
-    onCommit(commitment, linkedToGoal);
+    if (repeating && days.length === 0) return;
+    onCommit(commitment, linkedToGoal, repeating ? days : undefined);
   };
 
   return (
@@ -52,11 +67,49 @@ export function TodaysCommitment({ committing, onCommit, goalLabel }: TodaysComm
             disabled={committing}
             className="min-h-11"
           />
-          <Button type="submit" className="min-h-11 shrink-0" disabled={committing || !commitment.trim()}>
+          <Button
+            type="submit"
+            className="min-h-11 shrink-0"
+            disabled={committing || !commitment.trim() || (repeating && days.length === 0)}
+          >
             {committing ? "Committing…" : "Commit"}
             {!committing && <ArrowRight className="size-4" aria-hidden="true" />}
           </Button>
         </div>
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="repeating"
+            checked={repeating}
+            onCheckedChange={(checked) => setRepeating(checked === true)}
+            disabled={committing}
+          />
+          <Label htmlFor="repeating" className="text-body-sm text-muted-foreground font-normal">
+            Repeat on certain days
+          </Label>
+        </div>
+
+        {repeating && (
+          <div className="flex flex-wrap gap-1.5" role="group" aria-label="Repeat on which days">
+            {DAY_LABELS.map((label, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => toggleDay(i)}
+                disabled={committing}
+                className={cn(
+                  "min-h-9 rounded-lg border px-2.5 text-xs font-medium transition-colors",
+                  days.includes(i)
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {goalLabel && (
           <div className="flex items-center gap-2">
             <Checkbox

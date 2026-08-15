@@ -1,7 +1,7 @@
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Quest } from "@/hooks/useGameState";
+import { Quest } from "@/types/quest";
 
 interface QuestCardProps {
   quest: Quest;

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Quest } from "./useGameState";
+import { Quest } from "@/types/quest";
 import { PlayerStats } from "@/lib/attributes";
 import { Json } from "@/integrations/supabase/types";
 
@@ -51,6 +51,62 @@ export function isQuestExpired(quest: Quest, today = new Date().toISOString().sp
   return quest.createdAt.split("T")[0] !== today;
 }
 
+// A quest occupies the single active slot if it's neither resolved nor
+// expired. Shared by the singleton-commit guard and the recurrence
+// continuation check below — same definition, one place.
+function occupiesActiveSlot(quest: Quest): boolean {
+  return !quest.completed && !quest.failed && !isQuestExpired(quest);
+}
+
+// Founder Decision (Quest recurrence chunk): a recurring series survives
+// every occurrence — completing or missing one does not end the series.
+// The next occurrence appears automatically once (a) the series' most
+// recent occurrence is resolved, (b) today is one of the series'
+// recurrenceDays, (c) no occurrence for this series already exists today
+// (idempotency — a second load the same day must not create a duplicate),
+// and (d) no other quest currently occupies the single active slot (the
+// P0 singleton constraint is global, not per-series — a recurring
+// series simply waits for its turn if the user has something else
+// active, exactly like any other commitment would).
+function nextOccurrencesToCreate(quests: Quest[], today: Date): Quest[] {
+  const todayStr = today.toISOString().split("T")[0];
+  const todayWeekday = today.getDay();
+
+  const seriesIds = Array.from(
+    new Set(quests.filter((q) => q.seriesId).map((q) => q.seriesId as string)),
+  );
+
+  const created: Quest[] = [];
+  let slotTaken = quests.some(occupiesActiveSlot);
+
+  for (const seriesId of seriesIds) {
+    if (slotTaken) break;
+
+    const occurrences = quests.filter((q) => q.seriesId === seriesId);
+    const mostRecent = occurrences.reduce((latest, q) =>
+      q.createdAt > latest.createdAt ? q : latest
+    );
+
+    const alreadyHasToday = occurrences.some((q) => q.createdAt.split("T")[0] === todayStr);
+    const isResolved = mostRecent.completed || mostRecent.failed;
+    const isEligibleToday = (mostRecent.recurrenceDays ?? []).includes(todayWeekday);
+
+    if (isResolved && isEligibleToday && !alreadyHasToday) {
+      const next: Quest = {
+        ...mostRecent,
+        id: crypto.randomUUID(),
+        completed: false,
+        failed: false,
+        createdAt: today.toISOString(),
+      };
+      created.push(next);
+      slotTaken = true;
+    }
+  }
+
+  return created;
+}
+
 export function useDashboardData(userId?: string) {
   const [state, setState] = useState<DashboardState>(emptyState);
   const [loading, setLoading] = useState(Boolean(userId));
@@ -97,6 +153,7 @@ export function useDashboardData(userId?: string) {
       if (!dbError && data) {
         const loadedQuests = Array.isArray(data.quests) ? data.quests as unknown as Quest[] : [];
         const loadedTrajectory = typeof data.trajectory === "number" ? data.trajectory : 0;
+        const now = new Date();
 
         // Sweep: any quest that is now expired-and-not-yet-marked-failed
         // gets marked failed exactly once, and trajectory moves for the
@@ -105,13 +162,20 @@ export function useDashboardData(userId?: string) {
         // deliberately deferred this exact decision until there was a
         // concrete consumer (trajectory) that needed it.
         const toExpire = loadedQuests.filter((quest) => isQuestExpired(quest));
-        if (toExpire.length > 0) {
-          const sweptQuests = loadedQuests.map((quest) =>
-            isQuestExpired(quest) ? { ...quest, failed: true } : quest
-          );
-          const trajectoryDelta = toExpire.filter((quest) => quest.linkedToGoal).length * -TRAJECTORY_STEP;
-          const sweptTrajectory = loadedTrajectory + trajectoryDelta;
+        const expiredQuests = toExpire.length > 0
+          ? loadedQuests.map((quest) => isQuestExpired(quest) ? { ...quest, failed: true } : quest)
+          : loadedQuests;
+        const trajectoryDelta = toExpire.filter((quest) => quest.linkedToGoal).length * -TRAJECTORY_STEP;
 
+        // Continuation runs against the post-expiry quest list — a series
+        // whose occurrence just got swept to failed above is immediately
+        // eligible to continue in this same pass if today is a
+        // recurrence day, rather than waiting for a second load.
+        const toCreate = nextOccurrencesToCreate(expiredQuests, now);
+        const sweptQuests = toCreate.length > 0 ? [...expiredQuests, ...toCreate] : expiredQuests;
+        const sweptTrajectory = loadedTrajectory + trajectoryDelta;
+
+        if (toExpire.length > 0 || toCreate.length > 0) {
           setState({
             level: data.level,
             currentXp: data.current_xp,
@@ -129,8 +193,9 @@ export function useDashboardData(userId?: string) {
           // Best-effort persistence of the sweep. If this write fails, the
           // in-memory state above is still correct for this session; the
           // same quests will simply be swept again (idempotently — marking
-          // an already-expired quest failed again is a no-op in effect) on
-          // the next load.
+          // an already-expired quest failed again is a no-op in effect, and
+          // nextOccurrencesToCreate's alreadyHasToday check makes
+          // continuation idempotent the same way) on the next load.
           //
           // This failure is deliberately NOT surfaced through `error`: the
           // read that got us here already succeeded, and `error` is what
@@ -215,16 +280,17 @@ export function useDashboardData(userId?: string) {
   // defaults: they exist only because the existing Quest type (and the
   // completion path this milestone does not touch) requires them, not
   // because this milestone introduces reward mechanics.
-  const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false) => {
+  const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false, recurrenceDays?: number[]) => {
     const trimmed = commitment.trim();
     if (!userId || writeLockRef.current || !trimmed) return { error: null };
     // P0 Decision B — one active Quest at a time. A second commitment
     // cannot be made while one is already active; the caller (Quests.tsx)
     // shouldn't offer the option in this state, but this guard is the
     // actual enforcement, not the UI.
-    const hasActiveQuest = state.quests.some((item) => !item.completed && !item.failed && !isQuestExpired(item));
+    const hasActiveQuest = state.quests.some(occupiesActiveSlot);
     if (hasActiveQuest) return { error: null };
 
+    const isRecurring = Boolean(recurrenceDays && recurrenceDays.length > 0);
     const quest: Quest = {
       id: crypto.randomUUID(),
       title: trimmed,
@@ -236,6 +302,7 @@ export function useDashboardData(userId?: string) {
       completed: false,
       failed: false,
       createdAt: new Date().toISOString(),
+      ...(isRecurring ? { seriesId: crypto.randomUUID(), recurrenceDays } : {}),
     };
 
     const nextQuests = [...state.quests, quest];
@@ -256,9 +323,7 @@ export function useDashboardData(userId?: string) {
   // P0 Decision B — one active Quest at a time. `activeQuest` is that
   // Quest, if one exists (not completed, not failed, not expired). No
   // selection/ranking logic — there is nothing to choose among.
-  const activeQuest = state.quests.find(
-    (quest) => !quest.completed && !quest.failed && !isQuestExpired(quest)
-  );
+  const activeQuest = state.quests.find(occupiesActiveSlot);
 
   return {
     state, loading, error, saving, activeQuest, completeQuest, commitToTodaysQuest, reload: load,

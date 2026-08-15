@@ -1,31 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getXpForLevel, applyXpDelta } from '@/lib/progression';
 import { PlayerStats, inferStatCategory, getStatGainForDifficulty, applyStatGain } from '@/lib/attributes';
+import type { Quest } from '@/types/quest';
 
 // Re-exported for backward compatibility — see @/lib/progression and
 // @/lib/attributes for the canonical implementations (TIS-INFRA-003,
-// TIS-INFRA-004).
+// TIS-INFRA-004). Quest itself now canonically lives in @/types/quest —
+// re-exported here only because Index_old.tsx (dead, unrouted) still
+// imports it from this path.
 export { getXpForLevel };
 export type { PlayerStats };
 export { inferStatCategory };
-
-export interface Quest {
-  id: string;
-  title: string;
-  difficulty: 'Easy' | 'Normal' | 'Hard' | 'Urgent';
-  xpReward: number;
-  creditReward: number;
-  timeFrame: string;
-  scheduledFor?: string;
-  statCategory?: keyof PlayerStats;
-  // Explicit, user-set linkage to the account's single primary goal. Never
-  // inferred from title/content — set only when the user checks the box
-  // at commit time. Absent/false means "not goal-aligned," not "unknown."
-  linkedToGoal?: boolean;
-  completed: boolean;
-  failed: boolean;
-  createdAt: string;
-}
+export type { Quest };
 
 export interface Habit {
   id: string;
