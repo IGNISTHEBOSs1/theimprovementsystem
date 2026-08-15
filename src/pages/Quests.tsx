@@ -8,7 +8,7 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 
 export default function Quests() {
   const { profile } = useAuth();
-  const { state, loading, error, saving, activeQuest, completeQuest, commitToTodaysQuest, reload } = useDashboardDataContext();
+  const { loading, error, saving, activeQuest, completeQuest, commitToTodaysQuest, reload } = useDashboardDataContext();
   const [commitError, setCommitError] = useState(false);
   const [completeError, setCompleteError] = useState(false);
 
@@ -80,17 +80,15 @@ export default function Quests() {
               </>
             )}
 
-            {state.quests.length > 0 && (
+            {activeQuest && (
               <div className="mt-6">
                 <ul className="space-y-3">
-                  {state.quests.map((quest) => (
-                    <QuestCard
-                      key={quest.id}
-                      quest={quest}
-                      completing={saving}
-                      onComplete={handleComplete}
-                    />
-                  ))}
+                  <QuestCard
+                    key={activeQuest.id}
+                    quest={activeQuest}
+                    completing={saving}
+                    onComplete={handleComplete}
+                  />
                 </ul>
                 {completeError && (
                   <p className="mt-3 text-body-sm text-muted-foreground" role="alert">

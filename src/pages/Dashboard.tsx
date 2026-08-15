@@ -5,7 +5,6 @@ import { DirectionCard } from "@/components/dashboard/DirectionCard";
 import { FirstLaunchState } from "@/components/dashboard/FirstLaunchState";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PrimaryActionPanel } from "@/components/dashboard/PrimaryActionPanel";
-import { QuietProgress } from "@/components/dashboard/QuietProgress";
 import { RecoveryState } from "@/components/dashboard/RecoveryState";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
@@ -13,7 +12,7 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, profile, profileLoading, profileError, fetchProfile } = useAuth();
-  const { state, loading, error, saving, activeQuest, completeQuest, reload } = useDashboardDataContext();
+  const { loading, error, saving, activeQuest, completeQuest, reload } = useDashboardDataContext();
   const name = profile?.username || "there";
   const chooseQuest = () => navigate("/quests");
   const [completeError, setCompleteError] = useState(false);
@@ -144,28 +143,6 @@ export default function Dashboard() {
           </>
         ) : (
           <RecoveryState onChooseQuest={chooseQuest} />
-        )}
-      </div>
-
-      {/* ── Tier 3 — Evidence of progress ───────────────────────────────
-          Deliberately narrower and positioned below the dominant action
-          rather than beside it, so it reads as subordinate rather than
-          competing for attention. Gated behind `loading` so a returning
-          user never briefly sees Level 1 / 0 XP before their real
-          progress loads. */}
-      <div className="mt-6 max-w-md">
-        {loading ? (
-          <section className="rounded-2xl bg-card/30 p-5 sm:p-6" aria-label="Loading progress">
-            <div className="h-3 w-32 animate-pulse rounded bg-muted" />
-            <div className="mt-4 h-5 w-2/3 animate-pulse rounded bg-muted" />
-          </section>
-        ) : (
-          <QuietProgress
-            level={state.level}
-            currentXp={state.currentXp}
-            maxXp={state.maxXp}
-            totalQuestsCompleted={state.totalQuestsCompleted}
-          />
         )}
       </div>
     </div>

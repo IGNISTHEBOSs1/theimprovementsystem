@@ -31,9 +31,6 @@ export function QuestCard({ quest, completing, onComplete }: QuestCardProps) {
         <h3 className="mt-2 text-lg font-semibold tracking-tight text-foreground">
           {quest.title}
         </h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          +{quest.xpReward} XP · +{quest.creditReward} credits
-        </p>
       </div>
 
       {quest.completed ? (

@@ -1,8 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
-import { useJustLeveledUp } from "@/hooks/useJustLeveledUp";
-import { getRankForLevel } from "@/lib/identity";
 import SystemBar from "@/components/system-bar/SystemBar";
-import { DashboardDataProvider, useDashboardDataContext } from "@/providers/DashboardDataProvider";
+import { DashboardDataProvider } from "@/providers/DashboardDataProvider";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -18,17 +16,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
 }
 
 function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: ReturnType<typeof useAuth>['profile'] }) {
-  const { state } = useDashboardDataContext();
-  const justLeveledUp = useJustLeveledUp(state.level);
-
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       <div className="env-light-layer" aria-hidden="true" />
 
       <SystemBar
         username={profile?.username ?? "Hunter"}
-        rank={getRankForLevel(state.level)}
-        justLeveledUp={justLeveledUp}
       />
 
       {/* ── Content area ─────────────────────────────────────────────── */}

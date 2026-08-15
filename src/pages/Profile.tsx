@@ -1,4 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -86,6 +88,15 @@ export default function Profile() {
             </p>
           )}
         </section>
+
+        <div className="mt-6">
+          <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
+            <Link to="/profile/history">
+              Quest history
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

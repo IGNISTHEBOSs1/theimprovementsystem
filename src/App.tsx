@@ -17,6 +17,7 @@ const Journey = lazy(() => import("./pages/Journey"));
 const Quests = lazy(() => import("./pages/Quests"));
 const Mentor = lazy(() => import("./pages/Mentor"));
 const Profile = lazy(() => import("./pages/Profile"));
+const QuestHistory = lazy(() => import("./pages/QuestHistory"));
 
 // Auth pages — untouched
 const Auth = lazy(() => import("./pages/Auth"));
@@ -81,6 +82,11 @@ const App = () => (
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <AppLayout><RenderProfiler id="Profile"><Profile /></RenderProfiler></AppLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/profile/history" element={
+                  <ProtectedRoute>
+                    <AppLayout><RenderProfiler id="QuestHistory"><QuestHistory /></RenderProfiler></AppLayout>
                   </ProtectedRoute>
                 } />
 

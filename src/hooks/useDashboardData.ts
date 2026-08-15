@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Quest } from "./useGameState";
-import { applyXpDelta } from "@/lib/progression";
-import { PlayerStats, inferStatCategory, getStatGainForDifficulty, applyStatGain } from "@/lib/attributes";
-import { useAchievements } from "@/hooks/useAchievements";
+import { PlayerStats } from "@/lib/attributes";
 import { Json } from "@/integrations/supabase/types";
 
 export interface DashboardState {
@@ -208,53 +206,6 @@ export function useDashboardData(userId?: string) {
     return { error: dbError };
   }, [load, state, userId]);
 
-  // Progression: XP, level, stat gain, and credits for a quest. This is
-  // reward/progression logic, not reality-change — Completion's identity
-  // explicitly excludes it ("Completion must never become a reward
-  // system... Everything that follows belongs elsewhere"). Isolated here,
-  // unchanged from the prior completeQuest implementation, and not
-  // invoked by anything yet. It exists so a future Recognition experience
-  // has a single place to call into — this function does not constitute
-  // that experience; it's only the mechanics Recognition would need.
-  const applyQuestProgression = useCallback(async (questId: string) => {
-    if (!userId || writeLockRef.current) return { error: null };
-    const quest = state.quests.find((item) => item.id === questId);
-    if (!quest) return { error: null };
-
-    const progression = applyXpDelta(state, quest.xpReward);
-    const statCategory = quest.statCategory || inferStatCategory(quest.title);
-    const nextStats = applyStatGain(state.stats, statCategory, getStatGainForDifficulty(quest.difficulty));
-    const nextState = {
-      ...state,
-      level: progression.level,
-      currentXp: progression.currentXp,
-      maxXp: progression.maxXp,
-      credits: state.credits + quest.creditReward,
-      totalQuestsCompleted: state.totalQuestsCompleted + 1,
-      stats: nextStats,
-    };
-
-    writeLockRef.current = true;
-    setSaving(true);
-    setState(nextState);
-    const { error: dbError } = await supabase
-      .from("game_state")
-      .update({
-        level: progression.level,
-        current_xp: progression.currentXp,
-        max_xp: progression.maxXp,
-        credits: nextState.credits,
-        total_quests_completed: nextState.totalQuestsCompleted,
-        stats: nextStats as unknown as Json,
-      })
-      .eq("user_id", userId);
-
-    if (dbError) await load();
-    writeLockRef.current = false;
-    setSaving(false);
-    return { error: dbError };
-  }, [load, state, userId]);
-
   // Milestone 2 — First Mission: "Direction → Choice → Commitment." This is
   // not a create-Quest operation — it's the persistence of a deliberate
   // commitment the user has already made. The user's own words are the
@@ -302,25 +253,6 @@ export function useDashboardData(userId?: string) {
     return { error: dbError };
   }, [load, state, userId]);
 
-  // Achievements are evaluated against the canonical live state and persist
-  // to game_state.achievements — the single source of truth (TIS-INFRA-005).
-  // habits is passed as an empty array: the live app has no connected habit
-  // data (see TIS-INFRA-001), so habit/streak-based achievements cannot
-  // unlock here until that system is separately reconnected. This is not a
-  // fabricated value — it accurately reflects that zero habits currently
-  // exist in the live application.
-  const { achievements, newlyUnlocked, dismissNotification, unlockedCount, totalCount } = useAchievements(
-    userId,
-    {
-      level: state.level,
-      totalQuestsCompleted: state.totalQuestsCompleted,
-      credits: state.credits,
-      currentXp: state.currentXp,
-      stats: state.stats,
-      habits: [],
-    },
-  );
-
   // P0 Decision B — one active Quest at a time. `activeQuest` is that
   // Quest, if one exists (not completed, not failed, not expired). No
   // selection/ranking logic — there is nothing to choose among.
@@ -329,7 +261,6 @@ export function useDashboardData(userId?: string) {
   );
 
   return {
-    state, loading, error, saving, activeQuest, completeQuest, applyQuestProgression, commitToTodaysQuest, reload: load,
-    achievements, newlyUnlocked, dismissNotification, unlockedCount, totalCount,
+    state, loading, error, saving, activeQuest, completeQuest, commitToTodaysQuest, reload: load,
   };
 }

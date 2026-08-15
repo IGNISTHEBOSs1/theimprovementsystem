@@ -60,7 +60,7 @@ const features = [
 const steps = [
   { num: '01', title: 'Create Your Profile', desc: 'Set your hunter name and choose your avatar to begin your awakening.' },
   { num: '02', title: 'Set Daily Quests', desc: 'Use the AI to generate personalized quests aligned with your goals.' },
-  { num: '03', title: 'Level Up', desc: 'Complete quests, build habits, defeat bosses — rise through the ranks.' },
+  { num: '03', title: 'Follow Through', desc: 'Complete quests one at a time and build real, lasting change.' },
 ];
 
 const stats = [
@@ -169,8 +169,8 @@ const Landing = () => {
             transition={{ delay: 0.6, duration: 0.4 }}
             className="text-body-lg text-muted-foreground mb-10 max-w-2xl mx-auto"
           >
-            Transform your daily habits into epic quests. Track streaks, unlock achievements,
-            and level up in real life — guided by an AI that knows your limits.
+            Transform your daily habits into real quests you can actually complete —
+            guided by an AI that knows your limits.
           </motion.p>
 
           {/* CTAs */}
@@ -227,45 +227,20 @@ const Landing = () => {
                   </div>
                   <div>
                     <div className="text-xs font-display font-bold text-foreground">SHADOW_HUNTER</div>
-                    <div className="text-[10px] text-muted-foreground font-jp">B-Rank Hunter</div>
+                    <div className="text-[10px] text-muted-foreground font-jp">今日の焦点</div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-center">
-                    <div className="text-xs font-display font-bold text-primary">42</div>
-                    <div className="text-[9px] text-muted-foreground">Level</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xs font-display font-bold text-accent">1,850</div>
-                    <div className="text-[9px] text-muted-foreground">Credits</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xs font-display font-bold text-orange-400">12🔥</div>
-                    <div className="text-[9px] text-muted-foreground">Streak</div>
-                  </div>
-                </div>
-              </div>
-              {/* Mock XP bar */}
-              <div className="mb-4">
-                <div className="flex justify-between text-[10px] text-muted-foreground mb-1">
-                  <span>Experience</span>
-                  <span className="font-display text-primary">7,200 / 10,000 XP</span>
-                </div>
-                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full w-[72%] rounded-full bg-gradient-to-r from-primary to-primary-glow xp-bar" />
                 </div>
               </div>
               {/* Mock quests */}
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { title: 'Morning workout', done: true, diff: 'Normal', xp: 150 },
-                  { title: 'Read 30 pages', done: true, diff: 'Easy', xp: 100 },
-                  { title: 'Cold shower', done: false, diff: 'Hard', xp: 300 },
+                  { title: 'Morning workout', done: true, diff: 'Normal' },
+                  { title: 'Read 30 pages', done: true, diff: 'Easy' },
+                  { title: 'Cold shower', done: false, diff: 'Hard' },
                 ].map((q, i) => (
                   <div key={i} className={`p-2.5 rounded-xl border text-left ${q.done ? 'border-success/30 bg-success/5' : 'border-white/8 bg-white/3'}`}>
                     <div className={`text-[9px] font-display font-semibold mb-1 ${q.done ? 'text-success' : q.diff === 'Hard' ? 'text-purple-400' : q.diff === 'Easy' ? 'text-green-400' : 'text-blue-400'}`}>{q.diff}</div>
-                    <div className={`text-[10px] font-medium mb-1 ${q.done ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{q.title}</div>
-                    <div className="text-[9px] text-primary font-display">+{q.xp} XP</div>
+                    <div className={`text-[10px] font-medium ${q.done ? 'line-through text-muted-foreground' : 'text-foreground'}`}>{q.title}</div>
                   </div>
                 ))}
               </div>
@@ -304,7 +279,7 @@ const Landing = () => {
             <p className="text-label text-primary mb-3">Features</p>
             <h2 className="text-display-lg text-foreground mb-4">Your Arsenal for Growth</h2>
             <p className="text-body-md text-muted-foreground max-w-xl mx-auto">
-              Every tool you need to become the best version of yourself, wrapped in an RPG that actually works.
+              Every tool you need to become the best version of yourself, one real action at a time.
             </p>
           </motion.div>
         </div>
@@ -335,44 +310,12 @@ const Landing = () => {
             </div>
           </motion.div>
 
-          {/* Small card 1 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-orange-500/10 to-orange-500/3 hover:border-orange-500/30 transition-all duration-300 p-6"
-          >
-            <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex-center mb-4">
-              <Flame className="w-6 h-6 text-orange-400" />
-            </div>
-            <p className="text-label text-orange-400/70 mb-1">習慣</p>
-            <h3 className="font-display font-bold text-lg text-foreground mb-2">Habit Tracking</h3>
-            <p className="text-body-sm text-muted-foreground">Visual heatmaps + streak rewards that keep you consistent.</p>
-          </motion.div>
-
-          {/* Small card 2 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-accent/10 to-accent/3 hover:border-accent/30 transition-all duration-300 p-6"
-          >
-            <div className="w-12 h-12 rounded-xl bg-accent/20 flex-center mb-4">
-              <Trophy className="w-6 h-6 text-accent" />
-            </div>
-            <p className="text-label text-accent/70 mb-1">実績</p>
-            <h3 className="font-display font-bold text-lg text-foreground mb-2">Achievements</h3>
-            <p className="text-body-sm text-muted-foreground">Unlock badges and earn titles that showcase your legend.</p>
-          </motion.div>
-
           {/* Small card 3 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.35 }}
+            transition={{ delay: 0.2 }}
             className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-secondary/10 to-secondary/3 hover:border-secondary/30 transition-all duration-300 p-6"
           >
             <div className="w-12 h-12 rounded-xl bg-secondary/20 flex-center mb-4">
@@ -381,22 +324,6 @@ const Landing = () => {
             <p className="text-label text-secondary/70 mb-1">AI</p>
             <h3 className="font-display font-bold text-lg text-foreground mb-2">AI Assistant</h3>
             <p className="text-body-sm text-muted-foreground">Your personal system AI generates quests and gives advice.</p>
-          </motion.div>
-
-          {/* Large card 2 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="md:col-span-1 group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-red-500/10 to-red-500/3 hover:border-red-500/30 transition-all duration-300 p-6"
-          >
-            <div className="w-12 h-12 rounded-xl bg-red-500/20 flex-center mb-4">
-              <Swords className="w-6 h-6 text-red-400" />
-            </div>
-            <p className="text-label text-red-400/70 mb-1">ゲート</p>
-            <h3 className="font-display font-bold text-lg text-foreground mb-2">Boss Gates</h3>
-            <p className="text-body-sm text-muted-foreground">Face epic challenges to earn legendary titles and rewards.</p>
           </motion.div>
         </div>
       </section>
@@ -482,7 +409,7 @@ const Landing = () => {
         <div className="container mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <SystemLogo size={24} />
-            <span className="text-sm text-muted-foreground font-jp">システム — Level Up Your Life</span>
+            <span className="text-sm text-muted-foreground font-jp">システム</span>
           </div>
           <div className="flex items-center gap-6 text-label text-muted-foreground">
             <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>

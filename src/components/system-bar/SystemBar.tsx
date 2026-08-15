@@ -18,12 +18,9 @@ const INDICATOR_TRANSITION = { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const }
 
 interface SystemBarProps {
   username: string;
-  rank: string;
-  /** Finished signal, computed upstream. The Bar renders this — it never infers it. */
-  justLeveledUp: boolean;
 }
 
-export default function SystemBar({ username, rank, justLeveledUp }: SystemBarProps) {
+export default function SystemBar({ username }: SystemBarProps) {
   const location = useLocation();
 
   const isActive = (to: string) =>
@@ -42,23 +39,12 @@ export default function SystemBar({ username, rank, justLeveledUp }: SystemBarPr
             responding to the shared environmental light, not a bespoke effect. */}
         <div className="px-6 pt-8 pb-6">
           <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                "w-10 h-10 rounded-lg overflow-hidden shrink-0",
-                justLeveledUp && "animate-glow-pulse-once",
-              )}
-            >
+            <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
               <SystemLogo size={40} className="w-full h-full" />
             </div>
             <div className="min-w-0">
               <div className="text-body-md font-display font-bold text-foreground leading-tight truncate">
                 {username}
-              </div>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
-                <span className="text-[11px] tracking-wide text-muted-foreground truncate">
-                  {rank}
-                </span>
               </div>
             </div>
           </div>
