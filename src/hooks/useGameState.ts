@@ -60,9 +60,9 @@ export const freshAccountState: GameState = {
   credits: 0,
   stats: { FIT: 0, SOC: 0, INT: 0, DIS: 0, FOC: 0, FIN: 0 },
   quests: [
-    { id: 'default_1', title: '🏃 Morning Exercise', difficulty: 'Easy', xpReward: 25, creditReward: 5, timeFrame: 'Today', statCategory: 'FIT', completed: false, failed: false, createdAt: new Date().toISOString() },
-    { id: 'default_2', title: '📚 Read for 20 minutes', difficulty: 'Easy', xpReward: 20, creditReward: 5, timeFrame: 'Today', statCategory: 'INT', completed: false, failed: false, createdAt: new Date().toISOString() },
-    { id: 'default_3', title: '💧 Drink 8 glasses of water', difficulty: 'Normal', xpReward: 15, creditReward: 3, timeFrame: 'Today', statCategory: 'DIS', completed: false, failed: false, createdAt: new Date().toISOString() },
+    { id: 'default_1', title: '🏃 Morning Exercise', priority: 'Optional', xpReward: 25, creditReward: 5, timeFrame: 'Today', statCategory: 'FIT', completed: false, failed: false, createdAt: new Date().toISOString() },
+    { id: 'default_2', title: '📚 Read for 20 minutes', priority: 'Optional', xpReward: 20, creditReward: 5, timeFrame: 'Today', statCategory: 'INT', completed: false, failed: false, createdAt: new Date().toISOString() },
+    { id: 'default_3', title: '💧 Drink 8 glasses of water', priority: 'Important', xpReward: 15, creditReward: 3, timeFrame: 'Today', statCategory: 'DIS', completed: false, failed: false, createdAt: new Date().toISOString() },
   ],
   habits: [],
   systemMessages: [
@@ -155,7 +155,7 @@ export const useGameState = () => {
 
       // Update stat based on quest category
       const cat = quest.statCategory || inferStatCategory(quest.title);
-      const newStats = applyStatGain(prev.stats, cat, getStatGainForDifficulty(quest.difficulty));
+      const newStats = applyStatGain(prev.stats, cat, getStatGainForDifficulty("Normal"));
 
       const multiplied = Math.round(quest.xpReward * (prev.xpMultiplier || 1));
       const result = applyXpDelta(prev, multiplied);

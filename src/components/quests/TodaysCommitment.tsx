@@ -5,12 +5,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import type { QuestPriority } from "@/types/quest";
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const PRIORITIES: QuestPriority[] = ["Essential", "Important", "Optional"];
 
 interface TodaysCommitmentProps {
   committing: boolean;
-  onCommit: (commitment: string, linkedToGoal: boolean, recurrenceDays?: number[]) => void;
+  onCommit: (commitment: string, linkedToGoal: boolean, recurrenceDays?: number[], priority?: QuestPriority) => void;
   // The account's primary goal, if one is set. When present, an explicit
   // opt-in checkbox is shown so the user can mark this commitment as
   // supporting that goal. When absent, no checkbox is shown at all —
@@ -31,11 +33,20 @@ interface TodaysCommitmentProps {
 // and user-set — a plain "Repeat" toggle revealing day selection, off by
 // default. Leaving it off produces byte-for-byte the same one-shot
 // commitment behavior as before this decision existed.
+//
+// Priority (Founder Decision, Quest priority chunk): Essential/
+// Important/Optional — how important this is to the user's intended
+// improvement, not difficulty, duration, urgency, or age. Explicit and
+// stable; never computed or decayed. Defaults to Essential, since under
+// the single-active-Quest model the one thing being committed to right
+// now is, by definition, the user's current highest-priority commitment
+// unless they say otherwise.
 export function TodaysCommitment({ committing, onCommit, goalLabel }: TodaysCommitmentProps) {
   const [commitment, setCommitment] = useState("");
   const [linkedToGoal, setLinkedToGoal] = useState(false);
   const [repeating, setRepeating] = useState(false);
   const [days, setDays] = useState<number[]>([]);
+  const [priority, setPriority] = useState<QuestPriority>("Essential");
 
   const toggleDay = (day: number) => {
     setDays((prev) => prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort());
@@ -45,7 +56,7 @@ export function TodaysCommitment({ committing, onCommit, goalLabel }: TodaysComm
     event.preventDefault();
     if (!commitment.trim() || committing) return;
     if (repeating && days.length === 0) return;
-    onCommit(commitment, linkedToGoal, repeating ? days : undefined);
+    onCommit(commitment, linkedToGoal, repeating ? days : undefined, priority);
   };
 
   return (
@@ -75,6 +86,27 @@ export function TodaysCommitment({ committing, onCommit, goalLabel }: TodaysComm
             {committing ? "Committing…" : "Commit"}
             {!committing && <ArrowRight className="size-4" aria-hidden="true" />}
           </Button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Priority">
+          <span className="mr-1 text-body-sm text-muted-foreground">Priority</span>
+          {PRIORITIES.map((level) => (
+            <button
+              key={level}
+              type="button"
+              onClick={() => setPriority(level)}
+              disabled={committing}
+              aria-pressed={priority === level}
+              className={cn(
+                "min-h-9 rounded-lg border px-2.5 text-xs font-medium transition-colors",
+                priority === level
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {level}
+            </button>
+          ))}
         </div>
 
         <div className="flex items-center gap-2">

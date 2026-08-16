@@ -25,7 +25,7 @@ export function QuestCard({ quest, completing, onComplete }: QuestCardProps) {
     >
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">{quest.difficulty}</Badge>
+          <Badge variant="outline">{quest.priority}</Badge>
           <span className="text-xs text-muted-foreground">{quest.timeFrame}</span>
         </div>
         <h3 className="mt-2 text-lg font-semibold tracking-tight text-foreground">

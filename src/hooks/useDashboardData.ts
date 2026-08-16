@@ -276,11 +276,14 @@ export function useDashboardData(userId?: string) {
   // commitment the user has already made. The user's own words are the
   // commitment itself; the System does not suggest, generate, or pre-fill
   // them, preserving the autonomy the Quest definition requires.
-  // difficulty/xpReward/creditReward are fixed, unseen-at-commit-time
-  // defaults: they exist only because the existing Quest type (and the
-  // completion path this milestone does not touch) requires them, not
-  // because this milestone introduces reward mechanics.
-  const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false, recurrenceDays?: number[]) => {
+  // xpReward/creditReward are fixed, unseen-at-commit-time defaults: they
+  // exist only because the existing Quest type (and the completion path
+  // this milestone does not touch) requires them, not because this
+  // milestone introduces reward mechanics. priority, by contrast, is
+  // explicit and user-set (Founder Decision, Quest priority chunk) — not
+  // a fixed default, and not a stand-in for difficulty/duration/urgency/
+  // age, which TIS does not track.
+  const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false, recurrenceDays?: number[], priority: Quest["priority"] = "Essential") => {
     const trimmed = commitment.trim();
     if (!userId || writeLockRef.current || !trimmed) return { error: null };
     // P0 Decision B — one active Quest at a time. A second commitment
@@ -294,7 +297,7 @@ export function useDashboardData(userId?: string) {
     const quest: Quest = {
       id: crypto.randomUUID(),
       title: trimmed,
-      difficulty: "Normal",
+      priority,
       xpReward: 25,
       creditReward: 10,
       timeFrame: "Today",

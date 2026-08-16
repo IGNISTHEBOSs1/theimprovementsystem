@@ -1,11 +1,21 @@
 import type { PlayerStats } from '@/lib/attributes';
 
-export type QuestDifficulty = 'Easy' | 'Normal' | 'Hard' | 'Urgent';
+// Founder Decision (Quest priority chunk): priority is NOT difficulty,
+// duration, urgency, XP, or age — it represents how important completing
+// this Quest is to the user's intended improvement. Explicit and stable;
+// never computed, decayed, or AI-assigned. Only one Quest may be
+// Essential at a time — today this is automatically satisfied by the
+// pre-existing single-active-Quest constraint (there is never more than
+// one Quest "in flight" to begin with), not by any separate enforcement
+// logic here. If a future decision introduces multiple concurrently
+// committed Quests, this cap would need real enforcement at that point —
+// not invented speculatively now.
+export type QuestPriority = 'Essential' | 'Important' | 'Optional';
 
 export interface Quest {
   id: string;
   title: string;
-  difficulty: QuestDifficulty;
+  priority: QuestPriority;
   xpReward: number;
   creditReward: number;
   timeFrame: string;

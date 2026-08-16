@@ -5,6 +5,7 @@ import { TodaysCommitment } from "@/components/quests/TodaysCommitment";
 import { QuestCard } from "@/components/quests/QuestCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
+import type { QuestPriority } from "@/types/quest";
 
 export default function Quests() {
   const { profile } = useAuth();
@@ -12,9 +13,9 @@ export default function Quests() {
   const [commitError, setCommitError] = useState(false);
   const [completeError, setCompleteError] = useState(false);
 
-  const handleCommit = async (commitment: string, linkedToGoal: boolean, recurrenceDays?: number[]) => {
+  const handleCommit = async (commitment: string, linkedToGoal: boolean, recurrenceDays?: number[], priority?: QuestPriority) => {
     setCommitError(false);
-    const { error: commitErr } = await commitToTodaysQuest(commitment, linkedToGoal, recurrenceDays);
+    const { error: commitErr } = await commitToTodaysQuest(commitment, linkedToGoal, recurrenceDays, priority);
     if (commitErr) setCommitError(true);
   };
 

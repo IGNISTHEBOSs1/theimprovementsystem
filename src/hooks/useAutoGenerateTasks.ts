@@ -141,10 +141,10 @@ Example format:
         
         // Add each task
         for (const task of tasks) {
-          if (task.title && task.difficulty && task.xpReward) {
+          if (task.title && task.xpReward) {
             addQuest({
               title: task.title,
-              difficulty: task.difficulty,
+              priority: 'Important',
               xpReward: task.xpReward,
               creditReward: task.creditReward || 10,
               timeFrame: task.timeFrame || 'Today',
