@@ -1,6 +1,8 @@
 import { Check, ChevronRight, CircleDot } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
+import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 
 interface PrimaryActionPanelProps {
   quest?: Quest;
@@ -32,9 +34,10 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
       <p className="text-label text-primary">Today&apos;s focus</p>
       <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <CircleDot className="size-4 text-primary" aria-hidden="true" />
             {quest.timeFrame}
+            <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>{quest.priority}</Badge>
           </div>
           <h2 id="focus-heading" className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
             {quest.title}

@@ -45,6 +45,25 @@ const TRAJECTORY_STEP = 1;
 // when, on its own terms. Quests with a timeFrame other than "Today"
 // (none currently exist — every quest is created via commitToTodaysQuest
 // — but the check is defensive) are never subject to this.
+// Human label for the next day a recurring series becomes eligible again,
+// starting the search from tomorrow. Pure projection over recurrenceDays
+// — no persistence, no new data source. Used only for the Upcoming
+// section's read-only display; the actual occurrence is still created by
+// nextOccurrencesToCreate on a real load, not by this function.
+const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+export function nextEligibleDayLabel(recurrenceDays: number[], from: Date): string {
+  for (let offset = 1; offset <= 7; offset++) {
+    const candidate = new Date(from);
+    candidate.setDate(candidate.getDate() + offset);
+    if (recurrenceDays.includes(candidate.getDay())) {
+      return offset === 1 ? "tomorrow" : WEEKDAY_NAMES[candidate.getDay()];
+    }
+  }
+  return "soon";
+}
+
+
 export function isQuestExpired(quest: Quest, today = new Date().toISOString().split("T")[0]): boolean {
   if (quest.completed || quest.failed) return false;
   if (quest.timeFrame !== "Today") return false;

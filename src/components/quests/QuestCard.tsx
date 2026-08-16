@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
+import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 
 interface QuestCardProps {
   quest: Quest;
@@ -25,7 +26,7 @@ export function QuestCard({ quest, completing, onComplete }: QuestCardProps) {
     >
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline">{quest.priority}</Badge>
+          <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>{quest.priority}</Badge>
           <span className="text-xs text-muted-foreground">{quest.timeFrame}</span>
         </div>
         <h3 className="mt-2 text-lg font-semibold tracking-tight text-foreground">
