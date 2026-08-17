@@ -6,35 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { QuestPriority } from "@/types/quest";
+import type { CadencePreset } from "@/hooks/useDashboardData";
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const PRIORITIES: QuestPriority[] = ["Essential", "Important", "Optional"];
 const DEFAULT_PRIORITY: QuestPriority = "Essential";
-
-// Founder Decision (Quest cadence chunk): recurrence is chosen as one of
-// six named presets, not raw day-of-week toggling — a single click picks
-// a cadence for the common cases; only "Custom" drops down to picking
-// individual days.
-type CadencePreset = "Once" | "Daily" | "Weekdays" | "Weekends" | "Weekly" | "Custom";
 const CADENCE_PRESETS: CadencePreset[] = ["Once", "Daily", "Weekdays", "Weekends", "Weekly", "Custom"];
 const DEFAULT_CADENCE: CadencePreset = "Once";
 
-// Resolved at submit time (not selection time) so "Weekly" always reads
-// today's actual weekday, not a stale value from when the form opened.
-function presetToRecurrenceDays(preset: CadencePreset, customDays: number[]): number[] | undefined {
-  switch (preset) {
-    case "Once": return undefined;
-    case "Daily": return [0, 1, 2, 3, 4, 5, 6];
-    case "Weekdays": return [1, 2, 3, 4, 5];
-    case "Weekends": return [0, 6];
-    case "Weekly": return [new Date().getDay()];
-    case "Custom": return customDays.length > 0 ? customDays : undefined;
-  }
-}
-
 interface TodaysCommitmentProps {
   committing: boolean;
-  onCommit: (commitment: string, linkedToGoal: boolean, recurrenceDays?: number[], priority?: QuestPriority) => void;
+  onCommit: (commitment: string, linkedToGoal: boolean, cadence: CadencePreset, customDays: number[], priority: QuestPriority) => void;
   // The account's primary goal, if one is set. When present, an explicit
   // opt-in checkbox is shown so the user can mark this commitment as
   // supporting that goal. When absent, no checkbox is shown at all —
@@ -43,7 +25,7 @@ interface TodaysCommitmentProps {
   goalLabel?: string;
 }
 
-// Milestone 2 — First Mission. This is not a "create Quest" form. It is
+// Milestone 2 - First Mission. This is not a "create Quest" form. It is
 // the physical expression of a deliberate commitment the user is already
 // making: Direction -> Choice -> Commitment. The input carries the user's
 // own words -- the System does not suggest, generate, or pre-fill them,
@@ -53,10 +35,16 @@ interface TodaysCommitmentProps {
 //
 // Founder Decision (Quest defaults chunk): the normal path uses common
 // system defaults (priority: Essential, cadence: Once) and stays within
-// a 1-3 click budget -- type + Commit is 1 click; adding the goal-link
-// checkbox is 2. Priority and cadence are real degrees of freedom that
-// most commitments don't need to touch every time, so they're gated
-// behind an explicit "Custom" toggle rather than always shown.
+// a 1-3 interaction budget -- type + Commit is 1 click; adding the
+// goal-link checkbox is 2. Priority and cadence are gated behind an
+// explicit "Custom" toggle rather than always shown.
+//
+// Cadence resolution (which actual weekdays "Weekly" means, etc.)
+// deliberately does NOT happen in this component — this component only
+// passes the chosen preset up. Resolution happens in
+// useDashboardData.commitToTodaysQuest, the one place that has
+// server-authoritative "today" available, so "Weekly" is never resolved
+// against the client's own clock.
 export function TodaysCommitment({ committing, onCommit, goalLabel }: TodaysCommitmentProps) {
   const [commitment, setCommitment] = useState("");
   const [linkedToGoal, setLinkedToGoal] = useState(false);
@@ -77,7 +65,8 @@ export function TodaysCommitment({ committing, onCommit, goalLabel }: TodaysComm
     onCommit(
       commitment,
       linkedToGoal,
-      showOptions ? presetToRecurrenceDays(cadence, customDays) : undefined,
+      showOptions ? cadence : DEFAULT_CADENCE,
+      showOptions ? customDays : [],
       showOptions ? priority : DEFAULT_PRIORITY,
     );
   };
@@ -100,6 +89,7 @@ export function TodaysCommitment({ committing, onCommit, goalLabel }: TodaysComm
             aria-label="Your commitment"
             disabled={committing}
             className="min-h-11"
+            autoFocus
           />
           <Button
             type="submit"

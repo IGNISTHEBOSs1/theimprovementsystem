@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -6,7 +7,8 @@ import { TodaysCommitment } from "@/components/quests/TodaysCommitment";
 import { QuestCard } from "@/components/quests/QuestCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
-import { nextEligibleDayLabel } from "@/hooks/useDashboardData";
+import { nextEligibleDayLabel, type CadencePreset } from "@/hooks/useDashboardData";
+import { getServerLocalDate, type ServerLocalDate } from "@/lib/serverTime";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import type { Quest, QuestPriority } from "@/types/quest";
 
@@ -15,6 +17,28 @@ export default function Quests() {
   const { state, loading, error, saving, activeQuest, completeQuest, commitToTodaysQuest, reload } = useDashboardDataContext();
   const [commitError, setCommitError] = useState(false);
   const [completeError, setCompleteError] = useState(false);
+  // Founder Decision (Quest defaults chunk): commitment is centered on an
+  // explicit "+ New Commitment" entry point rather than an
+  // always-visible form. Tapping it, typing, and tapping Commit is the
+  // whole normal path — still well inside the 1-3 interaction budget.
+  const [showCommitForm, setShowCommitForm] = useState(false);
+
+  // Server-authoritative "today", fetched once per page visit — used
+  // only for the read-only Upcoming display below (which day a dormant
+  // recurring series resumes on). The actual persisted expiry/
+  // continuation decisions happen inside useDashboardData's load(), using
+  // their own independently-fetched server time; this is a separate,
+  // display-only fetch so Quests.tsx doesn't need to reach into that
+  // internal state. Null while loading — the Upcoming section simply
+  // doesn't render its date-dependent parts until this resolves.
+  const [serverLocal, setServerLocal] = useState<ServerLocalDate | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getServerLocalDate(profile?.timezone).then((result) => {
+      if (!cancelled) setServerLocal(result);
+    });
+    return () => { cancelled = true; };
+  }, [profile?.timezone]);
 
   // Upcoming: recurring series whose most recent occurrence has already
   // resolved (completed or failed) and hasn't been re-created for today
@@ -24,7 +48,6 @@ export default function Quests() {
   // it never creates or activates anything itself — that stays entirely
   // in useDashboardData's load() sweep. Deliberately secondary: smaller,
   // muted, and rendered after the active Quest section, never before it.
-  const todayStr = new Date().toISOString().split("T")[0];
   const seriesMap = new Map<string, Quest[]>();
   for (const quest of state.quests) {
     if (!quest.seriesId) continue;
@@ -32,19 +55,23 @@ export default function Quests() {
     existing.push(quest);
     seriesMap.set(quest.seriesId, existing);
   }
-  const upcoming = Array.from(seriesMap.values())
+  const upcoming = serverLocal ? Array.from(seriesMap.values())
     .map((occurrences) => occurrences.reduce((a, b) => (a.createdAt > b.createdAt ? a : b)))
     .filter((mostRecent) =>
       (mostRecent.completed || mostRecent.failed) &&
       mostRecent.recurrenceDays &&
       mostRecent.recurrenceDays.length > 0 &&
-      mostRecent.createdAt.split("T")[0] !== todayStr,
-    );
+      mostRecent.createdAt.split("T")[0] !== serverLocal.dateStr,
+    ) : [];
 
-  const handleCommit = async (commitment: string, linkedToGoal: boolean, recurrenceDays?: number[], priority?: QuestPriority) => {
+  const handleCommit = async (commitment: string, linkedToGoal: boolean, cadence: CadencePreset, customDays: number[], priority: QuestPriority) => {
     setCommitError(false);
-    const { error: commitErr } = await commitToTodaysQuest(commitment, linkedToGoal, recurrenceDays, priority);
-    if (commitErr) setCommitError(true);
+    const { error: commitErr } = await commitToTodaysQuest(commitment, linkedToGoal, cadence, customDays, priority);
+    if (commitErr) {
+      setCommitError(true);
+    } else {
+      setShowCommitForm(false);
+    }
   };
 
   const handleComplete = async (questId: string) => {
@@ -90,21 +117,33 @@ export default function Quests() {
           </section>
         ) : (
           <>
-            {/* P0 Decision B — one active Quest at a time. Committing is
-                only offered when none is currently active; completion or
-                expiry clears it, and this reappears. The goal checkbox
-                only appears if a primary goal is actually set. */}
+            {/* P0 Decision B — one active Quest at a time. New Commitment
+                is only offered when none is currently active; completion
+                or expiry clears it, and this reappears. */}
             {!activeQuest && (
               <>
-                <TodaysCommitment
-                  committing={saving}
-                  onCommit={handleCommit}
-                  goalLabel={profile?.primary_goal ?? undefined}
-                />
-                {commitError && (
-                  <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
-                    That didn't go through. You can try again.
-                  </p>
+                {showCommitForm ? (
+                  <>
+                    <TodaysCommitment
+                      committing={saving}
+                      onCommit={handleCommit}
+                      goalLabel={profile?.primary_goal ?? undefined}
+                    />
+                    {commitError && (
+                      <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
+                        That didn't go through. You can try again.
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <Button
+                    size="lg"
+                    className="min-h-11"
+                    onClick={() => setShowCommitForm(true)}
+                  >
+                    <Plus className="size-4" aria-hidden="true" />
+                    New Commitment
+                  </Button>
                 )}
               </>
             )}
@@ -127,7 +166,7 @@ export default function Quests() {
               </div>
             )}
 
-            {upcoming.length > 0 && (
+            {upcoming.length > 0 && serverLocal && (
               <div className="mt-10">
                 <p className="text-label text-muted-foreground">Upcoming</p>
                 <ul className="mt-3 space-y-2">
@@ -141,7 +180,7 @@ export default function Quests() {
                       </Badge>
                       <span className="text-foreground">{quest.title}</span>
                       <span className="text-muted-foreground">
-                        — resumes {nextEligibleDayLabel(quest.recurrenceDays ?? [], new Date())}
+                        — resumes {nextEligibleDayLabel(quest.recurrenceDays ?? [], serverLocal.weekday)}
                       </span>
                     </li>
                   ))}

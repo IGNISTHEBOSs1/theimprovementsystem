@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
+import { detectDeviceTimezone } from '@/lib/serverTime';
 
 export interface Profile {
   id: string;
@@ -14,6 +15,13 @@ export interface Profile {
   // untouched by this). Free text, not a referenced entity — see Chunk 3
   // report for why a full Goal model wasn't built.
   primary_goal: string | null;
+  // IANA timezone (e.g. 'Asia/Kolkata'), detected from the device once on
+  // first authenticated use and stored server-side. Identifies the
+  // user's INTENDED zone only — the authoritative clock for Quest
+  // recurrence/expiry is always the server's UTC time (see
+  // @/lib/serverTime), converted through this value. Null until first
+  // detection completes.
+  timezone: string | null;
   has_completed_first_launch: boolean;
   created_at: string;
   updated_at: string;
@@ -99,6 +107,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(data as Profile);
         setProfileError(false);
         setProfileLoading(false);
+        // Server-authoritative timezone system: identify the user's
+        // intended IANA zone from the device exactly once, on whichever
+        // authenticated session first has no timezone stored yet. This
+        // is fire-and-forget — a failure here doesn't affect profile
+        // loading (already resolved above); @/lib/serverTime falls back
+        // to UTC if timezone is still null on the next Quest evaluation,
+        // and this will simply try again on the next profile fetch.
+        if ((data as Profile).timezone === null) {
+          const detected = detectDeviceTimezone();
+          void supabase
+            .from('profiles')
+            .update({ timezone: detected })
+            .eq('user_id', userId)
+            .then(({ error: tzError }) => {
+              if (!tzError && lastFetchedUserId.current === userId) {
+                setProfile((prev) => prev ? { ...prev, timezone: detected } : prev);
+              }
+            });
+        }
         return;
       }
       if (attempt < attempts - 1) {

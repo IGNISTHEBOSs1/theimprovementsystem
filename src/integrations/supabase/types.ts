@@ -112,6 +112,7 @@ export type Database = {
           has_completed_first_launch: boolean
           id: string
           primary_goal: string | null
+          timezone: string | null
           updated_at: string
           user_id: string
           username: string
@@ -123,6 +124,7 @@ export type Database = {
           has_completed_first_launch?: boolean
           id?: string
           primary_goal?: string | null
+          timezone?: string | null
           updated_at?: string
           user_id: string
           username?: string
@@ -134,6 +136,7 @@ export type Database = {
           has_completed_first_launch?: boolean
           id?: string
           primary_goal?: string | null
+          timezone?: string | null
           updated_at?: string
           user_id?: string
           username?: string
@@ -160,7 +163,10 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_server_time: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

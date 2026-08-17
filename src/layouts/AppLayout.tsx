@@ -9,7 +9,7 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
   const { user, profile } = useAuth();
   return (
-    <DashboardDataProvider userId={user?.id}>
+    <DashboardDataProvider userId={user?.id} timezone={profile?.timezone}>
       <AppLayoutContent profile={profile}>{children}</AppLayoutContent>
     </DashboardDataProvider>
   );

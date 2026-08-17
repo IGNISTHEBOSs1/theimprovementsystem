@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Quest } from "@/types/quest";
 import { PlayerStats } from "@/lib/attributes";
 import { Json } from "@/integrations/supabase/types";
+import { getServerLocalDate } from "@/lib/serverTime";
 
 export interface DashboardState {
   level: number;
@@ -36,6 +37,26 @@ const emptyState: DashboardState = {
 // nothing more.
 const TRAJECTORY_STEP = 1;
 
+// Founder Decision (Quest cadence chunk): recurrence is chosen as one of
+// six named presets. Resolution happens here (hook level), not in the UI
+// component, specifically so "Weekly" can use the server-authoritative
+// weekday (see load()/commitToTodaysQuest below) rather than the
+// client's own Date().getDay() — the entire point of the server-time
+// system is that no recurrence-relevant date/weekday value is ever
+// sourced from the client's clock.
+export type CadencePreset = "Once" | "Daily" | "Weekdays" | "Weekends" | "Weekly" | "Custom";
+
+function resolveRecurrenceDays(preset: CadencePreset, customDays: number[], todayWeekday: number): number[] | undefined {
+  switch (preset) {
+    case "Once": return undefined;
+    case "Daily": return [0, 1, 2, 3, 4, 5, 6];
+    case "Weekdays": return [1, 2, 3, 4, 5];
+    case "Weekends": return [0, 6];
+    case "Weekly": return [todayWeekday];
+    case "Custom": return customDays.length > 0 ? customDays : undefined;
+  }
+}
+
 // A quest expires when it was scoped to "Today" and its creation date is
 // not today's date — it simply stops being eligible to act as the active/
 // promoted quest. This does not mark it failed, delete it, or otherwise
@@ -45,19 +66,21 @@ const TRAJECTORY_STEP = 1;
 // when, on its own terms. Quests with a timeFrame other than "Today"
 // (none currently exist — every quest is created via commitToTodaysQuest
 // — but the check is defensive) are never subject to this.
-// Human label for the next day a recurring series becomes eligible again,
-// starting the search from tomorrow. Pure projection over recurrenceDays
-// — no persistence, no new data source. Used only for the Upcoming
-// section's read-only display; the actual occurrence is still created by
-// nextOccurrencesToCreate on a real load, not by this function.
+//
+// Human label for the next day a recurring series becomes eligible again.
+// Pure weekday arithmetic (mod 7), not Date-object manipulation:
+// constructing a new Date from a server-local calendar date string and
+// calling .getDay()/.setDate() on it would reinterpret that date through
+// the CLIENT's own timezone, silently reintroducing exactly the
+// client-timezone dependency the server-authoritative system exists to
+// remove. Takes the already-correct current weekday as a plain number.
 const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-export function nextEligibleDayLabel(recurrenceDays: number[], from: Date): string {
+export function nextEligibleDayLabel(recurrenceDays: number[], fromWeekday: number): string {
   for (let offset = 1; offset <= 7; offset++) {
-    const candidate = new Date(from);
-    candidate.setDate(candidate.getDate() + offset);
-    if (recurrenceDays.includes(candidate.getDay())) {
-      return offset === 1 ? "tomorrow" : WEEKDAY_NAMES[candidate.getDay()];
+    const candidateWeekday = (fromWeekday + offset) % 7;
+    if (recurrenceDays.includes(candidateWeekday)) {
+      return offset === 1 ? "tomorrow" : WEEKDAY_NAMES[candidateWeekday];
     }
   }
   return "soon";
@@ -72,7 +95,14 @@ export function isQuestExpired(quest: Quest, today = new Date().toISOString().sp
 
 // A quest occupies the single active slot if it's neither resolved nor
 // expired. Shared by the singleton-commit guard and the recurrence
-// continuation check below — same definition, one place.
+// continuation check below — same definition, one place. Uses
+// isQuestExpired's client-time fallback deliberately: this is a
+// same-session synchronous UI guard (preventing a double-submit within
+// one render), not the persisted expiry decision — that decision is made
+// exclusively inside load()'s sweep below, using server-authoritative
+// time. By the time a quest could actually be stale here, the last
+// load() already correctly marked it failed using server time; this
+// function is not a second, competing source of truth for that.
 function occupiesActiveSlot(quest: Quest): boolean {
   return !quest.completed && !quest.failed && !isQuestExpired(quest);
 }
@@ -80,17 +110,19 @@ function occupiesActiveSlot(quest: Quest): boolean {
 // Founder Decision (Quest recurrence chunk): a recurring series survives
 // every occurrence — completing or missing one does not end the series.
 // The next occurrence appears automatically once (a) the series' most
-// recent occurrence is resolved, (b) today is one of the series'
-// recurrenceDays, (c) no occurrence for this series already exists today
-// (idempotency — a second load the same day must not create a duplicate),
-// and (d) no other quest currently occupies the single active slot (the
-// P0 singleton constraint is global, not per-series — a recurring
-// series simply waits for its turn if the user has something else
-// active, exactly like any other commitment would).
-function nextOccurrencesToCreate(quests: Quest[], today: Date): Quest[] {
-  const todayStr = today.toISOString().split("T")[0];
-  const todayWeekday = today.getDay();
-
+// recent occurrence is resolved, (b) today (server-authoritative) is one
+// of the series' recurrenceDays, (c) no occurrence for this series
+// already exists today (idempotency — a second load the same day must
+// not create a duplicate), and (d) no other quest currently occupies the
+// single active slot (the P0 singleton constraint is global, not
+// per-series — a recurring series simply waits for its turn if the user
+// has something else active, exactly like any other commitment would).
+//
+// todayStr/todayWeekday/nowInstant are all sourced from
+// getServerLocalDate() by the caller (load(), below) — this function
+// itself has no knowledge of clocks or timezones, only calendar-date
+// comparisons, which keeps it trivially testable.
+function nextOccurrencesToCreate(quests: Quest[], todayStr: string, todayWeekday: number, nowInstant: Date): Quest[] {
   const seriesIds = Array.from(
     new Set(quests.filter((q) => q.seriesId).map((q) => q.seriesId as string)),
   );
@@ -116,7 +148,7 @@ function nextOccurrencesToCreate(quests: Quest[], today: Date): Quest[] {
         id: crypto.randomUUID(),
         completed: false,
         failed: false,
-        createdAt: today.toISOString(),
+        createdAt: nowInstant.toISOString(),
       };
       created.push(next);
       slotTaken = true;
@@ -126,7 +158,7 @@ function nextOccurrencesToCreate(quests: Quest[], today: Date): Quest[] {
   return created;
 }
 
-export function useDashboardData(userId?: string) {
+export function useDashboardData(userId?: string, timezone?: string | null) {
   const [state, setState] = useState<DashboardState>(emptyState);
   const [loading, setLoading] = useState(Boolean(userId));
   const [saving, setSaving] = useState(false);
@@ -172,7 +204,10 @@ export function useDashboardData(userId?: string) {
       if (!dbError && data) {
         const loadedQuests = Array.isArray(data.quests) ? data.quests as unknown as Quest[] : [];
         const loadedTrajectory = typeof data.trajectory === "number" ? data.trajectory : 0;
-        const now = new Date();
+        // Server-authoritative clock: never the client's own Date(). See
+        // @/lib/serverTime — this fetches the server's real UTC instant
+        // and converts it through the user's stored IANA timezone.
+        const serverLocal = await getServerLocalDate(timezone);
 
         // Sweep: any quest that is now expired-and-not-yet-marked-failed
         // gets marked failed exactly once, and trajectory moves for the
@@ -180,9 +215,9 @@ export function useDashboardData(userId?: string) {
         // write, not a derived value — see Chunk 3 report for why Chunk 2
         // deliberately deferred this exact decision until there was a
         // concrete consumer (trajectory) that needed it.
-        const toExpire = loadedQuests.filter((quest) => isQuestExpired(quest));
+        const toExpire = loadedQuests.filter((quest) => isQuestExpired(quest, serverLocal.dateStr));
         const expiredQuests = toExpire.length > 0
-          ? loadedQuests.map((quest) => isQuestExpired(quest) ? { ...quest, failed: true } : quest)
+          ? loadedQuests.map((quest) => isQuestExpired(quest, serverLocal.dateStr) ? { ...quest, failed: true } : quest)
           : loadedQuests;
         const trajectoryDelta = toExpire.filter((quest) => quest.linkedToGoal).length * -TRAJECTORY_STEP;
 
@@ -190,7 +225,7 @@ export function useDashboardData(userId?: string) {
         // whose occurrence just got swept to failed above is immediately
         // eligible to continue in this same pass if today is a
         // recurrence day, rather than waiting for a second load.
-        const toCreate = nextOccurrencesToCreate(expiredQuests, now);
+        const toCreate = nextOccurrencesToCreate(expiredQuests, serverLocal.dateStr, serverLocal.weekday, serverLocal.instant);
         const sweptQuests = toCreate.length > 0 ? [...expiredQuests, ...toCreate] : expiredQuests;
         const sweptTrajectory = loadedTrajectory + trajectoryDelta;
 
@@ -257,7 +292,7 @@ export function useDashboardData(userId?: string) {
     }
     setError(true);
     setLoading(false);
-  }, [userId]);
+  }, [userId, timezone]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -302,7 +337,7 @@ export function useDashboardData(userId?: string) {
   // explicit and user-set (Founder Decision, Quest priority chunk) — not
   // a fixed default, and not a stand-in for difficulty/duration/urgency/
   // age, which TIS does not track.
-  const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false, recurrenceDays?: number[], priority: Quest["priority"] = "Essential") => {
+  const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false, cadence: CadencePreset = "Once", customDays: number[] = [], priority: Quest["priority"] = "Essential") => {
     const trimmed = commitment.trim();
     if (!userId || writeLockRef.current || !trimmed) return { error: null };
     // P0 Decision B — one active Quest at a time. A second commitment
@@ -312,6 +347,11 @@ export function useDashboardData(userId?: string) {
     const hasActiveQuest = state.quests.some(occupiesActiveSlot);
     if (hasActiveQuest) return { error: null };
 
+    // Server-authoritative clock — see load() above for why this is
+    // never the client's Date(). Resolves both the createdAt timestamp
+    // and, for the "Weekly" preset, which weekday the series repeats on.
+    const serverLocal = await getServerLocalDate(timezone);
+    const recurrenceDays = resolveRecurrenceDays(cadence, customDays, serverLocal.weekday);
     const isRecurring = Boolean(recurrenceDays && recurrenceDays.length > 0);
     const quest: Quest = {
       id: crypto.randomUUID(),
@@ -323,7 +363,7 @@ export function useDashboardData(userId?: string) {
       linkedToGoal,
       completed: false,
       failed: false,
-      createdAt: new Date().toISOString(),
+      createdAt: serverLocal.instant.toISOString(),
       ...(isRecurring ? { seriesId: crypto.randomUUID(), recurrenceDays } : {}),
     };
 
@@ -340,7 +380,7 @@ export function useDashboardData(userId?: string) {
     writeLockRef.current = false;
     setSaving(false);
     return { error: dbError };
-  }, [load, state, userId]);
+  }, [load, state, userId, timezone]);
 
   // P0 Decision B — one active Quest at a time. `activeQuest` is that
   // Quest, if one exists (not completed, not failed, not expired). No

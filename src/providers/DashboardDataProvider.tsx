@@ -19,11 +19,12 @@ const DashboardDataContext = createContext<DashboardDataContextValue | null>(nul
 
 interface DashboardDataProviderProps {
   userId?: string;
+  timezone?: string | null;
   children: ReactNode;
 }
 
-export function DashboardDataProvider({ userId, children }: DashboardDataProviderProps) {
-  const value = useDashboardData(userId);
+export function DashboardDataProvider({ userId, timezone, children }: DashboardDataProviderProps) {
+  const value = useDashboardData(userId, timezone);
   return (
     <DashboardDataContext.Provider value={value}>
       {children}
