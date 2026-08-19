@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
@@ -32,6 +32,12 @@ export function QuestCard({ quest, completing, onComplete }: QuestCardProps) {
         <h3 className="mt-2 text-lg font-semibold tracking-tight text-foreground">
           {quest.title}
         </h3>
+        {quest.linkedToGoal && quest.goalName && (
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Target className="size-3.5 shrink-0" aria-hidden="true" />
+            Supports: {quest.goalName}
+          </p>
+        )}
       </div>
 
       {quest.completed ? (

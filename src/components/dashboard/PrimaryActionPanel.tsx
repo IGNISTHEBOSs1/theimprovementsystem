@@ -1,4 +1,4 @@
-import { Check, ChevronRight, CircleDot } from "lucide-react";
+import { Check, ChevronRight, CircleDot, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
@@ -42,6 +42,12 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
           <h2 id="focus-heading" className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
             {quest.title}
           </h2>
+          {quest.linkedToGoal && quest.goalName && (
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Target className="size-3.5 shrink-0" aria-hidden="true" />
+              Supports: {quest.goalName}
+            </p>
+          )}
           <p className="mt-2 text-sm text-muted-foreground">
             One clear step is enough. Start there.
           </p>

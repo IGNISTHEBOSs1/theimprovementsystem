@@ -66,7 +66,10 @@ export default function Quests() {
 
   const handleCommit = async (commitment: string, linkedToGoal: boolean, cadence: CadencePreset, customDays: number[], priority: QuestPriority) => {
     setCommitError(false);
-    const { error: commitErr } = await commitToTodaysQuest(commitment, linkedToGoal, cadence, customDays, priority);
+    const { error: commitErr } = await commitToTodaysQuest(
+      commitment, linkedToGoal, cadence, customDays, priority,
+      linkedToGoal ? profile?.primary_goal ?? undefined : undefined,
+    );
     if (commitErr) {
       setCommitError(true);
     } else {
@@ -117,39 +120,8 @@ export default function Quests() {
           </section>
         ) : (
           <>
-            {/* P0 Decision B — one active Quest at a time. New Commitment
-                is only offered when none is currently active; completion
-                or expiry clears it, and this reappears. */}
-            {!activeQuest && (
-              <>
-                {showCommitForm ? (
-                  <>
-                    <TodaysCommitment
-                      committing={saving}
-                      onCommit={handleCommit}
-                      goalLabel={profile?.primary_goal ?? undefined}
-                    />
-                    {commitError && (
-                      <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
-                        That didn't go through. You can try again.
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <Button
-                    size="lg"
-                    className="min-h-11"
-                    onClick={() => setShowCommitForm(true)}
-                  >
-                    <Plus className="size-4" aria-hidden="true" />
-                    New Commitment
-                  </Button>
-                )}
-              </>
-            )}
-
             {activeQuest && (
-              <div className="mt-6">
+              <div>
                 <ul className="space-y-3">
                   <QuestCard
                     key={activeQuest.id}
@@ -165,6 +137,44 @@ export default function Quests() {
                 )}
               </div>
             )}
+
+            {/* P0 Decision B — one active Quest at a time. The option to
+                add another commitment stays visible even after one is
+                active, rather than disappearing entirely — it's just
+                disabled, with the reason stated, until the current one
+                resolves. */}
+            <div className={activeQuest ? "mt-6" : undefined}>
+              {showCommitForm && !activeQuest ? (
+                <>
+                  <TodaysCommitment
+                    committing={saving}
+                    onCommit={handleCommit}
+                    goalLabel={profile?.primary_goal ?? undefined}
+                  />
+                  {commitError && (
+                    <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
+                      That didn't go through. You can try again.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <Button
+                  size="lg"
+                  className="min-h-11"
+                  disabled={Boolean(activeQuest)}
+                  onClick={() => setShowCommitForm(true)}
+                  title={activeQuest ? "Complete your current quest first" : undefined}
+                >
+                  <Plus className="size-4" aria-hidden="true" />
+                  New Commitment
+                </Button>
+              )}
+              {activeQuest && (
+                <p className="mt-2 text-body-sm text-muted-foreground">
+                  Complete your current quest to add another.
+                </p>
+              )}
+            </div>
 
             {upcoming.length > 0 && serverLocal && (
               <div className="mt-10">

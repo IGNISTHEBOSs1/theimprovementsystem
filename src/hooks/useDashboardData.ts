@@ -337,7 +337,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
   // explicit and user-set (Founder Decision, Quest priority chunk) — not
   // a fixed default, and not a stand-in for difficulty/duration/urgency/
   // age, which TIS does not track.
-  const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false, cadence: CadencePreset = "Once", customDays: number[] = [], priority: Quest["priority"] = "Essential") => {
+  const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false, cadence: CadencePreset = "Once", customDays: number[] = [], priority: Quest["priority"] = "Essential", goalName?: string) => {
     const trimmed = commitment.trim();
     if (!userId || writeLockRef.current || !trimmed) return { error: null };
     // P0 Decision B — one active Quest at a time. A second commitment
@@ -361,6 +361,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
       creditReward: 10,
       timeFrame: "Today",
       linkedToGoal,
+      ...(linkedToGoal && goalName ? { goalName } : {}),
       completed: false,
       failed: false,
       createdAt: serverLocal.instant.toISOString(),

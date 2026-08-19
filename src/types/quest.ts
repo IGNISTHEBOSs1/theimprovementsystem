@@ -25,6 +25,12 @@ export interface Quest {
   // inferred from title/content — set only when the user checks the box
   // at commit time. Absent/false means "not goal-aligned," not "unknown."
   linkedToGoal?: boolean;
+  // Snapshot of the goal's text at the moment this Quest was linked to
+  // it — not a live lookup of the account's current primary_goal. If the
+  // user later changes their goal, this Quest (and its History entry)
+  // still correctly shows what it was actually committed in support of.
+  // Present only when linkedToGoal is true.
+  goalName?: string;
   completed: boolean;
   failed: boolean;
   createdAt: string;
