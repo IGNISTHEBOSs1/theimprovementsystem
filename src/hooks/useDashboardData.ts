@@ -94,17 +94,26 @@ export function isQuestExpired(quest: Quest, today = new Date().toISOString().sp
 }
 
 // A quest occupies the single active slot if it's neither resolved nor
-// expired. Shared by the singleton-commit guard and the recurrence
-// continuation check below — same definition, one place. Uses
-// isQuestExpired's client-time fallback deliberately: this is a
-// same-session synchronous UI guard (preventing a double-submit within
-// one render), not the persisted expiry decision — that decision is made
-// exclusively inside load()'s sweep below, using server-authoritative
-// time. By the time a quest could actually be stale here, the last
-// load() already correctly marked it failed using server time; this
-// function is not a second, competing source of truth for that.
-function occupiesActiveSlot(quest: Quest): boolean {
-  return !quest.completed && !quest.failed && !isQuestExpired(quest);
+// expired. Shared by the singleton-commit guard, the recurrence
+// continuation check, and `activeQuest` below — same definition, one
+// place.
+//
+// `today` is REQUIRED, not defaulted, and must always be the caller's
+// server-authoritative, user-timezone calendar date (serverLocal.dateStr).
+// Root-cause bug fixed here: this function previously called
+// isQuestExpired(quest) with no date, silently falling back to
+// isQuestExpired's own default — the client's UTC calendar day. createdAt
+// is stored as a UTC instant, so comparing its UTC date against a UTC
+// "today" instead of the user's local "today" diverges for any non-UTC
+// timezone (e.g. IST, UTC+5:30, where the UTC day rolls over at 5:30am
+// local time, not local midnight). `activeQuest` (below) is recomputed on
+// every render, not just once right after load() — so unlike a one-time
+// post-load check, this WAS a second, continuously-reevaluated
+// competing definition of "today," and a just-created recurring
+// continuation (correctly dated via serverLocal in the sweep) could stop
+// registering as active hours before the user's actual local day ended.
+function occupiesActiveSlot(quest: Quest, today: string): boolean {
+  return !quest.completed && !quest.failed && !isQuestExpired(quest, today);
 }
 
 // Founder Decision (Quest recurrence chunk): a recurring series survives
@@ -128,7 +137,7 @@ function nextOccurrencesToCreate(quests: Quest[], todayStr: string, todayWeekday
   );
 
   const created: Quest[] = [];
-  let slotTaken = quests.some(occupiesActiveSlot);
+  let slotTaken = quests.some((q) => occupiesActiveSlot(q, todayStr));
 
   for (const seriesId of seriesIds) {
     if (slotTaken) break;
@@ -160,6 +169,15 @@ function nextOccurrencesToCreate(quests: Quest[], todayStr: string, todayWeekday
 
 export function useDashboardData(userId?: string, timezone?: string | null) {
   const [state, setState] = useState<DashboardState>(emptyState);
+  // The user's server-authoritative local calendar date, as of the last
+  // successful load() — the same value load()'s own sweep already
+  // computes via getServerLocalDate(timezone). `activeQuest` (below) is a
+  // synchronous value re-derived on every render, so it cannot call the
+  // async RPC itself; this is the one place that value is cached for it
+  // to reuse, rather than activeQuest falling back to a client-clock
+  // default (see occupiesActiveSlot). Null only before the first load
+  // resolves, when state.quests is empty anyway.
+  const [todayStr, setTodayStr] = useState<string | null>(null);
   const [loading, setLoading] = useState(Boolean(userId));
   const [saving, setSaving] = useState(false);
   // Synchronous re-entrancy guard for the three write functions below.
@@ -208,6 +226,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
         // @/lib/serverTime — this fetches the server's real UTC instant
         // and converts it through the user's stored IANA timezone.
         const serverLocal = await getServerLocalDate(timezone);
+        setTodayStr(serverLocal.dateStr);
 
         // Sweep: any quest that is now expired-and-not-yet-marked-failed
         // gets marked failed exactly once, and trajectory moves for the
@@ -340,17 +359,22 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
   const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false, cadence: CadencePreset = "Once", customDays: number[] = [], priority: Quest["priority"] = "Essential", goalName?: string) => {
     const trimmed = commitment.trim();
     if (!userId || writeLockRef.current || !trimmed) return { error: null };
+    // Server-authoritative clock — see load() above for why this is
+    // never the client's Date(). Fetched before the active-slot guard
+    // below (not after, as this previously read) so that guard uses the
+    // same user-timezone "today" as everything else, rather than
+    // occupiesActiveSlot's UTC fallback — see occupiesActiveSlot's
+    // comment for why that previously diverged from the user's actual
+    // local calendar day.
+    const serverLocal = await getServerLocalDate(timezone);
+
     // P0 Decision B — one active Quest at a time. A second commitment
     // cannot be made while one is already active; the caller (Quests.tsx)
     // shouldn't offer the option in this state, but this guard is the
     // actual enforcement, not the UI.
-    const hasActiveQuest = state.quests.some(occupiesActiveSlot);
+    const hasActiveQuest = state.quests.some((q) => occupiesActiveSlot(q, serverLocal.dateStr));
     if (hasActiveQuest) return { error: null };
 
-    // Server-authoritative clock — see load() above for why this is
-    // never the client's Date(). Resolves both the createdAt timestamp
-    // and, for the "Weekly" preset, which weekday the series repeats on.
-    const serverLocal = await getServerLocalDate(timezone);
     const recurrenceDays = resolveRecurrenceDays(cadence, customDays, serverLocal.weekday);
     const isRecurring = Boolean(recurrenceDays && recurrenceDays.length > 0);
     const quest: Quest = {
@@ -386,7 +410,13 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
   // P0 Decision B — one active Quest at a time. `activeQuest` is that
   // Quest, if one exists (not completed, not failed, not expired). No
   // selection/ranking logic — there is nothing to choose among.
-  const activeQuest = state.quests.find(occupiesActiveSlot);
+  // Uses the cached server-local `todayStr` (see above), not a client
+  // clock default — this is the fix for the reported bug: a recurring
+  // Quest's continuation was created correctly against the user's local
+  // calendar day, but this line previously re-checked expiry against the
+  // client's UTC day on every render, causing it to silently stop
+  // showing as active before the user's actual local day was over.
+  const activeQuest = todayStr ? state.quests.find((q) => occupiesActiveSlot(q, todayStr)) : undefined;
 
   return {
     state, loading, error, saving, activeQuest, completeQuest, commitToTodaysQuest, reload: load,
