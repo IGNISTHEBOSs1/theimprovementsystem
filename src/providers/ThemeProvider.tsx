@@ -358,12 +358,20 @@ export function ThemeProvider({
 
   const setTheme = useCallback((next: ThemeName) => {
     setThemeState(next);
-    try { localStorage.setItem(STORAGE_KEY_THEME, next); } catch {}
+    try {
+      localStorage.setItem(STORAGE_KEY_THEME, next);
+    } catch {
+      // The in-memory theme remains usable when storage is unavailable.
+    }
   }, []);
 
   const setMode = useCallback((next: ThemeMode) => {
     setModeState(next);
-    try { localStorage.setItem(STORAGE_KEY_MODE, next); } catch {}
+    try {
+      localStorage.setItem(STORAGE_KEY_MODE, next);
+    } catch {
+      // The in-memory mode remains usable when storage is unavailable.
+    }
   }, []);
 
   return (

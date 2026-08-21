@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 const SOUND_KEY = 'system-sound-enabled';
+type AudioContextWindow = Window & typeof globalThis & {
+  webkitAudioContext?: typeof AudioContext;
+};
 
 export const useSoundEffects = () => {
   const [soundEnabled, setSoundEnabled] = useState(() => {
@@ -16,7 +19,12 @@ export const useSoundEffects = () => {
 
   const getAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextConstructor = window.AudioContext
+        || (window as AudioContextWindow).webkitAudioContext;
+      if (!AudioContextConstructor) {
+        throw new Error('Web Audio is not supported in this browser.');
+      }
+      audioContextRef.current = new AudioContextConstructor();
     }
     return audioContextRef.current;
   }, []);
