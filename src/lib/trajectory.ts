@@ -30,13 +30,40 @@ export interface TrajectoryResult {
   currentPosition: number;
 }
 
-const EVIDENCE_STEP = 1;
+export interface GoalStats {
+  // Every Quest ever linked to the current primary goal, regardless of
+  // resolution state — includes still-active ones. Distinct from
+  // trajectory's "evidence," which is resolved-only.
+  linked: number;
+  completed: number;
+  failed: number;
+}
+
+// Founder Decision (Goal→Quest→Outcome chunk): a small, honestly-derived
+// summary of what a goal has actually gotten from the user — same
+// no-fabrication rule as deriveTrajectory: only counts real linkedToGoal
+// Quests, nothing inferred or estimated. Deliberately does not filter by
+// which goal's name matches goalName — every Quest's goalName is a
+// snapshot of whatever the primary goal was when it was linked (see
+// Quest.goalName), so this reflects the account's full linked history,
+// not just Quests linked to today's exact goal text. That mirrors how
+// Journey's trajectory already treats goal-linked evidence.
+export function deriveGoalStats(quests: Quest[]): GoalStats {
+  const linkedQuests = quests.filter((q) => q.linkedToGoal);
+  return {
+    linked: linkedQuests.length,
+    completed: linkedQuests.filter((q) => q.completed).length,
+    failed: linkedQuests.filter((q) => q.failed).length,
+  };
+}
 
 // Deterministic, evidence-based, single implicit dimension ("progress
 // toward the current Goal") for v1 — see the inspection report for why a
 // separate evidence table / goals table / multidimensional model is not
 // introduced here. Pure function: same quests array in, same result out,
 // every time. No AI, no external state, no randomness.
+const EVIDENCE_STEP = 1;
+
 export function deriveTrajectory(quests: Quest[]): TrajectoryResult {
   // Evidence rule, exactly as specified: linkedToGoal === true AND
   // (completed === true OR failed === true). A Quest that is merely

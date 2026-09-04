@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,21 +8,51 @@ import { TodaysCommitment } from "@/components/quests/TodaysCommitment";
 import { QuestCard } from "@/components/quests/QuestCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
-import { nextEligibleDayLabel, type CadencePreset } from "@/hooks/useDashboardData";
+import { nextEligibleDayLabel, MAX_ACTIVE_QUESTS, type CadencePreset } from "@/hooks/useDashboardData";
 import { getServerLocalDate, type ServerLocalDate } from "@/lib/serverTime";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import type { Quest, QuestPriority } from "@/types/quest";
 
+interface RecommitPrefill {
+  title: string;
+  priority: QuestPriority;
+  linkedToGoal: boolean;
+}
+
 export default function Quests() {
   const { profile } = useAuth();
-  const { state, loading, error, saving, activeQuest, completeQuest, commitToTodaysQuest, reload } = useDashboardDataContext();
+  const { state, loading, error, saving, activeQuests, completeQuest, cancelQuest, commitToTodaysQuest, reload } = useDashboardDataContext();
   const [commitError, setCommitError] = useState(false);
   const [completeError, setCompleteError] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState(false);
   // Founder Decision (Quest defaults chunk): commitment is centered on an
   // explicit "+ New Commitment" entry point rather than an
   // always-visible form. Tapping it, typing, and tapping Commit is the
   // whole normal path — still well inside the 1-3 interaction budget.
-  const [showCommitForm, setShowCommitForm] = useState(false);
+  //
+  // Founder Decision (Recovery/Guidance chunk): arriving here via a
+  // Dashboard recommit action (see Dashboard.tsx handleRecommit) opens
+  // the form pre-populated, rather than making the user retype a
+  // commitment they already made once and just missed. history.state is
+  // read once on mount and immediately replaced (see effect below) so a
+  // browser back-navigation to this page doesn't silently re-prefill.
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [recommitPrefill] = useState<RecommitPrefill | undefined>(
+    () => (location.state as { prefill?: RecommitPrefill } | null)?.prefill,
+  );
+  const [showCommitForm, setShowCommitForm] = useState(Boolean(recommitPrefill));
+
+  useEffect(() => {
+    if (recommitPrefill) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+    // Intentionally runs once on mount only — consumes the navigation
+    // state exactly once, regardless of later location/navigate identity
+    // changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Server-authoritative "today", fetched once per page visit — used
   // only for the read-only Upcoming display below (which day a dormant
@@ -83,6 +114,21 @@ export default function Quests() {
     if (completeErr) setCompleteError(true);
   };
 
+  // Founder Decision (Cancel/abandon chunk): a native confirm() rather
+  // than a custom dialog component — this app has no existing modal
+  // primitive, and building one is UI surface this chunk doesn't
+  // authorize. Cancellation is also irreversible (the Quest record is
+  // removed, not marked), so a confirmation step matters even in its
+  // simplest form.
+  const handleCancel = async (questId: string) => {
+    if (!window.confirm("Cancel this commitment? This can't be undone.")) return;
+    setCancelError(false);
+    setCancelling(true);
+    const { error: cancelErr } = await cancelQuest(questId);
+    setCancelling(false);
+    if (cancelErr) setCancelError(true);
+  };
+
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
       <PageHeader
@@ -120,17 +166,26 @@ export default function Quests() {
           </section>
         ) : (
           <>
-            {activeQuest && (
+            {activeQuests.length > 0 && (
               <div>
                 <ul className="space-y-3">
-                  <QuestCard
-                    key={activeQuest.id}
-                    quest={activeQuest}
-                    completing={saving}
-                    onComplete={handleComplete}
-                  />
+                  {activeQuests.map((quest) => (
+                    <QuestCard
+                      key={quest.id}
+                      quest={quest}
+                      completing={saving}
+                      onComplete={handleComplete}
+                      onCancel={handleCancel}
+                      cancelling={cancelling}
+                    />
+                  ))}
                 </ul>
                 {completeError && (
+                  <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
+                    That didn't go through. You can try again.
+                  </p>
+                )}
+                {cancelError && (
                   <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
                     That didn't go through. You can try again.
                   </p>
@@ -138,18 +193,20 @@ export default function Quests() {
               </div>
             )}
 
-            {/* P0 Decision B — one active Quest at a time. The option to
-                add another commitment stays visible even after one is
-                active, rather than disappearing entirely — it's just
-                disabled, with the reason stated, until the current one
-                resolves. */}
-            <div className={activeQuest ? "mt-6" : undefined}>
-              {showCommitForm && !activeQuest ? (
+            {/* Founder Decision (multi-active Quest chunk): up to
+                MAX_ACTIVE_QUESTS Quests may be active at once. The option
+                to add another commitment stays visible at all times — it's
+                only disabled once the cap is reached, with the reason
+                stated, rather than disappearing or gating on a single
+                existing Quest as it previously did. */}
+            <div className={activeQuests.length > 0 ? "mt-6" : undefined}>
+              {showCommitForm ? (
                 <>
                   <TodaysCommitment
                     committing={saving}
                     onCommit={handleCommit}
                     goalLabel={profile?.primary_goal ?? undefined}
+                    initialValues={recommitPrefill}
                   />
                   {commitError && (
                     <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
@@ -161,17 +218,17 @@ export default function Quests() {
                 <Button
                   size="lg"
                   className="min-h-11"
-                  disabled={Boolean(activeQuest)}
+                  disabled={activeQuests.length >= MAX_ACTIVE_QUESTS}
                   onClick={() => setShowCommitForm(true)}
-                  title={activeQuest ? "Complete your current quest first" : undefined}
+                  title={activeQuests.length >= MAX_ACTIVE_QUESTS ? `You can have up to ${MAX_ACTIVE_QUESTS} active quests at a time` : undefined}
                 >
                   <Plus className="size-4" aria-hidden="true" />
                   New Commitment
                 </Button>
               )}
-              {activeQuest && (
+              {activeQuests.length >= MAX_ACTIVE_QUESTS && (
                 <p className="mt-2 text-body-sm text-muted-foreground">
-                  Complete your current quest to add another.
+                  You've reached the limit of {MAX_ACTIVE_QUESTS} active quests. Complete one to add another.
                 </p>
               )}
             </div>

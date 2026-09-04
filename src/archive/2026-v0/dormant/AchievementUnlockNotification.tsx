@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Achievement } from '@/hooks/useAchievements';
+import { Achievement } from './useAchievements';
 import { Trophy, X } from 'lucide-react';
 
 interface AchievementUnlockNotificationProps {

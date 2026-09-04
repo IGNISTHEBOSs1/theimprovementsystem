@@ -1,26 +1,27 @@
-import type { PlayerStats } from '@/lib/attributes';
-
 // Founder Decision (Quest priority chunk): priority is NOT difficulty,
 // duration, urgency, XP, or age — it represents how important completing
 // this Quest is to the user's intended improvement. Explicit and stable;
-// never computed, decayed, or AI-assigned. Only one Quest may be
-// Essential at a time — today this is automatically satisfied by the
-// pre-existing single-active-Quest constraint (there is never more than
-// one Quest "in flight" to begin with), not by any separate enforcement
-// logic here. If a future decision introduces multiple concurrently
-// committed Quests, this cap would need real enforcement at that point —
-// not invented speculatively now.
+// never computed, decayed, or AI-assigned.
+//
+// Founder Decision (multi-active Quest chunk): multiple Quests may now be
+// Essential simultaneously — the earlier one-Essential-at-a-time note here
+// described an emergent side effect of the old single-active-Quest
+// constraint, not a real rule, and no longer applies now that constraint
+// is gone. Priority governs ordering only (see PRIORITY_RANK in
+// lib/priority.ts): which active Quest is the Dashboard's primary focus,
+// and display order elsewhere. It does not gate how many Quests may share
+// a priority value.
 export type QuestPriority = 'Essential' | 'Important' | 'Optional';
 
 export interface Quest {
   id: string;
   title: string;
   priority: QuestPriority;
-  xpReward: number;
-  creditReward: number;
   timeFrame: string;
   scheduledFor?: string;
-  statCategory?: keyof PlayerStats;
+  // Founder Decision (RPG removal chunk): statCategory (an RPG attribute-
+  // category tag, keyof the now-archived PlayerStats) removed — zero live
+  // consumers found; same vestigial-field class as xpReward/creditReward.
   // Explicit, user-set linkage to the account's single primary goal. Never
   // inferred from title/content — set only when the user checks the box
   // at commit time. Absent/false means "not goal-aligned," not "unknown."

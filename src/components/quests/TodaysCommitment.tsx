@@ -23,6 +23,13 @@ interface TodaysCommitmentProps {
   // there's nothing to link to, and linkedToGoal is never inferred from
   // the commitment text.
   goalLabel?: string;
+  // Founder Decision (Recovery/Guidance chunk): pre-fills the form from a
+  // previously missed one-shot Quest the user chose to recommit to (see
+  // RecoveryState/Dashboard's handleRecommit). Still requires the user to
+  // press Commit — nothing is auto-submitted, preserving the same
+  // deliberate-commitment principle as manual entry. Absent for the
+  // normal empty-form path.
+  initialValues?: { title: string; priority: QuestPriority; linkedToGoal: boolean };
 }
 
 // Milestone 2 - First Mission. This is not a "create Quest" form. It is
@@ -45,13 +52,13 @@ interface TodaysCommitmentProps {
 // useDashboardData.commitToTodaysQuest, the one place that has
 // server-authoritative "today" available, so "Weekly" is never resolved
 // against the client's own clock.
-export function TodaysCommitment({ committing, onCommit, goalLabel }: TodaysCommitmentProps) {
-  const [commitment, setCommitment] = useState("");
-  const [linkedToGoal, setLinkedToGoal] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
+export function TodaysCommitment({ committing, onCommit, goalLabel, initialValues }: TodaysCommitmentProps) {
+  const [commitment, setCommitment] = useState(initialValues?.title ?? "");
+  const [linkedToGoal, setLinkedToGoal] = useState(initialValues?.linkedToGoal ?? false);
+  const [showOptions, setShowOptions] = useState(Boolean(initialValues && initialValues.priority !== DEFAULT_PRIORITY));
   const [cadence, setCadence] = useState<CadencePreset>(DEFAULT_CADENCE);
   const [customDays, setCustomDays] = useState<number[]>([]);
-  const [priority, setPriority] = useState<QuestPriority>(DEFAULT_PRIORITY);
+  const [priority, setPriority] = useState<QuestPriority>(initialValues?.priority ?? DEFAULT_PRIORITY);
 
   const toggleCustomDay = (day: number) => {
     setCustomDays((prev) => prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort());

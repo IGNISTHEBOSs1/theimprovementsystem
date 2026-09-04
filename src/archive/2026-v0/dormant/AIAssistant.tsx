@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { GameState } from '@/hooks/useGameState';
+import { GameState } from './useGameState';
 import ReactMarkdown from 'react-markdown';
 import { toast } from 'sonner';
 import { z } from 'zod';

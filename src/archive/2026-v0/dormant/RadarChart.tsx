@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
-import { PlayerStats } from '@/hooks/useGameState';
+import { PlayerStats } from './useGameState';
 import { Button } from '@/components/ui/button';
 import { Timer, Clock, Calendar, CalendarDays, Infinity } from 'lucide-react';
 

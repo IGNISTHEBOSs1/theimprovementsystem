@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { GameState } from '@/hooks/useGameState';
-import { Achievement } from '@/hooks/useAchievements';
+import { GameState } from './useGameState';
+import { Achievement } from './useAchievements';
 import { AVATAR_OPTIONS } from './EditProfileModal';
 import { Trophy, Flame, Sword, Shield, Star, Crown, Zap, Target, Lock, CheckCircle2 } from 'lucide-react';
 import { RadarChartComponent } from './RadarChart';

@@ -5,23 +5,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  {
-    ignores: [
-      "dist",
-      "node_modules",
-      "src/archive/**",
-      "src/pages/Index_old.tsx",
-      "src/hooks/useAchievements.ts",
-      "src/hooks/useAutoGenerateTasks.ts",
-      "src/hooks/useCloudSync.ts",
-      "src/hooks/useDailyLoginBonus.ts",
-      "src/hooks/useGameState.ts",
-      "src/hooks/useJustLeveledUp.ts",
-      "src/hooks/usePomodoroTimer.tsx",
-      "src/hooks/useTimezone.ts",
-      "supabase/functions/**",
-    ],
-  },
+  { ignores: ["dist"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

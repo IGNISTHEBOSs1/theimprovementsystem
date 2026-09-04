@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Achievement } from '@/hooks/useAchievements';
+import { Achievement } from './useAchievements';
 import { AchievementDetailModal } from './AchievementDetailModal';
 import { Trophy, Lock, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';

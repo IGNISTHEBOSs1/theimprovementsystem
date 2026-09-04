@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Check, X, Clock, Coins, Zap } from 'lucide-react';
-import { Quest } from '@/hooks/useGameState';
+import { Quest } from './useGameState';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 

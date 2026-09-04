@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Target, Check, X } from "lucide-react";
 import type { TrajectoryResult, TrajectoryPoint } from "@/lib/trajectory";
+import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 
 interface TrajectoryChartProps {
   trajectory: TrajectoryResult;
@@ -166,7 +167,12 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
             <X className="size-4 shrink-0 text-destructive" aria-hidden="true" />
           )}
           <div>
-            <p className="font-medium text-foreground">{selected.quest.title}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="font-medium text-foreground">{selected.quest.title}</p>
+              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${PRIORITY_BADGE_CLASSES[selected.quest.priority]}`}>
+                {selected.quest.priority}
+              </span>
+            </div>
             <p className="text-muted-foreground">
               {selected.outcome === "completed" ? "Completed" : "Not completed"} — {selected.timestamp.split("T")[0]}
               {selected.quest.goalName ? ` — supported "${selected.quest.goalName}"` : ""}

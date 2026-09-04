@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Habit } from '@/hooks/useGameState';
+import { Habit } from './useGameState';
 import { cn } from '@/lib/utils';
 import { Flame, Zap, TrendingUp } from 'lucide-react';
 

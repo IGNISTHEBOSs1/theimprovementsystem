@@ -1,41 +1,38 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Quest } from "@/types/quest";
-import { PlayerStats } from "@/lib/attributes";
 import { Json } from "@/integrations/supabase/types";
 import { getServerLocalDate } from "@/lib/serverTime";
+import { comparePriorityThenCreatedAt } from "@/lib/priority";
 
+// Founder Decision (multi-active Quest chunk): the account may have
+// multiple Quests active simultaneously (replacing the earlier
+// single-active-Quest constraint), capped here to prevent the Quest page
+// from becoming an unbounded todo list. Deliberately a plain constant —
+// not a setting, not per-priority-tier, not derived from anything.
+export const MAX_ACTIVE_QUESTS = 5;
+
+// Founder Decision (RPG removal / Trajectory finalization chunk):
+// DashboardState no longer carries level, currentXp, maxXp, credits,
+// totalQuestsCompleted, stats, or a persisted trajectory scalar. All were
+// RPG-era or RPG-adjacent: level/XP/credits/stats had zero live
+// consumers (confirmed — the one component that read them,
+// QuietProgress, was itself dead code, never mounted); the persisted
+// `trajectory` scalar duplicated what lib/trajectory.ts's
+// deriveTrajectory() already computes correctly from `quests` alone,
+// and was flagged as an unresolved dual-representation since the Journey
+// chunk. Trajectory is now derived-only — there is exactly one
+// implementation of "what is the user's trajectory," not two that could
+// silently disagree. The DB columns themselves are left in place (no
+// migration) per "prefer existing data structures before introducing
+// migrations" — the app simply no longer selects, writes, or trusts them.
 export interface DashboardState {
-  level: number;
-  currentXp: number;
-  maxXp: number;
-  credits: number;
-  totalQuestsCompleted: number;
   quests: Quest[];
-  stats: PlayerStats;
-  // Single running counter representing movement relative to the user's
-  // primary goal. Only goal-linked quests affect it — see Chunk 3 report.
-  // Not a score, not gamified further (no multipliers, no decay curve).
-  trajectory: number;
 }
 
 const emptyState: DashboardState = {
-  level: 1,
-  currentXp: 0,
-  maxXp: 1000,
-  credits: 0,
-  totalQuestsCompleted: 0,
   quests: [],
-  stats: { FIT: 50, SOC: 50, INT: 50, DIS: 50, FOC: 50, FIN: 50 },
-  trajectory: 0,
 };
-
-// Chosen default, not a derived constant — flagged in the Chunk 3 report
-// for founder review. Symmetric (+1 on completing a goal-linked quest,
-// -1 on one expiring) specifically to avoid trajectory reading as a
-// punishment system: a miss costs exactly what a completion is worth,
-// nothing more.
-const TRAJECTORY_STEP = 1;
 
 // Founder Decision (Quest cadence chunk): recurrence is chosen as one of
 // six named presets. Resolution happens here (hook level), not in the UI
@@ -93,10 +90,10 @@ export function isQuestExpired(quest: Quest, today = new Date().toISOString().sp
   return quest.createdAt.split("T")[0] !== today;
 }
 
-// A quest occupies the single active slot if it's neither resolved nor
-// expired. Shared by the singleton-commit guard, the recurrence
-// continuation check, and `activeQuest` below — same definition, one
-// place.
+// True if this Quest currently counts toward the account's active-Quest
+// capacity: neither resolved (completed/failed) nor expired. Shared by
+// the commit-time capacity guard, the recurrence continuation check, and
+// `activeQuests` below — same definition, one place.
 //
 // `today` is REQUIRED, not defaulted, and must always be the caller's
 // server-authoritative, user-timezone calendar date (serverLocal.dateStr).
@@ -106,12 +103,12 @@ export function isQuestExpired(quest: Quest, today = new Date().toISOString().sp
 // is stored as a UTC instant, so comparing its UTC date against a UTC
 // "today" instead of the user's local "today" diverges for any non-UTC
 // timezone (e.g. IST, UTC+5:30, where the UTC day rolls over at 5:30am
-// local time, not local midnight). `activeQuest` (below) is recomputed on
+// local time, not local midnight). `activeQuests` (below) is recomputed on
 // every render, not just once right after load() — so unlike a one-time
 // post-load check, this WAS a second, continuously-reevaluated
 // competing definition of "today," and a just-created recurring
 // continuation (correctly dated via serverLocal in the sweep) could stop
-// registering as active hours before the user's actual local day ended.
+// counting as active hours before the user's actual local day ended.
 function occupiesActiveSlot(quest: Quest, today: string): boolean {
   return !quest.completed && !quest.failed && !isQuestExpired(quest, today);
 }
@@ -122,10 +119,15 @@ function occupiesActiveSlot(quest: Quest, today: string): boolean {
 // recent occurrence is resolved, (b) today (server-authoritative) is one
 // of the series' recurrenceDays, (c) no occurrence for this series
 // already exists today (idempotency — a second load the same day must
-// not create a duplicate), and (d) no other quest currently occupies the
-// single active slot (the P0 singleton constraint is global, not
-// per-series — a recurring series simply waits for its turn if the user
-// has something else active, exactly like any other commitment would).
+// not create a duplicate), and (d) the account has not reached
+// MAX_ACTIVE_QUESTS active Quests.
+//
+// Founder Decision (multi-active Quest chunk): the single-active-Quest
+// constraint this originally deferred to is gone. This now fills
+// available active-Quest capacity across ALL eligible series in one
+// sweep (previously: at most one continuation per sweep, globally, across
+// every series) — a recurring series no longer silently waits behind an
+// unrelated active Quest once room exists.
 //
 // todayStr/todayWeekday/nowInstant are all sourced from
 // getServerLocalDate() by the caller (load(), below) — this function
@@ -137,10 +139,10 @@ function nextOccurrencesToCreate(quests: Quest[], todayStr: string, todayWeekday
   );
 
   const created: Quest[] = [];
-  let slotTaken = quests.some((q) => occupiesActiveSlot(q, todayStr));
+  let activeCount = quests.filter((q) => occupiesActiveSlot(q, todayStr)).length;
 
   for (const seriesId of seriesIds) {
-    if (slotTaken) break;
+    if (activeCount >= MAX_ACTIVE_QUESTS) break;
 
     const occurrences = quests.filter((q) => q.seriesId === seriesId);
     const mostRecent = occurrences.reduce((latest, q) =>
@@ -160,7 +162,7 @@ function nextOccurrencesToCreate(quests: Quest[], todayStr: string, todayWeekday
         createdAt: nowInstant.toISOString(),
       };
       created.push(next);
-      slotTaken = true;
+      activeCount += 1;
     }
   }
 
@@ -171,10 +173,10 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
   const [state, setState] = useState<DashboardState>(emptyState);
   // The user's server-authoritative local calendar date, as of the last
   // successful load() — the same value load()'s own sweep already
-  // computes via getServerLocalDate(timezone). `activeQuest` (below) is a
+  // computes via getServerLocalDate(timezone). `activeQuests` (below) is a
   // synchronous value re-derived on every render, so it cannot call the
   // async RPC itself; this is the one place that value is cached for it
-  // to reuse, rather than activeQuest falling back to a client-clock
+  // to reuse, rather than activeQuests falling back to a client-clock
   // default (see occupiesActiveSlot). Null only before the first load
   // resolves, when state.quests is empty anyway.
   const [todayStr, setTodayStr] = useState<string | null>(null);
@@ -215,13 +217,12 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     for (let attempt = 0; attempt < attempts; attempt++) {
       const { data, error: dbError } = await supabase
         .from("game_state")
-        .select("level, current_xp, max_xp, credits, total_quests_completed, quests, stats, trajectory")
+        .select("quests")
         .eq("user_id", userId)
         .maybeSingle();
 
       if (!dbError && data) {
         const loadedQuests = Array.isArray(data.quests) ? data.quests as unknown as Quest[] : [];
-        const loadedTrajectory = typeof data.trajectory === "number" ? data.trajectory : 0;
         // Server-authoritative clock: never the client's own Date(). See
         // @/lib/serverTime — this fetches the server's real UTC instant
         // and converts it through the user's stored IANA timezone.
@@ -229,16 +230,15 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
         setTodayStr(serverLocal.dateStr);
 
         // Sweep: any quest that is now expired-and-not-yet-marked-failed
-        // gets marked failed exactly once, and trajectory moves for the
-        // ones that were linked to the goal. This is a real, persisted
-        // write, not a derived value — see Chunk 3 report for why Chunk 2
-        // deliberately deferred this exact decision until there was a
-        // concrete consumer (trajectory) that needed it.
+        // gets marked failed exactly once. This is a real, persisted
+        // write, not a derived value — Trajectory itself is derived
+        // separately (see lib/trajectory.ts's deriveTrajectory), directly
+        // from this same `quests` array, so marking a Quest failed here
+        // is the only write this sweep needs to make correct.
         const toExpire = loadedQuests.filter((quest) => isQuestExpired(quest, serverLocal.dateStr));
         const expiredQuests = toExpire.length > 0
           ? loadedQuests.map((quest) => isQuestExpired(quest, serverLocal.dateStr) ? { ...quest, failed: true } : quest)
           : loadedQuests;
-        const trajectoryDelta = toExpire.filter((quest) => quest.linkedToGoal).length * -TRAJECTORY_STEP;
 
         // Continuation runs against the post-expiry quest list — a series
         // whose occurrence just got swept to failed above is immediately
@@ -246,21 +246,9 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
         // recurrence day, rather than waiting for a second load.
         const toCreate = nextOccurrencesToCreate(expiredQuests, serverLocal.dateStr, serverLocal.weekday, serverLocal.instant);
         const sweptQuests = toCreate.length > 0 ? [...expiredQuests, ...toCreate] : expiredQuests;
-        const sweptTrajectory = loadedTrajectory + trajectoryDelta;
 
         if (toExpire.length > 0 || toCreate.length > 0) {
-          setState({
-            level: data.level,
-            currentXp: data.current_xp,
-            maxXp: data.max_xp,
-            credits: data.credits,
-            totalQuestsCompleted: data.total_quests_completed,
-            quests: sweptQuests,
-            stats: data.stats && typeof data.stats === "object" && !Array.isArray(data.stats)
-              ? { ...emptyState.stats, ...(data.stats as unknown as Partial<PlayerStats>) }
-              : emptyState.stats,
-            trajectory: sweptTrajectory,
-          });
+          setState({ quests: sweptQuests });
           setError(false);
           setLoading(false);
           // Best-effort persistence of the sweep. If this write fails, the
@@ -284,23 +272,12 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
           // reported instead.
           await supabase
             .from("game_state")
-            .update({ quests: sweptQuests as unknown as Json, trajectory: sweptTrajectory })
+            .update({ quests: sweptQuests as unknown as Json })
             .eq("user_id", userId);
           return;
         }
 
-        setState({
-          level: data.level,
-          currentXp: data.current_xp,
-          maxXp: data.max_xp,
-          credits: data.credits,
-          totalQuestsCompleted: data.total_quests_completed,
-          quests: loadedQuests,
-          stats: data.stats && typeof data.stats === "object" && !Array.isArray(data.stats)
-            ? { ...emptyState.stats, ...(data.stats as unknown as Partial<PlayerStats>) }
-            : emptyState.stats,
-          trajectory: loadedTrajectory,
-        });
+        setState({ quests: loadedQuests });
         setError(false);
         setLoading(false);
         return;
@@ -318,24 +295,27 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
   // Completion: the constitutional recognition that reality has changed
   // (see Completion definition, §4 — "reality has been updated
   // accordingly... Nothing more is required"). This performs only the
-  // reality change: marking the quest completed and persisting that fact.
-  // It does not touch XP, credits, stats, or level — see
-  // applyQuestProgression below for that, which this function does not
-  // call.
+  // reality change: marking the quest completed and persisting that
+  // fact. It does not touch XP, credits, stats, level, or a trajectory
+  // counter — none of those exist in DashboardState any more (see the
+  // Founder Decision on DashboardState above). Trajectory for a
+  // completed, goal-linked Quest becomes visible the next time
+  // deriveTrajectory(state.quests) runs (Journey/Dashboard), because
+  // `completed: true` on this Quest is now part of its input — no
+  // separate counter to keep in sync.
   const completeQuest = useCallback(async (questId: string) => {
     if (!userId || writeLockRef.current) return { error: null };
     const quest = state.quests.find((item) => item.id === questId);
     if (!quest || quest.completed) return { error: null };
 
     const nextQuests = state.quests.map((item) => item.id === questId ? { ...item, completed: true } : item);
-    const nextTrajectory = quest.linkedToGoal ? state.trajectory + TRAJECTORY_STEP : state.trajectory;
 
     writeLockRef.current = true;
     setSaving(true);
-    setState((prev) => ({ ...prev, quests: nextQuests, trajectory: nextTrajectory }));
+    setState((prev) => ({ ...prev, quests: nextQuests }));
     const { error: dbError } = await supabase
       .from("game_state")
-      .update({ quests: nextQuests as unknown as Json, trajectory: nextTrajectory })
+      .update({ quests: nextQuests as unknown as Json })
       .eq("user_id", userId);
 
     if (dbError) await load();
@@ -344,18 +324,54 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     return { error: dbError };
   }, [load, state, userId]);
 
-  // Milestone 2 — First Mission: "Direction → Choice → Commitment." This is
-  // not a create-Quest operation — it's the persistence of a deliberate
-  // commitment the user has already made. The user's own words are the
-  // commitment itself; the System does not suggest, generate, or pre-fill
-  // them, preserving the autonomy the Quest definition requires.
-  // xpReward/creditReward are fixed, unseen-at-commit-time defaults: they
-  // exist only because the existing Quest type (and the completion path
-  // this milestone does not touch) requires them, not because this
-  // milestone introduces reward mechanics. priority, by contrast, is
-  // explicit and user-set (Founder Decision, Quest priority chunk) — not
-  // a fixed default, and not a stand-in for difficulty/duration/urgency/
-  // age, which TIS does not track.
+  // Founder Decision (Cancel/abandon chunk): an honest way to say "I'm
+  // not doing this" — distinct from letting a Quest silently expire.
+  // Deliberately narrower than completion/expiry:
+  //   - Only a currently-active, unresolved Quest can be cancelled (not
+  //     one already completed or failed — those are settled facts, not
+  //     reversible).
+  //   - Only a one-shot Quest (no seriesId). A recurring series has its
+  //     own correct lifecycle (an occurrence resolves, the series
+  //     continues on its next eligible day) — "cancelling" one
+  //     occurrence of a series is a different, larger decision (does the
+  //     whole series stop? just this occurrence?) that isn't asked for
+  //     here and isn't invented.
+  // The cancelled Quest is removed from the array entirely, not marked
+  // with a new "cancelled" status. This keeps every existing evidence
+  // computation (deriveTrajectory, deriveGoalStats, occupiesActiveSlot,
+  // guidance) correct with zero changes — a withdrawn commitment was
+  // never evidence of anything, so it's as if it had not been made,
+  // exactly like discarding an unsent draft. Non-punitive by
+  // construction: a cancelled Quest cannot appear as a "miss" anywhere,
+  // because deriveTrajectory's evidence rule only ever sees
+  // completed/failed Quests, and this one is neither.
+  const cancelQuest = useCallback(async (questId: string) => {
+    if (!userId || writeLockRef.current) return { error: null };
+    const quest = state.quests.find((item) => item.id === questId);
+    if (!quest || quest.completed || quest.failed || quest.seriesId) return { error: null };
+
+    const nextQuests = state.quests.filter((item) => item.id !== questId);
+
+    writeLockRef.current = true;
+    setSaving(true);
+    setState((prev) => ({ ...prev, quests: nextQuests }));
+    const { error: dbError } = await supabase
+      .from("game_state")
+      .update({ quests: nextQuests as unknown as Json })
+      .eq("user_id", userId);
+
+    if (dbError) await load();
+    writeLockRef.current = false;
+    setSaving(false);
+    return { error: dbError };
+  }, [load, state, userId]);
+
+  // Founder Decision (Quest domain model cleanup chunk): xpReward and
+  // creditReward — RPG-era fields with no live consumer, fixed unseen
+  // defaults previously set here (25/10) only because the Quest type
+  // required them — are removed from the Quest model as of this chunk.
+  // Nothing in the live app ever read them; the last write site was this
+  // object literal.
   const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false, cadence: CadencePreset = "Once", customDays: number[] = [], priority: Quest["priority"] = "Essential", goalName?: string) => {
     const trimmed = commitment.trim();
     if (!userId || writeLockRef.current || !trimmed) return { error: null };
@@ -368,12 +384,13 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     // local calendar day.
     const serverLocal = await getServerLocalDate(timezone);
 
-    // P0 Decision B — one active Quest at a time. A second commitment
-    // cannot be made while one is already active; the caller (Quests.tsx)
-    // shouldn't offer the option in this state, but this guard is the
-    // actual enforcement, not the UI.
-    const hasActiveQuest = state.quests.some((q) => occupiesActiveSlot(q, serverLocal.dateStr));
-    if (hasActiveQuest) return { error: null };
+    // Founder Decision (multi-active Quest chunk): the account may hold
+    // up to MAX_ACTIVE_QUESTS active Quests at once (replacing the
+    // earlier one-active-Quest guard). A commit beyond the cap is a
+    // silent no-op — the caller (Quests.tsx) disables the entry point at
+    // the cap, but this guard is the actual enforcement, not the UI.
+    const activeCount = state.quests.filter((q) => occupiesActiveSlot(q, serverLocal.dateStr)).length;
+    if (activeCount >= MAX_ACTIVE_QUESTS) return { error: null };
 
     const recurrenceDays = resolveRecurrenceDays(cadence, customDays, serverLocal.weekday);
     const isRecurring = Boolean(recurrenceDays && recurrenceDays.length > 0);
@@ -381,8 +398,6 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
       id: crypto.randomUUID(),
       title: trimmed,
       priority,
-      xpReward: 25,
-      creditReward: 10,
       timeFrame: "Today",
       linkedToGoal,
       ...(linkedToGoal && goalName ? { goalName } : {}),
@@ -407,18 +422,34 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     return { error: dbError };
   }, [load, state, userId, timezone]);
 
-  // P0 Decision B — one active Quest at a time. `activeQuest` is that
-  // Quest, if one exists (not completed, not failed, not expired). No
-  // selection/ranking logic — there is nothing to choose among.
-  // Uses the cached server-local `todayStr` (see above), not a client
-  // clock default — this is the fix for the reported bug: a recurring
-  // Quest's continuation was created correctly against the user's local
-  // calendar day, but this line previously re-checked expiry against the
-  // client's UTC day on every render, causing it to silently stop
-  // showing as active before the user's actual local day was over.
-  const activeQuest = todayStr ? state.quests.find((q) => occupiesActiveSlot(q, todayStr)) : undefined;
+  // Founder Decision (multi-active Quest chunk): up to MAX_ACTIVE_QUESTS
+  // Quests may be active at once (replacing the earlier one-active-Quest
+  // constraint, where this returned a single Quest or undefined).
+  // Ordered by priority rank then createdAt (see comparePriorityThenCreatedAt)
+  // — index 0 is the account's highest-priority active Quest, i.e. the
+  // Dashboard's primary focus; the rest are the "accessible below it"
+  // Quests. Uses the cached server-local `todayStr` (see above), not a
+  // client clock default — this is the fix for the earlier reported bug:
+  // a recurring Quest's continuation was created correctly against the
+  // user's local calendar day, but this line previously re-checked expiry
+  // against the client's UTC day on every render, causing it to silently
+  // stop showing as active before the user's actual local day was over.
+  const activeQuests = todayStr
+    ? state.quests.filter((q) => occupiesActiveSlot(q, todayStr)).sort(comparePriorityThenCreatedAt)
+    : [];
+
+  // Founder Decision (Recovery/Guidance chunk): the single most recent
+  // failed Quest, if any — used by RecoveryState to differentiate "just
+  // missed something" from "never started" (previously both states
+  // showed identical copy). Deliberately not filtered to one-shot only
+  // here; the recommit affordance (only offered for non-recurring
+  // Quests, since a recurring series already self-resumes on its next
+  // eligible day) is decided by the caller, not this derivation.
+  const lastMissedQuest = state.quests
+    .filter((q) => q.failed)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
 
   return {
-    state, loading, error, saving, activeQuest, completeQuest, commitToTodaysQuest, reload: load,
+    state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, cancelQuest, commitToTodaysQuest, reload: load,
   };
 }

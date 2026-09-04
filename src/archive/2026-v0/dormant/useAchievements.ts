@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
-import { PlayerStats } from '@/lib/attributes';
+import { PlayerStats } from './attributes';
 
 // Structural subset of GameState containing only the fields achievement
 // conditions read. A full GameState (used by the dead useGameState.ts path)

@@ -1,9 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 const SOUND_KEY = 'system-sound-enabled';
-type AudioContextWindow = Window & typeof globalThis & {
-  webkitAudioContext?: typeof AudioContext;
-};
 
 export const useSoundEffects = () => {
   const [soundEnabled, setSoundEnabled] = useState(() => {
@@ -19,12 +16,7 @@ export const useSoundEffects = () => {
 
   const getAudioContext = useCallback(() => {
     if (!audioContextRef.current) {
-      const AudioContextConstructor = window.AudioContext
-        || (window as AudioContextWindow).webkitAudioContext;
-      if (!AudioContextConstructor) {
-        throw new Error('Web Audio is not supported in this browser.');
-      }
-      audioContextRef.current = new AudioContextConstructor();
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
     return audioContextRef.current;
   }, []);
@@ -94,51 +86,6 @@ export const useSoundEffects = () => {
     osc2.stop(now + 0.25);
   }, [soundEnabled, getAudioContext]);
 
-  const playLevelUp = useCallback(() => {
-    if (!soundEnabled) return;
-    
-    const ctx = getAudioContext();
-    const now = ctx.currentTime;
-    
-    // Triumphant ascending arpeggio
-    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
-    
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + i * 0.1);
-      
-      gain.gain.setValueAtTime(0, now + i * 0.1);
-      gain.gain.linearRampToValueAtTime(0.25, now + i * 0.1 + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.4);
-      
-      osc.start(now + i * 0.1);
-      osc.stop(now + i * 0.1 + 0.4);
-    });
-
-    // Add a shimmering high note at the end
-    const shimmer = ctx.createOscillator();
-    const shimmerGain = ctx.createGain();
-    
-    shimmer.connect(shimmerGain);
-    shimmerGain.connect(ctx.destination);
-    
-    shimmer.type = 'triangle';
-    shimmer.frequency.setValueAtTime(2093, now + 0.5); // C7
-    
-    shimmerGain.gain.setValueAtTime(0, now + 0.5);
-    shimmerGain.gain.linearRampToValueAtTime(0.2, now + 0.55);
-    shimmerGain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
-    
-    shimmer.start(now + 0.5);
-    shimmer.stop(now + 1.2);
-  }, [soundEnabled, getAudioContext]);
-
   const playClick = useCallback(() => {
     if (!soundEnabled) return;
     
@@ -184,51 +131,10 @@ export const useSoundEffects = () => {
     osc.stop(now + 0.2);
   }, [soundEnabled, getAudioContext]);
 
-  const playAchievement = useCallback(() => {
-    if (!soundEnabled) return;
-    
-    const ctx = getAudioContext();
-    const now = ctx.currentTime;
-    
-    // Magical achievement unlock sound - rising sparkle effect
-    const notes = [698.46, 880, 1046.50, 1318.51, 1567.98]; // F5, A5, C6, E6, G6
-    
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now + i * 0.08);
-      
-      gain.gain.setValueAtTime(0, now + i * 0.08);
-      gain.gain.linearRampToValueAtTime(0.2, now + i * 0.08 + 0.03);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.35);
-      
-      osc.start(now + i * 0.08);
-      osc.stop(now + i * 0.08 + 0.35);
-    });
-
-    // Add a sparkle/chime overlay
-    const chime = ctx.createOscillator();
-    const chimeGain = ctx.createGain();
-    
-    chime.connect(chimeGain);
-    chimeGain.connect(ctx.destination);
-    
-    chime.type = 'triangle';
-    chime.frequency.setValueAtTime(2637, now + 0.4); // E7
-    
-    chimeGain.gain.setValueAtTime(0, now + 0.4);
-    chimeGain.gain.linearRampToValueAtTime(0.15, now + 0.45);
-    chimeGain.gain.exponentialRampToValueAtTime(0.01, now + 1);
-    
-    chime.start(now + 0.4);
-    chime.stop(now + 1);
-  }, [soundEnabled, getAudioContext]);
-
+  // Founder Decision (RPG removal chunk): playAchievement removed — an
+  // RPG achievement-unlock sound with zero live callers (achievements
+  // were already archived from the app). playLevelUp removed for the
+  // same reason, above.
   const toggleSound = useCallback(() => {
     setSoundEnabled((prev: boolean) => !prev);
   }, []);
@@ -237,10 +143,8 @@ export const useSoundEffects = () => {
     soundEnabled,
     toggleSound,
     playQuestComplete,
-    playLevelUp,
     playClick,
     playTap,
     playError,
-    playAchievement,
   };
 };

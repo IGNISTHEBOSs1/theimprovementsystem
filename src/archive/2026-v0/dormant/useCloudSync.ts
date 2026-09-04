@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { GameState } from './useGameState';
 import { toast } from 'sonner';
 import { Json } from '@/integrations/supabase/types';

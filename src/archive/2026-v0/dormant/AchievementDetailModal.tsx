@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, Calendar, Sparkles } from 'lucide-react';
-import { Achievement } from '@/hooks/useAchievements';
+import { Achievement } from './useAchievements';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AchievementDetailModalProps {

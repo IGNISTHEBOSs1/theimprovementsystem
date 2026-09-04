@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { AlertTriangle, Gift, Flame, Trophy, Terminal } from 'lucide-react';
-import { SystemMessage } from '@/hooks/useGameState';
+import { SystemMessage } from './useGameState';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 

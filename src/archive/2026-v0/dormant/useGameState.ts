@@ -1,13 +1,41 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getXpForLevel, applyXpDelta } from '@/lib/progression';
-import { PlayerStats, inferStatCategory, getStatGainForDifficulty, applyStatGain } from '@/lib/attributes';
-import type { Quest } from '@/types/quest';
+import { getXpForLevel, applyXpDelta } from './progression';
+import { PlayerStats, inferStatCategory, getStatGainForDifficulty, applyStatGain } from './attributes';
+
+// Founder Decision (Quest domain model cleanup chunk): this file is dead,
+// unrouted RPG-era code — quarantined here, not deleted (see the header
+// this file already carried before this chunk). It previously imported
+// the live `Quest` type from @/types/quest, which coupled dead code to
+// the current domain model: every future change to the real Quest shape
+// (like the xpReward/creditReward removal this same chunk makes) would
+// otherwise force a choice between editing archived code or breaking its
+// compile. This is now a frozen, local snapshot of the OLD Quest shape
+// this file was actually written against — decoupled from @/types/quest
+// entirely, and deliberately NOT kept in sync with it going forward.
+interface Quest {
+  id: string;
+  title: string;
+  priority: 'Essential' | 'Important' | 'Optional';
+  xpReward: number;
+  creditReward: number;
+  timeFrame: string;
+  scheduledFor?: string;
+  statCategory?: keyof PlayerStats;
+  linkedToGoal?: boolean;
+  goalName?: string;
+  completed: boolean;
+  failed: boolean;
+  createdAt: string;
+  seriesId?: string;
+  recurrenceDays?: number[];
+}
 
 // Re-exported for backward compatibility — see @/lib/progression and
-// @/lib/attributes for the canonical implementations (TIS-INFRA-003,
-// TIS-INFRA-004). Quest itself now canonically lives in @/types/quest —
-// re-exported here only because Index_old.tsx (dead, unrouted) still
-// imports it from this path.
+// ./attributes for the canonical implementations (TIS-INFRA-003,
+// TIS-INFRA-004). Quest itself now canonically lives in @/types/quest;
+// this file's own Quest (above) is a frozen historical copy, not that
+// type — re-exported here only because Index_old.tsx (dead, unrouted,
+// co-located with this file) still imports it from this path.
 export { getXpForLevel };
 export type { PlayerStats };
 export { inferStatCategory };

@@ -37,7 +37,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
-  updateProfile: (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal'>>) => Promise<{ error: Error | null; profile: Profile | null }>;
+  updateProfile: (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal' | 'timezone'>>) => Promise<{ error: Error | null; profile: Profile | null }>;
   completeFirstLaunch: () => Promise<{ error: Error | null }>;
   resetGameProgress: () => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -214,7 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const updateProfile = async (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal'>>) => {
+  const updateProfile = async (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal' | 'timezone'>>) => {
     if (!user) return { error: new Error('Not authenticated'), profile: null };
     const { data, error } = await supabase
       .from('profiles')
@@ -242,17 +242,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  // Founder Decision (Profile controls chunk): resets the account's Quest
+  // state to empty. Previously wrote a set of columns (rank, habits,
+  // system_messages, an RPG stats shape) that no longer correspond to
+  // anything the app reads or writes — level/XP/credits/stats were
+  // removed from live use in an earlier chunk, and rank/habits/
+  // system_messages never existed in the current schema at all. That
+  // write would either fail outright or silently write to dead columns,
+  // meaning the one thing that actually matters — clearing `quests` —
+  // was not reliably happening. Fixed to write only the live column.
   const resetGameProgress = async () => {
     if (!user) return;
-    await supabase.from('game_state').update({
-      level: 1, rank: 'E-Rank Hunter', current_xp: 0, max_xp: 1000,
-      credits: 0, stats: { FIT: 0, SOC: 0, INT: 0, DIS: 0, FOC: 0, FIN: 0 },
-      quests: [], habits: [], system_messages: [], total_quests_completed: 0,
-    }).eq('user_id', user.id);
+    await supabase.from('game_state').update({ quests: [] }).eq('user_id', user.id);
   };
 
+  // Founder Decision (Profile controls chunk): previously signed the user
+  // out without deleting anything — misleading if ever exposed as
+  // "Delete account." Now actually deletes the two rows this app owns
+  // and can delete under the user's own RLS policy (profiles, game_state)
+  // before signing out.
+  //
+  // Known, disclosed limitation: this does NOT remove the underlying
+  // Supabase Auth user (the `auth.users` row / login credentials).
+  // Deleting an Auth user requires the Supabase Admin API with a
+  // service-role key, which must run server-side (e.g. an edge
+  // function) — it cannot be called from this public browser client
+  // without exposing that key. Building that edge function is a new
+  // piece of backend infrastructure, not a Profile-page implementation
+  // detail, and isn't invented here without explicit authorization. The
+  // person's data (goal, Quest history, evidence) is fully and actually
+  // removed; their login credentials are not. This is stated plainly in
+  // the UI copy, not hidden.
   const deleteAccount = async () => {
     if (!user) return;
+    await supabase.from('game_state').delete().eq('user_id', user.id);
+    await supabase.from('profiles').delete().eq('user_id', user.id);
     await supabase.auth.signOut();
   };
 

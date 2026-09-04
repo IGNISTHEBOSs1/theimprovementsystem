@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Achievement } from '@/hooks/useAchievements';
+import { Achievement } from './useAchievements';
 import { Lock, Sparkles, Crown } from 'lucide-react';
 
 interface AchievementBadgeProps {
