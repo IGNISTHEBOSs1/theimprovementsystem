@@ -17,6 +17,7 @@ const Journey = lazy(() => import("./pages/Journey"));
 const Quests = lazy(() => import("./pages/Quests"));
 const Mentor = lazy(() => import("./pages/Mentor"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Settings = lazy(() => import("./pages/Settings"));
 const QuestHistory = lazy(() => import("./pages/QuestHistory"));
 
 // Auth pages — untouched
@@ -87,6 +88,18 @@ const App = () => (
                 <Route path="/profile/history" element={
                   <ProtectedRoute>
                     <AppLayout><RenderProfiler id="QuestHistory"><QuestHistory /></RenderProfiler></AppLayout>
+                  </ProtectedRoute>
+                } />
+                {/* Founder Decision (Profile/Settings separation chunk):
+                    a sub-route of /profile, exactly like /profile/history
+                    above — reached via a link from the Profile page, not
+                    a new persistent SystemBar item. SystemBar's nav rail
+                    is a fixed 5-item layout; adding a 6th item there is a
+                    navigation redesign, which this chunk doesn't
+                    authorize. */}
+                <Route path="/profile/settings" element={
+                  <ProtectedRoute>
+                    <AppLayout><RenderProfiler id="Settings"><Settings /></RenderProfiler></AppLayout>
                   </ProtectedRoute>
                 } />
 
