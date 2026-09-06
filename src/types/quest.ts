@@ -35,6 +35,15 @@ export interface Quest {
   completed: boolean;
   failed: boolean;
   createdAt: string;
+  // Founder Decision (Trajectory completeness chunk): the server-
+  // authoritative instant this Quest was actually resolved (completed or
+  // swept to failed) — distinct from createdAt, which only marks when it
+  // was committed to. Absent on any still-active Quest, and absent on
+  // Quests resolved before this field existed (no retroactive DB write —
+  // see deriveResolvedAt in lib/trajectory.ts for the read-time fallback
+  // to createdAt for that historical case). Never client-clock-derived;
+  // always sourced from getServerLocalDate(...).instant.
+  resolvedAt?: string;
 
   // Recurrence — Founder Decision (Quest recurrence chunk): cadence is
   // Daily + custom day-of-week selection; a resolved occurrence's series

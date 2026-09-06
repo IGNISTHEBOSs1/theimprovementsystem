@@ -5,12 +5,13 @@ import { Json } from "@/integrations/supabase/types";
 import { getServerLocalDate } from "@/lib/serverTime";
 import { comparePriorityThenCreatedAt } from "@/lib/priority";
 
-// Founder Decision (multi-active Quest chunk): the account may have
-// multiple Quests active simultaneously (replacing the earlier
-// single-active-Quest constraint), capped here to prevent the Quest page
-// from becoming an unbounded todo list. Deliberately a plain constant —
-// not a setting, not per-priority-tier, not derived from anything.
-export const MAX_ACTIVE_QUESTS = 5;
+// Founder Decision (Quest lifecycle reconciliation chunk): reverses the
+// multi-active Quest chunk. The account may hold at most one active
+// Quest at any time (0 or 1) — not a per-priority-tier count, not a
+// setting. This constant is now the single active-Quest slot count, kept
+// as a named constant (rather than inlining 1) only so every capacity
+// check below reads from one place, exactly as when it was 5.
+export const MAX_ACTIVE_QUESTS = 1;
 
 // Founder Decision (RPG removal / Trajectory finalization chunk):
 // DashboardState no longer carries level, currentXp, maxXp, credits,
@@ -122,12 +123,24 @@ function occupiesActiveSlot(quest: Quest, today: string): boolean {
 // not create a duplicate), and (d) the account has not reached
 // MAX_ACTIVE_QUESTS active Quests.
 //
-// Founder Decision (multi-active Quest chunk): the single-active-Quest
-// constraint this originally deferred to is gone. This now fills
-// available active-Quest capacity across ALL eligible series in one
-// sweep (previously: at most one continuation per sweep, globally, across
-// every series) — a recurring series no longer silently waits behind an
-// unrelated active Quest once room exists.
+// Founder Decision (Quest lifecycle reconciliation chunk): reverses the
+// multi-active Quest chunk's "fill all available capacity" behavior.
+// MAX_ACTIVE_QUESTS is now 1, so at most one continuation is created per
+// sweep, globally, across every series — restoring the original
+// single-continuation behavior this comment used to describe, before the
+// multi-active chunk changed it. When more than one series is eligible
+// on the same day and no Quest currently occupies the slot, priority
+// (via comparePriorityThenCreatedAt on each series' most recent
+// occurrence) decides which one is created.
+//
+// Founder Decision (this chunk): a series that loses the slot gets NO
+// occurrence created for it at all — never a phantom record that would
+// later be swept to failed. It simply remains resolved-and-eligible
+// (isResolved && isEligibleToday && !alreadyHasToday all still true) and
+// is re-evaluated on every subsequent sweep — later the same day if the
+// slot frees up, or on its next eligible day otherwise — with no
+// historical trace of the day(s) it didn't get the slot. This is the
+// explicitly confirmed behavior, not a gap to fix.
 //
 // todayStr/todayWeekday/nowInstant are all sourced from
 // getServerLocalDate() by the caller (load(), below) — this function
@@ -141,13 +154,27 @@ function nextOccurrencesToCreate(quests: Quest[], todayStr: string, todayWeekday
   const created: Quest[] = [];
   let activeCount = quests.filter((q) => occupiesActiveSlot(q, todayStr)).length;
 
+  const mostRecentBySeriesId = new Map<string, Quest>();
   for (const seriesId of seriesIds) {
+    const occurrences = quests.filter((q) => q.seriesId === seriesId);
+    mostRecentBySeriesId.set(
+      seriesId,
+      occurrences.reduce((latest, q) => (q.createdAt > latest.createdAt ? q : latest)),
+    );
+  }
+
+  // Deterministic order: highest-priority eligible series first, so when
+  // capacity is 1 and multiple series are eligible the same day, the
+  // outcome doesn't depend on Set/array insertion order.
+  const orderedSeriesIds = [...seriesIds].sort((a, b) =>
+    comparePriorityThenCreatedAt(mostRecentBySeriesId.get(a)!, mostRecentBySeriesId.get(b)!),
+  );
+
+  for (const seriesId of orderedSeriesIds) {
     if (activeCount >= MAX_ACTIVE_QUESTS) break;
 
+    const mostRecent = mostRecentBySeriesId.get(seriesId)!;
     const occurrences = quests.filter((q) => q.seriesId === seriesId);
-    const mostRecent = occurrences.reduce((latest, q) =>
-      q.createdAt > latest.createdAt ? q : latest
-    );
 
     const alreadyHasToday = occurrences.some((q) => q.createdAt.split("T")[0] === todayStr);
     const isResolved = mostRecent.completed || mostRecent.failed;
@@ -237,7 +264,9 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
         // is the only write this sweep needs to make correct.
         const toExpire = loadedQuests.filter((quest) => isQuestExpired(quest, serverLocal.dateStr));
         const expiredQuests = toExpire.length > 0
-          ? loadedQuests.map((quest) => isQuestExpired(quest, serverLocal.dateStr) ? { ...quest, failed: true } : quest)
+          ? loadedQuests.map((quest) => isQuestExpired(quest, serverLocal.dateStr)
+              ? { ...quest, failed: true, resolvedAt: serverLocal.instant.toISOString() }
+              : quest)
           : loadedQuests;
 
         // Continuation runs against the post-expiry quest list — a series
@@ -308,7 +337,10 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     const quest = state.quests.find((item) => item.id === questId);
     if (!quest || quest.completed) return { error: null };
 
-    const nextQuests = state.quests.map((item) => item.id === questId ? { ...item, completed: true } : item);
+    const serverLocal = await getServerLocalDate(timezone);
+    const nextQuests = state.quests.map((item) => item.id === questId
+      ? { ...item, completed: true, resolvedAt: serverLocal.instant.toISOString() }
+      : item);
 
     writeLockRef.current = true;
     setSaving(true);
@@ -322,7 +354,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     writeLockRef.current = false;
     setSaving(false);
     return { error: dbError };
-  }, [load, state, userId]);
+  }, [load, state, userId, timezone]);
 
   // Founder Decision (Cancel/abandon chunk): an honest way to say "I'm
   // not doing this" — distinct from letting a Quest silently expire.
@@ -384,11 +416,12 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     // local calendar day.
     const serverLocal = await getServerLocalDate(timezone);
 
-    // Founder Decision (multi-active Quest chunk): the account may hold
-    // up to MAX_ACTIVE_QUESTS active Quests at once (replacing the
-    // earlier one-active-Quest guard). A commit beyond the cap is a
-    // silent no-op — the caller (Quests.tsx) disables the entry point at
-    // the cap, but this guard is the actual enforcement, not the UI.
+    // Founder Decision (Quest lifecycle reconciliation chunk): the
+    // account may hold at most one active Quest (MAX_ACTIVE_QUESTS = 1),
+    // reversing the multi-active Quest chunk. A commit while a Quest is
+    // already active is a silent no-op — the caller (Quests.tsx)
+    // disables the entry point at the cap, but this guard is the actual
+    // enforcement, not the UI.
     const activeCount = state.quests.filter((q) => occupiesActiveSlot(q, serverLocal.dateStr)).length;
     if (activeCount >= MAX_ACTIVE_QUESTS) return { error: null };
 
@@ -422,18 +455,18 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     return { error: dbError };
   }, [load, state, userId, timezone]);
 
-  // Founder Decision (multi-active Quest chunk): up to MAX_ACTIVE_QUESTS
-  // Quests may be active at once (replacing the earlier one-active-Quest
-  // constraint, where this returned a single Quest or undefined).
-  // Ordered by priority rank then createdAt (see comparePriorityThenCreatedAt)
-  // — index 0 is the account's highest-priority active Quest, i.e. the
-  // Dashboard's primary focus; the rest are the "accessible below it"
-  // Quests. Uses the cached server-local `todayStr` (see above), not a
-  // client clock default — this is the fix for the earlier reported bug:
-  // a recurring Quest's continuation was created correctly against the
-  // user's local calendar day, but this line previously re-checked expiry
-  // against the client's UTC day on every render, causing it to silently
-  // stop showing as active before the user's actual local day was over.
+  // Founder Decision (Quest lifecycle reconciliation chunk): at most one
+  // Quest occupies the active slot (MAX_ACTIVE_QUESTS = 1), reversing the
+  // multi-active Quest chunk. This array will hold 0 or 1 entries for any
+  // account whose data was only ever written under this constraint.
+  // Kept as an array (not a single Quest | undefined) rather than
+  // changing every caller's shape — Dashboard.tsx and Quests.tsx already
+  // read index 0 as "the" active Quest and treat the rest as an overflow
+  // case; see this chunk's report for why any pre-existing account with
+  // more than one already-active Quest from before this chunk is a
+  // separate, flagged data-reconciliation question, not resolved here.
+  // Uses the cached server-local `todayStr` (see above), not a client
+  // clock default.
   const activeQuests = todayStr
     ? state.quests.filter((q) => occupiesActiveSlot(q, todayStr)).sort(comparePriorityThenCreatedAt)
     : [];

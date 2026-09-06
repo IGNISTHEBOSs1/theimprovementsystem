@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Compass, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -5,7 +6,28 @@ import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience
 import { TrajectoryChart } from "@/components/journey/TrajectoryChart";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
-import { deriveTrajectory, deriveGoalStats } from "@/lib/trajectory";
+import {
+  deriveTrajectory,
+  deriveGoalStats,
+  derivePriorityBreakdown,
+  deriveSeriesStats,
+  deriveFollowThroughStats,
+  deriveResolvedAt,
+} from "@/lib/trajectory";
+
+// Founder Decision (Trajectory completeness chunk, Tier 1 #3): a display-
+// only time window over the chart. Recomputes deriveTrajectory from a
+// date-filtered quest list (rather than slicing the already-cumulative
+// result), so the windowed line's position correctly starts at 0 for
+// that window instead of showing a truncated fragment of the all-time
+// cumulative curve. Does not affect deriveGoalStats, deriveSeriesStats,
+// or deriveFollowThroughStats below, which remain all-time.
+type WindowOption = 30 | 90 | "all";
+const WINDOW_OPTIONS: { value: WindowOption; label: string }[] = [
+  { value: 30, label: "30 days" },
+  { value: 90, label: "90 days" },
+  { value: "all", label: "All time" },
+];
 
 // Trajectory v1 (Journey chunk). Deterministic, evidence-based, single
 // implicit dimension: "progress toward the user's current Goal." No new
@@ -16,6 +38,7 @@ import { deriveTrajectory, deriveGoalStats } from "@/lib/trajectory";
 export default function Journey() {
   const { profile } = useAuth();
   const { state, loading, error, reload } = useDashboardDataContext();
+  const [windowOption, setWindowOption] = useState<WindowOption>("all");
 
   if (loading) {
     return (
@@ -105,6 +128,24 @@ export default function Journey() {
 
   const goalStats = deriveGoalStats(state.quests);
 
+  // Windowed view for the chart only (display filter, not a lifecycle or
+  // recurrence computation — see WINDOW_OPTIONS comment above). Recomputed
+  // from a date-filtered quest list so the windowed curve's position
+  // correctly starts at 0 for that window.
+  const windowedQuests = windowOption === "all"
+    ? state.quests
+    : state.quests.filter((q) => {
+        if (!q.linkedToGoal || (!q.completed && !q.failed)) return true; // irrelevant to trajectory anyway; deriveTrajectory filters these
+        const resolved = new Date(deriveResolvedAt(q));
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - windowOption);
+        return resolved >= cutoff;
+      });
+  const windowedTrajectory = deriveTrajectory(windowedQuests);
+  const priorityBreakdown = derivePriorityBreakdown(trajectory.actual);
+  const seriesStats = deriveSeriesStats(state.quests);
+  const followThrough = deriveFollowThroughStats(state.quests);
+
   // Founder Decision (Journey transparency chunk): Quest.goalName is a
   // snapshot of whatever the primary goal was AT THE TIME a Quest was
   // linked (see types/quest.ts) — it does not update retroactively if
@@ -144,9 +185,75 @@ export default function Journey() {
           {previousGoalEvidenceCount} of these {previousGoalEvidenceCount === 1 ? "was" : "were"} recorded under a previous goal, before it changed to "{profile?.primary_goal}."
         </p>
       )}
-      <div className="mt-8">
-        <TrajectoryChart trajectory={trajectory} goalLabel={profile?.primary_goal ?? undefined} />
+      <div className="mt-8 flex items-center gap-2">
+        {WINDOW_OPTIONS.map((opt) => (
+          <button
+            key={String(opt.value)}
+            type="button"
+            onClick={() => setWindowOption(opt.value)}
+            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+              windowOption === opt.value
+                ? "border-foreground/40 bg-foreground/10 text-foreground"
+                : "border-border/60 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
+      <div className="mt-3">
+        {windowedTrajectory.actual.length > 0 ? (
+          <TrajectoryChart trajectory={windowedTrajectory} goalLabel={profile?.primary_goal ?? undefined} />
+        ) : (
+          <div className="rounded-2xl border border-border bg-card p-7 text-body-sm text-muted-foreground">
+            No resolved evidence in this window.
+          </div>
+        )}
+      </div>
+
+      {priorityBreakdown.length > 0 && (
+        <div className="mt-8">
+          <p className="text-label text-muted-foreground">Evidence by priority</p>
+          <ul className="mt-3 space-y-1.5">
+            {priorityBreakdown.map((entry) => (
+              <li key={entry.priority} className="flex items-center justify-between text-body-sm">
+                <span className="text-foreground">{entry.priority}</span>
+                <span className="text-muted-foreground">
+                  {entry.completed} completed{entry.failed > 0 ? `, ${entry.failed} missed` : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {seriesStats.length > 0 && (
+        <div className="mt-8">
+          <p className="text-label text-muted-foreground">Recurring commitments</p>
+          <ul className="mt-3 space-y-1.5">
+            {seriesStats.map((series) => (
+              <li key={series.seriesId} className="flex items-center justify-between text-body-sm">
+                <span className="truncate text-foreground">{series.title}</span>
+                <span className="shrink-0 text-muted-foreground">
+                  {series.completed}/{series.total} completed
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {followThrough.total > 0 && (
+        <div className="mt-8 rounded-2xl border border-border/60 bg-card/40 p-5">
+          <p className="text-label text-muted-foreground">Overall follow-through</p>
+          <p className="mt-2 text-body-sm text-muted-foreground">
+            Across every Quest you've committed to, not just ones linked to your goal:{" "}
+            <span className="text-foreground">{followThrough.completed} of {followThrough.total} completed</span>.
+            This is separate from your goal trajectory above.
+          </p>
+        </div>
+      )}
+
       {recentEvidence.length > 0 && (
         <div className="mt-8">
           <p className="text-label text-muted-foreground">Recent evidence</p>

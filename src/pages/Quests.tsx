@@ -193,12 +193,11 @@ export default function Quests() {
               </div>
             )}
 
-            {/* Founder Decision (multi-active Quest chunk): up to
-                MAX_ACTIVE_QUESTS Quests may be active at once. The option
-                to add another commitment stays visible at all times — it's
-                only disabled once the cap is reached, with the reason
-                stated, rather than disappearing or gating on a single
-                existing Quest as it previously did. */}
+            {/* Founder Decision (Quest lifecycle reconciliation chunk):
+                at most MAX_ACTIVE_QUESTS (1) Quest may be active at a
+                time. The option to add another commitment stays visible
+                at all times — it's only disabled once the cap is
+                reached, with the reason stated, rather than disappearing. */}
             <div className={activeQuests.length > 0 ? "mt-6" : undefined}>
               {showCommitForm ? (
                 <>
@@ -220,7 +219,7 @@ export default function Quests() {
                   className="min-h-11"
                   disabled={activeQuests.length >= MAX_ACTIVE_QUESTS}
                   onClick={() => setShowCommitForm(true)}
-                  title={activeQuests.length >= MAX_ACTIVE_QUESTS ? `You can have up to ${MAX_ACTIVE_QUESTS} active quests at a time` : undefined}
+                  title={activeQuests.length >= MAX_ACTIVE_QUESTS ? `You can have up to ${MAX_ACTIVE_QUESTS} active quest${MAX_ACTIVE_QUESTS === 1 ? "" : "s"} at a time` : undefined}
                 >
                   <Plus className="size-4" aria-hidden="true" />
                   New Commitment
@@ -228,7 +227,7 @@ export default function Quests() {
               )}
               {activeQuests.length >= MAX_ACTIVE_QUESTS && (
                 <p className="mt-2 text-body-sm text-muted-foreground">
-                  You've reached the limit of {MAX_ACTIVE_QUESTS} active quests. Complete one to add another.
+                  You've reached the limit of {MAX_ACTIVE_QUESTS} active quest{MAX_ACTIVE_QUESTS === 1 ? "" : "s"}. Complete it to add another.
                 </p>
               )}
             </div>
