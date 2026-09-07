@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Quest } from "@/types/quest";
 import { Json } from "@/integrations/supabase/types";
-import { getServerLocalDate } from "@/lib/serverTime";
+import { getServerLocalDate, toServerLocalDate } from "@/lib/serverTime";
 import { comparePriorityThenCreatedAt } from "@/lib/priority";
 
 // Founder Decision (Quest lifecycle reconciliation chunk): reverses the
@@ -85,10 +85,25 @@ export function nextEligibleDayLabel(recurrenceDays: number[], fromWeekday: numb
 }
 
 
-export function isQuestExpired(quest: Quest, today = new Date().toISOString().split("T")[0]): boolean {
+// Founder Decision (Reliability chunk): root-cause fix. createdAt is a
+// UTC instant (e.g. "2026-09-05T19:00:00.000Z"). `today` is always the
+// user's server-authoritative LOCAL calendar date (serverLocal.dateStr).
+// Comparing createdAt.split("T")[0] (createdAt's UTC calendar date)
+// directly against `today` (a local calendar date) is wrong for any
+// non-UTC timezone: for a user in IST (UTC+5:30) whose local time is
+// September 6, 00:30, the UTC instant is still September 5, 19:00 — so
+// the old comparison read the Quest as created "yesterday" and expired
+// it immediately, on the same local day it was committed to. `timezone`
+// is now REQUIRED (previously defaulted to the client's own UTC day,
+// which is exactly the same bug moved one level up — see the removed
+// default below in the diff). createdAt is converted through the same
+// toServerLocalDate() used everywhere else a UTC instant becomes a local
+// calendar date, so there is exactly one time-conversion path in this
+// file, not two.
+export function isQuestExpired(quest: Quest, today: string, timezone: string): boolean {
   if (quest.completed || quest.failed) return false;
   if (quest.timeFrame !== "Today") return false;
-  return quest.createdAt.split("T")[0] !== today;
+  return toServerLocalDate(new Date(quest.createdAt), timezone).dateStr !== today;
 }
 
 // True if this Quest currently counts toward the account's active-Quest
@@ -96,22 +111,12 @@ export function isQuestExpired(quest: Quest, today = new Date().toISOString().sp
 // the commit-time capacity guard, the recurrence continuation check, and
 // `activeQuests` below — same definition, one place.
 //
-// `today` is REQUIRED, not defaulted, and must always be the caller's
-// server-authoritative, user-timezone calendar date (serverLocal.dateStr).
-// Root-cause bug fixed here: this function previously called
-// isQuestExpired(quest) with no date, silently falling back to
-// isQuestExpired's own default — the client's UTC calendar day. createdAt
-// is stored as a UTC instant, so comparing its UTC date against a UTC
-// "today" instead of the user's local "today" diverges for any non-UTC
-// timezone (e.g. IST, UTC+5:30, where the UTC day rolls over at 5:30am
-// local time, not local midnight). `activeQuests` (below) is recomputed on
-// every render, not just once right after load() — so unlike a one-time
-// post-load check, this WAS a second, continuously-reevaluated
-// competing definition of "today," and a just-created recurring
-// continuation (correctly dated via serverLocal in the sweep) could stop
-// counting as active hours before the user's actual local day ended.
-function occupiesActiveSlot(quest: Quest, today: string): boolean {
-  return !quest.completed && !quest.failed && !isQuestExpired(quest, today);
+// `today` and `timezone` are both REQUIRED, not defaulted, and must
+// always be the caller's server-authoritative values (serverLocal.dateStr
+// and the account's stored IANA timezone). See isQuestExpired above for
+// the root-cause bug this guards against reintroducing.
+function occupiesActiveSlot(quest: Quest, today: string, timezone: string): boolean {
+  return !quest.completed && !quest.failed && !isQuestExpired(quest, today, timezone);
 }
 
 // Founder Decision (Quest recurrence chunk): a recurring series survives
@@ -144,15 +149,15 @@ function occupiesActiveSlot(quest: Quest, today: string): boolean {
 //
 // todayStr/todayWeekday/nowInstant are all sourced from
 // getServerLocalDate() by the caller (load(), below) — this function
-// itself has no knowledge of clocks or timezones, only calendar-date
-// comparisons, which keeps it trivially testable.
-function nextOccurrencesToCreate(quests: Quest[], todayStr: string, todayWeekday: number, nowInstant: Date): Quest[] {
+// itself has no knowledge of clocks beyond the timezone it's given,
+// only calendar-date comparisons, which keeps it trivially testable.
+function nextOccurrencesToCreate(quests: Quest[], todayStr: string, todayWeekday: number, nowInstant: Date, timezone: string): Quest[] {
   const seriesIds = Array.from(
     new Set(quests.filter((q) => q.seriesId).map((q) => q.seriesId as string)),
   );
 
   const created: Quest[] = [];
-  let activeCount = quests.filter((q) => occupiesActiveSlot(q, todayStr)).length;
+  let activeCount = quests.filter((q) => occupiesActiveSlot(q, todayStr, timezone)).length;
 
   const mostRecentBySeriesId = new Map<string, Quest>();
   for (const seriesId of seriesIds) {
@@ -176,7 +181,16 @@ function nextOccurrencesToCreate(quests: Quest[], todayStr: string, todayWeekday
     const mostRecent = mostRecentBySeriesId.get(seriesId)!;
     const occurrences = quests.filter((q) => q.seriesId === seriesId);
 
-    const alreadyHasToday = occurrences.some((q) => q.createdAt.split("T")[0] === todayStr);
+    // Founder Decision (Reliability chunk): root-cause fix, same bug as
+    // isQuestExpired above. createdAt is a UTC instant; todayStr is a
+    // local calendar date. The old raw split("T")[0] comparison could
+    // read "no occurrence today" near a local day boundary even though
+    // one had already been created, producing a duplicate occurrence for
+    // the same local day — the exact "an occurrence is not duplicated"
+    // requirement this idempotency check exists to guarantee.
+    const alreadyHasToday = occurrences.some(
+      (q) => toServerLocalDate(new Date(q.createdAt), timezone).dateStr === todayStr,
+    );
     const isResolved = mostRecent.completed || mostRecent.failed;
     const isEligibleToday = (mostRecent.recurrenceDays ?? []).includes(todayWeekday);
 
@@ -262,9 +276,9 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
         // separately (see lib/trajectory.ts's deriveTrajectory), directly
         // from this same `quests` array, so marking a Quest failed here
         // is the only write this sweep needs to make correct.
-        const toExpire = loadedQuests.filter((quest) => isQuestExpired(quest, serverLocal.dateStr));
+        const toExpire = loadedQuests.filter((quest) => isQuestExpired(quest, serverLocal.dateStr, timezone || "UTC"));
         const expiredQuests = toExpire.length > 0
-          ? loadedQuests.map((quest) => isQuestExpired(quest, serverLocal.dateStr)
+          ? loadedQuests.map((quest) => isQuestExpired(quest, serverLocal.dateStr, timezone || "UTC")
               ? { ...quest, failed: true, resolvedAt: serverLocal.instant.toISOString() }
               : quest)
           : loadedQuests;
@@ -273,7 +287,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
         // whose occurrence just got swept to failed above is immediately
         // eligible to continue in this same pass if today is a
         // recurrence day, rather than waiting for a second load.
-        const toCreate = nextOccurrencesToCreate(expiredQuests, serverLocal.dateStr, serverLocal.weekday, serverLocal.instant);
+        const toCreate = nextOccurrencesToCreate(expiredQuests, serverLocal.dateStr, serverLocal.weekday, serverLocal.instant, timezone || "UTC");
         const sweptQuests = toCreate.length > 0 ? [...expiredQuests, ...toCreate] : expiredQuests;
 
         if (toExpire.length > 0 || toCreate.length > 0) {
@@ -422,7 +436,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     // already active is a silent no-op — the caller (Quests.tsx)
     // disables the entry point at the cap, but this guard is the actual
     // enforcement, not the UI.
-    const activeCount = state.quests.filter((q) => occupiesActiveSlot(q, serverLocal.dateStr)).length;
+    const activeCount = state.quests.filter((q) => occupiesActiveSlot(q, serverLocal.dateStr, timezone || "UTC")).length;
     if (activeCount >= MAX_ACTIVE_QUESTS) return { error: null };
 
     const recurrenceDays = resolveRecurrenceDays(cadence, customDays, serverLocal.weekday);
@@ -468,7 +482,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
   // Uses the cached server-local `todayStr` (see above), not a client
   // clock default.
   const activeQuests = todayStr
-    ? state.quests.filter((q) => occupiesActiveSlot(q, todayStr)).sort(comparePriorityThenCreatedAt)
+    ? state.quests.filter((q) => occupiesActiveSlot(q, todayStr, timezone || "UTC")).sort(comparePriorityThenCreatedAt)
     : [];
 
   // Founder Decision (Recovery/Guidance chunk): the single most recent

@@ -253,7 +253,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // was not reliably happening. Fixed to write only the live column.
   const resetGameProgress = async () => {
     if (!user) return;
-    await supabase.from('game_state').update({ quests: [] }).eq('user_id', user.id);
+    const { error } = await supabase.from('game_state').update({ quests: [] }).eq('user_id', user.id);
+    if (error) throw error;
   };
 
   // Founder Decision (Profile controls chunk): previously signed the user
@@ -273,10 +274,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // person's data (goal, Quest history, evidence) is fully and actually
   // removed; their login credentials are not. This is stated plainly in
   // the UI copy, not hidden.
+  // Founder Decision (Reliability chunk): root-cause fix for a silent
+  // persistence failure. This function previously never checked either
+  // delete's `error`, so a failed game_state/profiles delete (RLS
+  // denial, network error, anything) was indistinguishable from success
+  // — the caller's try/catch (Settings.tsx's handleDelete) could never
+  // actually catch anything, so the UI always proceeded to sign the user
+  // out and navigate away as if their data had been removed, even when
+  // it hadn't. Now throws on either failure, before signOut, so the
+  // existing try/catch does what it already looked like it did.
   const deleteAccount = async () => {
     if (!user) return;
-    await supabase.from('game_state').delete().eq('user_id', user.id);
-    await supabase.from('profiles').delete().eq('user_id', user.id);
+    const { error: gameStateDeleteError } = await supabase.from('game_state').delete().eq('user_id', user.id);
+    if (gameStateDeleteError) throw gameStateDeleteError;
+    const { error: profileDeleteError } = await supabase.from('profiles').delete().eq('user_id', user.id);
+    if (profileDeleteError) throw profileDeleteError;
     await supabase.auth.signOut();
   };
 

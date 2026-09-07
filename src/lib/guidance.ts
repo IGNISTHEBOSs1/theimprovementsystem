@@ -1,5 +1,6 @@
 import type { Quest } from "@/types/quest";
 import { deriveTrajectory, deriveResolvedAt } from "@/lib/trajectory";
+import { toServerLocalDate } from "@/lib/serverTime";
 
 // Founder Decision (Guidance chunk): "deterministic, data-grounded
 // guidance only — no LLM." Every message here is produced by a pure
@@ -49,14 +50,17 @@ import { deriveTrajectory, deriveResolvedAt } from "@/lib/trajectory";
 // time this runs. There is no separate "dismiss" mechanism because none
 // is needed — a resolved pattern cannot linger as stale advice.
 //
-// Known, stated limitation (same one documented in trajectory.ts): Quest
-// has no true resolution timestamp, only createdAt, and createdAt is a
-// UTC instant. Rule 2 derives weekday via createdAt's UTC calendar day
-// (Date.getUTCDay()), not the user's local day (unlike the recurrence
-// engine, this has no access to the async server-local date — it must
-// stay a synchronous pure function). For users far from UTC this can
-// misattribute a small number of boundary-case Quests to the adjacent
-// weekday. This is disclosed in the guidance copy itself, not hidden.
+// Founder Decision (Reliability chunk): the limitation this comment used
+// to document — weekday derived from createdAt's UTC calendar day
+// instead of the user's local day — is fixed. Rule 2
+// (weekdayMissPatternGuidance) now takes `timezone` as a required
+// parameter and converts createdAt through toServerLocalDate(), the same
+// conversion path used everywhere else in the app. deriveGuidance is no
+// longer synchronous-with-no-timezone-access; it takes timezone as a
+// plain string argument (resolved by the caller, e.g. Mentor.tsx, from
+// the account's stored IANA timezone) rather than needing to be async
+// itself — it remains a pure function, same input always produces the
+// same output.
 export interface GuidanceMessage {
   id: string;
   text: string;
@@ -113,13 +117,21 @@ function repeatedCommitmentGuidance(quests: Quest[]): GuidanceMessage | null {
   };
 }
 
-function weekdayMissPatternGuidance(quests: Quest[]): GuidanceMessage | null {
+// Founder Decision (Reliability chunk): root-cause fix. createdAt is a
+// UTC instant; getUTCDay() reads its UTC weekday, which is the wrong
+// weekday for any user not in UTC (e.g. a miss at 11pm IST on a Tuesday
+// is still Monday in UTC — attributed to the wrong day entirely, not
+// just off by a few hours). `timezone` is threaded in from the caller
+// (Mentor.tsx, via the account's stored IANA timezone) and converted
+// through the same toServerLocalDate() used everywhere else in the app —
+// one time-conversion path, not a second one invented for Mentor.
+function weekdayMissPatternGuidance(quests: Quest[], timezone: string): GuidanceMessage | null {
   const failed = quests.filter((q) => q.failed);
   if (failed.length < MIN_FAILURES_FOR_WEEKDAY_RULE) return null;
 
   const countsByWeekday = new Array(7).fill(0) as number[];
   for (const quest of failed) {
-    const weekday = new Date(quest.createdAt).getUTCDay();
+    const weekday = toServerLocalDate(new Date(quest.createdAt), timezone).weekday;
     countsByWeekday[weekday] += 1;
   }
 
@@ -276,11 +288,11 @@ function recoveryAfterMissGuidance(quests: Quest[]): GuidanceMessage | null {
 // Ordered by how directly actionable each rule is. At most one of each
 // rule ever fires (not one per matching title/weekday/priority) — this
 // stays a short, occasional note, not a running commentary.
-export function deriveGuidance(quests: Quest[]): GuidanceMessage[] {
+export function deriveGuidance(quests: Quest[], timezone: string): GuidanceMessage[] {
   const messages: GuidanceMessage[] = [];
   const repeated = repeatedCommitmentGuidance(quests);
   if (repeated) messages.push(repeated);
-  const weekday = weekdayMissPatternGuidance(quests);
+  const weekday = weekdayMissPatternGuidance(quests, timezone);
   if (weekday) messages.push(weekday);
   const seriesReliability = seriesReliabilityGuidance(quests);
   if (seriesReliability) messages.push(seriesReliability);

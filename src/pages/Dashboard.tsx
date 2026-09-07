@@ -123,7 +123,7 @@ export default function Dashboard() {
     );
   }
 
-  const guidance = deriveGuidance(state.quests);
+  const guidance = deriveGuidance(state.quests, profile?.timezone || "UTC");
   const trajectory = deriveTrajectory(state.quests);
   const contextualLink = guidance.length > 0
     ? { to: "/mentor", label: "Your Mentor has a note based on your history." }

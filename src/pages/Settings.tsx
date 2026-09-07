@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
+import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 
 // Founder Decision (Profile/Settings separation chunk): timezone,
 // session, and account-data controls moved here verbatim from Profile —
@@ -33,6 +34,16 @@ function getKnownTimezones(): string[] | null {
 export default function Settings() {
   const navigate = useNavigate();
   const { profile, updateProfile, signOut, resetGameProgress, deleteAccount } = useAuth();
+  // Founder Decision (Reliability chunk): resetGameProgress writes
+  // quests: [] directly to game_state — but the shared Quest state this
+  // app actually renders from lives in DashboardDataProvider's React
+  // state (mounted once in AppLayout, read via useDashboardDataContext),
+  // not re-fetched here. Without this, a successful reset left the
+  // Dashboard/Quests/Journey pages showing the pre-reset Quest data
+  // until an unrelated action or a full page reload happened to trigger
+  // useDashboardData's load() again — DB state and displayed state
+  // silently diverging despite the write having actually succeeded.
+  const { reload } = useDashboardDataContext();
 
   // Founder Decision (Profile controls chunk): every recurrence/expiry
   // decision in the app depends on this value (see @/lib/serverTime),
@@ -102,6 +113,7 @@ export default function Settings() {
     setResetting(true);
     try {
       await resetGameProgress();
+      await reload();
       setResetSuccess(true);
     } catch {
       setResetError(true);

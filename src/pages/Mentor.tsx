@@ -1,6 +1,7 @@
 import { MessageSquare } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
+import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { deriveGuidance } from "@/lib/guidance";
 
@@ -35,6 +36,7 @@ const GUIDANCE_CATEGORY_LABELS: Record<string, string> = {
 // is a thin presentational shell around it; all the actual reasoning
 // lives in that one pure function, same separation as Journey/trajectory.
 export default function Mentor() {
+  const { profile } = useAuth();
   const { state, loading, error, reload } = useDashboardDataContext();
 
   if (loading) {
@@ -64,7 +66,7 @@ export default function Mentor() {
     );
   }
 
-  const guidance = deriveGuidance(state.quests);
+  const guidance = deriveGuidance(state.quests, profile?.timezone || "UTC");
 
   // No pattern has met either rule's threshold yet (see lib/guidance.ts) —
   // this is the honest "nothing to say yet" state, not an empty error.

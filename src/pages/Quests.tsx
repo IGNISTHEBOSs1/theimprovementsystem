@@ -9,7 +9,7 @@ import { QuestCard } from "@/components/quests/QuestCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { nextEligibleDayLabel, MAX_ACTIVE_QUESTS, type CadencePreset } from "@/hooks/useDashboardData";
-import { getServerLocalDate, type ServerLocalDate } from "@/lib/serverTime";
+import { getServerLocalDate, toServerLocalDate, type ServerLocalDate } from "@/lib/serverTime";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import type { Quest, QuestPriority } from "@/types/quest";
 
@@ -92,7 +92,14 @@ export default function Quests() {
       (mostRecent.completed || mostRecent.failed) &&
       mostRecent.recurrenceDays &&
       mostRecent.recurrenceDays.length > 0 &&
-      mostRecent.createdAt.split("T")[0] !== serverLocal.dateStr,
+      // Founder Decision (Reliability chunk): root-cause fix, same bug
+      // class as isQuestExpired/nextOccurrencesToCreate in
+      // useDashboardData.ts. createdAt is a UTC instant; serverLocal.dateStr
+      // is the user's local calendar date. Comparing createdAt's raw UTC
+      // date portion against a local date string could misclassify a
+      // series near a local day boundary (showing it as "Upcoming" when
+      // it just became active locally, or vice versa).
+      toServerLocalDate(new Date(mostRecent.createdAt), profile?.timezone || "UTC").dateStr !== serverLocal.dateStr,
     ) : [];
 
   const handleCommit = async (commitment: string, linkedToGoal: boolean, cadence: CadencePreset, customDays: number[], priority: QuestPriority) => {
