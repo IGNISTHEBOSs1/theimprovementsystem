@@ -152,7 +152,30 @@
   }
 }
 
-@layer utilities {
+/* Founder Decision (Mobile usability root-cause chunk): this entire block
+   (typography scale, the Material System, nav-active state, and every
+   other custom class below) was miscategorized as `@layer utilities`.
+   These are component-level styling helpers — background/border/shadow/
+   elevation/typography — not single-purpose atomic utilities, and they
+   were never meant to out-rank a plain Tailwind utility class applied
+   alongside them. Confirmed root cause of a real production bug: because
+   this block lived in the SAME cascade layer as Tailwind's own generated
+   utilities, `.material-surface { position: relative }` — defined later
+   in this file than Tailwind's auto-generated `.fixed { position: fixed
+   }` — won ties on source order alone, silently overriding `fixed`
+   wherever both classes appeared on one element (the mobile nav dock,
+   confirmed via DevTools and empirically verified against the compiled
+   CSS byte order). `@layer components` sits strictly below `@layer
+   utilities` in Tailwind's declared layer order (base < components <
+   utilities, from the `@tailwind base/components/utilities` directives
+   above), REGARDLESS of source order — so any Tailwind utility class
+   (`fixed`, `relative`, `absolute`, text-size utilities, etc.) is now
+   guaranteed to override anything in this block, which is the entire
+   point of Tailwind's layer system and was clearly the original intent
+   here (these were always meant to be a customizable base, not
+   unoverridable utilities). No selectors, class names, or declarations
+   below were changed — only which layer they belong to. */
+@layer components {
   /* ── Typography Scale ── */
   .text-display-xl {
     font-family: 'Inter', sans-serif;
