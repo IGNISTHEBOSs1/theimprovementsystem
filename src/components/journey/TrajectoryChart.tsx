@@ -104,23 +104,42 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
           const y = yFor(point.position);
           const isSelected = selected?.quest.id === point.quest.id;
           return (
-            <circle
-              key={point.quest.id}
-              cx={x}
-              cy={y}
-              r={isSelected ? 6 : 4}
-              fill={point.outcome === "completed" ? "hsl(var(--primary))" : "hsl(var(--destructive))"}
-              stroke="hsl(var(--background))"
-              strokeWidth={1.5}
-              tabIndex={0}
-              role="button"
-              aria-label={`${point.quest.title}, ${point.outcome}, ${point.timestamp.split("T")[0]}`}
-              className="cursor-pointer outline-none focus-visible:stroke-foreground"
-              onClick={() => setSelected(point)}
-              onFocus={() => setSelected(point)}
-            >
-              <title>{`${point.quest.title} — ${point.outcome} — ${point.timestamp.split("T")[0]}`}</title>
-            </circle>
+            <g key={point.quest.id}>
+              {/* Founder Decision (Mobile usability chunk): the visible
+                  dot (r=4, r=6 selected) is far too small to reliably tap
+                  on a phone — an 8px rendered diameter at typical mobile
+                  container widths. This invisible circle sits on top with
+                  a touch-appropriate radius and carries the actual
+                  interaction (tabIndex, role, click/focus handlers,
+                  aria-label); the visible circle below is now purely
+                  decorative (aria-hidden) so the accessible name isn't
+                  announced twice. No visual change — same dot, same size,
+                  same appearance. */}
+              <circle
+                cx={x}
+                cy={y}
+                r={14}
+                fill="transparent"
+                tabIndex={0}
+                role="button"
+                aria-label={`${point.quest.title}, ${point.outcome}, ${point.timestamp.split("T")[0]}`}
+                className="cursor-pointer outline-none"
+                onClick={() => setSelected(point)}
+                onFocus={() => setSelected(point)}
+              />
+              <circle
+                cx={x}
+                cy={y}
+                r={isSelected ? 6 : 4}
+                fill={point.outcome === "completed" ? "hsl(var(--primary))" : "hsl(var(--destructive))"}
+                stroke="hsl(var(--background))"
+                strokeWidth={1.5}
+                aria-hidden="true"
+                className={isSelected ? "stroke-foreground" : undefined}
+              >
+                <title>{`${point.quest.title} — ${point.outcome} — ${point.timestamp.split("T")[0]}`}</title>
+              </circle>
+            </g>
           );
         })}
 

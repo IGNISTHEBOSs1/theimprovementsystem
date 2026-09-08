@@ -191,7 +191,7 @@ export default function Journey() {
             key={String(opt.value)}
             type="button"
             onClick={() => setWindowOption(opt.value)}
-            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+            className={`min-h-9 rounded-full border px-3 py-1 text-xs transition-colors ${
               windowOption === opt.value
                 ? "border-foreground/40 bg-foreground/10 text-foreground"
                 : "border-border/60 text-muted-foreground hover:text-foreground"

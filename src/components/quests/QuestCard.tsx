@@ -61,7 +61,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
       ) : quest.failed ? (
         <div className="text-sm font-medium text-muted-foreground shrink-0">Not completed</div>
       ) : (
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex flex-wrap shrink-0 items-center gap-2">
           {canCancel && (
             <Button
               variant="ghost"
