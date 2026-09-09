@@ -177,7 +177,7 @@ export default function SystemBar({ username }: SystemBarProps) {
           z-40
           flex
           items-stretch
-          h-[56px]
+          h-[45px]
           rounded-full
           border
           border-border/50
