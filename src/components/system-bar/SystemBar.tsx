@@ -224,7 +224,7 @@ export default function SystemBar({ username }: SystemBarProps) {
                       absolute
                       inset-y-1.5
                       inset-x-1
-                      rounded-[18px]
+                      rounded-[60px]
                       bg-foreground/[0.06]
                     "
                     transition={INDICATOR_TRANSITION}
