@@ -180,7 +180,7 @@ export default function SystemBar({ username }: SystemBarProps) {
           h-[56px]
           rounded-full
           border border-border/60
-          shadow-[0_4px_12px_rgba(0,0,0,0.25)]
+          shadow-[0_2px_6px_rgba(0,0,0,0.22)]
         "
         style={{
           bottom: "calc(env(safe-area-inset-bottom) + 12px)",
