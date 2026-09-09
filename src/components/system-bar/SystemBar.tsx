@@ -112,8 +112,23 @@ export default function SystemBar({ username }: SystemBarProps) {
       </aside>
 
       {/* ── Mobile dock ──────────────────────────────────────────── */}
+      {/* Founder Decision (Mobile nav principles review chunk): height
+          fixed to match main content's own reserved space exactly
+          (AppLayout.tsx: `pb-[calc(60px+env(safe-area-inset-bottom))]`).
+          Previously this was `h-[60px]` with the safe-area inset applied
+          as internal bottom padding — since Tailwind's preflight sets
+          border-box sizing, that padding was eaten OUT of the fixed 60px
+          rather than added beyond it, so on any device with a non-zero
+          home-indicator inset (most current iPhones), icons/labels were
+          squeezed into a shorter-than-intended content area, AND main's
+          reserved space (60px + inset) no longer matched the bar's
+          actual total height (60px), leaving an unexplained blank gap
+          between scrollable content and the dock. Correct mobile
+          safe-area handling: the bar's total height now equals what main
+          already reserves for it — the 60px content area stays full
+          height, and the inset is genuinely additional space below it. */}
       <nav
-        className="material-surface material-structural md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch h-[60px] pb-[env(safe-area-inset-bottom)]"
+        className="material-surface material-structural md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch h-[calc(60px+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)]"
         aria-label="Primary navigation, mobile"
       >
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
@@ -134,13 +149,35 @@ export default function SystemBar({ username }: SystemBarProps) {
                   transition={INDICATOR_TRANSITION}
                 />
               )}
+              {/* Founder Decision (Mobile nav device-range chunk): icon/
+                  avatar size is fluid via clamp(), the same technique
+                  already used elsewhere in this file (text-display-lg
+                  etc.) for width-proportional sizing without hard
+                  breakpoint jumps — not a new pattern invented here.
+                  Range chosen from real device CSS viewport widths, not
+                  guessed: 20px floor covers the smallest phones still in
+                  real use (iPhone SE 1st-gen, 320px, and similar budget
+                  Android down to ~360px); 24px ceiling matches the
+                  stated icon-size standard and is never exceeded, even
+                  on the largest phones (Pro Max class, ~430px) — the 5.8vw
+                  factor crosses 24px at ~414px width, so anything at or
+                  above that width sits flat at the 24px ceiling. Applied
+                  identically to the avatar so all 5 destinations stay
+                  visually matched in size at every width, not just the
+                  4 icon items. */}
               {isProfile ? (
-                <IdentityAvatar username={username} className="relative h-6 w-6 ring-1" />
+                <IdentityAvatar
+                  username={username}
+                  className="relative w-[clamp(20px,5.8vw,24px)] h-[clamp(20px,5.8vw,24px)] ring-1"
+                />
               ) : (
                 <Icon
-                  size={19}
+                  size={24}
                   strokeWidth={active ? 2 : 1.5}
-                  className={cn("relative", active ? "text-primary" : "text-muted-foreground")}
+                  className={cn(
+                    "relative w-[clamp(20px,5.8vw,24px)] h-[clamp(20px,5.8vw,24px)]",
+                    active ? "text-primary" : "text-muted-foreground",
+                  )}
                 />
               )}
               <span
