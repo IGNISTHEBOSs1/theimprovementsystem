@@ -44,7 +44,7 @@ const NAV_ITEMS = [
   },
 ] as const;
 
-// Smooth route-change acknowledgment.
+// Smooth route-change animation.
 const INDICATOR_TRANSITION = {
   duration: 0.4,
   ease: [0.16, 1, 0.3, 1] as const,
@@ -181,7 +181,7 @@ export default function SystemBar({ username }: SystemBarProps) {
           rounded-full
           border
           border-border/50
-          shadow-[0_8px_30px_-12px_rgba(0,0,0,0.45)]
+          shadow-[0_10px_20px_-12px_rgba(0,0,0,0.45)]
         "
         style={{
           bottom: "calc(env(safe-area-inset-bottom) + 12px)",
@@ -216,7 +216,7 @@ export default function SystemBar({ username }: SystemBarProps) {
                   active:transition-none
                 "
               >
-                {/* Active tab surface */}
+                {/* Active inner slider */}
                 {active && (
                   <motion.div
                     layoutId="system-bar-active-indicator-mobile"
@@ -231,7 +231,7 @@ export default function SystemBar({ username }: SystemBarProps) {
                   />
                 )}
 
-                {/* Profile uses the user's identity avatar */}
+                {/* Profile avatar */}
                 {isProfile ? (
                   <IdentityAvatar
                     username={username}
