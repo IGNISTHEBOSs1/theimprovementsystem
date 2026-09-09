@@ -120,11 +120,16 @@ export default function Journey() {
     ? trajectory.intended[trajectory.intended.length - 1].position
     : 0;
   const positionDelta = trajectory.currentPosition - intendedEnd;
+  // Founder Decision (Copy clarity chunk): reframed away from "you're
+  // behind" — which reads as a verdict on the person — to describing the
+  // gap as a relationship between the intended path and where actions
+  // have actually landed. Same number, same honesty about the size of
+  // the gap; only the subject of the sentence changed, not the fact.
   const summaryLine = positionDelta === 0
     ? "You're exactly on your intended path."
     : positionDelta > 0
-      ? `You're ${positionDelta} step${positionDelta === 1 ? "" : "s"} ahead of where you intended to be.`
-      : `You're ${Math.abs(positionDelta)} step${Math.abs(positionDelta) === 1 ? "" : "s"} behind where you intended to be.`;
+      ? `You're ${positionDelta} step${positionDelta === 1 ? "" : "s"} ahead of your intended path.`
+      : `Your intended path is currently ${Math.abs(positionDelta)} step${Math.abs(positionDelta) === 1 ? "" : "s"} ahead of where your actions have taken you.`;
 
   const goalStats = deriveGoalStats(state.quests);
 
@@ -172,9 +177,9 @@ export default function Journey() {
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
       <PageHeader
-        eyebrow="Your journey"
+        eyebrow={profile?.primary_goal ? `Goal: ${profile.primary_goal}` : "Your journey"}
         title="Your trajectory."
-        description="Where you intended to go, and where your actions have actually taken you."
+        description="Where your intended path leads, and where your actions have actually taken you."
       />
       <p className="mt-3 text-body-md text-foreground">{summaryLine}</p>
       <p className="mt-1 text-body-sm text-muted-foreground">
@@ -213,7 +218,7 @@ export default function Journey() {
 
       {priorityBreakdown.length > 0 && (
         <div className="mt-8">
-          <p className="text-label text-muted-foreground">Evidence by priority</p>
+          <p className="text-label text-muted-foreground">What your actions show</p>
           <ul className="mt-3 space-y-1.5">
             {priorityBreakdown.map((entry) => (
               <li key={entry.priority} className="flex items-center justify-between text-body-sm">

@@ -175,7 +175,16 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
             </span>
           )}
         </div>
-        <span>Current position: {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}</span>
+        {/* Founder Decision (Copy clarity chunk): the raw "+2" carried
+            no explanation of what it counts. Same number, same
+            computation (trajectory.currentPosition, from
+            lib/trajectory.ts — unchanged) — only the label now states
+            what it means in plain words, so it reads as a fact about
+            behavior rather than an unexplained score. */}
+        <span>
+          Current position: {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
+          <span className="text-muted-foreground"> (completed minus missed, for Quests linked to your goal)</span>
+        </span>
       </div>
 
       {selected && (

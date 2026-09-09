@@ -139,9 +139,9 @@ export default function Quests() {
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
       <PageHeader
-        eyebrow="Your quests"
-        title="All active quests."
-        description="Every quest available to you right now, in one place."
+        eyebrow="Your commitments"
+        title="Your commitments."
+        description="What you're committed to right now, in one place."
       />
 
       <div className="mt-8">
@@ -229,7 +229,7 @@ export default function Quests() {
                   title={activeQuests.length >= MAX_ACTIVE_QUESTS ? `You can have up to ${MAX_ACTIVE_QUESTS} active quest${MAX_ACTIVE_QUESTS === 1 ? "" : "s"} at a time` : undefined}
                 >
                   <Plus className="size-4" aria-hidden="true" />
-                  New Commitment
+                  Make a commitment
                 </Button>
               )}
               {activeQuests.length >= MAX_ACTIVE_QUESTS && (
@@ -253,7 +253,21 @@ export default function Quests() {
                       </Badge>
                       <span className="text-foreground">{quest.title}</span>
                       <span className="text-muted-foreground">
-                        — resumes {nextEligibleDayLabel(quest.recurrenceDays ?? [], serverLocal.weekday)}
+                        {(() => {
+                          const day = nextEligibleDayLabel(quest.recurrenceDays ?? [], serverLocal.weekday);
+                          // Founder Decision (Copy clarity chunk): "resumes
+                          // tomorrow"/"resumes Wednesday" replaced with a
+                          // plain date reference — "Tomorrow" / "Next:
+                          // Wednesday" — matching how a person actually
+                          // reads a calendar, not system-log phrasing.
+                          // nextEligibleDayLabel's own return values are
+                          // unchanged (still "tomorrow" / a weekday name /
+                          // "soon") — only how this one call site displays
+                          // them changed.
+                          if (day === "tomorrow") return "Tomorrow";
+                          if (day === "soon") return "Soon";
+                          return `Next: ${day}`;
+                        })()}
                       </span>
                     </li>
                   ))}
