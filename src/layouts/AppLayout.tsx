@@ -30,6 +30,34 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
       <main className="flex-1 min-w-0 overflow-y-auto pb-[calc(60px+env(safe-area-inset-bottom))] md:pb-0 material-surface material-workspace">
         {children}
       </main>
+
+      {/* Founder Decision (TIS visual toolkit chunk — USE: Gradual Blur,
+          adapted): the principle borrowed is "smooth the boundary where
+          content meets a fixed layer," applied to the one place TIS
+          actually has that boundary — scrollable page content passing
+          under the fixed mobile nav dock. Pure CSS gradient fade, no
+          blur filter (a blur would cost more and add nothing a fade
+          doesn't already achieve), no JS, mobile-only (md:hidden, since
+          desktop has no fixed bottom bar to fade into).
+          pointer-events-none and positioned below the nav's own z-40, so
+          it can never intercept a tap or sit above the nav itself.
+          Height/position match the nav's own calc() exactly (see
+          SystemBar.tsx) so the fade always ends precisely at the top of
+          the bar, never gapping or overlapping it. */}
+      <div
+        aria-hidden="true"
+        className="md:hidden pointer-events-none fixed inset-x-0 z-30 h-6"
+        style={{
+          bottom: "calc(60px + env(safe-area-inset-bottom))",
+          // Matches .material-surface.material-workspace's exact computed
+          // background (elevation 0.4 through the shared formula in
+          // index.css: hsl(0 0% calc(2% + elevation * 1.3%))) rather than
+          // the raw --background token, which is a slightly different
+          // value — using the token here would leave a faint visible seam
+          // where the fade meets main's actual rendered background.
+          background: "linear-gradient(to bottom, transparent, hsl(0 0% calc(2% + 0.4 * 1.3%) / 0.9))",
+        }}
+      />
     </div>
   );
 }
