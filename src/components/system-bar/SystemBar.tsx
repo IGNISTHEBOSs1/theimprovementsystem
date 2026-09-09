@@ -6,11 +6,15 @@ import { SystemLogo } from "@/components/branding/Logo";
 import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 
 const NAV_ITEMS = [
-  { to: "/",        label: "Dashboard", icon: LayoutDashboard },
-  { to: "/journey", label: "Journey",   icon: Compass },
-  { to: "/quests",  label: "Quests",    icon: CheckSquare },
-  { to: "/mentor",  label: "Mentor",    icon: MessageSquare },
-  { to: "/profile", label: "Profile",   icon: User },
+  // Founder Decision (Mobile nav pill chunk): mobileLabel is a
+  // mobile-only override — desktop rail keeps the original label
+  // unchanged (explicitly requested to stay mobile-only). Falls back to
+  // `label` where no override is given (Quests, Mentor).
+  { to: "/",        label: "Dashboard", mobileLabel: "Home", icon: LayoutDashboard },
+  { to: "/journey", label: "Journey",   mobileLabel: "Path", icon: Compass },
+  { to: "/quests",  label: "Quests",    mobileLabel: undefined as string | undefined, icon: CheckSquare },
+  { to: "/mentor",  label: "Mentor",    mobileLabel: undefined as string | undefined, icon: MessageSquare },
+  { to: "/profile", label: "Profile",   mobileLabel: "Me",   icon: User },
 ] as const;
 
 // Route-change acknowledgment — one continuous motion between states, not a snap.
@@ -127,11 +131,31 @@ export default function SystemBar({ username }: SystemBarProps) {
           safe-area handling: the bar's total height now equals what main
           already reserves for it — the 60px content area stays full
           height, and the inset is genuinely additional space below it. */}
+      {/* Founder Decision (Mobile nav pill chunk): floating pill instead
+          of an edge-to-edge flush bar. Position math changed from
+          "flush at bottom-0, height includes the safe-area inset" to
+          "floats a fixed 12px clear of the safe area, fixed 60px
+          content height" — the pb-[env(...)]-eats-into-height problem
+          fixed in the reliability chunk doesn't apply here since the
+          pill no longer touches the true bottom edge at all; the inset
+          is handled entirely by the `bottom` offset instead. AppLayout's
+          reserved main-content padding and the scroll-edge fade were
+          both updated to match this exactly (see AppLayout.tsx) — same
+          calc() value, kept in sync deliberately, not by coincidence.
+          Border glow: static (no pulsing/looping animation — matches
+          "no unnecessary animation"), using only the existing --primary
+          token, same restrained treatment already used on today's focus
+          panel. Slider: the existing layoutId-based active-indicator
+          already animates/slides between positions automatically via
+          Framer Motion layout animation — this was functionally already
+          a "slider," just squared; only its shape changed to
+          rounded-full to match the pill. */}
       <nav
-        className="material-surface material-structural md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-stretch h-[calc(60px+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)]"
+        className="material-surface material-structural md:hidden fixed left-3 right-3 z-40 flex items-stretch h-[60px] rounded-full shadow-[0_0_0_1px_hsl(var(--primary)/0.16),0_10px_30px_-10px_hsl(var(--primary)/0.4)]"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 12px)" }}
         aria-label="Primary navigation, mobile"
       >
-        {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ to, label, mobileLabel, icon: Icon }) => {
           const active = isActive(to);
           const isProfile = to === "/profile";
           return (
@@ -145,7 +169,7 @@ export default function SystemBar({ username }: SystemBarProps) {
               {active && (
                 <motion.div
                   layoutId="system-bar-active-indicator-mobile"
-                  className="absolute inset-x-2 inset-y-1.5 rounded-lg system-nav-active"
+                  className="absolute inset-x-1.5 inset-y-1.5 rounded-full system-nav-active"
                   transition={INDICATOR_TRANSITION}
                 />
               )}
@@ -186,7 +210,7 @@ export default function SystemBar({ username }: SystemBarProps) {
                   active ? "text-foreground" : "text-muted-foreground",
                 )}
               >
-                {label}
+                {mobileLabel ?? label}
               </span>
             </NavLink>
           );
