@@ -28,7 +28,16 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
   const intendedSeries = [0, ...intended.map((p) => p.position)];
   const pointCount = actualSeries.length;
 
-  const allValues = [...actualSeries, ...intendedSeries];
+  // Founder Decision (Journey graph — Graph Idea #1): intended-range
+  // band, ±1 step around the intended reference path — an "on-track
+  // zone," not a precision target. Computed from the SAME intendedSeries
+  // used everywhere else in this file; no new data, no new derivation,
+  // no change to trajectory.ts. Included in allValues below so the y-scale
+  // expands to fit the band without clipping it.
+  const bandUpper = intendedSeries.map((v) => v + 1);
+  const bandLower = intendedSeries.map((v) => v - 1);
+
+  const allValues = [...actualSeries, ...intendedSeries, ...bandUpper, ...bandLower];
   const minY = Math.min(...allValues);
   const maxY = Math.max(...allValues);
   const rangeY = Math.max(maxY - minY, 1);
@@ -74,6 +83,18 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
   const areaPathFor = (series: number[]) =>
     `${smoothPathFor(series)} L ${xFor(series.length - 1)} ${yFor(0)} L ${xFor(0)} ${yFor(0)} Z`;
 
+  // Straight-segment band boundary (matches the intended line's own
+  // non-smoothed treatment — a reference zone, not a data series):
+  // trace the lower bound left-to-right, then the upper bound back
+  // right-to-left, closing into one filled ribbon shape.
+  const bandPath = () => {
+    const upperPts = bandUpper.map((v, i) => [xFor(i), yFor(v)] as const);
+    const lowerPts = bandLower.map((v, i) => [xFor(i), yFor(v)] as const);
+    const lowerPath = lowerPts.map((p, i) => `${i === 0 ? "M" : "L"} ${p[0]} ${p[1]}`).join(" ");
+    const upperPath = [...upperPts].reverse().map((p) => `L ${p[0]} ${p[1]}`).join(" ");
+    return `${lowerPath} ${upperPath} Z`;
+  };
+
   const gridLines = 4;
 
   return (
@@ -97,10 +118,11 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
         </defs>
 
         {/* Quiet coordinate grid — structural, not decorative. Reduced
-            from 4 to 3 divisions on this chunk for less visual noise
-            against the new area fill. */}
-        {Array.from({ length: 3 + 1 }).map((_, i) => {
-          const y = PAD_Y + (i / 3) * (HEIGHT - PAD_Y * 2);
+            opacity again this chunk (0.4 → 0.28) now that the band adds
+            its own visual weight to the plotting area — the grid's only
+            job is orientation, it should never compete for attention. */}
+        {Array.from({ length: 2 + 1 }).map((_, i) => {
+          const y = PAD_Y + (i / 2) * (HEIGHT - PAD_Y * 2);
           return (
             <line
               key={i}
@@ -109,7 +131,7 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
               x2={WIDTH - PAD_X}
               y2={y}
               stroke="hsl(var(--border))"
-              strokeOpacity={0.4}
+              strokeOpacity={0.28}
               strokeWidth={1}
             />
           );
@@ -122,20 +144,30 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
           x2={WIDTH - PAD_X}
           y2={yFor(0)}
           stroke="hsl(var(--border))"
-          strokeOpacity={0.8}
+          strokeOpacity={0.7}
           strokeWidth={1}
         />
 
-        {/* Intended trajectory — the positive reference path. Stays a
-            plain straight-segment line (not smoothed) so it continues to
-            read as a reference, not another data series. */}
+        {/* Founder Decision (Journey graph — Graph Idea #1): the
+            intended-range band. Neutral (muted-foreground, not primary)
+            and very translucent (6%) — deliberately not colored like a
+            data series and not strong enough to read as an error/
+            uncertainty band. It exists purely to say "this general zone
+            is reasonable," secondary to everything else on the chart. */}
+        <path d={bandPath()} fill="hsl(var(--muted-foreground) / 0.06)" stroke="none" />
+
+        {/* Intended trajectory — the positive reference path. Now that
+            the band carries most of the orientation role, this line is
+            kept only as a faint centerline (opacity lowered from 0.6 to
+            0.35) rather than a second competing element. Still a plain
+            straight-segment line, not smoothed. */}
         <path
           d={pathFor(intendedSeries)}
           fill="none"
           stroke="hsl(var(--muted-foreground))"
-          strokeWidth={1.5}
+          strokeWidth={1}
           strokeDasharray="4 4"
-          opacity={0.6}
+          opacity={0.35}
         />
 
         {/* Actual trajectory — gradient area fill, then the smoothed
