@@ -27,14 +27,15 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
       />
 
       {/* ── Content area ─────────────────────────────────────────────── */}
-      {/* Founder Decision (Mobile nav pill chunk): reserved bottom space
-          now matches the floating pill exactly — pill height (60px) +
-          its floating clearance above the safe area (12px, see
-          SystemBar.tsx) + a little breathing room so content doesn't sit
-          flush against the pill (8px) = 80px, plus the safe-area inset
-          itself. Kept in sync with the pill's own position math
-          deliberately, not coincidentally. */}
-      <main className="flex-1 min-w-0 overflow-y-auto pb-[calc(80px+env(safe-area-inset-bottom))] md:pb-0 material-surface material-workspace">
+      {/* Founder Decision (Bottom-nav polish chunk): reserved bottom
+          space recalculated after the nav bar's own height changed from
+          60px to 56px — this is exactly the class of bug that caused
+          "shadow above the nav bar": the two files' floating-pill math
+          drifted out of sync when only one side was edited. Pill height
+          (56px) + floating clearance above the safe area (12px, see
+          SystemBar.tsx) + 8px breathing room so content doesn't sit
+          flush against the pill = 76px, plus the safe-area inset itself. */}
+      <main className="flex-1 min-w-0 overflow-y-auto pb-[calc(76px+env(safe-area-inset-bottom))] md:pb-0 material-surface material-workspace">
         {children}
       </main>
 
@@ -49,14 +50,13 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
           pointer-events-none and positioned below the nav's own z-40, so
           it can never intercept a tap or sit above the nav itself.
           Position matches the pill's own top edge (bottom offset 12px +
-          pill height 60px = 72px) so the fade always ends precisely
-          where the pill begins, kept in sync with SystemBar.tsx's own
-          math, not independently guessed. */}
+          pill height 56px = 68px) — recalculated alongside main's
+          padding above for the same reason. */}
       <div
         aria-hidden="true"
         className="md:hidden pointer-events-none fixed inset-x-0 z-30 h-6"
         style={{
-          bottom: "calc(72px + env(safe-area-inset-bottom))",
+          bottom: "calc(68px + env(safe-area-inset-bottom))",
           // Matches .material-surface.material-workspace's exact computed
           // background (elevation 0.4 through the shared formula in
           // index.css: hsl(0 0% calc(2% + elevation * 1.3%))) rather than

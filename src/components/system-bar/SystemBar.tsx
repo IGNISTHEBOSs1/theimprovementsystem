@@ -68,7 +68,7 @@ export default function SystemBar({ username }: SystemBarProps) {
           Desktop rail
       ───────────────────────────────────────────────────────── */}
       <aside
-        className="material-surface material-structural hidden md:flex md:flex-col md:justify-between md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
+        className="material-surface material-structural hidden md:flex md:flex-col md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
         aria-label="Primary navigation"
       >
         {/* Identity */}
@@ -151,16 +151,15 @@ export default function SystemBar({ username }: SystemBarProps) {
           })}
         </nav>
 
-        {/* Voice / system message */}
-        <div className="px-6 pb-7 pt-6">
-          <p className="text-[12px] leading-relaxed text-muted-foreground/70 italic tracking-wide">
-            "Small, consistent actions forge extraordinary transformation."
-          </p>
-
-          <p className="text-[10px] tracking-[0.08em] uppercase text-primary/70 mt-2">
-            — The System
-          </p>
-        </div>
+        {/* Founder Decision (Bottom-nav polish chunk): the "Voice /
+            system message" footer block that was here — an italic
+            aphorism signed "— The System" — was removed, not carried
+            forward. RPG-era System framing has been an explicit, standing
+            prohibition across this project ("RPG mechanics are
+            permanently removed... do not introduce RPG styling"), not a
+            style preference open to reinterpretation. If this footer
+            area is wanted back, it needs its own, non-System-voiced
+            content — a Founder call, not something to silently restore. */}
       </aside>
 
       {/* ─────────────────────────────────────────────────────────
