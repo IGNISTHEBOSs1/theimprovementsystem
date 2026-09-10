@@ -88,7 +88,7 @@ export default function Mentor() {
       <PageHeader
         eyebrow="Your mentor"
         title="What your history is showing."
-        description="Grounded in your own Quests — never a guess, never a score, never a judgment."
+        description="Grounded in your own Quests, never a guess or a score."
       />
       <ul className="mt-6 space-y-4">
         {guidance.map((message) => (

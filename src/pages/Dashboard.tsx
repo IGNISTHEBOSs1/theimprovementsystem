@@ -142,7 +142,7 @@ export default function Dashboard() {
         <PageHeader
           eyebrow="Your system"
           title={`Welcome back, ${name}.`}
-          description="A quiet place to reconnect with what matters and take the next meaningful step."
+          description="A quiet place to focus on what matters."
         />
         <DirectionCard name={name} goalStats={profile?.primary_goal ? deriveGoalStats(state.quests) : undefined} />
       </div>

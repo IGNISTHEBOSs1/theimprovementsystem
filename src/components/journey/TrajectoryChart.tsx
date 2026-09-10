@@ -41,6 +41,39 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
   const pathFor = (series: number[]) =>
     series.map((v, i) => `${i === 0 ? "M" : "L"} ${xFor(i)} ${yFor(v)}`).join(" ");
 
+  // Founder Decision (Mobile graph chunk): smooth curve instead of a
+  // straight-segment line, via Catmull-Rom-to-cubic-Bezier conversion —
+  // a standard, well-understood technique, not a novel/decorative
+  // effect. Purely a rendering choice: the underlying data points,
+  // their x/y positions, and what they mean are completely unchanged: no
+  // point is added, removed, or moved, and no value is smoothed/altered.
+  // Only used for the actual-evidence line (what a person reads as "real
+  // data"); the intended line stays a plain dashed reference and is
+  // deliberately NOT curved, so it continues to read as a straight
+  // reference path rather than another data series.
+  const smoothPathFor = (series: number[]) => {
+    const pts = series.map((v, i) => [xFor(i), yFor(v)] as const);
+    if (pts.length < 2) return pathFor(series);
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] ?? pts[i];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[i + 2] ?? p2;
+      const c1x = p1[0] + (p2[0] - p0[0]) / 6;
+      const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+      const c2x = p2[0] - (p3[0] - p1[0]) / 6;
+      const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2[0]} ${p2[1]}`;
+    }
+    return d;
+  };
+
+  // Same smooth curve, closed down to the zero-baseline, for the
+  // gradient area fill under the actual line.
+  const areaPathFor = (series: number[]) =>
+    `${smoothPathFor(series)} L ${xFor(series.length - 1)} ${yFor(0)} L ${xFor(0)} ${yFor(0)} Z`;
+
   const gridLines = 4;
 
   return (
@@ -51,9 +84,23 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
         role="img"
         aria-label="Trajectory: actual movement compared to intended direction, based on completed and missed Quests linked to your goal"
       >
-        {/* Quiet coordinate grid — structural, not decorative */}
-        {Array.from({ length: gridLines + 1 }).map((_, i) => {
-          const y = PAD_Y + (i / gridLines) * (HEIGHT - PAD_Y * 2);
+        <defs>
+          {/* Founder Decision (Mobile graph chunk): area fill under the
+              actual line, fading to fully transparent — improves
+              legibility at small mobile sizes by giving the eye a shape
+              to read instead of only a thin stroke, without adding any
+              new color (--primary token only, capped at low opacity). */}
+          <linearGradient id="trajectory-actual-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.28} />
+            <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+
+        {/* Quiet coordinate grid — structural, not decorative. Reduced
+            from 4 to 3 divisions on this chunk for less visual noise
+            against the new area fill. */}
+        {Array.from({ length: 3 + 1 }).map((_, i) => {
+          const y = PAD_Y + (i / 3) * (HEIGHT - PAD_Y * 2);
           return (
             <line
               key={i}
@@ -79,7 +126,9 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
           strokeWidth={1}
         />
 
-        {/* Intended trajectory — the positive reference path */}
+        {/* Intended trajectory — the positive reference path. Stays a
+            plain straight-segment line (not smoothed) so it continues to
+            read as a reference, not another data series. */}
         <path
           d={pathFor(intendedSeries)}
           fill="none"
@@ -89,12 +138,15 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
           opacity={0.6}
         />
 
-        {/* Actual trajectory */}
+        {/* Actual trajectory — gradient area fill, then the smoothed
+            line on top of it. */}
+        <path d={areaPathFor(actualSeries)} fill="url(#trajectory-actual-fill)" stroke="none" />
         <path
-          d={pathFor(actualSeries)}
+          d={smoothPathFor(actualSeries)}
           fill="none"
           stroke="hsl(var(--primary))"
-          strokeWidth={2}
+          strokeWidth={2.5}
+          strokeLinecap="round"
         />
 
         {/* Evidence points on the actual line — each one is a real,

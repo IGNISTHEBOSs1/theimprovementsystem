@@ -181,10 +181,28 @@ export default function Journey() {
         title="Your trajectory."
         description="Where your intended path leads, and where your actions have actually taken you."
       />
+      {/* Founder Decision (Mobile hierarchy chunk — raw data to visual):
+          a plain "X of Y completed" sentence replaced with a compact
+          numeric ratio plus a static, factual progress bar — same two
+          numbers as before (goalStats.completed / goalStats.linked from
+          deriveGoalStats, unchanged), just read as a shape instead of a
+          sentence. Deliberately static and unstyled beyond a simple
+          filled bar — no shine, no animation-on-load, no XP-bar
+          treatment — this represents a real, honest ratio, not
+          gamified progress. */}
+      <div className="mt-3 flex items-center gap-3">
+        <span className="shrink-0 text-body-md font-semibold text-foreground tabular-nums">
+          {goalStats.completed}/{goalStats.linked}
+        </span>
+        <div className="h-1.5 w-full max-w-[180px] overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full rounded-full bg-primary/70"
+            style={{ width: `${goalStats.linked > 0 ? (goalStats.completed / goalStats.linked) * 100 : 0}%` }}
+          />
+        </div>
+        <span className="text-body-sm text-muted-foreground">linked Quests completed</span>
+      </div>
       <p className="mt-3 text-body-md text-foreground">{summaryLine}</p>
-      <p className="mt-1 text-body-sm text-muted-foreground">
-        {goalStats.completed} of {goalStats.linked} linked Quest{goalStats.linked === 1 ? "" : "s"} completed.
-      </p>
       {previousGoalEvidenceCount > 0 && (
         <p className="mt-1 text-body-sm text-muted-foreground">
           {previousGoalEvidenceCount} of these {previousGoalEvidenceCount === 1 ? "was" : "were"} recorded under a previous goal, before it changed to "{profile?.primary_goal}."

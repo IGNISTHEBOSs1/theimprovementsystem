@@ -39,33 +39,16 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
         {children}
       </main>
 
-      {/* Founder Decision (TIS visual toolkit chunk — USE: Gradual Blur,
-          adapted): the principle borrowed is "smooth the boundary where
-          content meets a fixed layer," applied to the one place TIS
-          actually has that boundary — scrollable page content passing
-          under the fixed mobile nav dock. Pure CSS gradient fade, no
-          blur filter (a blur would cost more and add nothing a fade
-          doesn't already achieve), no JS, mobile-only (md:hidden, since
-          desktop has no fixed bottom bar to fade into).
-          pointer-events-none and positioned below the nav's own z-40, so
-          it can never intercept a tap or sit above the nav itself.
-          Position matches the pill's own top edge (bottom offset 12px +
-          pill height 56px = 68px) — recalculated alongside main's
-          padding above for the same reason. */}
-      <div
-        aria-hidden="true"
-        className="md:hidden pointer-events-none fixed inset-x-0 z-30 h-6"
-        style={{
-          bottom: "calc(68px + env(safe-area-inset-bottom))",
-          // Matches .material-surface.material-workspace's exact computed
-          // background (elevation 0.4 through the shared formula in
-          // index.css: hsl(0 0% calc(2% + elevation * 1.3%))) rather than
-          // the raw --background token, which is a slightly different
-          // value — using the token here would leave a faint visible seam
-          // where the fade meets main's actual rendered background.
-          background: "linear-gradient(to bottom, transparent, hsl(0 0% calc(2% + 0.4 * 1.3%) / 0.9))",
-        }}
-      />
+      {/* Founder Decision (Mobile shadow-direction chunk): the scroll-
+          edge gradient fade that used to sit here has been removed
+          entirely, not just repositioned. It was a dark, top-to-bottom
+          gradient placed directly above the pill — visually
+          indistinguishable from "a shadow sitting above the bar," which
+          is the exact confusion reported twice now. Removing it, and
+          letting the pill's own box-shadow (bottom-weighted, see
+          SystemBar.tsx) be the only shadow-like element near the nav,
+          resolves the ambiguity by construction rather than by further
+          tuning two competing effects against each other. */}
     </div>
   );
 }
