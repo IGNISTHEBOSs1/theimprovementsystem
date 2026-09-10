@@ -4,6 +4,7 @@ import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { deriveGuidance } from "@/lib/guidance";
+import { deriveInsights } from "@/lib/insights";
 
 // Founder Decision (Mentor presentation chunk): a short, muted category
 // label per message, identifying which of the 7 rules in lib/guidance.ts
@@ -67,11 +68,15 @@ export default function Mentor() {
   }
 
   const guidance = deriveGuidance(state.quests, profile?.timezone || "UTC");
+  const insights = deriveInsights(state.quests);
 
   // No pattern has met either rule's threshold yet (see lib/guidance.ts) —
   // this is the honest "nothing to say yet" state, not an empty error.
-  // Never fabricate a message just to fill the page.
-  if (guidance.length === 0) {
+  // Never fabricate a message just to fill the page. Extended to cover
+  // Insights too — one honest empty state for the whole page, not two
+  // separate ones, since both sections are answering "has TIS learned
+  // anything real yet" from the same underlying history.
+  if (guidance.length === 0 && insights.length === 0) {
     return (
       <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
         <PlaceholderExperience
@@ -90,19 +95,57 @@ export default function Mentor() {
         title="What your history is showing."
         description="Grounded in your own Quests, never a guess or a score."
       />
-      <ul className="mt-6 space-y-4">
-        {guidance.map((message) => (
-          <li
-            key={message.id}
-            className="rounded-2xl border border-border/60 bg-card/40 p-5"
-          >
-            {GUIDANCE_CATEGORY_LABELS[message.id] && (
-              <p className="text-label text-muted-foreground">{GUIDANCE_CATEGORY_LABELS[message.id]}</p>
-            )}
-            <p className="mt-2 text-body-md leading-6 text-foreground">{message.text}</p>
-          </li>
-        ))}
-      </ul>
+
+      {/* Founder Decision (Personal Insight System): a distinct second
+          section, not merged into the guidance list above and not
+          replacing it. Mentor's existing rules stay first — short,
+          "worth a note right now" — Insights follow as the deeper,
+          evidence-backed layer: "what is TIS learning about how I
+          actually operate," per the brief. Only rendered when there's
+          at least one real insight; no empty placeholder if this
+          specific section has nothing yet but guidance does. */}
+      {guidance.length > 0 && (
+        <ul className="mt-6 space-y-4">
+          {guidance.map((message) => (
+            <li
+              key={message.id}
+              className="rounded-2xl border border-border/60 bg-card/40 p-5"
+            >
+              {GUIDANCE_CATEGORY_LABELS[message.id] && (
+                <p className="text-label text-muted-foreground">{GUIDANCE_CATEGORY_LABELS[message.id]}</p>
+              )}
+              <p className="mt-2 text-body-md leading-6 text-foreground">{message.text}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {insights.length > 0 && (
+        <div className="mt-10">
+          <p className="text-label text-primary">Patterns</p>
+          <ul className="mt-4 space-y-4">
+            {insights.map((insight) => (
+              <li
+                key={insight.id}
+                className="rounded-2xl border border-border bg-card p-5"
+              >
+                <p className="text-label text-muted-foreground">{insight.categoryLabel}</p>
+                <p className="mt-2 text-body-md font-medium leading-6 text-foreground">{insight.observation}</p>
+                <p className="mt-1.5 text-body-sm text-muted-foreground">{insight.evidence}</p>
+                {insight.interpretation && (
+                  <p className="mt-3 text-body-sm text-foreground">
+                    <span className="text-muted-foreground">What this might mean — </span>
+                    {insight.interpretation}
+                  </p>
+                )}
+                {insight.adjustment && (
+                  <p className="mt-1.5 text-body-sm text-primary">{insight.adjustment}</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DirectionCard } from "@/components/dashboard/DirectionCard";
 import { FirstLaunchState } from "@/components/dashboard/FirstLaunchState";
+import { AppTour } from "@/components/onboarding/AppTour";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PrimaryActionPanel } from "@/components/dashboard/PrimaryActionPanel";
 import { RecoveryState } from "@/components/dashboard/RecoveryState";
@@ -133,6 +134,7 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
+      <AppTour />
       {/* ── Tier 1 — Identity / Current State ──────────────────────────
           PageHeader (identity) and DirectionCard (direction) are two
           distinct responsibilities that read as one ambient band: tight
