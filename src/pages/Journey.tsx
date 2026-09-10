@@ -237,15 +237,27 @@ export default function Journey() {
       {priorityBreakdown.length > 0 && (
         <div className="mt-8">
           <p className="text-label text-muted-foreground">What your actions show</p>
-          <ul className="mt-3 space-y-1.5">
-            {priorityBreakdown.map((entry) => (
-              <li key={entry.priority} className="flex items-center justify-between text-body-sm">
-                <span className="text-foreground">{entry.priority}</span>
-                <span className="text-muted-foreground">
-                  {entry.completed} completed{entry.failed > 0 ? `, ${entry.failed} missed` : ""}
-                </span>
-              </li>
-            ))}
+          {/* Founder Decision (Mobile Journey chunk — text to visual):
+              each row's sentence replaced with a compact bar (rate =
+              completed / (completed+failed), same numbers as before,
+              just read as a shape). Numeric fallback stays next to it
+              for anyone who wants the exact counts. */}
+          <ul className="mt-3 space-y-2.5">
+            {priorityBreakdown.map((entry) => {
+              const total = entry.completed + entry.failed;
+              const rate = total > 0 ? (entry.completed / total) * 100 : 0;
+              return (
+                <li key={entry.priority} className="flex items-center gap-3 text-body-sm">
+                  <span className="w-20 shrink-0 text-foreground">{entry.priority}</span>
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full rounded-full bg-primary/70" style={{ width: `${rate}%` }} />
+                  </div>
+                  <span className="w-10 shrink-0 text-right text-muted-foreground tabular-nums">
+                    {entry.completed}/{total}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
@@ -253,15 +265,21 @@ export default function Journey() {
       {seriesStats.length > 0 && (
         <div className="mt-8">
           <p className="text-label text-muted-foreground">Recurring commitments</p>
-          <ul className="mt-3 space-y-1.5">
-            {seriesStats.map((series) => (
-              <li key={series.seriesId} className="flex items-center justify-between text-body-sm">
-                <span className="truncate text-foreground">{series.title}</span>
-                <span className="shrink-0 text-muted-foreground">
-                  {series.completed}/{series.total} completed
-                </span>
-              </li>
-            ))}
+          <ul className="mt-3 space-y-2.5">
+            {seriesStats.map((series) => {
+              const rate = series.total > 0 ? (series.completed / series.total) * 100 : 0;
+              return (
+                <li key={series.seriesId} className="flex items-center gap-3 text-body-sm">
+                  <span className="w-24 shrink-0 truncate text-foreground">{series.title}</span>
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full rounded-full bg-primary/70" style={{ width: `${rate}%` }} />
+                  </div>
+                  <span className="w-10 shrink-0 text-right text-muted-foreground tabular-nums">
+                    {series.completed}/{series.total}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
@@ -269,11 +287,18 @@ export default function Journey() {
       {followThrough.total > 0 && (
         <div className="mt-8 rounded-2xl border border-border/60 bg-card/40 p-5">
           <p className="text-label text-muted-foreground">Overall follow-through</p>
-          <p className="mt-2 text-body-sm text-muted-foreground">
-            Across every Quest you've committed to, not just ones linked to your goal:{" "}
-            <span className="text-foreground">{followThrough.completed} of {followThrough.total} completed</span>.
-            This is separate from your goal trajectory above.
-          </p>
+          <div className="mt-3 flex items-center gap-3">
+            <span className="shrink-0 text-body-md font-semibold text-foreground tabular-nums">
+              {followThrough.completed}/{followThrough.total}
+            </span>
+            <div className="h-1.5 w-full max-w-[180px] overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary/70"
+                style={{ width: `${followThrough.total > 0 ? (followThrough.completed / followThrough.total) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
+          <p className="mt-2 text-body-sm text-muted-foreground">Every Quest, not just goal-linked ones.</p>
         </div>
       )}
 

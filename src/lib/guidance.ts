@@ -113,7 +113,7 @@ function repeatedCommitmentGuidance(quests: Quest[]): GuidanceMessage | null {
 
   return {
     id: "repeated-commitment",
-    text: `You've committed to "${original}" ${best.count} separate times. Making it a recurring Quest would mean you don't have to re-commit to it manually each time.`,
+    text: `"${original}" — committed ${best.count} times separately. Worth making it recurring instead.`,
   };
 }
 
@@ -142,7 +142,7 @@ function weekdayMissPatternGuidance(quests: Quest[], timezone: string): Guidance
   const dayLabel = WEEKDAY_NAMES[weekday];
   return {
     id: "weekday-miss-pattern",
-    text: `${maxCount} of your last ${failed.length} missed Quests fell on a ${dayLabel}. Worth noticing if ${dayLabel}s tend to be busier than you're planning for.`,
+    text: `${maxCount} of your last ${failed.length} misses fell on a ${dayLabel}. That day may need lighter commitments.`,
   };
 }
 
@@ -156,7 +156,7 @@ function trajectoryPositionGuidance(quests: Quest[]): GuidanceMessage | null {
 
   return {
     id: "trajectory-position",
-    text: `You're ${deficit} steps behind where you intended to be on your goal. That's not a verdict on you — it's information for what to commit to next.`,
+    text: `${deficit} steps behind your intended path — not a verdict, just useful for your next commitment.`,
   };
 }
 
@@ -178,7 +178,7 @@ function priorityCompletionGuidance(quests: Quest[]): GuidanceMessage | null {
 
   return {
     id: "priority-completion-pattern",
-    text: `Your ${worst.priority} Quests complete ${Math.round(worst.rate * 100)}% of the time, compared to ${Math.round(best.rate * 100)}% for your ${best.priority} ones. Worth noticing which commitments are actually realistic at that priority.`,
+    text: `${worst.priority} Quests complete ${Math.round(worst.rate * 100)}%, vs ${Math.round(best.rate * 100)}% for ${best.priority}. Worth a look at what's realistic there.`,
   };
 }
 
@@ -220,7 +220,7 @@ function seriesReliabilityGuidance(quests: Quest[]): GuidanceMessage | null {
 
   return {
     id: "series-reliability",
-    text: `Your recurring commitment "${worst.title}" completes ${Math.round(worst.rate * 100)}% of the time, well below your overall ${Math.round(overallRate * 100)}%. That gap is worth noticing — it may mean the cadence or scope you set for it doesn't match what's realistic right now.`,
+    text: `"${worst.title}" completes ${Math.round(worst.rate * 100)}%, well below your ${Math.round(overallRate * 100)}% overall. Its cadence may not fit right now.`,
   };
 }
 
@@ -244,11 +244,11 @@ function goalLinkageGapGuidance(quests: Quest[]): GuidanceMessage | null {
   return gap < 0
     ? {
         id: "goal-linkage-gap",
-        text: `Quests linked to your goal complete ${Math.round(linkedRate * 100)}% of the time, compared to ${Math.round(unlinkedRate * 100)}% for everything else. Worth noticing if goal-linked commitments are being set at a harder bar than the rest of what you commit to.`,
+        text: `Goal-linked Quests complete ${Math.round(linkedRate * 100)}% vs ${Math.round(unlinkedRate * 100)}% elsewhere — maybe set at a harder bar.`,
       }
     : {
         id: "goal-linkage-gap",
-        text: `Quests linked to your goal complete ${Math.round(linkedRate * 100)}% of the time, compared to ${Math.round(unlinkedRate * 100)}% for everything else — noticeably more reliable. Worth noticing what's different about how you approach goal-linked commitments.`,
+        text: `Goal-linked Quests complete ${Math.round(linkedRate * 100)}% vs ${Math.round(unlinkedRate * 100)}% elsewhere — notably more reliable.`,
       };
 }
 
@@ -281,7 +281,7 @@ function recoveryAfterMissGuidance(quests: Quest[]): GuidanceMessage | null {
 
   return {
     id: "recovery-after-miss",
-    text: `After a missed Quest, your next one is also missed ${Math.round(repeatRate * 100)}% of the time. A miss doesn't have to lead to another — a smaller, easier next commitment right after one might be worth trying.`,
+    text: `After a miss, your next Quest is also missed ${Math.round(repeatRate * 100)}% of the time. A smaller next step can help.`,
   };
 }
 
