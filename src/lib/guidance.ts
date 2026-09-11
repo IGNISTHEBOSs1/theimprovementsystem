@@ -61,9 +61,20 @@ import { toServerLocalDate } from "@/lib/serverTime";
 // the account's stored IANA timezone) rather than needing to be async
 // itself — it remains a pure function, same input always produces the
 // same output.
+// Founder Decision (Mentor selectivity chunk): `strength` added to every
+// rule's output — a small, internal, explainable 0–1 score used only for
+// ranking (see deriveGuidance's final sort/cap, and mentorRanking.ts
+// which merges this against Insight strength too). Not a new scoring
+// SYSTEM invented from scratch: each rule already computed a sample
+// count and/or an effect magnitude before formatting its sentence —
+// strength is just that same already-computed number, exposed instead
+// of discarded. Roughly: (effect magnitude, 0–1 where applicable) ×
+// (sample-size confidence, capped at a modest sample so one extra data
+// point can't dominate). Never shown to the user — internal only.
 export interface GuidanceMessage {
   id: string;
   text: string;
+  strength: number;
 }
 
 const MIN_REPEAT_COUNT = 3;
@@ -114,6 +125,7 @@ function repeatedCommitmentGuidance(quests: Quest[]): GuidanceMessage | null {
   return {
     id: "repeated-commitment",
     text: `"${original}" — committed ${best.count} times separately. Worth making it recurring instead.`,
+    strength: Math.min(best.count / 6, 1),
   };
 }
 
@@ -143,6 +155,7 @@ function weekdayMissPatternGuidance(quests: Quest[], timezone: string): Guidance
   return {
     id: "weekday-miss-pattern",
     text: `${maxCount} of your last ${failed.length} misses fell on a ${dayLabel}. That day may need lighter commitments.`,
+    strength: (maxCount / failed.length) * Math.min(failed.length / 8, 1),
   };
 }
 
@@ -157,6 +170,7 @@ function trajectoryPositionGuidance(quests: Quest[]): GuidanceMessage | null {
   return {
     id: "trajectory-position",
     text: `${deficit} steps behind your intended path — not a verdict, just useful for your next commitment.`,
+    strength: Math.min(deficit / 10, 1),
   };
 }
 
@@ -179,6 +193,7 @@ function priorityCompletionGuidance(quests: Quest[]): GuidanceMessage | null {
   return {
     id: "priority-completion-pattern",
     text: `${worst.priority} Quests complete ${Math.round(worst.rate * 100)}%, vs ${Math.round(best.rate * 100)}% for ${best.priority}. Worth a look at what's realistic there.`,
+    strength: (best.rate - worst.rate) * Math.min(Math.min(best.count, worst.count) / 8, 1),
   };
 }
 
@@ -221,6 +236,7 @@ function seriesReliabilityGuidance(quests: Quest[]): GuidanceMessage | null {
   return {
     id: "series-reliability",
     text: `"${worst.title}" completes ${Math.round(worst.rate * 100)}%, well below your ${Math.round(overallRate * 100)}% overall. Its cadence may not fit right now.`,
+    strength: (overallRate - worst.rate) * Math.min(worst.count / 8, 1),
   };
 }
 
@@ -245,10 +261,12 @@ function goalLinkageGapGuidance(quests: Quest[]): GuidanceMessage | null {
     ? {
         id: "goal-linkage-gap",
         text: `Goal-linked Quests complete ${Math.round(linkedRate * 100)}% vs ${Math.round(unlinkedRate * 100)}% elsewhere — maybe set at a harder bar.`,
+        strength: Math.abs(gap) * Math.min(Math.min(linked.length, unlinked.length) / 8, 1),
       }
     : {
         id: "goal-linkage-gap",
         text: `Goal-linked Quests complete ${Math.round(linkedRate * 100)}% vs ${Math.round(unlinkedRate * 100)}% elsewhere — notably more reliable.`,
+        strength: Math.abs(gap) * Math.min(Math.min(linked.length, unlinked.length) / 8, 1),
       };
 }
 
@@ -282,6 +300,7 @@ function recoveryAfterMissGuidance(quests: Quest[]): GuidanceMessage | null {
   return {
     id: "recovery-after-miss",
     text: `After a miss, your next Quest is also missed ${Math.round(repeatRate * 100)}% of the time. A smaller next step can help.`,
+    strength: repeatRate * Math.min(missesWithFollowup / 8, 1),
   };
 }
 

@@ -28,14 +28,44 @@ const GUIDANCE_CATEGORY_LABELS: Record<string, string> = {
   "priority-completion-pattern": "Priority pattern",
 };
 
+// Founder Decision (Mentor selectivity chunk): guidance and insights are
+// merged into ONE ranked pool and capped, rather than shown as two
+// separately-uncapped lists (which could still total up to 11 items).
+// "What is most important for me to understand right now?" implies a
+// single prioritized answer, not two independently-sized sections.
+// RankedItem is a normalized shape both GuidanceMessage and Insight map
+// onto — every item still follows Observation → Evidence →
+// Interpretation → Possible adjustment; guidance items simply have only
+// the observation field populated (they never had the other three), so
+// nothing about their existing content changes, only how they compete
+// for a slot.
+interface RankedItem {
+  key: string;
+  categoryLabel: string;
+  observation: string;
+  evidence?: string;
+  interpretation?: string;
+  adjustment?: string;
+  strength: number;
+}
+
+// Only 3 slots on the page at a time, regardless of how many guidance
+// rules and insights independently qualify. Ranking is a single
+// deterministic sort by `strength` — the same internal 0–1 score already
+// computed by each rule/insight function in guidance.ts/insights.ts
+// (sample size × effect magnitude, with a small bonus for a concrete
+// adjustment) — not a new scoring system layered on top; it's the number
+// each rule already had and previously discarded.
+const MAX_SURFACED_INSIGHTS = 3;
 // Founder Decision (Mentor finalization chunk): the Mentor's only job is
 // to say back, in words, patterns that are already true of the user's
 // real Quest history — never to decide anything for them, never to
-// invent a fact that isn't in state.quests. deriveGuidance (lib/guidance.ts)
-// is a pure, deterministic function: no LLM call, no external API, no
-// randomness — same quests in, same guidance out, every time. This page
-// is a thin presentational shell around it; all the actual reasoning
-// lives in that one pure function, same separation as Journey/trajectory.
+// invent a fact that isn't in state.quests. Both deriveGuidance and
+// deriveInsights are pure, deterministic functions: no LLM call, no
+// external API, no randomness — same quests in, same output out, every
+// time. This page is a thin presentational shell (now including the
+// ranking/cap above) around them; all the actual reasoning lives in
+// those pure functions, same separation as Journey/trajectory.
 export default function Mentor() {
   const { profile } = useAuth();
   const { state, loading, error, reload } = useDashboardDataContext();
@@ -70,13 +100,37 @@ export default function Mentor() {
   const guidance = deriveGuidance(state.quests, profile?.timezone || "UTC");
   const insights = deriveInsights(state.quests);
 
-  // No pattern has met either rule's threshold yet (see lib/guidance.ts) —
-  // this is the honest "nothing to say yet" state, not an empty error.
-  // Never fabricate a message just to fill the page. Extended to cover
-  // Insights too — one honest empty state for the whole page, not two
-  // separate ones, since both sections are answering "has TIS learned
-  // anything real yet" from the same underlying history.
-  if (guidance.length === 0 && insights.length === 0) {
+  const pool: RankedItem[] = [
+    ...guidance.map((g): RankedItem => ({
+      key: `guidance-${g.id}`,
+      categoryLabel: GUIDANCE_CATEGORY_LABELS[g.id] ?? "Pattern",
+      observation: g.text,
+      strength: g.strength,
+    })),
+    ...insights.map((i): RankedItem => ({
+      key: `insight-${i.id}`,
+      categoryLabel: i.categoryLabel,
+      observation: i.observation,
+      evidence: i.evidence,
+      interpretation: i.interpretation,
+      adjustment: i.adjustment,
+      strength: i.strength,
+    })),
+  ];
+
+  // Deterministic: sort by strength descending, take the top 3. Ties
+  // (rare, given strength blends multiple continuous factors) resolve by
+  // original array order, which is stable in JS sort — no randomness.
+  const surfaced = [...pool].sort((a, b) => b.strength - a.strength).slice(0, MAX_SURFACED_INSIGHTS);
+
+  // Founder Decision (Reliability of "disappears automatically"):
+  // nothing here is persisted or cached — guidance and insights are
+  // recomputed fresh from state.quests on every render, exactly as
+  // before. A pattern that stops being true (weekday concentration
+  // evens out, momentum swing narrows, recurring share drops) simply
+  // stops appearing in `pool` the next time this runs; there is no
+  // separate dismissal state that could go stale.
+  if (surfaced.length === 0) {
     return (
       <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
         <PlaceholderExperience
@@ -95,57 +149,26 @@ export default function Mentor() {
         title="What your history is showing."
         description="Grounded in your own Quests, never a guess or a score."
       />
-
-      {/* Founder Decision (Personal Insight System): a distinct second
-          section, not merged into the guidance list above and not
-          replacing it. Mentor's existing rules stay first — short,
-          "worth a note right now" — Insights follow as the deeper,
-          evidence-backed layer: "what is TIS learning about how I
-          actually operate," per the brief. Only rendered when there's
-          at least one real insight; no empty placeholder if this
-          specific section has nothing yet but guidance does. */}
-      {guidance.length > 0 && (
-        <ul className="mt-6 space-y-4">
-          {guidance.map((message) => (
-            <li
-              key={message.id}
-              className="rounded-2xl border border-border/60 bg-card/40 p-5"
-            >
-              {GUIDANCE_CATEGORY_LABELS[message.id] && (
-                <p className="text-label text-muted-foreground">{GUIDANCE_CATEGORY_LABELS[message.id]}</p>
-              )}
-              <p className="mt-2 text-body-md leading-6 text-foreground">{message.text}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {insights.length > 0 && (
-        <div className="mt-10">
-          <p className="text-label text-primary">Patterns</p>
-          <ul className="mt-4 space-y-4">
-            {insights.map((insight) => (
-              <li
-                key={insight.id}
-                className="rounded-2xl border border-border bg-card p-5"
-              >
-                <p className="text-label text-muted-foreground">{insight.categoryLabel}</p>
-                <p className="mt-2 text-body-md font-medium leading-6 text-foreground">{insight.observation}</p>
-                <p className="mt-1.5 text-body-sm text-muted-foreground">{insight.evidence}</p>
-                {insight.interpretation && (
-                  <p className="mt-3 text-body-sm text-foreground">
-                    <span className="text-muted-foreground">What this might mean — </span>
-                    {insight.interpretation}
-                  </p>
-                )}
-                {insight.adjustment && (
-                  <p className="mt-1.5 text-body-sm text-primary">{insight.adjustment}</p>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <ul className="mt-6 space-y-4">
+        {surfaced.map((item) => (
+          <li key={item.key} className="rounded-2xl border border-border bg-card p-5">
+            <p className="text-label text-muted-foreground">{item.categoryLabel}</p>
+            <p className="mt-2 text-body-md font-medium leading-6 text-foreground">{item.observation}</p>
+            {item.evidence && (
+              <p className="mt-1.5 text-body-sm text-muted-foreground">{item.evidence}</p>
+            )}
+            {item.interpretation && (
+              <p className="mt-3 text-body-sm text-foreground">
+                <span className="text-muted-foreground">What this might mean — </span>
+                {item.interpretation}
+              </p>
+            )}
+            {item.adjustment && (
+              <p className="mt-1.5 text-body-sm text-primary">{item.adjustment}</p>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

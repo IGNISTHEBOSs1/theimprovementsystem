@@ -31,6 +31,12 @@ export interface Insight {
   evidence: string;
   interpretation?: string;
   adjustment?: string;
+  // Founder Decision (Mentor selectivity chunk): same internal-only,
+  // explainable 0–1 score as GuidanceMessage.strength in guidance.ts —
+  // each function below already computed a sample size and/or effect
+  // magnitude before formatting its card; this exposes that same number
+  // rather than discarding it. Never shown to the user.
+  strength: number;
 }
 
 // Founder Decision (Personal Insight System — confidence model): a
@@ -85,6 +91,7 @@ function momentumInsight(quests: Quest[]): Insight | null {
     categoryLabel: "Momentum",
     observation: `Your goal-linked completion rate has ${direction} — ${Math.round(recentRate * 100)}% recently, vs ${Math.round(previousRate * 100)}% before that.`,
     evidence: `${recentCompleted} of your last ${recent.length} goal-linked Quests completed, compared to ${previous.filter((q) => q.completed).length} of ${previous.length} before.`,
+    strength: Math.abs(delta) * Math.min(Math.min(recent.length, previous.length) / 6, 1),
   };
 }
 
@@ -109,6 +116,11 @@ function followThroughInsight(quests: Quest[]): Insight | null {
     categoryLabel: "Follow-through",
     observation: `You complete ${Math.round(r * 100)}% of what you commit to.`,
     evidence: `${completed} of ${resolved.length} Quests completed overall.`,
+    // Deliberately dampened (×0.6): this is the plainest, most expected
+    // number on the page — a baseline fact, not a surprising pattern. It
+    // should still be able to appear, but shouldn't out-rank a sharper
+    // pattern purely because it has a large sample.
+    strength: Math.min(resolved.length / 12, 1) * 0.6,
   };
 }
 
@@ -137,6 +149,10 @@ function recurringFrictionInsight(quests: Quest[]): Insight | null {
     evidence: `${recurringMissed} of your last ${missed.length} missed Quests came from recurring series.`,
     interpretation: "Your one-off commitments are currently more reliable than your recurring ones.",
     adjustment: "Consider reducing or restructuring one recurring commitment.",
+    // Has a concrete adjustment — small actionability bonus (+0.1),
+    // matching the brief's explicit preference for "actionable
+    // adjustments" as a ranking factor.
+    strength: share * Math.min(missed.length / 8, 1) + 0.1,
   };
 }
 
@@ -166,6 +182,7 @@ function goalAlignmentInsight(quests: Quest[]): Insight | null {
         observation: "Commitments linked to your goal complete less often than everything else you commit to.",
         evidence: `${Math.round(linkedRate * 100)}% completion on goal-linked Quests, vs ${Math.round(unlinkedRate * 100)}% elsewhere.`,
         interpretation: "Goal-linked commitments may currently be set at a harder bar than the rest of what you take on.",
+        strength: Math.abs(gap) * Math.min(Math.min(linked.length, unlinked.length) / 8, 1),
       }
     : {
         id: "goal-alignment",
@@ -173,6 +190,7 @@ function goalAlignmentInsight(quests: Quest[]): Insight | null {
         categoryLabel: "Goal alignment",
         observation: "Commitments linked to your goal complete more reliably than everything else you commit to.",
         evidence: `${Math.round(linkedRate * 100)}% completion on goal-linked Quests, vs ${Math.round(unlinkedRate * 100)}% elsewhere.`,
+        strength: Math.abs(gap) * Math.min(Math.min(linked.length, unlinked.length) / 8, 1),
       };
 }
 
