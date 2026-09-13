@@ -3,9 +3,32 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Pencil, Settings as SettingsIcon, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 import { useAuth } from "@/hooks/useAuth";
+
+// Founder Decision (Visual override chunk — Profile toggles): these
+// control LOCAL preferences only, persisted to this browser via
+// localStorage — there is no analytics SDK, crash-reporting service, or
+// push-notification delivery system anywhere in this codebase for them
+// to gate. They are real (a person's choice is genuinely remembered,
+// not discarded), but they don't yet connect to any backend collection
+// or delivery pipeline, because none exists to connect to. Building
+// that pipeline is separate, larger work, not a styling pass.
+const LOCAL_PREF_KEY = "tis-local-prefs";
+type LocalPrefs = { analytics: boolean; performanceMonitoring: boolean; dailyReminders: boolean; mentorInsightEmails: boolean };
+const DEFAULT_PREFS: LocalPrefs = { analytics: true, performanceMonitoring: false, dailyReminders: true, mentorInsightEmails: false };
+
+function readLocalPrefs(): LocalPrefs {
+  if (typeof window === "undefined") return DEFAULT_PREFS;
+  try {
+    const raw = localStorage.getItem(LOCAL_PREF_KEY);
+    return raw ? { ...DEFAULT_PREFS, ...JSON.parse(raw) } : DEFAULT_PREFS;
+  } catch {
+    return DEFAULT_PREFS;
+  }
+}
 
 // Founder Decision (Profile/Settings separation chunk): Profile's job is
 // identity, primary goal, personal context, and Quest history — nothing
@@ -33,6 +56,17 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [prefs, setPrefs] = useState<LocalPrefs>(DEFAULT_PREFS);
+
+  useEffect(() => {
+    setPrefs(readLocalPrefs());
+  }, []);
+
+  const setPref = (key: keyof LocalPrefs, value: boolean) => {
+    const next = { ...prefs, [key]: value };
+    setPrefs(next);
+    localStorage.setItem(LOCAL_PREF_KEY, JSON.stringify(next));
+  };
 
   useEffect(() => {
     setGoal(profile?.primary_goal ?? "");
@@ -190,6 +224,53 @@ export default function Profile() {
               Settings
             </Link>
           </Button>
+        </div>
+
+        {/* Founder Decision (Visual override chunk — local preferences):
+            see LOCAL_PREF_KEY comment above imports — these are real,
+            persisted, client-side-only preferences. No analytics or
+            notification backend exists yet for them to control. */}
+        <div>
+          <p className="text-label text-muted-foreground">Data permissions</p>
+          <div className="mt-3 space-y-3">
+            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
+              <div>
+                <p className="text-body-sm font-medium text-foreground">Analytics</p>
+                <p className="text-xs text-muted-foreground">Anonymous usage data</p>
+              </div>
+              <Switch checked={prefs.analytics} onCheckedChange={(v) => setPref("analytics", v)} aria-label="Analytics" />
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
+              <div>
+                <p className="text-body-sm font-medium text-foreground">Performance monitoring</p>
+                <p className="text-xs text-muted-foreground">Crash reports only</p>
+              </div>
+              <Switch checked={prefs.performanceMonitoring} onCheckedChange={(v) => setPref("performanceMonitoring", v)} aria-label="Performance monitoring" />
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <p className="text-label text-muted-foreground">Notifications</p>
+          <div className="mt-3 space-y-3">
+            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
+              <div>
+                <p className="text-body-sm font-medium text-foreground">Daily reminders</p>
+                <p className="text-xs text-muted-foreground">Quest check-in</p>
+              </div>
+              <Switch checked={prefs.dailyReminders} onCheckedChange={(v) => setPref("dailyReminders", v)} aria-label="Daily reminders" />
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
+              <div>
+                <p className="text-body-sm font-medium text-foreground">Mentor insights</p>
+                <p className="text-xs text-muted-foreground">Weekly history notes</p>
+              </div>
+              <Switch checked={prefs.mentorInsightEmails} onCheckedChange={(v) => setPref("mentorInsightEmails", v)} aria-label="Mentor insight notifications" />
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            These preferences are saved on this device. Delivery (email, push) isn't built yet — your choice is remembered for when it is.
+          </p>
         </div>
       </div>
     </div>

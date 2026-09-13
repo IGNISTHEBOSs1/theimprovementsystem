@@ -1,4 +1,4 @@
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Sprout, Compass, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -7,19 +7,24 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
+import { deriveTrajectory } from "@/lib/trajectory";
 
-// Founder Decision (Mentor presentation chunk): a short, muted category
-// label per message, identifying which of the 7 rules in lib/guidance.ts
-// produced it — "Recurring commitment", not an icon or color, reusing
-// the exact `text-label text-muted-foreground` convention Journey.tsx
-// already established for its own section headers ("Evidence by
-// priority", "Recurring commitments"). This is presentation only: it
-// reads GuidanceMessage.id (already returned by deriveGuidance) and maps
-// it to a label. It adds no new data, no new derivation, no interaction,
-// and does not change which messages appear or in what order — that
-// remains entirely lib/guidance.ts's responsibility. Falls back to no
-// label for any id this map doesn't recognize, rather than guessing one,
-// so a future rule addition can't silently render something wrong.
+// Founder Decision (Visual override chunk — Mentor grid redesign):
+// replaces the flat ranked list with a fixed 4-slot card grid, by
+// explicit Founder instruction to match a provided reference layout.
+// Each slot maps to a REAL, already-computed signal — nothing here is
+// fabricated to fill a slot:
+//   - Recurring:   lib/insights.ts's recurring-friction insight
+//   - Trajectory:  lib/trajectory.ts's deriveTrajectory (same function
+//                  Journey uses — not a second trajectory calculation)
+//   - Recovery:    lib/guidance.ts's recovery-after-miss rule
+//   - Momentum:    lib/insights.ts's momentum insight
+// A slot simply does not render when its underlying condition isn't
+// met — never a generic placeholder text standing in for real evidence.
+// If NONE of the four have real data, the page falls back to the
+// existing top-3 ranked list (same pool/ranking as before, unchanged),
+// so a real pattern that doesn't happen to fit one of these four shapes
+// still gets shown rather than silently dropped.
 const GUIDANCE_CATEGORY_LABELS: Record<string, string> = {
   "repeated-commitment": "Recurring commitment",
   "weekday-miss-pattern": "Weekday pattern",
@@ -30,17 +35,6 @@ const GUIDANCE_CATEGORY_LABELS: Record<string, string> = {
   "priority-completion-pattern": "Priority pattern",
 };
 
-// Founder Decision (Mentor selectivity chunk): guidance and insights are
-// merged into ONE ranked pool and capped, rather than shown as two
-// separately-uncapped lists (which could still total up to 11 items).
-// "What is most important for me to understand right now?" implies a
-// single prioritized answer, not two independently-sized sections.
-// RankedItem is a normalized shape both GuidanceMessage and Insight map
-// onto — every item still follows Observation → Evidence →
-// Interpretation → Possible adjustment; guidance items simply have only
-// the observation field populated (they never had the other three), so
-// nothing about their existing content changes, only how they compete
-// for a slot.
 interface RankedItem {
   key: string;
   categoryLabel: string;
@@ -51,23 +45,25 @@ interface RankedItem {
   strength: number;
 }
 
-// Only 3 slots on the page at a time, regardless of how many guidance
-// rules and insights independently qualify. Ranking is a single
-// deterministic sort by `strength` — the same internal 0–1 score already
-// computed by each rule/insight function in guidance.ts/insights.ts
-// (sample size × effect magnitude, with a small bonus for a concrete
-// adjustment) — not a new scoring system layered on top; it's the number
-// each rule already had and previously discarded.
 const MAX_SURFACED_INSIGHTS = 3;
-// Founder Decision (Mentor finalization chunk): the Mentor's only job is
-// to say back, in words, patterns that are already true of the user's
-// real Quest history — never to decide anything for them, never to
-// invent a fact that isn't in state.quests. Both deriveGuidance and
-// deriveInsights are pure, deterministic functions: no LLM call, no
-// external API, no randomness — same quests in, same output out, every
-// time. This page is a thin presentational shell (now including the
-// ranking/cap above) around them; all the actual reasoning lives in
-// those pure functions, same separation as Journey/trajectory.
+
+function CompletionRing({ fraction, label }: { fraction: number; label: string }) {
+  const size = 56;
+  const stroke = 5;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={label}>
+      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth={stroke} />
+      <circle
+        cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--primary))" strokeWidth={stroke}
+        strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - fraction)}
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+      />
+    </svg>
+  );
+}
+
 export default function Mentor() {
   const { profile } = useAuth();
   const { state, loading, error, reload } = useDashboardDataContext();
@@ -101,6 +97,20 @@ export default function Mentor() {
 
   const guidance = deriveGuidance(state.quests, profile?.timezone || "UTC");
   const insights = deriveInsights(state.quests);
+  const trajectory = deriveTrajectory(state.quests);
+
+  const recurring = insights.find((i) => i.id === "recurring-friction");
+  const momentum = insights.find((i) => i.id === "momentum");
+  const recovery = guidance.find((g) => g.id === "recovery-after-miss");
+  const hasTrajectory = trajectory.actual.length > 0;
+
+  const anyGridSlot = Boolean(recurring || hasTrajectory || recovery || momentum);
+
+  const usedInGrid = new Set([
+    recurring ? "insight-recurring-friction" : null,
+    momentum ? "insight-momentum" : null,
+    recovery ? "guidance-recovery-after-miss" : null,
+  ].filter(Boolean));
 
   const pool: RankedItem[] = [
     ...guidance.map((g): RankedItem => ({
@@ -118,21 +128,10 @@ export default function Mentor() {
       adjustment: i.adjustment,
       strength: i.strength,
     })),
-  ];
-
-  // Deterministic: sort by strength descending, take the top 3. Ties
-  // (rare, given strength blends multiple continuous factors) resolve by
-  // original array order, which is stable in JS sort — no randomness.
+  ].filter((item) => !usedInGrid.has(item.key));
   const surfaced = [...pool].sort((a, b) => b.strength - a.strength).slice(0, MAX_SURFACED_INSIGHTS);
 
-  // Founder Decision (Reliability of "disappears automatically"):
-  // nothing here is persisted or cached — guidance and insights are
-  // recomputed fresh from state.quests on every render, exactly as
-  // before. A pattern that stops being true (weekday concentration
-  // evens out, momentum swing narrows, recurring share drops) simply
-  // stops appearing in `pool` the next time this runs; there is no
-  // separate dismissal state that could go stale.
-  if (surfaced.length === 0) {
+  if (!anyGridSlot && surfaced.length === 0) {
     return (
       <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
         <PlaceholderExperience
@@ -148,42 +147,95 @@ export default function Mentor() {
     <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
       <PageHeader
         eyebrow="Your mentor"
-        title="What your history is showing."
+        title="Your history."
         description="Grounded in your own Quests, never a guess or a score."
       />
-      <ul className="mt-6 space-y-4">
-        {surfaced.map((item) => (
-          <li key={item.key} className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-label text-muted-foreground">{item.categoryLabel}</p>
-            <p className="mt-2 text-body-md font-medium leading-6 text-foreground">{item.observation}</p>
-            {item.evidence && (
-              <p className="mt-1.5 text-body-sm text-muted-foreground">{item.evidence}</p>
-            )}
-            {item.interpretation && (
-              <p className="mt-3 text-body-sm text-foreground">
-                <span className="text-muted-foreground">What this might mean — </span>
-                {item.interpretation}
-              </p>
-            )}
-            {item.adjustment && (
-              <p className="mt-1.5 text-body-sm text-primary">{item.adjustment}</p>
-            )}
-            {/* Founder Decision (Visual override chunk — Restructure
-                action): only the recurring-friction insight has a real,
-                existing destination for its adjustment — the Quests
-                page, where recurring commitments actually live and can
-                actually be cancelled/edited. This links there rather
-                than inventing an auto-restructure algorithm that
-                doesn't exist; it's an honest shortcut to a real screen,
-                not a new feature. */}
-            {item.key === "insight-recurring-friction" && (
-              <Button asChild size="sm" className="mt-3 min-h-9">
+
+      {anyGridSlot && (
+        <div className="mt-6 space-y-4">
+          {recurring && (
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <p className="text-label text-muted-foreground">Recurring commitments</p>
+              <div className="mt-3 flex items-center gap-4">
+                <CompletionRing
+                  fraction={Number(recurring.evidence.match(/(\d+) of your last (\d+)/)?.[1] ?? 0) / Number(recurring.evidence.match(/(\d+) of your last (\d+)/)?.[2] ?? 1)}
+                  label={recurring.evidence}
+                />
+                <div>
+                  <p className="text-body-md font-medium leading-5 text-foreground">{recurring.observation}</p>
+                  <p className="mt-1 text-body-sm text-muted-foreground">{recurring.evidence}</p>
+                </div>
+              </div>
+              <Button asChild size="sm" className="mt-4 min-h-9">
                 <Link to="/quests">Restructure Quests</Link>
               </Button>
+            </div>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {hasTrajectory && (
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <div className="flex items-center gap-2">
+                  <Compass className="size-4 text-primary" aria-hidden="true" />
+                  <p className="text-label text-muted-foreground">Trajectory</p>
+                </div>
+                <p className="mt-2 text-2xl font-semibold text-foreground">
+                  {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
+                </p>
+                <p className="mt-1 text-body-sm text-muted-foreground">Your current position — see Journey for the full picture.</p>
+              </div>
             )}
-          </li>
-        ))}
-      </ul>
+            {recovery && (
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <div className="flex items-center gap-2">
+                  <Sprout className="size-4 text-primary" aria-hidden="true" />
+                  <p className="text-label text-muted-foreground">Recovery</p>
+                </div>
+                <p className="mt-2 text-body-md font-medium leading-6 text-foreground">{recovery.text}</p>
+              </div>
+            )}
+          </div>
+
+          {momentum && (
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <div className="flex items-center gap-2">
+                <RotateCcw className="size-4 text-primary" aria-hidden="true" />
+                <p className="text-label text-muted-foreground">Momentum</p>
+              </div>
+              <p className="mt-2 text-body-md font-medium leading-6 text-foreground">{momentum.observation}</p>
+              <p className="mt-1 text-body-sm text-muted-foreground">{momentum.evidence}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Founder Decision (Visual override chunk — Mentor grid redesign):
+          any other real pattern that doesn't fit the four grid slots
+          above (e.g. weekday concentration, priority gap, series
+          reliability) still shows here — same ranked pool as before,
+          just relabeled from the page's sole content to a secondary
+          "Other patterns" section beneath the grid. */}
+      {surfaced.length > 0 && (
+        <div className={anyGridSlot ? "mt-8" : "mt-6"}>
+          {anyGridSlot && <p className="text-label text-muted-foreground">Other patterns</p>}
+          <ul className="mt-3 space-y-4">
+            {surfaced.map((item) => (
+              <li key={item.key} className="rounded-2xl border border-border/60 bg-card/40 p-5">
+                <p className="text-label text-muted-foreground">{item.categoryLabel}</p>
+                <p className="mt-2 text-body-md leading-6 text-foreground">{item.observation}</p>
+                {item.evidence && <p className="mt-1.5 text-body-sm text-muted-foreground">{item.evidence}</p>}
+                {item.interpretation && (
+                  <p className="mt-3 text-body-sm text-foreground">
+                    <span className="text-muted-foreground">What this might mean — </span>
+                    {item.interpretation}
+                  </p>
+                )}
+                {item.adjustment && <p className="mt-1.5 text-body-sm text-primary">{item.adjustment}</p>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
