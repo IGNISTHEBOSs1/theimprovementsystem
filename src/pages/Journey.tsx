@@ -181,6 +181,25 @@ export default function Journey() {
         title="Your trajectory."
         description="Where your intended path leads, and where your actions have actually taken you."
       />
+      {/* Founder Decision (Visual override chunk — narrative summary):
+          combines two numbers that already existed separately
+          (goalStats.completed/linked as a percentage — the exact same
+          ratio already shown as a bar below, just phrased as a
+          sentence — and positionDelta, already computed above for
+          summaryLine) into one readable paragraph. No new metric: the
+          percentage is goalStats.completed/goalStats.linked, nothing
+          else. */}
+      {goalStats.linked > 0 && (
+        <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+          <p className="text-label text-primary">The story so far</p>
+          <p className="mt-1.5 text-body-md leading-6 text-foreground">
+            You've completed <span className="font-semibold">{goalStats.completed} of {goalStats.linked}</span> goal-linked Quests — {Math.round((goalStats.completed / goalStats.linked) * 100)}% of what you've committed to.{" "}
+            {positionDelta !== 0 && (
+              <>You're <span className="font-semibold">{Math.abs(positionDelta)} steps</span> from your intended path. That's data, not judgment.</>
+            )}
+          </p>
+        </div>
+      )}
       {/* Founder Decision (Mobile hierarchy chunk — raw data to visual):
           a plain "X of Y completed" sentence replaced with a compact
           numeric ratio plus a static, factual progress bar — same two

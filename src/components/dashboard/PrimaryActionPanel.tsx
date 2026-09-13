@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { Check, ChevronRight, CircleDot, Target } from "lucide-react";
+import { useRef, useState, type PointerEvent } from "react";
+import { ArrowRight, ChevronRight, CircleDot, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
@@ -100,11 +100,77 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
             One clear step is enough. Start there.
           </p>
         </div>
-        <Button className="min-h-11 shrink-0" onClick={onComplete} disabled={completing}>
-          <Check className="size-4" aria-hidden="true" />
-          {completing ? "Saving…" : "Mark complete"}
-        </Button>
+        <SwipeToComplete completing={Boolean(completing)} onComplete={onComplete} />
       </div>
     </section>
+  );
+}
+
+// Founder Decision (Visual override chunk — swipe-to-complete): replaces
+// the previous plain "Mark complete" button with a drag-to-confirm
+// track, by explicit Founder instruction. Still calls the exact same
+// onComplete() the button called — no change to what completing a Quest
+// actually does or persists, only how the action is triggered. Kept
+// keyboard/screen-reader accessible: this is a real <button>, so Enter/
+// Space/click activate it directly via onClick regardless of drag state —
+// swiping is an added interaction, not a replacement for a working
+// accessible control. Pointer events (not mouse-only), so touch and
+// desktop both work through one code path.
+function SwipeToComplete({ completing, onComplete }: { completing: boolean; onComplete: () => void }) {
+  const trackRef = useRef<HTMLButtonElement>(null);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const HANDLE_SIZE = 40;
+  const THRESHOLD = 0.65;
+
+  const maxDrag = () => (trackRef.current?.clientWidth ?? 0) - HANDLE_SIZE - 8;
+
+  const handlePointerDown = (e: PointerEvent) => {
+    if (completing) return;
+    (e.target as Element).setPointerCapture(e.pointerId);
+    setDragging(true);
+  };
+
+  const handlePointerMove = (e: PointerEvent) => {
+    if (!dragging || completing) return;
+    const rect = trackRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = Math.min(Math.max(e.clientX - rect.left - HANDLE_SIZE / 2, 0), maxDrag());
+    setDragX(x);
+  };
+
+  const finishDrag = () => {
+    if (!dragging) return;
+    setDragging(false);
+    const max = maxDrag();
+    if (max > 0 && dragX / max >= THRESHOLD) {
+      onComplete();
+    }
+    setDragX(0);
+  };
+
+  return (
+    <button
+      ref={trackRef}
+      type="button"
+      disabled={completing}
+      onClick={() => !dragging && onComplete()}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={finishDrag}
+      onPointerCancel={finishDrag}
+      className="relative flex min-h-11 w-full items-center overflow-hidden rounded-full bg-muted px-1 py-1 text-left"
+      aria-label={completing ? "Marking Quest complete" : "Mark this Quest complete"}
+    >
+      <span
+        className="pointer-events-none absolute left-1 top-1 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform"
+        style={{ transform: `translateX(${dragging ? dragX : 0}px)`, transitionDuration: dragging ? "0ms" : "200ms" }}
+      >
+        <ArrowRight className="size-4" aria-hidden="true" />
+      </span>
+      <span className="w-full text-center text-sm font-medium text-foreground">
+        {completing ? "Saving…" : "Swipe to complete →"}
+      </span>
+    </button>
   );
 }

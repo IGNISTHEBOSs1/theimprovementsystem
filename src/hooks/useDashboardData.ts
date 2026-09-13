@@ -497,6 +497,6 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
 
   return {
-    state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, cancelQuest, commitToTodaysQuest, reload: load,
+    state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, cancelQuest, commitToTodaysQuest, reload: load, todayStr,
   };
 }

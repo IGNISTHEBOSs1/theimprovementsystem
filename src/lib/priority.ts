@@ -7,8 +7,14 @@ import type { QuestPriority } from "@/types/quest";
 // deliberately neutral (no hue) since it carries no urgency. The label
 // text (e.g. "Essential") is always rendered next to this class, in
 // every consumer — color is never the sole carrier of meaning.
+// Founder Decision (Visual override — mockup-match chunk): Essential
+// upgraded from a muted tint to a solid, bright treatment, by explicit
+// Founder instruction overriding the prior "muted-only priority colors"
+// rule. Still the existing `destructive` semantic token (not a new
+// arbitrary color) — full-strength background/border/text instead of
+// the previous low-opacity tint. Important/Optional unchanged.
 export const PRIORITY_BADGE_CLASSES: Record<QuestPriority, string> = {
-  Essential: "border-destructive/40 bg-destructive/10 text-destructive/90",
+  Essential: "border-destructive bg-destructive/90 text-destructive-foreground font-semibold",
   Important: "border-warning/40 bg-warning/10 text-warning/90",
   Optional: "border-border bg-muted/40 text-muted-foreground",
 };

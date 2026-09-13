@@ -11,14 +11,15 @@ import { RecoveryState } from "@/components/dashboard/RecoveryState";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
-import { deriveGoalStats, deriveTrajectory } from "@/lib/trajectory";
+import { deriveGoalStats, deriveTrajectory, deriveCurrentStreak } from "@/lib/trajectory";
 import { deriveGuidance } from "@/lib/guidance";
+import { deriveInsights } from "@/lib/insights";
 import type { Quest } from "@/types/quest";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user, profile, profileLoading, profileError, fetchProfile } = useAuth();
-  const { state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, reload } = useDashboardDataContext();
+  const { state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, reload, todayStr } = useDashboardDataContext();
   const name = profile?.username || "there";
   const chooseQuest = () => navigate("/quests");
   const [completeError, setCompleteError] = useState(false);
@@ -125,8 +126,9 @@ export default function Dashboard() {
   }
 
   const guidance = deriveGuidance(state.quests, profile?.timezone || "UTC");
+  const insights = deriveInsights(state.quests);
   const trajectory = deriveTrajectory(state.quests);
-  const contextualLink = guidance.length > 0
+  const contextualLink = (guidance.length > 0 || insights.length > 0)
     ? { to: "/mentor", label: "Your Mentor has a note based on your history." }
     : trajectory.actual.length > 0
       ? { to: "/journey", label: "See how your recent actions compare to your intended path." }
@@ -146,7 +148,11 @@ export default function Dashboard() {
           title={`Welcome back, ${name}.`}
           description="A quiet place to focus on what matters."
         />
-        <DirectionCard name={name} goalStats={profile?.primary_goal ? deriveGoalStats(state.quests) : undefined} />
+        <DirectionCard
+          name={name}
+          goalStats={profile?.primary_goal ? deriveGoalStats(state.quests) : undefined}
+          streak={todayStr ? deriveCurrentStreak(state.quests, todayStr, profile?.timezone || "UTC") : undefined}
+        />
       </div>
 
       {/* ── Tier 2 — Primary Action ─────────────────────────────────────

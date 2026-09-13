@@ -1,4 +1,4 @@
-import { Compass } from "lucide-react";
+import { Compass, Flame } from "lucide-react";
 import type { GoalStats } from "@/lib/trajectory";
 
 interface DirectionCardProps {
@@ -10,9 +10,43 @@ interface DirectionCardProps {
   // failed:0} and renders its own honest "nothing linked yet" line
   // rather than being hidden).
   goalStats?: GoalStats;
+  // Founder Decision (Visual override chunk): real, honestly-computed
+  // consecutive-day count (see deriveCurrentStreak in lib/trajectory.ts)
+  // — 0 renders nothing rather than "0 day streak".
+  streak?: number;
 }
 
-export function DirectionCard({ name, goalStats }: DirectionCardProps) {
+// Founder Decision (Visual override chunk): a small ring visualization
+// of goalStats.completed/linked — same two numbers DirectionCard already
+// displayed as text, just also shown as a shape. Pure SVG, no library.
+function CompletionRing({ completed, total }: { completed: number; total: number }) {
+  const size = 64;
+  const stroke = 5;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const fraction = total > 0 ? completed / total : 0;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={`${completed} of ${total} goal-linked Quests completed`}>
+      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth={stroke} />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="hsl(var(--primary))"
+        strokeWidth={stroke}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        strokeDashoffset={circumference * (1 - fraction)}
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+      />
+      <text x="50%" y="47%" textAnchor="middle" className="fill-foreground text-[15px] font-semibold">{completed}</text>
+      <text x="50%" y="66%" textAnchor="middle" className="fill-muted-foreground text-[9px]">of {total}</text>
+    </svg>
+  );
+}
+
+export function DirectionCard({ name, goalStats, streak }: DirectionCardProps) {
   return (
     <section className="border-l-2 border-primary/25 pl-4" aria-labelledby="direction-heading">
       <div className="flex items-start gap-3">
@@ -25,12 +59,23 @@ export function DirectionCard({ name, goalStats }: DirectionCardProps) {
           <p className="mt-1.5 max-w-2xl text-sm leading-6 text-muted-foreground">
             {name}, each deliberate action is evidence of the person you are becoming.
           </p>
-          {goalStats && (
-            <p className="mt-1.5 text-body-sm text-muted-foreground">
-              {goalStats.linked === 0
-                ? "No Quests linked to this goal yet."
-                : `${goalStats.linked} Quest${goalStats.linked === 1 ? "" : "s"} linked to this goal, ${goalStats.completed} completed.`}
-            </p>
+
+          {goalStats && goalStats.linked > 0 && (
+            <div className="mt-3 flex items-center gap-4">
+              <CompletionRing completed={goalStats.completed} total={goalStats.linked} />
+              <div>
+                <p className="text-body-sm text-foreground">Quests completed</p>
+                {Boolean(streak) && streak! > 0 && (
+                  <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
+                    <Flame className="size-3.5 text-primary" aria-hidden="true" />
+                    {streak} day streak
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          {goalStats && goalStats.linked === 0 && (
+            <p className="mt-1.5 text-body-sm text-muted-foreground">No Quests linked to this goal yet.</p>
           )}
         </div>
       </div>

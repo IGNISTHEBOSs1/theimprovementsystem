@@ -251,6 +251,14 @@ export default function Quests() {
                       <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>
                         {quest.priority}
                       </Badge>
+                      <Badge variant="outline" className="border-border bg-muted/40 text-muted-foreground">
+                        Recurring
+                      </Badge>
+                      {quest.linkedToGoal && (
+                        <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
+                          Goal
+                        </Badge>
+                      )}
                       <span className="text-foreground">{quest.title}</span>
                       <span className="text-muted-foreground">
                         {(() => {

@@ -1,4 +1,6 @@
 import { MessageSquare } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
 import { useAuth } from "@/hooks/useAuth";
@@ -165,6 +167,19 @@ export default function Mentor() {
             )}
             {item.adjustment && (
               <p className="mt-1.5 text-body-sm text-primary">{item.adjustment}</p>
+            )}
+            {/* Founder Decision (Visual override chunk — Restructure
+                action): only the recurring-friction insight has a real,
+                existing destination for its adjustment — the Quests
+                page, where recurring commitments actually live and can
+                actually be cancelled/edited. This links there rather
+                than inventing an auto-restructure algorithm that
+                doesn't exist; it's an honest shortcut to a real screen,
+                not a new feature. */}
+            {item.key === "insight-recurring-friction" && (
+              <Button asChild size="sm" className="mt-3 min-h-9">
+                <Link to="/quests">Restructure Quests</Link>
+              </Button>
             )}
           </li>
         ))}

@@ -1,4 +1,5 @@
 import type { Quest, QuestPriority } from "@/types/quest";
+import { toServerLocalDate } from "@/lib/serverTime";
 
 // Founder Decision (Trajectory completeness chunk, backfill option ii):
 // resolvedAt exists only on Quests resolved after the field was
@@ -7,8 +8,40 @@ import type { Quest, QuestPriority } from "@/types/quest";
 // existing behavior, made explicit rather than silently assumed. This is
 // a read-time fallback only; no retroactive DB write is made to old
 // records.
+// Founder Decision (Visual override chunk): current-streak derivation.
+// Consecutive CALENDAR days (server-local, via the same
+// toServerLocalDate conversion used everywhere else in the app — no
+// second time model) with at least one completed Quest, counting
+// backward from today. Stops at the first day with zero completions.
+// This is a real, honestly-computed count from existing resolvedAt
+// data — not a fabricated or persisted number, and not gameable by
+// creating empty Quests (only `completed: true` counts).
 export function deriveResolvedAt(quest: Quest): string {
   return quest.resolvedAt ?? quest.createdAt;
+}
+
+// Founder Decision (Visual override chunk): current-streak derivation.
+// Consecutive CALENDAR days (server-local, via the same
+// toServerLocalDate conversion used everywhere else in the app — no
+// second time model) with at least one completed Quest, counting
+// backward from today. Stops at the first day with zero completions.
+// This is a real, honestly-computed count from existing resolvedAt
+// data — not a fabricated or persisted number, and not gameable by
+// creating empty Quests (only `completed: true` counts).
+export function deriveCurrentStreak(quests: Quest[], todayStr: string, timezone: string): number {
+  const completedDates = new Set(
+    quests.filter((q) => q.completed).map((q) => toServerLocalDate(new Date(deriveResolvedAt(q)), timezone).dateStr),
+  );
+
+  let streak = 0;
+  const cursor = new Date(`${todayStr}T12:00:00`); // noon avoids DST edge cases when stepping by day
+  for (;;) {
+    const cursorStr = cursor.toISOString().split("T")[0];
+    if (!completedDates.has(cursorStr)) break;
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
 }
 
 export interface TrajectoryPoint {
