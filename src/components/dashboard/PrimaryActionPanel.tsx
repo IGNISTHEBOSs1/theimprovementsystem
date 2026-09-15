@@ -116,37 +116,73 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
 // swiping is an added interaction, not a replacement for a working
 // accessible control. Pointer events (not mouse-only), so touch and
 // desktop both work through one code path.
+// Founder Decision (Visual override chunk — swipe-to-complete, bug fix):
+// root cause of the reported "stuck" behavior — setPointerCapture was
+// called on e.target, which is whatever child element the drag actually
+// started on (e.g. the label text span), not the track. Capture should
+// always be set on the SAME element whose handlers process the drag
+// (the track itself); capturing on an arbitrary child is the standard
+// footgun with this pattern. If that child ever failed to deliver the
+// matching pointerup back correctly, `dragging` never reset, leaving the
+// handle frozen at its last dragged position. Rewritten to: (1) capture
+// on trackRef.current explicitly; (2) drive the handle's position via a
+// ref + direct style mutation during drag, not React state on every
+// pointermove — removes a full render cycle per move event, and removes
+// any dependency on a possibly-stale `dragging` state value; (3) a plain
+// tap (no real movement) still completes via onClick, but a real drag's
+// completion is handled exactly once, directly in finishDrag — the
+// previous version could double-fire onComplete after a real swipe
+// (finishDrag calling it, then the native click event calling it again).
 function SwipeToComplete({ completing, onComplete }: { completing: boolean; onComplete: () => void }) {
   const trackRef = useRef<HTMLButtonElement>(null);
-  const [dragX, setDragX] = useState(0);
-  const [dragging, setDragging] = useState(false);
+  const handleRef = useRef<HTMLSpanElement>(null);
+  const draggingRef = useRef(false);
+  const dragXRef = useRef(0);
+  const movedRef = useRef(false);
   const HANDLE_SIZE = 40;
   const THRESHOLD = 0.65;
 
   const maxDrag = () => (trackRef.current?.clientWidth ?? 0) - HANDLE_SIZE - 8;
 
+  const setHandleX = (x: number, animate: boolean) => {
+    const handle = handleRef.current;
+    if (!handle) return;
+    handle.style.transitionDuration = animate ? "200ms" : "0ms";
+    handle.style.transform = `translateX(${x}px)`;
+  };
+
   const handlePointerDown = (e: PointerEvent) => {
     if (completing) return;
-    (e.target as Element).setPointerCapture(e.pointerId);
-    setDragging(true);
+    trackRef.current?.setPointerCapture(e.pointerId);
+    draggingRef.current = true;
+    movedRef.current = false;
+    dragXRef.current = 0;
   };
 
   const handlePointerMove = (e: PointerEvent) => {
-    if (!dragging || completing) return;
+    if (!draggingRef.current || completing) return;
     const rect = trackRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = Math.min(Math.max(e.clientX - rect.left - HANDLE_SIZE / 2, 0), maxDrag());
-    setDragX(x);
+    if (x > 2) movedRef.current = true;
+    dragXRef.current = x;
+    setHandleX(x, false);
   };
 
   const finishDrag = () => {
-    if (!dragging) return;
-    setDragging(false);
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
     const max = maxDrag();
-    if (max > 0 && dragX / max >= THRESHOLD) {
-      onComplete();
-    }
-    setDragX(0);
+    const thresholdMet = max > 0 && dragXRef.current / max >= THRESHOLD;
+    setHandleX(0, true);
+    dragXRef.current = 0;
+    if (thresholdMet) onComplete();
+  };
+
+  const handleClick = () => {
+    // Only reached for a plain tap with no real movement — a genuine
+    // drag's completion is already handled in finishDrag above, once.
+    if (!movedRef.current) onComplete();
   };
 
   return (
@@ -154,17 +190,18 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       ref={trackRef}
       type="button"
       disabled={completing}
-      onClick={() => !dragging && onComplete()}
+      onClick={handleClick}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
-      className="relative flex min-h-11 w-full items-center overflow-hidden rounded-full bg-muted px-1 py-1 text-left"
+      className="relative flex min-h-11 w-full items-center overflow-hidden rounded-full bg-muted px-1 py-1 text-left touch-none"
       aria-label={completing ? "Marking Quest complete" : "Mark this Quest complete"}
     >
       <span
-        className="pointer-events-none absolute left-1 top-1 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-transform"
-        style={{ transform: `translateX(${dragging ? dragX : 0}px)`, transitionDuration: dragging ? "0ms" : "200ms" }}
+        ref={handleRef}
+        className="pointer-events-none absolute left-1 top-1 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
+        style={{ transform: "translateX(0px)" }}
       >
         <ArrowRight className="size-4" aria-hidden="true" />
       </span>

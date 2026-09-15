@@ -158,7 +158,7 @@ export default function Mentor() {
               <p className="text-label text-muted-foreground">Recurring commitments</p>
               <div className="mt-3 flex items-center gap-4">
                 <CompletionRing
-                  fraction={Number(recurring.evidence.match(/(\d+) of your last (\d+)/)?.[1] ?? 0) / Number(recurring.evidence.match(/(\d+) of your last (\d+)/)?.[2] ?? 1)}
+                  fraction={recurring.ratio ? recurring.ratio.value / recurring.ratio.total : 0}
                   label={recurring.evidence}
                 />
                 <div>

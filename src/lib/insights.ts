@@ -31,11 +31,16 @@ export interface Insight {
   evidence: string;
   interpretation?: string;
   adjustment?: string;
-  // Founder Decision (Mentor selectivity chunk): same internal-only,
-  // explainable 0–1 score as GuidanceMessage.strength in guidance.ts —
-  // each function below already computed a sample size and/or effect
-  // magnitude before formatting its card; this exposes that same number
-  // rather than discarding it. Never shown to the user.
+  // Founder Decision (Visual override chunk — connect real data
+  // properly): raw numerator/denominator behind `evidence`'s prose,
+  // exposed for any UI (e.g. Mentor's ring visualization) that needs the
+  // actual numbers. Previously the UI was regex-parsing these back out
+  // of the formatted evidence STRING — fragile, and one working example
+  // of exactly what "connect real data to UI" means done wrong: the
+  // numbers were real, but reached through a brittle text-parsing
+  // roundtrip instead of directly. undefined for insight types where a
+  // single ratio doesn't apply (e.g. momentum, which has two rates).
+  ratio?: { value: number; total: number };
   strength: number;
 }
 
@@ -149,6 +154,7 @@ function recurringFrictionInsight(quests: Quest[]): Insight | null {
     evidence: `${recurringMissed} of your last ${missed.length} missed Quests came from recurring series.`,
     interpretation: "Your one-off commitments are currently more reliable than your recurring ones.",
     adjustment: "Consider reducing or restructuring one recurring commitment.",
+    ratio: { value: recurringMissed, total: missed.length },
     // Has a concrete adjustment — small actionability bonus (+0.1),
     // matching the brief's explicit preference for "actionable
     // adjustments" as a ranking factor.
