@@ -134,26 +134,12 @@ export default function Profile() {
             buttons, unchanged, so the contrast in visual weight is
             deliberate, not incidental. */}
         <section
-          className="rounded-2xl border border-primary/30 bg-card p-6 shadow-[0_0_0_1px_hsl(var(--primary)/0.06),0_8px_28px_-14px_hsl(var(--primary)/0.35)]"
+          className="rounded-2xl border border-white/10 bg-card p-6 shadow-[var(--shadow-card)]"
           aria-labelledby="primary-goal-heading"
         >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <Target className="size-4 text-primary" aria-hidden="true" />
-              <h2 id="primary-goal-heading" className="text-label text-primary">Your goal</h2>
-            </div>
-            {!editingGoal && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="min-h-9 text-muted-foreground hover:text-foreground"
-                onClick={startEditing}
-              >
-                <Pencil className="size-3.5" aria-hidden="true" />
-                {profile?.primary_goal ? "Edit" : "Set a goal"}
-              </Button>
-            )}
+          <div className="flex items-center gap-2">
+            <Target className="size-4 text-primary" aria-hidden="true" />
+            <h2 id="primary-goal-heading" className="text-label text-primary">Your goal</h2>
           </div>
 
           {!editingGoal ? (
@@ -209,6 +195,26 @@ export default function Profile() {
               Saved.
             </p>
           )}
+
+          {/* Was top-right — the hardest corner of a card to reach
+              one-handed on a large phone. Moved to bottom-right, inside
+              the natural thumb arc for a hand holding the device from
+              the bottom, next to the content it edits rather than
+              floating above it. */}
+          {!editingGoal && (
+            <div className="mt-4 flex justify-end">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="min-h-11 text-muted-foreground hover:text-foreground"
+                onClick={startEditing}
+              >
+                <Pencil className="size-3.5" aria-hidden="true" />
+                {profile?.primary_goal ? "Edit" : "Set a goal"}
+              </Button>
+            </div>
+          )}
         </section>
 
         <div className="flex flex-wrap gap-2">
@@ -233,14 +239,14 @@ export default function Profile() {
         <div>
           <p className="text-label text-muted-foreground">Data permissions</p>
           <div className="mt-3 space-y-3">
-            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
+            <div className="flex min-h-11 items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
               <div>
                 <p className="text-body-sm font-medium text-foreground">Analytics</p>
                 <p className="text-xs text-muted-foreground">Anonymous usage data</p>
               </div>
               <Switch checked={prefs.analytics} onCheckedChange={(v) => setPref("analytics", v)} aria-label="Analytics" />
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
+            <div className="flex min-h-11 items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
               <div>
                 <p className="text-body-sm font-medium text-foreground">Performance monitoring</p>
                 <p className="text-xs text-muted-foreground">Crash reports only</p>
@@ -253,14 +259,14 @@ export default function Profile() {
         <div>
           <p className="text-label text-muted-foreground">Notifications</p>
           <div className="mt-3 space-y-3">
-            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
+            <div className="flex min-h-11 items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
               <div>
                 <p className="text-body-sm font-medium text-foreground">Daily reminders</p>
                 <p className="text-xs text-muted-foreground">Quest check-in</p>
               </div>
               <Switch checked={prefs.dailyReminders} onCheckedChange={(v) => setPref("dailyReminders", v)} aria-label="Daily reminders" />
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
+            <div className="flex min-h-11 items-center justify-between rounded-xl border border-border/60 bg-card/40 p-4">
               <div>
                 <p className="text-body-sm font-medium text-foreground">Mentor insights</p>
                 <p className="text-xs text-muted-foreground">Weekly history notes</p>

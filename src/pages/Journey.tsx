@@ -233,7 +233,7 @@ export default function Journey() {
             key={String(opt.value)}
             type="button"
             onClick={() => setWindowOption(opt.value)}
-            className={`min-h-9 rounded-full border px-3 py-1 text-xs transition-colors ${
+            className={`min-h-11 rounded-full border px-4 py-2 text-xs transition-colors ${
               windowOption === opt.value
                 ? "border-foreground/40 bg-foreground/10 text-foreground"
                 : "border-border/60 text-muted-foreground hover:text-foreground"
@@ -288,12 +288,19 @@ export default function Journey() {
             {seriesStats.map((series) => {
               const rate = series.total > 0 ? (series.completed / series.total) * 100 : 0;
               return (
-                <li key={series.seriesId} className="flex items-center gap-3 text-body-sm">
-                  <span className="w-24 shrink-0 truncate text-foreground">{series.title}</span>
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                <li key={series.seriesId} className="flex items-start gap-3 text-body-sm">
+                  {/* Was a fixed w-24 + truncate, which hard-cut titles
+                      like "Read two books this month" to "Read two bo…"
+                      with no way to recover the rest. Wrapping instead
+                      of truncating keeps the full title readable; the
+                      bar/count columns stay put via items-start + the
+                      label's own min-w-0 so long titles wrap onto a
+                      second line rather than pushing the row layout. */}
+                  <span className="w-24 shrink-0 break-words leading-snug text-foreground sm:w-32">{series.title}</span>
+                  <div className="mt-1 h-1.5 flex-1 shrink-0 overflow-hidden rounded-full bg-muted">
                     <div className="h-full rounded-full bg-primary/70" style={{ width: `${rate}%` }} />
                   </div>
-                  <span className="w-10 shrink-0 text-right text-muted-foreground tabular-nums">
+                  <span className="mt-0.5 w-10 shrink-0 text-right text-muted-foreground tabular-nums">
                     {series.completed}/{series.total}
                   </span>
                 </li>

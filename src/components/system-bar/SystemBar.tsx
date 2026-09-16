@@ -233,11 +233,11 @@ export default function SystemBar({ username }: SystemBarProps) {
                 {isProfile ? (
                   <IdentityAvatar
                     username={username}
+                    active={active}
                     className="
                       relative
                       w-[clamp(20px,5.8vw,24px)]
                       h-[clamp(20px,5.8vw,24px)]
-                      ring-1
                     "
                   />
                 ) : (

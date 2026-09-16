@@ -12,6 +12,18 @@ interface IdentityAvatarProps {
    */
   avatarUrl?: string;
   className?: string;
+  /**
+   * When true (SystemBar's mobile dock, on the Profile tab), renders a
+   * stronger ring instead of the default subtle one — the SAME active/
+   * inactive contrast pattern SystemBar already uses on every other nav
+   * icon via strokeWidth (1.5 → 2). Also drops ring-offset:
+   * ring-offset-background assumes the ring sits directly on page
+   * background, but in the nav dock it sits on the dock's own
+   * material-surface elevation (a lighter computed shade) — the offset
+   * gap didn't match that surface, which is what read as the ring
+   * "clipping" oddly against the dock.
+   */
+  active?: boolean;
 }
 
 // The avatar as persistent identity artifact (TIS-NAV-001, Refinement 1,
@@ -29,13 +41,13 @@ interface IdentityAvatarProps {
 // AvatarImage entirely until a real `avatarUrl` is available, and relies on
 // AvatarFallback's username-derived initials, which are genuinely personal
 // today.
-export function IdentityAvatar({ username, avatarUrl, className }: IdentityAvatarProps) {
+export function IdentityAvatar({ username, avatarUrl, className, active }: IdentityAvatarProps) {
   const initials = username.trim().slice(0, 2).toUpperCase() || "?";
 
   return (
     <Avatar
       className={cn(
-        "h-9 w-9 ring-1 ring-primary/40 ring-offset-2 ring-offset-background",
+        active ? "h-9 w-9 ring-2 ring-primary" : "h-9 w-9 ring-1 ring-primary/40",
         className,
       )}
     >

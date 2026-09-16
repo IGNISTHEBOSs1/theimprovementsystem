@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Target, Check, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import type { TrajectoryResult, TrajectoryPoint } from "@/lib/trajectory";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 
@@ -70,9 +71,24 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
       const p2 = pts[i + 1];
       const p3 = pts[i + 2] ?? p2;
       const c1x = p1[0] + (p2[0] - p0[0]) / 6;
-      const c1y = p1[1] + (p2[1] - p0[1]) / 6;
+      let c1y = p1[1] + (p2[1] - p0[1]) / 6;
       const c2x = p2[0] - (p3[0] - p1[0]) / 6;
-      const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+      let c2y = p2[1] - (p3[1] - p1[1]) / 6;
+      // Standard Catmull-Rom-to-Bezier control points can overshoot past
+      // the segment's own two endpoints on a sharp reversal — e.g. a long
+      // completed streak (rising) immediately followed by one missed
+      // Quest (a hard drop). Visually, that overshoot renders as the
+      // curve continuing to climb for an instant right at the missed-day
+      // point before bending down, which reads as "the line went up on a
+      // miss." The data (actualPosition -= 1 in trajectory.ts) is
+      // already correct — this was purely a rendering artifact. Clamping
+      // each control point's y to the endpoints' own [min, max] enforces
+      // a monotonic curve within the segment: a dip always renders as a
+      // dip, never a bump, with no change to any plotted data value.
+      const segMinY = Math.min(p1[1], p2[1]);
+      const segMaxY = Math.max(p1[1], p2[1]);
+      c1y = Math.min(Math.max(c1y, segMinY), segMaxY);
+      c2y = Math.min(Math.max(c2y, segMinY), segMaxY);
       d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2[0]} ${p2[1]}`;
     }
     return d;
@@ -281,9 +297,16 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <p className="font-medium text-foreground">{selected.quest.title}</p>
-              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${PRIORITY_BADGE_CLASSES[selected.quest.priority]}`}>
+              {/* Was a hand-rolled span with its own px-2/py-0.5 — half
+                  a pixel off the shared Badge component's px-2.5, and
+                  missing the font-weight baseline Badge always sets, so
+                  this one tag read subtly thinner/tighter than every
+                  other priority tag in the app. Now the same component
+                  QuestCard/Quests.tsx use, so all priority tags share
+                  one padding/radius/weight source, not five copies. */}
+              <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[selected.quest.priority]}>
                 {selected.quest.priority}
-              </span>
+              </Badge>
             </div>
             <p className="text-muted-foreground">
               {selected.outcome === "completed" ? "Completed" : "Not completed"} — {selected.timestamp.split("T")[0]}

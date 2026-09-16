@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
+import { triggerHaptic } from "@/lib/haptics";
 
 interface PrimaryActionPanelProps {
   quest?: Quest;
@@ -67,7 +68,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
   return (
     <section
       ref={spotlight.bind}
-      className="relative overflow-hidden rounded-2xl border border-primary/30 bg-card p-5 shadow-[0_0_0_1px_hsl(var(--primary)/0.06),0_8px_28px_-14px_hsl(var(--primary)/0.35)] sm:p-7"
+      className="relative overflow-hidden rounded-2xl border border-white/10 bg-card p-5 shadow-[var(--shadow-card)] sm:p-7"
       aria-labelledby="focus-heading"
     >
       {spotlight.enabled && (
@@ -176,13 +177,22 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
     const thresholdMet = max > 0 && dragXRef.current / max >= THRESHOLD;
     setHandleX(0, true);
     dragXRef.current = 0;
-    if (thresholdMet) onComplete();
+    if (thresholdMet) {
+      triggerHaptic("success");
+      onComplete();
+    }
   };
 
   const handleClick = () => {
     // Only reached for a plain tap with no real movement — a genuine
     // drag's completion is already handled in finishDrag above, once.
-    if (!movedRef.current) onComplete();
+    // This IS the tap-based fallback to the drag gesture: the whole
+    // track is a real <button>, so a plain tap, Enter, or Space all
+    // complete the Quest without requiring the drag motion at all.
+    if (!movedRef.current) {
+      triggerHaptic("success");
+      onComplete();
+    }
   };
 
   return (
@@ -195,7 +205,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       onPointerMove={handlePointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
-      className="relative flex min-h-11 w-full items-center overflow-hidden rounded-full bg-muted px-1 py-1 text-left touch-none"
+      className="relative flex min-h-11 w-full items-center overflow-hidden rounded-full bg-foreground/20 px-1 py-1 text-left touch-none"
       aria-label={completing ? "Marking Quest complete" : "Mark this Quest complete"}
     >
       <span
@@ -206,7 +216,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
         <ArrowRight className="size-4" aria-hidden="true" />
       </span>
       <span className="w-full text-center text-sm font-medium text-foreground">
-        {completing ? "Saving…" : "Swipe to complete →"}
+        {completing ? "Saving…" : "Swipe to complete"}
       </span>
     </button>
   );

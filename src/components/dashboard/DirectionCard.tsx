@@ -27,7 +27,10 @@ function CompletionRing({ completed, total }: { completed: number; total: number
   const fraction = total > 0 ? completed / total : 0;
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={`${completed} of ${total} goal-linked Quests completed`}>
-      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth={stroke} />
+      {/* Inactive track: was hsl(var(--muted)) — 12% lightness against a
+          2% background, under 2:1 contrast. Bumped to 20% white to clear
+          WCAG's 3:1 minimum for non-text UI graphics (1.4.11). */}
+      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--foreground) / 0.2)" strokeWidth={stroke} />
       <circle
         cx={size / 2}
         cy={size / 2}

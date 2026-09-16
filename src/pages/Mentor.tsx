@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { MessageSquare, Sprout, Compass, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
+import { AutoRebalanceModal } from "@/components/mentor/AutoRebalanceModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
 import { deriveTrajectory } from "@/lib/trajectory";
+import { computeRebalanceProposal } from "@/lib/rebalance";
 
 // Founder Decision (Visual override chunk — Mentor grid redesign):
 // replaces the flat ranked list with a fixed 4-slot card grid, by
@@ -67,6 +70,7 @@ function CompletionRing({ fraction, label }: { fraction: number; label: string }
 export default function Mentor() {
   const { profile } = useAuth();
   const { state, loading, error, reload } = useDashboardDataContext();
+  const [rebalanceOpen, setRebalanceOpen] = useState(false);
 
   if (loading) {
     return (
@@ -103,6 +107,20 @@ export default function Mentor() {
   const momentum = insights.find((i) => i.id === "momentum");
   const recovery = guidance.find((g) => g.id === "recovery-after-miss");
   const hasTrajectory = trajectory.actual.length > 0;
+  const rebalanceProposal = computeRebalanceProposal(state.quests, profile?.timezone || "UTC");
+
+  // Situational surfacing: this only ever reorders/promotes a slot that
+  // already has REAL underlying data (`recovery` is undefined unless
+  // deriveGuidance found an actual recovery-after-miss pattern) — it
+  // never invents a Recovery note for someone with no missed Quest just
+  // because it's evening. That would break the "never a guess" rule
+  // this file's own comments enforce everywhere else. What it does: if
+  // a genuine recovery pattern exists AND it's evening (when someone is
+  // more likely reviewing/recovering from the day), it's worth leading
+  // with rather than sitting equal-weighted next to Momentum/Trajectory.
+  const currentHour = new Date().getHours();
+  const isEvening = currentHour >= 18 || currentHour < 4;
+  const leadWithRecovery = Boolean(recovery) && isEvening;
 
   const anyGridSlot = Boolean(recurring || hasTrajectory || recovery || momentum);
 
@@ -169,10 +187,30 @@ export default function Mentor() {
               <Button asChild size="sm" className="mt-4 min-h-9">
                 <Link to="/quests">Restructure Quests</Link>
               </Button>
+              {rebalanceProposal && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-4 ml-2 min-h-9"
+                  onClick={() => setRebalanceOpen(true)}
+                >
+                  <RotateCcw className="size-3.5" aria-hidden="true" />
+                  Auto-Rebalance
+                </Button>
+              )}
             </div>
           )}
 
           <div className="grid gap-4 sm:grid-cols-2">
+            {leadWithRecovery && recovery && (
+              <div className="rounded-2xl border border-border bg-card p-5 sm:col-span-2">
+                <div className="flex items-center gap-2">
+                  <Sprout className="size-4 text-primary" aria-hidden="true" />
+                  <p className="text-label text-muted-foreground">Recovery</p>
+                </div>
+                <p className="mt-2 text-body-md font-medium leading-6 text-foreground">{recovery.text}</p>
+              </div>
+            )}
             {hasTrajectory && (
               <div className="rounded-2xl border border-border bg-card p-5">
                 <div className="flex items-center gap-2">
@@ -185,7 +223,7 @@ export default function Mentor() {
                 <p className="mt-1 text-body-sm text-muted-foreground">Your current position — see Journey for the full picture.</p>
               </div>
             )}
-            {recovery && (
+            {recovery && !leadWithRecovery && (
               <div className="rounded-2xl border border-border bg-card p-5">
                 <div className="flex items-center gap-2">
                   <Sprout className="size-4 text-primary" aria-hidden="true" />
@@ -235,6 +273,13 @@ export default function Mentor() {
             ))}
           </ul>
         </div>
+      )}
+      {rebalanceProposal && (
+        <AutoRebalanceModal
+          open={rebalanceOpen}
+          onOpenChange={setRebalanceOpen}
+          proposal={rebalanceProposal}
+        />
       )}
     </div>
   );

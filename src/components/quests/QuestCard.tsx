@@ -1,8 +1,9 @@
-import { Check, Target } from "lucide-react";
+import { Check, Target, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
+import { triggerHaptic } from "@/lib/haptics";
 
 interface QuestCardProps {
   quest: Quest;
@@ -74,10 +75,22 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
           )}
           <Button
             className="min-h-11"
-            onClick={() => onComplete(quest.id)}
+            onClick={() => {
+              triggerHaptic("success");
+              onComplete(quest.id);
+            }}
             disabled={completing}
           >
-            <Check className="size-4" aria-hidden="true" />
+            {/* Was static text only ("Saving…") with no visual motion —
+                nothing confirmed the tap registered until the whole
+                list re-rendered on the network response. The spinner
+                gives immediate feedback in the same frame as the tap,
+                before the database round-trip resolves. */}
+            {completing ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Check className="size-4" aria-hidden="true" />
+            )}
             {completing ? "Saving…" : "Mark complete"}
           </Button>
         </div>
