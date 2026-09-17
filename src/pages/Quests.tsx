@@ -248,11 +248,17 @@ export default function Quests() {
                       key={quest.seriesId}
                       className="flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-card/40 px-4 py-3 text-body-sm"
                     >
+                      {/* Was three badges per row: Priority, a
+                          "Recurring" badge, and Goal. The "Recurring"
+                          one is pure noise here — this entire list is
+                          titled "Upcoming" and only ever contains
+                          recurring occurrences, so every single row had
+                          an identical badge that told you nothing you
+                          didn't already know from the section heading.
+                          Dropped it; Priority and Goal both still vary
+                          per row and carry real information. */}
                       <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>
                         {quest.priority}
-                      </Badge>
-                      <Badge variant="outline" className="border-border bg-muted/40 text-muted-foreground">
-                        Recurring
                       </Badge>
                       {quest.linkedToGoal && (
                         <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">

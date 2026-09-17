@@ -46,43 +46,55 @@ export interface ThemeConfig {
 
 export const THEMES: Record<ThemeName, ThemeConfig> = {
   /**
-   * Monarch — deep violet, the default Solo Leveling-inspired palette.
-   * Matches the existing purple accent in index.css.
+   * Monarch — dusty violet ("perfume" ramp), the default palette.
+   *
+   * Replaces the original saturated `#7c3aed` (270 91% 55/50%) violet,
+   * which was never actually composed for light mode — it was the dark
+   * palette's hue/saturation with lightness nudged down 5%, and reads as
+   * the generic high-chroma-at-mid-lightness "SaaS purple button" look
+   * as a result. This uses `perfume` (a dustier, lower-chroma violet
+   * ramp) with mode-appropriate steps instead of one flat value:
+   * light mode uses a DARKER step with white text (perfume-700, 5.44:1),
+   * dark mode uses perfume-400 (`#c2b1e0`, a deliberate pick, not derived)
+   * with DARK text (9.71:1) — a light primary needs dark text on it, not
+   * white; using white text on a light purple is exactly what made the
+   * old dark-mode primary fail WCAG AA at 4.44:1. Fixed here as a side
+   * effect of doing the light/dark split correctly.
    */
   Monarch: {
     name: "Monarch",
-    description: "Deep violet — the default hunter palette",
-    swatch: "#7c3aed",
+    description: "Dusty violet — the default palette",
+    swatch: "#c2b1e0",
     vars: {
       dark: {
         "--background":          "0 0% 2%",
         "--foreground":          "0 0% 95%",
         "--card":                "0 0% 6.5%",
         "--card-elevated":       "0 0% 8%",
-        "--primary":             "270 91% 55%",
-        "--primary-foreground":  "0 0% 100%",
-        "--primary-glow":        "270 91% 65%",
+        "--primary":             "262 43% 79%", // perfume-400 (c2b1e0)
+        "--primary-foreground":  "0 0% 6%",     // dark text — even a light-toned primary needs dark text at this lightness
+        "--primary-glow":        "259 45% 85%", // perfume-300 — one step lighter, for glow effects
         "--secondary":           "217 91% 60%",
         "--accent":              "45 93% 47%",
         "--muted":               "0 0% 12%",
         "--muted-foreground":    "0 0% 60%",
         "--border":              "0 0% 15%",
-        "--ring":                "270 91% 55%",
+        "--ring":                "262 43% 79%", // perfume-400
       },
       light: {
         "--background":          "270 20% 98%",
         "--foreground":          "270 10% 10%",
         "--card":                "0 0% 100%",
         "--card-elevated":       "270 15% 96%",
-        "--primary":             "270 91% 50%",
+        "--primary":             "270 33% 50%", // perfume-700
         "--primary-foreground":  "0 0% 100%",
-        "--primary-glow":        "270 91% 60%",
+        "--primary-glow":        "269 40% 58%", // perfume-600 — brighter step for glow effects
         "--secondary":           "217 91% 55%",
         "--accent":              "45 93% 42%",
         "--muted":               "270 15% 92%",
         "--muted-foreground":    "270 10% 45%",
         "--border":              "270 15% 85%",
-        "--ring":                "270 91% 50%",
+        "--ring":                "270 33% 50%", // perfume-700
       },
     },
   },

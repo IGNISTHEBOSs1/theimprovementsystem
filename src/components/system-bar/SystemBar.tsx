@@ -201,10 +201,8 @@ export default function SystemBar({ username }: SystemBarProps) {
                   relative
                   flex-1
                   flex
-                  flex-col
                   items-center
                   justify-center
-                  gap-1
                   min-w-[44px]
                   min-h-[44px]
                   touch-manipulation
@@ -214,7 +212,12 @@ export default function SystemBar({ username }: SystemBarProps) {
                   active:transition-none
                 "
               >
-                {/* Active inner slider */}
+                {/* Active inner slider — layoutId already gives the
+                    "pill slides from the previously-active icon to the
+                    newly-clicked one" motion for free: framer-motion
+                    animates any element sharing a layoutId between its
+                    old and new position/size automatically (FLIP), no
+                    manual coordinate math needed. */}
                 {active && (
                   <motion.div
                     layoutId="system-bar-active-indicator-mobile"
@@ -229,41 +232,61 @@ export default function SystemBar({ username }: SystemBarProps) {
                   />
                 )}
 
-                {/* Profile avatar */}
-                {isProfile ? (
-                  <IdentityAvatar
-                    username={username}
-                    active={active}
-                    className="
-                      relative
-                      w-[clamp(20px,5.8vw,24px)]
-                      h-[clamp(20px,5.8vw,24px)]
-                    "
-                  />
-                ) : (
-                  <Icon
-                    size={24}
-                    strokeWidth={active ? 2 : 1.5}
-                    className={cn(
-                      "relative w-[clamp(20px,5.8vw,24px)] h-[clamp(20px,5.8vw,24px)] transition-colors duration-150",
-                      active
-                        ? "text-primary"
-                        : "text-muted-foreground",
-                    )}
-                  />
-                )}
-
-                {/* Label */}
-                <span
-                  className={cn(
-                    "relative text-[10px] leading-none transition-colors duration-150",
-                    active
-                      ? "text-foreground font-semibold"
-                      : "text-muted-foreground font-medium",
-                  )}
+                {/* Icon + label scale together as one unit: active tab
+                    pops slightly larger, every other tab recedes
+                    slightly smaller — matches the "selected gets bold
+                    and enlarged while every other icon and text
+                    minimizes" behavior. The active tab's own scale-up
+                    is delayed ~80ms so the pill visibly arrives at its
+                    new position first, then the icon/label grow into
+                    it, rather than everything happening in one
+                    simultaneous jump. Inactive tabs shrink immediately
+                    — no reason to wait on those. */}
+                <motion.div
+                  className="relative flex flex-col items-center justify-center gap-1"
+                  animate={{ scale: active ? 1.12 : 0.94 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 420,
+                    damping: 26,
+                    delay: active ? 0.08 : 0,
+                  }}
                 >
-                  {mobileLabel ?? label}
-                </span>
+                  {/* Profile avatar */}
+                  {isProfile ? (
+                    <IdentityAvatar
+                      username={username}
+                      active={active}
+                      className="
+                        w-[clamp(20px,5.8vw,24px)]
+                        h-[clamp(20px,5.8vw,24px)]
+                      "
+                    />
+                  ) : (
+                    <Icon
+                      size={24}
+                      strokeWidth={active ? 2 : 1.5}
+                      className={cn(
+                        "w-[clamp(20px,5.8vw,24px)] h-[clamp(20px,5.8vw,24px)] transition-colors duration-150",
+                        active
+                          ? "text-primary"
+                          : "text-muted-foreground",
+                      )}
+                    />
+                  )}
+
+                  {/* Label */}
+                  <span
+                    className={cn(
+                      "text-[10px] leading-none transition-colors duration-150",
+                      active
+                        ? "text-foreground font-semibold"
+                        : "text-muted-foreground font-medium",
+                    )}
+                  >
+                    {mobileLabel ?? label}
+                  </span>
+                </motion.div>
               </NavLink>
             );
           },
