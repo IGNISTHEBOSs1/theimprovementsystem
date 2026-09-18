@@ -85,7 +85,19 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
         "--background":          "270 20% 98%",
         "--foreground":          "270 10% 10%",
         "--card":                "0 0% 100%",
-        "--card-elevated":       "270 15% 96%",
+        // Was 270 15% 96% — DARKER than both --background (98%) and
+        // --card (100%). That inverted the elevation direction mid-
+        // ladder: background→card got lighter (98→100, a "floating
+        // white card" pattern), then card→card-elevated got darker
+        // again (100→96), which reads as the "elevated" surface
+        // sinking below its own base card rather than rising above it.
+        // Per the color video's own rule — dark mode elevation MUST
+        // get lighter as it rises, but light mode is flexible — once
+        // a surface hits pure white there's nowhere lighter to go, so
+        // "elevated" here is expressed by the Material System's shadow
+        // computation (already elevation-driven, see index.css §6-7),
+        // not by a background delta that can't exist past 100%.
+        "--card-elevated":       "0 0% 100%",
         "--primary":             "270 33% 50%", // perfume-700
         "--primary-foreground":  "0 0% 100%",
         "--primary-glow":        "269 40% 58%", // perfume-600 — brighter step for glow effects
