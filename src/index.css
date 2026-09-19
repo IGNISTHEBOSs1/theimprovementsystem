@@ -353,6 +353,44 @@
   .material-structural  { --elevation: var(--elevation-structural); }
   .material-transient   { --elevation: var(--elevation-transient); }
 
+  /* ── Light-mode override for the Material System ──
+     THE BUG: .material-surface's background above is `hsl(0 0% calc(2% +
+     elevation * 1.3%))` — hardcoded to near-black as its floor, regardless
+     of theme or mode. It was written and tuned for dark mode only and
+     never branched for light mode at all, so every element using it
+     (AppLayout's <main>, i.e. the canvas behind EVERY page) rendered
+     pitch black even with a light theme's tokens active elsewhere. That's
+     why cards using plain `bg-card` (token-driven) correctly went white
+     while everything using `.material-*` (formula-driven, no token) did
+     not — two different mechanisms disagreeing, only one of them aware
+     that light mode exists.
+     THE FIX: per the color video's own rule — dark mode MUST get lighter
+     with elevation (no flexibility there), but light mode is flexible and
+     doesn't need a manufactured darkness gradient at all. So in light
+     mode each tier maps to the theme's own real token instead of the
+     elevation formula, and "elevation" is expressed only through shadow
+     depth (kept, scaled down) rather than a background color computed
+     from a dark anchor that doesn't exist in light mode. */
+  :root:not(.dark) .material-surface {
+    box-shadow:
+      inset 0 1px 0 hsl(0 0% 100% / 0.5),
+      0 calc(var(--elevation) * 1px) calc(var(--elevation) * 8px) hsl(0 0% 0% / calc(0.03 + var(--elevation) * 0.012));
+  }
+  :root:not(.dark) .material-void,
+  :root:not(.dark) .material-workspace {
+    background: hsl(var(--background));
+    border-color: hsl(var(--border));
+  }
+  :root:not(.dark) .material-content {
+    background: hsl(var(--card));
+    border-color: hsl(var(--border));
+  }
+  :root:not(.dark) .material-structural,
+  :root:not(.dark) .material-transient {
+    background: hsl(var(--card-elevated));
+    border-color: hsl(var(--border));
+  }
+
   /* Active nav item — a state expression (Ch.08 Interaction), not a new light
      source. Computed as one step above the Structural elevation through the
      SAME formula .material-surface uses — not an independently authored
@@ -363,6 +401,13 @@
     background: hsl(0 0% calc(2% + var(--elevation) * 1.3%));
     border: 1px solid hsl(0 0% 100% / calc(0.025 + var(--elevation) * 0.016));
     box-shadow: inset 0 1px 0 hsl(0 0% 100% / calc(0.02 + var(--elevation) * 0.02));
+  }
+  /* Same bug, same fix as .material-surface above — this duplicated the
+     hardcoded dark-anchor formula rather than reusing tokens. */
+  :root:not(.dark) .system-nav-active {
+    background: hsl(var(--card-elevated));
+    border-color: hsl(var(--border));
+    box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.6);
   }
 
   /* Inner glow for active/selected states */
