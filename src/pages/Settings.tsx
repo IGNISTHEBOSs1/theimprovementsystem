@@ -1,10 +1,12 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Sun, Moon, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
+import { useThemeContext, type ThemeMode } from "@/providers/ThemeProvider";
 
 // Founder Decision (Profile/Settings separation chunk): timezone,
 // session, and account-data controls moved here verbatim from Profile —
@@ -34,6 +36,7 @@ function getKnownTimezones(): string[] | null {
 export default function Settings() {
   const navigate = useNavigate();
   const { profile, updateProfile, signOut, resetGameProgress, deleteAccount } = useAuth();
+  const { mode, setMode } = useThemeContext();
   // Founder Decision (Reliability chunk): resetGameProgress writes
   // quests: [] directly to game_state — but the shared Quest state this
   // app actually renders from lives in DashboardDataProvider's React
@@ -143,6 +146,48 @@ export default function Settings() {
         description="Timezone, session, and what you control about your account."
       />
       <div className="mt-9 space-y-8">
+        {/* This section didn't exist anywhere in the app — every theme
+            file already had complete light AND dark values, and the
+            provider already had working system-preference detection
+            (see ThemeProvider.tsx's resolveMode + matchMedia listener),
+            but nothing anywhere ever called setMode. Light mode wasn't
+            broken, it was unreachable — there was no control for it.
+            Default is now "system" (see App.tsx) so new sessions match
+            the OS automatically; this lets anyone override that. */}
+        <section className="rounded-2xl border border-border bg-card p-6" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading" className="text-label text-muted-foreground">Appearance</h2>
+          <p className="mt-1 text-body-sm text-muted-foreground">
+            Auto matches your device's light/dark setting automatically.
+          </p>
+          <div className="mt-4 inline-flex rounded-xl border border-border bg-muted/30 p-1" role="radiogroup" aria-label="Appearance mode">
+            {([
+              { value: "light", label: "Light", Icon: Sun },
+              { value: "dark", label: "Dark", Icon: Moon },
+              { value: "system", label: "Auto", Icon: Monitor },
+            ] as { value: ThemeMode; label: string; Icon: typeof Sun }[]).map(({ value, label, Icon }) => {
+              const active = mode === value;
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => setMode(value)}
+                  className={
+                    "flex min-h-11 items-center gap-2 rounded-lg px-4 text-body-sm font-medium transition-colors " +
+                    (active
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground")
+                  }
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
         <section className="rounded-2xl border border-border bg-card p-6" aria-labelledby="timezone-heading">
           <h2 id="timezone-heading" className="text-label text-muted-foreground">Timezone</h2>
           <p className="mt-1 text-body-sm text-muted-foreground">
