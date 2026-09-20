@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
 import type { QuestPriority } from "@/types/quest";
 import type { CadencePreset } from "@/hooks/useDashboardData";
@@ -136,67 +137,79 @@ export function TodaysCommitment({ committing, onCommit, goalLabel, initialValue
         </div>
 
         {showOptions && (
-          <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-background/40 p-4">
-            <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Priority">
-              <span className="mr-1 text-body-sm text-muted-foreground">Priority</span>
-              {PRIORITIES.map((level) => (
-                <button
-                  key={level}
-                  type="button"
-                  onClick={() => setPriority(level)}
-                  disabled={committing}
-                  aria-pressed={priority === level}
-                  className={cn(
-                    "min-h-9 rounded-lg border px-2.5 text-xs font-medium transition-colors",
-                    priority === level
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {level}
-                </button>
-              ))}
+          <div className="flex flex-col gap-4 rounded-xl border border-border/60 bg-background/40 p-4">
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
+              <span className="w-16 text-body-sm text-muted-foreground shrink-0">Priority</span>
+              <ToggleGroup
+                type="single"
+                value={priority}
+                onValueChange={(val) => {
+                  if (val) setPriority(val as QuestPriority);
+                }}
+                disabled={committing}
+                className="flex-wrap justify-start gap-1.5"
+                aria-label="Priority"
+              >
+                {PRIORITIES.map((level) => (
+                  <ToggleGroupItem
+                    key={level}
+                    value={level}
+                    size="sm"
+                    className="h-8 px-2.5 text-xs data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary"
+                  >
+                    {level}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label="Repeats">
-              <span className="mr-1 text-body-sm text-muted-foreground">Repeats</span>
-              {CADENCE_PRESETS.map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => setCadence(preset)}
-                  disabled={committing}
-                  aria-pressed={cadence === preset}
-                  className={cn(
-                    "min-h-9 rounded-lg border px-2.5 text-xs font-medium transition-colors",
-                    cadence === preset
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {preset}
-                </button>
-              ))}
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
+              <span className="w-16 text-body-sm text-muted-foreground shrink-0">Repeats</span>
+              <ToggleGroup
+                type="single"
+                value={cadence}
+                onValueChange={(val) => {
+                  if (val) setCadence(val as CadencePreset);
+                }}
+                disabled={committing}
+                className="flex-wrap justify-start gap-1.5"
+                aria-label="Repeats"
+              >
+                {CADENCE_PRESETS.map((preset) => (
+                  <ToggleGroupItem
+                    key={preset}
+                    value={preset}
+                    size="sm"
+                    className="h-8 px-2.5 text-xs data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary"
+                  >
+                    {preset}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
             </div>
 
             {cadence === "Custom" && (
-              <div className="flex flex-wrap gap-1.5" role="group" aria-label="Repeat on which days">
-                {DAY_LABELS.map((label, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => toggleCustomDay(i)}
-                    disabled={committing}
-                    className={cn(
-                      "min-h-9 rounded-lg border px-2.5 text-xs font-medium transition-colors",
-                      customDays.includes(i)
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    {label}
-                  </button>
-                ))}
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
+                <span className="w-16 text-body-sm text-muted-foreground shrink-0">Days</span>
+                <ToggleGroup
+                  type="multiple"
+                  value={customDays.map(String)}
+                  onValueChange={(vals) => setCustomDays(vals.map(Number).sort())}
+                  disabled={committing}
+                  className="flex-wrap justify-start gap-1.5"
+                  aria-label="Repeat on which days"
+                >
+                  {DAY_LABELS.map((label, i) => (
+                    <ToggleGroupItem
+                      key={i}
+                      value={String(i)}
+                      size="sm"
+                      className="h-8 w-10 px-0 text-xs data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary"
+                    >
+                      {label}
+                    </ToggleGroupItem>
+                  ))}
+                </ToggleGroup>
               </div>
             )}
           </div>

@@ -1,34 +1,106 @@
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check, X, Search, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/dashboard/PageHeader";
-import { QuestCard } from "@/components/quests/QuestCard";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
+import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
+import { cn } from "@/lib/utils";
+import type { Quest } from "@/types/quest";
 
-// Quest History is an archive, not another active surface. It reads the
-// same state.quests array Dashboard/Quests already load — nothing here
-// queries anything new, and nothing here can mark a quest active again.
-// completed/failed quests already carry a completing-button-free render
-// path in QuestCard, so that component is reused as-is rather than
-// building a second, parallel quest-row component.
-export default function QuestHistory() {
-  const { state, loading, error, reload } = useDashboardDataContext();
-
-  const completed = state.quests
-    .filter((quest) => quest.completed)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const failed = state.quests
-    .filter((quest) => quest.failed)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-
-  const noOp = () => {};
+function HistoryItem({ quest }: { quest: Quest }) {
+  const isCompleted = quest.completed;
+  const dateStr = quest.resolvedAt || quest.createdAt;
+  const resolvedDate = dateStr
+    ? new Date(dateStr).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+      })
+    : "";
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+    <li className="flex flex-col gap-2 rounded-xl border border-border/70 bg-card/60 p-3.5 transition-colors hover:bg-card sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-4 sm:py-3">
+      <div className="flex min-w-0 items-start gap-3 sm:items-center">
+        <div
+          className={cn(
+            "flex size-7 shrink-0 items-center justify-center rounded-full mt-0.5 sm:mt-0",
+            isCompleted ? "bg-primary/10 text-primary border border-primary/20" : "bg-muted text-muted-foreground border border-border/60"
+          )}
+          aria-hidden="true"
+        >
+          {isCompleted ? <Check className="size-3.5" /> : <X className="size-3.5" />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", PRIORITY_BADGE_CLASSES[quest.priority])}>
+              {quest.priority}
+            </Badge>
+            <span className="font-medium text-foreground text-sm truncate">{quest.title}</span>
+          </div>
+          {quest.linkedToGoal && quest.goalName && (
+            <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground truncate">
+              <Target className="size-3 shrink-0" aria-hidden="true" />
+              <span>Supports: {quest.goalName}</span>
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between sm:justify-end gap-2.5 pl-10 sm:pl-0 shrink-0">
+        <span className="font-mono text-xs text-muted-foreground">{resolvedDate}</span>
+        <span
+          className={cn(
+            "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+            isCompleted
+              ? "bg-primary/10 text-primary border border-primary/25"
+              : "bg-muted text-muted-foreground border border-border/60"
+          )}
+        >
+          {isCompleted ? "Completed" : "Missed"}
+        </span>
+      </div>
+    </li>
+  );
+}
+
+export default function QuestHistory() {
+  const { state, loading, error, reload } = useDashboardDataContext();
+  const [search, setSearch] = useState("");
+  const [activeTab, setActiveTab] = useState<"all" | "completed" | "failed">("all");
+
+  const resolved = useMemo(() => {
+    return state.quests
+      .filter((quest) => quest.completed || quest.failed)
+      .sort((a, b) => (b.resolvedAt || b.createdAt).localeCompare(a.resolvedAt || a.createdAt));
+  }, [state.quests]);
+
+  const completedCount = useMemo(() => resolved.filter((q) => q.completed).length, [resolved]);
+  const failedCount = useMemo(() => resolved.filter((q) => q.failed).length, [resolved]);
+
+  const filteredQuests = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return resolved.filter((quest) => {
+      // Tab filter
+      if (activeTab === "completed" && !quest.completed) return false;
+      if (activeTab === "failed" && !quest.failed) return false;
+
+      // Text search
+      if (!query) return true;
+      const titleMatch = quest.title.toLowerCase().includes(query);
+      const goalMatch = Boolean(quest.goalName?.toLowerCase().includes(query));
+      return titleMatch || goalMatch;
+    });
+  }, [resolved, activeTab, search]);
+
+  return (
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(108px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
       <PageHeader
         eyebrow="Your system"
         title="Quest history."
-        description="What you've completed and what you missed."
+        description="Search and review your past commitments and outcomes."
       >
         <Button variant="ghost" asChild className="shrink-0">
           <Link to="/profile">
@@ -41,8 +113,9 @@ export default function QuestHistory() {
       <div className="mt-8">
         {loading ? (
           <div className="space-y-3" aria-label="Loading quest history">
-            <div className="h-20 animate-pulse rounded-2xl bg-muted" />
-            <div className="h-20 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-16 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-16 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-16 animate-pulse rounded-2xl bg-muted" />
           </div>
         ) : error ? (
           <section
@@ -60,43 +133,71 @@ export default function QuestHistory() {
               Try again
             </Button>
           </section>
-        ) : completed.length === 0 && failed.length === 0 ? (
-          <section className="rounded-2xl border border-border bg-card p-7" aria-label="No quest history yet">
+        ) : resolved.length === 0 ? (
+          <section className="rounded-2xl border border-border bg-card p-7 text-center" aria-label="No quest history yet">
             <p className="text-body-md text-muted-foreground">
-              Nothing here yet. Completed and missed quests will show up as you go.
+              Nothing here yet. Completed and missed quests will appear here as you resolve them.
             </p>
           </section>
         ) : (
-          <div className="flex flex-col gap-8">
-            <section aria-labelledby="completed-heading">
-              <h2 id="completed-heading" className="text-label text-muted-foreground mb-3">
-                Completed
-              </h2>
-              {completed.length > 0 ? (
-                <ul className="space-y-3">
-                  {completed.map((quest) => (
-                    <QuestCard key={quest.id} quest={quest} onComplete={noOp} />
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-body-sm text-muted-foreground">None yet.</p>
-              )}
-            </section>
+          <div className="space-y-4">
+            {/* Filter Tabs & Search Bar Header */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <Tabs
+                value={activeTab}
+                onValueChange={(val) => setActiveTab(val as "all" | "completed" | "failed")}
+                className="w-full sm:w-auto"
+              >
+                <TabsList className="grid w-full grid-cols-3 sm:w-auto">
+                  <TabsTrigger value="all" className="text-xs">
+                    All ({resolved.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="completed" className="text-xs">
+                    Completed ({completedCount})
+                  </TabsTrigger>
+                  <TabsTrigger value="failed" className="text-xs">
+                    Missed ({failedCount})
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
 
-            <section aria-labelledby="failed-heading">
-              <h2 id="failed-heading" className="text-label text-muted-foreground mb-3">
-                Missed
-              </h2>
-              {failed.length > 0 ? (
-                <ul className="space-y-3">
-                  {failed.map((quest) => (
-                    <QuestCard key={quest.id} quest={quest} onComplete={noOp} />
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-body-sm text-muted-foreground">None yet.</p>
-              )}
-            </section>
+              {/* Search input */}
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" aria-hidden="true" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Filter by title or goal..."
+                  className="pl-8 text-xs h-9"
+                  aria-label="Filter quests"
+                />
+              </div>
+            </div>
+
+            {/* List of Filtered Items */}
+            {filteredQuests.length > 0 ? (
+              <ul className="space-y-2" aria-label="Filtered quest history list">
+                {filteredQuests.map((quest) => (
+                  <HistoryItem key={quest.id} quest={quest} />
+                ))}
+              </ul>
+            ) : (
+              <div className="rounded-2xl border border-border/70 bg-card/40 p-8 text-center">
+                <p className="text-body-sm text-muted-foreground">
+                  No quests match {search ? `"${search}"` : "this filter"}.
+                </p>
+                {search && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2 text-xs text-primary"
+                    onClick={() => setSearch("")}
+                  >
+                    Clear search
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

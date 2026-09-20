@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Sun, Moon, Monitor, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import {
   AlertDialog,
@@ -166,33 +167,26 @@ export default function Settings() {
           <p className="mt-1 text-body-sm text-muted-foreground">
             Auto matches your device's light/dark setting automatically.
           </p>
-          <div className="mt-4 inline-flex rounded-xl border border-border bg-muted/30 p-1" role="radiogroup" aria-label="Appearance mode">
-            {([
-              { value: "light", label: "Light", Icon: Sun },
-              { value: "dark", label: "Dark", Icon: Moon },
-              { value: "system", label: "Auto", Icon: Monitor },
-            ] as { value: ThemeMode; label: string; Icon: typeof Sun }[]).map(({ value, label, Icon }) => {
-              const active = mode === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  onClick={() => setMode(value)}
-                  className={
-                    "flex min-h-11 items-center gap-2 rounded-lg px-4 text-body-sm font-medium transition-colors " +
-                    (active
-                      ? "bg-card text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground")
-                  }
-                >
-                  <Icon className="size-4" aria-hidden="true" />
-                  {label}
-                </button>
-              );
-            })}
-          </div>
+          <Tabs
+            value={mode}
+            onValueChange={(val) => setMode(val as ThemeMode)}
+            className="mt-4 w-full sm:w-auto"
+          >
+            <TabsList className="grid w-full grid-cols-3 sm:w-[320px] h-11 p-1">
+              <TabsTrigger value="light" className="flex items-center gap-2 h-9 text-xs sm:text-sm">
+                <Sun className="size-4" aria-hidden="true" />
+                <span>Light</span>
+              </TabsTrigger>
+              <TabsTrigger value="dark" className="flex items-center gap-2 h-9 text-xs sm:text-sm">
+                <Moon className="size-4" aria-hidden="true" />
+                <span>Dark</span>
+              </TabsTrigger>
+              <TabsTrigger value="system" className="flex items-center gap-2 h-9 text-xs sm:text-sm">
+                <Monitor className="size-4" aria-hidden="true" />
+                <span>Auto</span>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </section>
 
         <section className="rounded-2xl border border-border bg-card p-6" aria-labelledby="timezone-heading">
