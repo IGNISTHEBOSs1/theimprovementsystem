@@ -37,7 +37,7 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
           (56px) + floating clearance above the safe area (12px, see
           SystemBar.tsx) + 8px breathing room so content doesn't sit
           flush against the pill = 76px, plus the safe-area inset itself. */}
-      <main className="flex-1 min-w-0 overflow-y-auto pb-[calc(76px+env(safe-area-inset-bottom))] md:pb-0 material-surface material-workspace">
+      <main className="flex-1 min-w-0 overflow-y-auto pb-[calc(92px+env(safe-area-inset-bottom))] md:pb-0 material-surface material-workspace">
         {children}
       </main>
 

@@ -146,7 +146,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
       <PageHeader
         eyebrow="Settings"
         title="System and account controls."

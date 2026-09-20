@@ -1,64 +1,66 @@
 import { useState } from "react";
-import { Compass, Check, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Compass,
+  Check,
+  Minus,
+  RotateCcw,
+  Sparkles,
+  CalendarClock,
+  Gauge,
+  ArrowRight,
+  Target,
+  Zap,
+} from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
-import { TrajectoryChart } from "@/components/journey/TrajectoryChart";
+import { TrajectoryVisualizer } from "@/components/journey/TrajectoryVisualizer";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
-import {
-  deriveTrajectory,
-  deriveGoalStats,
-  derivePriorityBreakdown,
-  deriveSeriesStats,
-  deriveFollowThroughStats,
-  deriveResolvedAt,
-} from "@/lib/trajectory";
+import { deriveCurrentStreak, deriveResolvedAt } from "@/lib/trajectory";
+import { computeTrajectoryEngine } from "@/lib/trajectoryEngine";
+import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
+import { triggerHaptic } from "@/lib/haptics";
 
-// Founder Decision (Trajectory completeness chunk, Tier 1 #3): a display-
-// only time window over the chart. Recomputes deriveTrajectory from a
-// date-filtered quest list (rather than slicing the already-cumulative
-// result), so the windowed line's position correctly starts at 0 for
-// that window instead of showing a truncated fragment of the all-time
-// cumulative curve. Does not affect deriveGoalStats, deriveSeriesStats,
-// or deriveFollowThroughStats below, which remain all-time.
-type WindowOption = 30 | 90 | "all";
-const WINDOW_OPTIONS: { value: WindowOption; label: string }[] = [
-  { value: 30, label: "30 days" },
-  { value: 90, label: "90 days" },
-  { value: "all", label: "All time" },
-];
-
-// Trajectory v1 (Journey chunk). Deterministic, evidence-based, single
-// implicit dimension: "progress toward the user's current Goal." No new
-// Goal architecture, no evidence table, no schema change — deriveTrajectory
-// reads only state.quests, which already existed. See the chunk report
-// for the resolution-timestamp limitation (createdAt is used; no true
-// completion/failure timestamp exists in the current data model).
 export default function Journey() {
   const { profile } = useAuth();
-  const { state, loading, error, reload } = useDashboardDataContext();
-  const [windowOption, setWindowOption] = useState<WindowOption>("all");
+  const {
+    state,
+    loading,
+    error,
+    saving,
+    activeQuests,
+    recalibrateSchedule,
+    completeQuest,
+    reload,
+    todayStr,
+  } = useDashboardDataContext();
+
+  const [isRecalibrating, setIsRecalibrating] = useState(false);
+  const [completingId, setCompletingId] = useState<string | null>(null);
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
-        <div className="h-64 animate-pulse rounded-2xl bg-muted" aria-label="Loading your journey" />
+      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+        <div className="h-72 animate-pulse rounded-3xl bg-muted/60" aria-label="Loading trajectory flight deck" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
-        <section className="rounded-2xl border border-border bg-card p-7" aria-label="Journey unavailable">
-          <p className="text-label text-muted-foreground">Your journey</p>
-          <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your journey.</h2>
+      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+        <section className="rounded-3xl border border-border bg-card p-7 shadow-sm" aria-label="Flight deck unavailable">
+          <p className="text-label text-muted-foreground">Navigational System</p>
+          <h2 className="mt-2 text-lg font-semibold text-foreground">Flight telemetry is temporarily offline.</h2>
           <p className="mt-2 text-body-md text-muted-foreground">
-            This is usually temporary. You can try again now.
+            Your flight recorder is intact. Try establishing a link now.
           </p>
           <Button variant="neon" size="lg" className="mt-4" onClick={() => void reload()}>
-            Try again
+            Re-engage System
           </Button>
         </section>
       </div>
@@ -66,295 +68,353 @@ export default function Journey() {
   }
 
   const hasGoal = Boolean(profile?.primary_goal);
-  const trajectory = deriveTrajectory(state.quests);
-  const hasEvidence = trajectory.actual.length > 0;
-
-  // No active Goal: do not invent a destination. This is distinct from
-  // "goal exists but no evidence yet" — different message, same
-  // no-fake-data principle.
   if (!hasGoal) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
+      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <PlaceholderExperience
           icon={Compass}
-          title="No goal set yet."
-          message="Your trajectory tracks movement toward a goal you choose. Set one from your profile to start."
+          title="No flight target set yet."
+          message="Your trajectory engine calculates a route toward a goal you choose. Set your primary destination in your profile to initialize flight telemetry."
         />
       </div>
     );
   }
 
-  // Goal exists, but no resolved, goal-linked Quest evidence yet. Do not
-  // render a fake trajectory — an empty coordinate space with nothing
-  // plotted would misrepresent "no data" as "flat progress." Founder
-  // Decision (Goal→Quest→Outcome chunk): still show the honest linked-
-  // Quest count here (deriveGoalStats counts active Quests too, unlike
-  // trajectory's resolved-only evidence) so "still forming" doesn't read
-  // as "nothing has happened yet" when Quests are, in fact, committed
-  // and in progress.
-  if (!hasEvidence) {
-    const goalStats = deriveGoalStats(state.quests);
-    return (
-      <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
-        <PageHeader
-          eyebrow="Your journey"
-          title="Your trajectory is still forming."
-          description={`Complete a Quest linked to "${profile?.primary_goal}" and it will start appearing here.`}
-        />
-        {goalStats.linked > 0 && (
-          <p className="mt-3 text-body-sm text-muted-foreground">
-            {goalStats.linked} Quest{goalStats.linked === 1 ? "" : "s"} currently linked to this goal, none resolved yet.
-          </p>
-        )}
-      </div>
-    );
-  }
+  const streak = todayStr ? deriveCurrentStreak(state.quests, todayStr, profile?.timezone || "UTC") : 0;
+  const engine = computeTrajectoryEngine(state.quests, streak, profile?.primary_goal || undefined);
 
-  // Founder Decision (Journey/Guidance chunk): a one-line, purely-derived
-  // summary of where currentPosition sits relative to the intended
-  // path's last value — not a new number, just the existing comparison
-  // stated in words instead of left for the reader to compute from the
-  // chart. deriveGoalStats' completed/linked count is a second, distinct
-  // fact (resolution outcome, not position) shown alongside it.
-  const intendedEnd = trajectory.intended.length > 0
-    ? trajectory.intended[trajectory.intended.length - 1].position
-    : 0;
-  const positionDelta = trajectory.currentPosition - intendedEnd;
-  // Founder Decision (Copy clarity chunk): reframed away from "you're
-  // behind" — which reads as a verdict on the person — to describing the
-  // gap as a relationship between the intended path and where actions
-  // have actually landed. Same number, same honesty about the size of
-  // the gap; only the subject of the sentence changed, not the fact.
-  const summaryLine = positionDelta === 0
-    ? "You're exactly on your intended path."
-    : positionDelta > 0
-      ? `You're ${positionDelta} step${positionDelta === 1 ? "" : "s"} ahead of your intended path.`
-      : `Your intended path is currently ${Math.abs(positionDelta)} step${Math.abs(positionDelta) === 1 ? "" : "s"} ahead of where your actions have taken you.`;
+  // Filter evidence to strictly the last 48 hours only (Neutralized History)
+  const fortyEightHoursAgo = Date.now() - 48 * 60 * 60 * 1000;
+  const recentEvidence48h = state.quests
+    .filter((q) => (q.completed || q.failed) && new Date(deriveResolvedAt(q)).getTime() >= fortyEightHoursAgo)
+    .sort((a, b) => deriveResolvedAt(b).localeCompare(deriveResolvedAt(a)));
 
-  const goalStats = deriveGoalStats(state.quests);
+  // "One-Tap Bump" (Forgiving Rescheduling)
+  const handleOneTapBump = async () => {
+    setIsRecalibrating(true);
+    triggerHaptic("medium");
 
-  // Windowed view for the chart only (display filter, not a lifecycle or
-  // recurrence computation — see WINDOW_OPTIONS comment above). Recomputed
-  // from a date-filtered quest list so the windowed curve's position
-  // correctly starts at 0 for that window.
-  const windowedQuests = windowOption === "all"
-    ? state.quests
-    : state.quests.filter((q) => {
-        if (!q.linkedToGoal || (!q.completed && !q.failed)) return true; // irrelevant to trajectory anyway; deriveTrajectory filters these
-        const resolved = new Date(deriveResolvedAt(q));
-        const cutoff = new Date();
-        cutoff.setDate(cutoff.getDate() - windowOption);
-        return resolved >= cutoff;
-      });
-  const windowedTrajectory = deriveTrajectory(windowedQuests);
-  const priorityBreakdown = derivePriorityBreakdown(trajectory.actual);
-  const seriesStats = deriveSeriesStats(state.quests);
-  const followThrough = deriveFollowThroughStats(state.quests);
+    try {
+      const { shiftedCount, error: recalibrateError } = await recalibrateSchedule();
+      if (recalibrateError) {
+        toast.error("Telemetry adjustment failed. Please try again.");
+      } else if (shiftedCount > 0) {
+        triggerHaptic("success");
+        toast.success(
+          `Trajectory recalibrated: ${shiftedCount} non-essential commitment${
+            shiftedCount > 1 ? "s" : ""
+          } shifted to tomorrow to protect your momentum.`
+        );
+      } else {
+        toast.info("Flight plan already optimal: Only essential commitments remain for today.");
+      }
+    } catch {
+      toast.error("Could not recalibrate trajectory.");
+    } finally {
+      setIsRecalibrating(false);
+    }
+  };
 
-  // Founder Decision (Journey transparency chunk): Quest.goalName is a
-  // snapshot of whatever the primary goal was AT THE TIME a Quest was
-  // linked (see types/quest.ts) — it does not update retroactively if
-  // the goal changes later. deriveTrajectory intentionally still counts
-  // all of it as evidence (see deriveGoalStats' own comment on this same
-  // point), so the numbers above don't silently change meaning the
-  // moment someone edits their goal text. What changes here is
-  // disclosure, not computation: when some of the plotted evidence was
-  // recorded under a goal that no longer matches the current one, that
-  // fact is stated plainly rather than left for the reader to notice (or
-  // not) on their own.
-  const previousGoalEvidenceCount = trajectory.actual.filter(
-    (point) => point.quest.goalName && point.quest.goalName !== profile?.primary_goal,
-  ).length;
+  const handleActionComplete = async (questId: string) => {
+    setCompletingId(questId);
+    triggerHaptic("success");
+    await completeQuest(questId);
+    setCompletingId(null);
+    toast.success("Focus action recorded. Velocity updated!");
+  };
 
-  // Founder Decision (Journey finalization chunk): "useful historical
-  // context" — the most recent resolved, goal-linked Quests, most recent
-  // first, reusing trajectory.actual (already computed above, already
-  // traceable to a real Quest per point — no new derivation, no new
-  // fabrication). Capped at 5 so this stays a glance, not a second copy
-  // of Quest History.
-  const recentEvidence = [...trajectory.actual].reverse().slice(0, 5);
+  const primaryActionQuest = activeQuests[0];
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
-      <PageHeader
-        eyebrow={profile?.primary_goal ? `Goal: ${profile.primary_goal}` : "Your journey"}
-        title="Your trajectory."
-        description="Where your intended path leads, and where your actions have actually taken you."
-      />
-      {/* Founder Decision (Visual override chunk — narrative summary):
-          combines two numbers that already existed separately
-          (goalStats.completed/linked as a percentage — the exact same
-          ratio already shown as a bar below, just phrased as a
-          sentence — and positionDelta, already computed above for
-          summaryLine) into one readable paragraph. No new metric: the
-          percentage is goalStats.completed/goalStats.linked, nothing
-          else. */}
-      {goalStats.linked > 0 && (
-        <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-4">
-          <p className="text-label text-primary">The story so far</p>
-          <p className="mt-1.5 text-body-md leading-6 text-foreground">
-            You've completed <span className="font-semibold">{goalStats.completed} of {goalStats.linked}</span> goal-linked Quests — {Math.round((goalStats.completed / goalStats.linked) * 100)}% of what you've committed to.{" "}
-            {positionDelta !== 0 && (
-              <>You're <span className="font-semibold">{Math.abs(positionDelta)} steps</span> from your intended path. That's data, not judgment.</>
-            )}
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+      {/* ── Page Header & One-Tap Recalibrate Trigger ── */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <p className="hidden md:block text-label text-primary mb-1">
+            Navigational Engine
+          </p>
+          <h1 className="text-display-lg text-foreground">Your trajectory.</h1>
+          <p className="mt-1 text-body-md text-muted-foreground">
+            Ambient flight telemetry for "{profile?.primary_goal}".
           </p>
         </div>
-      )}
-      {/* Founder Decision (Mobile hierarchy chunk — raw data to visual):
-          a plain "X of Y completed" sentence replaced with a compact
-          numeric ratio plus a static, factual progress bar — same two
-          numbers as before (goalStats.completed / goalStats.linked from
-          deriveGoalStats, unchanged), just read as a shape instead of a
-          sentence. Deliberately static and unstyled beyond a simple
-          filled bar — no shine, no animation-on-load, no XP-bar
-          treatment — this represents a real, honest ratio, not
-          gamified progress. */}
-      <div className="mt-3 flex items-center gap-3">
-        <span className="shrink-0 text-body-md font-semibold text-foreground tabular-nums">
-          {goalStats.completed}/{goalStats.linked}
-        </span>
-        <div className="h-1.5 w-full max-w-[180px] overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-primary/70"
-            style={{ width: `${goalStats.linked > 0 ? (goalStats.completed / goalStats.linked) * 100 : 0}%` }}
+
+        {/* Global Recalibrate Button in Header */}
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={isRecalibrating || saving}
+          onClick={handleOneTapBump}
+          className="self-start sm:self-auto rounded-full border-border/80 bg-card/70 hover:bg-accent text-xs font-medium backdrop-blur-md shadow-sm transition-all"
+          title="Protect momentum by shifting non-essential quests to tomorrow"
+        >
+          <RotateCcw className={`size-3.5 ${isRecalibrating ? "animate-spin" : ""}`} />
+          <span>One-Tap Recalibrate</span>
+        </Button>
+      </div>
+
+      {/* ── Deterministic Narrative Summary ("Mad Libs" Engine Banner) ── */}
+      <div className="mt-6 rounded-2xl p-4 sm:p-5 liquid-glass border border-primary/25 relative overflow-hidden">
+        <div className="flex items-start gap-3.5">
+          <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+            <Sparkles className="size-4" aria-hidden="true" />
+          </div>
+          <div>
+            <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+              Trajectory Synthesis
+            </p>
+            <p className="mt-1 text-sm sm:text-base font-medium leading-relaxed text-foreground">
+              {engine.narrative}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── ASYMMETRICAL BENTO GRID ── */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* ── CARD 1 (Top, Full Width): The Trajectory Visualizer ── */}
+        <div className="col-span-1 md:col-span-2">
+          <TrajectoryVisualizer
+            engine={engine}
+            goalLabel={profile?.primary_goal || undefined}
           />
         </div>
-        <span className="text-body-sm text-muted-foreground">linked Quests completed</span>
-      </div>
-      <p className="mt-3 text-body-md text-foreground">{summaryLine}</p>
-      {previousGoalEvidenceCount > 0 && (
-        <p className="mt-1 text-body-sm text-muted-foreground">
-          {previousGoalEvidenceCount} of these {previousGoalEvidenceCount === 1 ? "was" : "were"} recorded under a previous goal, before it changed to "{profile?.primary_goal}."
-        </p>
-      )}
-      <div className="mt-8 flex items-center gap-2">
-        {WINDOW_OPTIONS.map((opt) => (
-          <button
-            key={String(opt.value)}
-            type="button"
-            onClick={() => setWindowOption(opt.value)}
-            className={`min-h-11 rounded-full border px-4 py-2 text-xs transition-colors ${
-              windowOption === opt.value
-                ? "border-foreground/40 bg-foreground/10 text-foreground"
-                : "border-border/60 text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-      <div className="mt-3">
-        {windowedTrajectory.actual.length > 0 ? (
-          <TrajectoryChart trajectory={windowedTrajectory} goalLabel={profile?.primary_goal ?? undefined} />
-        ) : (
-          <div className="rounded-2xl border border-border bg-card p-7 text-body-sm text-muted-foreground">
-            No resolved evidence in this window.
-          </div>
-        )}
-      </div>
 
-      {priorityBreakdown.length > 0 && (
-        <div className="mt-8">
-          <p className="text-label text-muted-foreground">What your actions show</p>
-          {/* Founder Decision (Mobile Journey chunk — text to visual):
-              each row's sentence replaced with a compact bar (rate =
-              completed / (completed+failed), same numbers as before,
-              just read as a shape). Numeric fallback stays next to it
-              for anyone who wants the exact counts. */}
-          <ul className="mt-3 space-y-2.5">
-            {priorityBreakdown.map((entry) => {
-              const total = entry.completed + entry.failed;
-              const rate = total > 0 ? (entry.completed / total) * 100 : 0;
-              return (
-                <li key={entry.priority} className="flex items-center gap-3 text-body-sm">
-                  <span className="w-20 shrink-0 text-foreground">{entry.priority}</span>
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-primary/70" style={{ width: `${rate}%` }} />
-                  </div>
-                  <span className="w-10 shrink-0 text-right text-muted-foreground tabular-nums">
-                    {entry.completed}/{total}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      {seriesStats.length > 0 && (
-        <div className="mt-8">
-          <p className="text-label text-muted-foreground">Recurring commitments</p>
-          <ul className="mt-3 space-y-2.5">
-            {seriesStats.map((series) => {
-              const rate = series.total > 0 ? (series.completed / series.total) * 100 : 0;
-              return (
-                <li key={series.seriesId} className="flex items-start gap-3 text-body-sm">
-                  {/* Was a fixed w-24 + truncate, which hard-cut titles
-                      like "Read two books this month" to "Read two bo…"
-                      with no way to recover the rest. Wrapping instead
-                      of truncating keeps the full title readable; the
-                      bar/count columns stay put via items-start + the
-                      label's own min-w-0 so long titles wrap onto a
-                      second line rather than pushing the row layout. */}
-                  <span className="w-24 shrink-0 break-words leading-snug text-foreground sm:w-32">{series.title}</span>
-                  <div className="mt-1 h-1.5 flex-1 shrink-0 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-primary/70" style={{ width: `${rate}%` }} />
-                  </div>
-                  <span className="mt-0.5 w-10 shrink-0 text-right text-muted-foreground tabular-nums">
-                    {series.completed}/{series.total}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      {followThrough.total > 0 && (
-        <div className="mt-8 rounded-2xl border border-border/60 bg-card/40 p-5">
-          <p className="text-label text-muted-foreground">Overall follow-through</p>
-          <div className="mt-3 flex items-center gap-3">
-            <span className="shrink-0 text-body-md font-semibold text-foreground tabular-nums">
-              {followThrough.completed}/{followThrough.total}
-            </span>
-            <div className="h-1.5 w-full max-w-[180px] overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full bg-primary/70"
-                style={{ width: `${followThrough.total > 0 ? (followThrough.completed / followThrough.total) * 100 : 0}%` }}
-              />
+        {/* ── CARD 2 (Half Width): Dynamic ETA ── */}
+        <div className="rounded-3xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                <CalendarClock className="size-4 text-primary" aria-hidden="true" />
+                <span>Estimated Arrival</span>
+              </div>
+              <Badge
+                variant="outline"
+                className={`text-[10px] font-mono uppercase ${
+                  engine.paceRatio >= 1.1
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                    : engine.paceRatio >= 0.9
+                    ? "border-primary/30 bg-primary/10 text-primary"
+                    : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                }`}
+              >
+                {engine.paceRatio >= 1.1
+                  ? "Pulls Closer"
+                  : engine.paceRatio >= 0.9
+                  ? "Holding Steady"
+                  : "Recalibrated +1D"}
+              </Badge>
             </div>
-          </div>
-          <p className="mt-2 text-body-sm text-muted-foreground">Every Quest, not just goal-linked ones.</p>
-        </div>
-      )}
 
-      {recentEvidence.length > 0 && (
-        <div className="mt-8">
-          <p className="text-label text-muted-foreground">Recent evidence</p>
-          <ul className="mt-3 space-y-2">
-            {recentEvidence.map((point) => {
-              const fromPreviousGoal = Boolean(point.quest.goalName && point.quest.goalName !== profile?.primary_goal);
-              return (
-                <li
-                  key={point.quest.id}
-                  className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 px-4 py-2.5 text-body-sm"
-                >
-                  {point.outcome === "completed"
-                    ? <Check className="size-4 shrink-0 text-foreground/70" aria-hidden="true" />
-                    : <X className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />}
-                  <span className="flex-1 truncate text-foreground">{point.quest.title}</span>
-                  {fromPreviousGoal && (
-                    <span className="shrink-0 rounded-full border border-border/60 px-2 py-0.5 text-xs text-muted-foreground">
-                      Previous goal
-                    </span>
-                  )}
-                  <span className="shrink-0 text-muted-foreground">{point.timestamp.split("T")[0]}</span>
-                </li>
-              );
-            })}
-          </ul>
+            <h3 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {engine.targetDateLabel}
+            </h3>
+            <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+              {engine.paceRatio >= 1.1
+                ? "Your elevated velocity is drawing the milestone arrival date closer."
+                : engine.paceRatio >= 0.9
+                ? `Calculated at standard required velocity (${engine.requiredPace} Quests/day).`
+                : "Timeline gently relaxed to ensure sustainable follow-through."}
+            </p>
+          </div>
+
+          <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Milestone Target</span>
+            <span className="font-mono font-semibold text-foreground">
+              {engine.completedQuests} / {engine.targetQuests} Quests Locked
+            </span>
+          </div>
         </div>
-      )}
+
+        {/* ── CARD 3 (Half Width): Current Pace / Velocity ── */}
+        <div className="rounded-3xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                <Gauge className="size-4 text-primary" aria-hidden="true" />
+                <span>Flight Velocity</span>
+              </div>
+              <Badge
+                variant="outline"
+                className={`text-[10px] font-mono ${
+                  engine.isOnTrack
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                    : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                }`}
+              >
+                {Math.round(engine.paceRatio * 100)}% of flight plan
+              </Badge>
+            </div>
+
+            <div className="mt-3 flex items-baseline gap-2">
+              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-mono">
+                {engine.velocity}
+              </h3>
+              <span className="text-sm font-medium text-muted-foreground">Quests / Day</span>
+            </div>
+
+            {/* Velocity meter bar */}
+            <div className="mt-3">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted/60">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-500"
+                  style={{ width: `${Math.min(Math.round(engine.paceRatio * 100), 100)}%` }}
+                />
+              </div>
+            </div>
+
+            <p className="mt-2 text-xs text-muted-foreground">
+              Flight plan requires <span className="font-mono font-medium text-foreground">{engine.requiredPace}</span> Quests/day to maintain current horizon.
+            </p>
+          </div>
+
+          <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Corridor Tolerance</span>
+            <span className="font-mono font-medium text-primary">±{engine.variancePct}% Acceptable</span>
+          </div>
+        </div>
+
+        {/* ── CARD 4 (Full Width): Next Immediate Action ── */}
+        <div className="col-span-1 md:col-span-2 rounded-3xl p-5 sm:p-6 liquid-glass border border-primary/20">
+          {primaryActionQuest ? (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[primaryActionQuest.priority]}>
+                    {primaryActionQuest.priority}
+                  </Badge>
+                  <span className="font-mono text-[10px] text-primary uppercase font-bold tracking-wider">
+                    Next Immediate Thrust Vector
+                  </span>
+                </div>
+                <h4 className="mt-1.5 text-lg sm:text-xl font-bold text-foreground truncate">
+                  {primaryActionQuest.title}
+                </h4>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Executing this action powers your trajectory forward into the optimal corridor.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                <Button
+                  onClick={() => void handleActionComplete(primaryActionQuest.id)}
+                  disabled={completingId === primaryActionQuest.id || saving}
+                  className="min-h-11 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 px-6 text-xs font-semibold shadow-[0_4px_16px_hsl(var(--primary)/0.3)] transition-all"
+                >
+                  <Check className="size-4 mr-1.5" />
+                  <span>{completingId === primaryActionQuest.id ? "Recording…" : "Engage Action"}</span>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="min-h-11 rounded-2xl border-white/[0.1] bg-card/60 px-4 text-xs font-medium"
+                >
+                  <Link to="/quests">
+                    <span>Manage</span>
+                    <ArrowRight className="size-3.5 ml-1" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="font-mono text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                  Flight Deck Idle
+                </span>
+                <h4 className="mt-1 text-base sm:text-lg font-semibold text-foreground">
+                  No active commitment locked into today's flight plan.
+                </h4>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Commit to a single deliberate focus to initiate today's thrust vector.
+                </p>
+              </div>
+              <Button asChild className="min-h-11 rounded-2xl bg-primary text-primary-foreground px-6 text-xs font-semibold">
+                <Link to="/quests">
+                  <span>Lock Today's Focus</span>
+                  <ArrowRight className="size-4 ml-1.5" />
+                </Link>
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── 5. NEUTRALIZED RECENT EVIDENCE (LAST 48 HOURS ONLY) ── */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-label text-muted-foreground">Flight Recorder</p>
+            <h3 className="mt-0.5 text-sm font-semibold text-foreground">
+              Recent Commitments (Last 48 Hours)
+            </h3>
+          </div>
+          <span className="text-[11px] font-mono text-muted-foreground">
+            {recentEvidence48h.length} recorded
+          </span>
+        </div>
+
+        <div className="mt-3">
+          {recentEvidence48h.length > 0 ? (
+            <ul className="space-y-2">
+              {recentEvidence48h.map((q) => {
+                const isCompleted = q.completed;
+                const timeStr = new Date(deriveResolvedAt(q)).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+                const dateStr = new Date(deriveResolvedAt(q)).toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                });
+
+                return (
+                  <li
+                    key={q.id}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.08] dark:border-white/[0.05] bg-card/50 backdrop-blur-md px-4 py-3 text-body-sm transition-all"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Neutral Icons: Checkmark for completed, Neutral Dash for skipped */}
+                      {isCompleted ? (
+                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          <Check className="size-3.5" aria-hidden="true" />
+                        </div>
+                      ) : (
+                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted/60 text-muted-foreground border border-border/60">
+                          <Minus className="size-3.5" aria-hidden="true" />
+                        </div>
+                      )}
+
+                      <span className="truncate font-medium text-foreground text-sm">
+                        {q.title}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 shrink-0 text-xs">
+                      <span
+                        className={`font-mono text-[11px] px-2 py-0.5 rounded-full ${
+                          isCompleted
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium"
+                            : "bg-muted text-muted-foreground border border-border/40"
+                        }`}
+                      >
+                        {isCompleted ? "Completed" : "Neutral Re-entry"}
+                      </span>
+                      <span className="font-mono text-[11px] text-muted-foreground">
+                        {dateStr} {timeStr}
+                      </span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <div className="rounded-2xl border border-white/[0.06] bg-card/40 p-5 text-center text-xs text-muted-foreground">
+              No flight events recorded in the last 48 hours. Standing by for next action.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

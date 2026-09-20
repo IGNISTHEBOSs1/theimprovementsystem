@@ -7,6 +7,7 @@ import {
   MessageSquare,
   User,
   Search,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SystemLogo } from "@/components/branding/Logo";
@@ -152,8 +153,23 @@ export default function SystemBar({ username }: SystemBarProps) {
           })}
         </nav>
 
-        {/* Command Palette trigger */}
-        <div className="mt-auto px-4 pb-6">
+        {/* Footer controls: Settings & Command Palette */}
+        <div className="mt-auto px-4 pb-6 space-y-2">
+          <NavLink
+            to="/profile/settings"
+            className={({ isActive: active }) =>
+              cn(
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors",
+                active
+                  ? "bg-accent text-accent-foreground font-semibold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+              )
+            }
+          >
+            <Settings className="size-3.5 shrink-0" />
+            <span>Settings</span>
+          </NavLink>
+
           <button
             type="button"
             onClick={() => {

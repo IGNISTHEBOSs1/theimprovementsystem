@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DirectionCard } from "@/components/dashboard/DirectionCard";
@@ -54,7 +55,7 @@ export default function Dashboard() {
   // Milestone 1 — First Launch (do not modify returning-user behavior).
   if (profileLoading) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
+      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <section className="rounded-2xl border border-border bg-card p-7" aria-label="Loading">
           <div className="h-3 w-24 animate-pulse rounded bg-muted" />
           <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
@@ -70,7 +71,7 @@ export default function Dashboard() {
   // VI: calm, informative, and offers a direct way back (retry).
   if (profileError || !profile) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
+      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <section
           className="rounded-2xl border border-border bg-card p-7"
           aria-label="Profile unavailable"
@@ -105,7 +106,7 @@ export default function Dashboard() {
   // profileError above, applied to the sibling table.
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
+      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <section
           className="rounded-2xl border border-border bg-card p-7"
           aria-label="Progress unavailable"
@@ -128,43 +129,50 @@ export default function Dashboard() {
   const guidance = deriveGuidance(state.quests, profile?.timezone || "UTC");
   const insights = deriveInsights(state.quests);
   const trajectory = deriveTrajectory(state.quests);
+  const currentStreak = todayStr ? deriveCurrentStreak(state.quests, todayStr, profile?.timezone || "UTC") : 0;
   const contextualLink = (guidance.length > 0 || insights.length > 0)
     ? { to: "/mentor", label: "Your Mentor has a note based on your history." }
     : trajectory.actual.length > 0
       ? { to: "/journey", label: "See how your recent actions compare to your intended path." }
       : null;
 
-  return (
-    <div className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-8 sm:py-12">
-      <AppTour />
-      {/* ── Tier 1 — Identity / Current State ──────────────────────────
-          PageHeader (identity) and DirectionCard (direction) are two
-          distinct responsibilities that read as one ambient band: tight
-          internal spacing, no card chrome, no border. Nothing here
-          competes with Tier 2 — it establishes state, not action. */}
-      <div className="space-y-5">
-        <PageHeader
-          eyebrow="Your system"
-          title={`Welcome back, ${name}.`}
-          description="A quiet place to focus on what matters."
-        />
-        <DirectionCard
-          name={name}
-          goalStats={profile?.primary_goal ? deriveGoalStats(state.quests) : undefined}
-          streak={todayStr ? deriveCurrentStreak(state.quests, todayStr, profile?.timezone || "UTC") : undefined}
-        />
-      </div>
+  const todayDateFormatted = new Date().toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
 
-      {/* ── Tier 2 — Primary Action ─────────────────────────────────────
-          Founder Decision (multi-active Quest chunk): with multiple
-          Quests now allowed active at once, Tier 2 shows the
-          highest-priority active Quest as the single dominant element
-          (activeQuests is priority-then-createdAt sorted by the data
-          layer — index 0 is that Quest), or the Recovery message if none
-          exist. Remaining active Quests are demoted to a smaller,
-          secondary list below — never competing visually with the
-          primary panel, and never rendered in place of it. */}
-      <div className="mt-9">
+  return (
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+      <AppTour />
+
+      {/* ── Cockpit Status Header (Compact, Glanceable & Above-the-Fold) ── */}
+      <header className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-border/60">
+        <div>
+          <p className="text-caption text-muted-foreground uppercase tracking-wider font-semibold">
+            {todayDateFormatted}
+          </p>
+          <h1 className="text-display-md font-bold text-foreground mt-0.5">
+            Welcome back, {name}.
+          </h1>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {currentStreak > 0 && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-xs font-medium text-foreground">
+              <Flame className="size-3.5 text-primary" aria-hidden="true" />
+              <span>{currentStreak} day streak</span>
+            </div>
+          )}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/70 bg-card/60 text-xs font-medium text-muted-foreground">
+            <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
+            <span>{activeQuests.length}/3 Active</span>
+          </div>
+        </div>
+      </header>
+
+      {/* ── Tier 1 Action — Today's Focus (Immediately Visible Without Scrolling) ── */}
+      <div className="mt-6">
         {loading ? (
           <section className="rounded-2xl border border-border bg-card p-7" aria-label="Loading today’s focus">
             <div className="h-3 w-24 animate-pulse rounded bg-muted" />
@@ -186,22 +194,22 @@ export default function Dashboard() {
             {activeQuests.length > 1 && (
               <div className="mt-5">
                 <p className="text-label text-muted-foreground">Also active</p>
-                <ul className="mt-3 space-y-2">
+                <ul className="mt-3 space-y-2.5">
                   {activeQuests.slice(1).map((quest) => (
                     <li
                       key={quest.id}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border/60 bg-card/40 px-4 py-3 text-body-sm"
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-body-sm shadow-[var(--shadow-card)]"
                     >
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2.5">
                         <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>
                           {quest.priority}
                         </Badge>
-                        <span className="text-foreground">{quest.title}</span>
+                        <span className="text-foreground font-medium">{quest.title}</span>
                       </div>
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="min-h-9"
+                        className="min-h-9 hover:bg-primary/10 hover:text-primary transition-colors"
                         disabled={saving}
                         onClick={() => void handleComplete(quest.id)}
                       >
@@ -218,16 +226,18 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Founder Decision (Dashboard loop chunk): a single, minimal link
-          out — never a summary, never a repeated stat (Journey/Mentor
-          already own those), and never rendered when there's nothing
-          real to point at. "Meaningful" is defined the same way each
-          page itself would: Journey has something once there's at least
-          one resolved, goal-linked Quest; Mentor has something once
-          deriveGuidance actually returns a message. Both recompute from
-          the same state already loaded here — no new fetch. */}
+      {/* ── Tier 2 Direction — Ambient Guidance (Below Action) ── */}
+      <div className="mt-8 pt-6 border-t border-border/50">
+        <DirectionCard
+          name={name}
+          goalStats={profile?.primary_goal ? deriveGoalStats(state.quests) : undefined}
+          streak={currentStreak > 0 ? currentStreak : undefined}
+        />
+      </div>
+
+      {/* ── Contextual Link ── */}
       {contextualLink && (
-        <div className="mt-8">
+        <div className="mt-6">
           <Link to={contextualLink.to} className="text-body-sm text-primary underline-offset-4 hover:underline">
             {contextualLink.label}
           </Link>

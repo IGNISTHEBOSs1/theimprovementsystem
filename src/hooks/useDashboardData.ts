@@ -441,6 +441,46 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     return { error: dbError };
   }, [load, state, userId]);
 
+  // One-Tap Bump (Recalibrate): Forgiving rescheduling that preserves
+  // Essential quests on today's schedule and bumps non-essential (Important /
+  // Optional) uncompleted quests to T+1 (tomorrow) to protect user momentum.
+  const recalibrateSchedule = useCallback(async () => {
+    if (!userId || writeLockRef.current) return { shiftedCount: 0, error: null };
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split("T")[0];
+
+    let shiftedCount = 0;
+    const nextQuests = state.quests.map((item) => {
+      // 1. Filter all uncompleted Quests
+      if (item.completed || item.failed) return item;
+      // 2. Keep Quests tagged as "Essential" on today's schedule
+      if (item.priority === "Essential") return item;
+      // 3. Change due_date / scheduledFor of "Important" or "Optional" to T+1
+      shiftedCount += 1;
+      return {
+        ...item,
+        scheduledFor: tomorrowStr,
+      };
+    });
+
+    if (shiftedCount === 0) return { shiftedCount: 0, error: null };
+
+    writeLockRef.current = true;
+    setSaving(true);
+    setState((prev) => ({ ...prev, quests: nextQuests }));
+    const { error: dbError } = await supabase
+      .from("game_state")
+      .update({ quests: nextQuests as unknown as Json })
+      .eq("user_id", userId);
+
+    if (dbError) await load();
+    writeLockRef.current = false;
+    setSaving(false);
+    return { shiftedCount, error: dbError };
+  }, [load, state, userId]);
+
   // Founder Decision (Quest domain model cleanup chunk): xpReward and
   // creditReward — RPG-era fields with no live consumer, fixed unseen
   // defaults previously set here (25/10) only because the Quest type
@@ -526,6 +566,6 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
 
   return {
-    state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, cancelQuest, updateQuest, commitToTodaysQuest, reload: load, todayStr,
+    state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, cancelQuest, updateQuest, recalibrateSchedule, commitToTodaysQuest, reload: load, todayStr,
   };
 }

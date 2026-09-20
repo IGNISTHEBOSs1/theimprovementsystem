@@ -74,7 +74,7 @@ export default function Mentor() {
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
+      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <div className="h-40 animate-pulse rounded-2xl bg-muted" aria-label="Loading your mentor" />
       </div>
     );
@@ -82,7 +82,7 @@ export default function Mentor() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
+      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <section className="rounded-2xl border border-border bg-card p-7" aria-label="Mentor unavailable">
           <p className="text-label text-muted-foreground">Your mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
@@ -151,7 +151,7 @@ export default function Mentor() {
 
   if (!anyGridSlot && surfaced.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
+      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <PlaceholderExperience
           icon={MessageSquare}
           title="No clear pattern yet."
@@ -162,7 +162,7 @@ export default function Mentor() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-5 py-8 sm:px-8 sm:py-12">
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
       <PageHeader
         eyebrow="Your mentor"
         title="Your history."
