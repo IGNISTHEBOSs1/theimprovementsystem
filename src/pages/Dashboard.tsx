@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Flame } from "lucide-react";
+import { Flame, CheckCircle2, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DirectionCard } from "@/components/dashboard/DirectionCard";
@@ -142,8 +143,19 @@ export default function Dashboard() {
     day: "numeric",
   });
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const completedToday = state.quests.filter(
+    (q) => q.status === "completed" && q.completedAt && (todayStr ? q.completedAt.startsWith(todayStr) : false)
+  ).length;
+
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10"
+    >
       <AppTour />
 
       {/* ── Cockpit Status Header (Compact, Glanceable & Above-the-Fold) ── */}
@@ -153,15 +165,21 @@ export default function Dashboard() {
             {todayDateFormatted}
           </p>
           <h1 className="text-display-md font-bold text-foreground mt-0.5">
-            Welcome back, {name}.
+            {greeting}, {name}.
           </h1>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {currentStreak > 0 && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-xs font-medium text-foreground">
               <Flame className="size-3.5 text-primary" aria-hidden="true" />
               <span>{currentStreak} day streak</span>
+            </div>
+          )}
+          {completedToday > 0 && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs font-medium text-emerald-400">
+              <CheckCircle2 className="size-3.5 text-emerald-400" aria-hidden="true" />
+              <span>{completedToday} done today</span>
             </div>
           )}
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/70 bg-card/60 text-xs font-medium text-muted-foreground">
@@ -243,6 +261,6 @@ export default function Dashboard() {
           </Link>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

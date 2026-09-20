@@ -54,9 +54,15 @@ const INDICATOR_TRANSITION = {
 
 interface SystemBarProps {
   username: string;
+  activeQuestCount?: number;
+  hasMentorInsight?: boolean;
 }
 
-export default function SystemBar({ username }: SystemBarProps) {
+export default function SystemBar({
+  username,
+  activeQuestCount = 0,
+  hasMentorInsight = false,
+}: SystemBarProps) {
   const location = useLocation();
 
   const isActive = (to: string) =>
@@ -140,14 +146,23 @@ export default function SystemBar({ username }: SystemBarProps) {
 
                 <span
                   className={cn(
-                    "relative transition-colors duration-150",
+                    "relative flex-1 transition-colors duration-150 truncate",
                     active
                       ? "text-foreground font-semibold"
-                      : "text-muted-foreground font-medium",
+                      : "text-muted-foreground font-medium group-hover:text-foreground",
                   )}
                 >
                   {label}
                 </span>
+
+                {to === "/quests" && activeQuestCount > 0 && (
+                  <span className="relative ml-auto px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-primary/20 text-primary">
+                    {activeQuestCount}
+                  </span>
+                )}
+                {to === "/mentor" && hasMentorInsight && (
+                  <span className="relative ml-auto size-2 rounded-full bg-primary" />
+                )}
               </NavLink>
             );
           })}
@@ -279,36 +294,53 @@ export default function SystemBar({ username }: SystemBarProps) {
                     delay: active ? 0.08 : 0,
                   }}
                 >
-                  {/* Profile avatar */}
-                  {isProfile ? (
-                    <IdentityAvatar
-                      username={username}
-                      active={active}
-                      className="
-                        w-[clamp(20px,5.8vw,24px)]
-                        h-[clamp(20px,5.8vw,24px)]
-                      "
-                    />
-                  ) : (
-                    <Icon
-                      size={24}
-                      strokeWidth={active ? 2 : 1.5}
-                      className={cn(
-                        "w-[clamp(20px,5.8vw,24px)] h-[clamp(20px,5.8vw,24px)] transition-colors duration-150",
-                        active
-                          ? "text-primary"
-                          : "text-muted-foreground",
-                      )}
-                    />
-                  )}
+                  {/* Profile avatar or Icon with notification pip */}
+                  <div className="relative">
+                    {isProfile ? (
+                      <IdentityAvatar
+                        username={username}
+                        active={active}
+                        className="
+                          w-[clamp(20px,5.8vw,24px)]
+                          h-[clamp(20px,5.8vw,24px)]
+                        "
+                      />
+                    ) : (
+                      <Icon
+                        size={24}
+                        strokeWidth={active ? 2 : 1.5}
+                        className={cn(
+                          "w-[clamp(20px,5.8vw,24px)] h-[clamp(20px,5.8vw,24px)] transition-colors duration-150",
+                          active
+                            ? "text-primary"
+                            : "text-foreground/75",
+                        )}
+                      />
+                    )}
 
-                  {/* Label */}
+                    {/* Notification badge / pip for active Quests */}
+                    {to === "/quests" && activeQuestCount > 0 && (
+                      <span className="absolute -top-0.5 -right-1 flex size-2 pointer-events-none">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span className="relative inline-flex rounded-full size-2 bg-primary"></span>
+                      </span>
+                    )}
+
+                    {/* Notification badge / pip for Mentor guidance */}
+                    {to === "/mentor" && hasMentorInsight && (
+                      <span className="absolute -top-0.5 -right-1 flex size-2 pointer-events-none">
+                        <span className="relative inline-flex rounded-full size-2 bg-primary"></span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Label with crisp, readable contrast */}
                   <span
                     className={cn(
                       "text-[10px] leading-none transition-colors duration-150",
                       active
                         ? "text-foreground font-semibold"
-                        : "text-muted-foreground font-medium",
+                        : "text-foreground/70 font-medium",
                     )}
                   >
                     {mobileLabel ?? label}

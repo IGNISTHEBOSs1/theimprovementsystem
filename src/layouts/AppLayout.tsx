@@ -4,6 +4,10 @@ import { DashboardDataProvider } from "@/providers/DashboardDataProvider";
 import { ViewportNavDiagnostic } from "@/components/diagnostics/ViewportNavDiagnostic";
 import { CommandPalette } from "@/components/shared/CommandPalette";
 
+import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
+import { deriveGuidance } from "@/lib/guidance";
+import { deriveInsights } from "@/lib/insights";
+
 interface AppLayoutProps {
   children: React.ReactNode;
 }
@@ -18,6 +22,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
 }
 
 function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: ReturnType<typeof useAuth>['profile'] }) {
+  const { state, activeQuests } = useDashboardDataContext();
+  const guidance = deriveGuidance(state?.quests || [], profile?.timezone || "UTC");
+  const insights = deriveInsights(state?.quests || []);
+  const activeQuestCount = activeQuests?.length ?? 0;
+  const hasMentorInsight = guidance.length > 0 || insights.length > 0;
+
   return (
     <div className="min-h-screen bg-background text-foreground flex">
       <div className="env-light-layer" aria-hidden="true" />
@@ -26,6 +36,8 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
 
       <SystemBar
         username={profile?.username ?? "Member"}
+        activeQuestCount={activeQuestCount}
+        hasMentorInsight={hasMentorInsight}
       />
 
       {/* ── Content area ─────────────────────────────────────────────── */}

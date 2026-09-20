@@ -85,21 +85,25 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
         <div>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <CircleDot className="size-4 text-primary" aria-hidden="true" />
-            {quest.timeFrame}
+            <span>{quest.timeFrame}</span>
             <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>{quest.priority}</Badge>
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+              +{quest.priority === "high" ? 75 : quest.priority === "medium" ? 50 : 25} XP
+            </span>
           </div>
           <h2 id="focus-heading" className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
             {quest.title}
           </h2>
-          {quest.linkedToGoal && quest.goalName && (
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Target className="size-3.5 shrink-0" aria-hidden="true" />
-              Supports: {quest.goalName}
+          {quest.linkedToGoal && quest.goalName ? (
+            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Target className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
+              <span>Moves forward: <strong className="text-foreground font-medium">{quest.goalName}</strong></span>
+            </p>
+          ) : (
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              One clear step is enough. Start here.
             </p>
           )}
-          <p className="mt-2 text-sm text-muted-foreground">
-            One clear step is enough. Start there.
-          </p>
         </div>
         <SwipeToComplete completing={Boolean(completing)} onComplete={onComplete} />
       </div>
