@@ -252,7 +252,7 @@ export default function Mentor() {
               </span>
             </div>
 
-            <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 -mx-4 px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible">
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-3.5 pb-2 -mx-4 pl-4 pr-6 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible">
               {/* Recovery Card (Evening / Lead) */}
               {leadWithRecovery && recovery && (
                 <div className="w-[78vw] max-w-[300px] shrink-0 snap-start sm:w-auto sm:col-span-2 rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col justify-between">

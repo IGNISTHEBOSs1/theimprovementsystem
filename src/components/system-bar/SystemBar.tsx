@@ -140,7 +140,7 @@ export default function SystemBar({
                     "relative shrink-0 transition-colors duration-150",
                     active
                       ? "text-primary"
-                      : "text-muted-foreground",
+                      : "text-foreground/70 group-hover:text-foreground",
                   )}
                 />
 
@@ -149,7 +149,7 @@ export default function SystemBar({
                     "relative flex-1 transition-colors duration-150 truncate",
                     active
                       ? "text-foreground font-semibold"
-                      : "text-muted-foreground font-medium group-hover:text-foreground",
+                      : "text-foreground/80 font-medium group-hover:text-foreground",
                   )}
                 >
                   {label}

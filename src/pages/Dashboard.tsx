@@ -10,6 +10,7 @@ import { AppTour } from "@/components/onboarding/AppTour";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PrimaryActionPanel } from "@/components/dashboard/PrimaryActionPanel";
 import { RecoveryState } from "@/components/dashboard/RecoveryState";
+import { DailyClosureCard } from "@/components/dashboard/DailyClosureCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
@@ -227,7 +228,7 @@ export default function Dashboard() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="min-h-9 hover:bg-primary/10 hover:text-primary transition-colors"
+                        className="min-h-11 px-3 hover:bg-primary/10 hover:text-primary transition-colors text-xs font-medium"
                         disabled={saving}
                         onClick={() => void handleComplete(quest.id)}
                       >
@@ -239,6 +240,12 @@ export default function Dashboard() {
               </div>
             )}
           </>
+        ) : completedToday > 0 ? (
+          <DailyClosureCard
+            completedToday={completedToday}
+            currentStreak={currentStreak}
+            onChooseQuest={chooseQuest}
+          />
         ) : (
           <RecoveryState onChooseQuest={chooseQuest} lastMissedQuest={lastMissedQuest} onRecommit={handleRecommit} />
         )}
