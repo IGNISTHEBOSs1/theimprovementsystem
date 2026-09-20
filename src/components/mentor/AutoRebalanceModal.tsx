@@ -34,10 +34,10 @@ export function AutoRebalanceModal({ open, onOpenChange, proposal }: AutoRebalan
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <RotateCcw className="size-4 text-primary" aria-hidden="true" />
-            Auto-Rebalance
+            Change quest days
           </DialogTitle>
           <DialogDescription>
-            Based on your actual completion history for this commitment — not a generic suggestion.
+            Based on the days you usually finish this quest.
           </DialogDescription>
         </DialogHeader>
 
@@ -47,26 +47,26 @@ export function AutoRebalanceModal({ open, onOpenChange, proposal }: AutoRebalan
             <div className="text-center">
               <div className="text-foreground">{proposal.fromDayLabel}</div>
               <div className="text-muted-foreground">
-                {Math.round(proposal.fromDayRate * 100)}% completed
+                {Math.round(proposal.fromDayRate * 100)}% finished
               </div>
             </div>
             <ArrowRight className="size-4 shrink-0 text-primary" aria-hidden="true" />
             <div className="text-center">
               <div className="text-foreground">{proposal.toDayLabel}</div>
               <div className="text-muted-foreground">
-                {proposal.toDayRate >= 0 ? `~${Math.round(proposal.toDayRate * 100)}% typical` : "no history yet"}
+                {proposal.toDayRate >= 0 ? `~${Math.round(proposal.toDayRate * 100)}% usual` : "no history yet"}
               </div>
             </div>
           </div>
           <p className="mt-3 text-body-sm text-muted-foreground">
-            Out of your last {proposal.fromDaySample} occurrences scheduled on {proposal.fromDayLabel}, most weren't completed. {proposal.toDayLabel} has been more reliable — for you specifically, not in general.
+            You usually miss this on {proposal.fromDayLabel}. You finish a lot more on {proposal.toDayLabel}.
           </p>
         </div>
 
         <div className="flex items-start gap-2 rounded-lg bg-muted/40 p-3 text-body-sm text-muted-foreground">
           <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <p>
-            This can&apos;t save the day change for you automatically yet — open the Quests screen to move it from {proposal.fromDayLabel} to {proposal.toDayLabel} yourself.
+            To switch it, open Quests and change the days.
           </p>
         </div>
 
@@ -76,7 +76,7 @@ export function AutoRebalanceModal({ open, onOpenChange, proposal }: AutoRebalan
           </Button>
           <Button asChild className="min-h-11">
             <Link to="/quests" onClick={() => onOpenChange(false)}>
-              Open Quests to update it
+              Go to Quests
             </Link>
           </Button>
         </DialogFooter>

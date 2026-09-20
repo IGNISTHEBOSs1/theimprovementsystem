@@ -104,8 +104,10 @@ function momentumInsight(quests: Quest[]): Insight | null {
     id: "momentum",
     category: "momentum",
     categoryLabel: "Momentum",
-    observation: `Your goal-linked completion rate has ${direction} — ${Math.round(recentRate * 100)}% recently, vs ${Math.round(previousRate * 100)}% before that.`,
-    evidence: `${recentCompleted} of your last ${recent.length} goal-linked Quests completed, compared to ${previous.filter((q) => q.completed).length} of ${previous.length} before.`,
+    observation: delta > 0
+      ? `You're finishing more goal quests — ${Math.round(recentRate * 100)}% recently, vs ${Math.round(previousRate * 100)}% earlier.`
+      : `You're finishing fewer goal quests — ${Math.round(recentRate * 100)}% recently, vs ${Math.round(previousRate * 100)}% earlier.`,
+    evidence: `${recentCompleted} of your last ${recent.length} goal quests finished, vs ${previous.filter((q) => q.completed).length} of ${previous.length} earlier.`,
     comparison: {
       recentRate,
       previousRate,
@@ -138,8 +140,8 @@ function followThroughInsight(quests: Quest[]): Insight | null {
     id: "follow-through",
     category: "follow-through",
     categoryLabel: "Follow-through",
-    observation: `You complete ${Math.round(r * 100)}% of what you commit to.`,
-    evidence: `${completed} of ${resolved.length} Quests completed overall.`,
+    observation: `You finish ${Math.round(r * 100)}% of what you take on.`,
+    evidence: `${completed} of ${resolved.length} quests completed.`,
     // Deliberately dampened (×0.6): this is the plainest, most expected
     // number on the page — a baseline fact, not a surprising pattern. It
     // should still be able to appear, but shouldn't out-rank a sharper
@@ -168,11 +170,11 @@ function recurringFrictionInsight(quests: Quest[]): Insight | null {
   return {
     id: "recurring-friction",
     category: "recurring-friction",
-    categoryLabel: "Recurring commitments",
-    observation: "Recurring commitments are currently your biggest source of missed occurrences.",
-    evidence: `${recurringMissed} of your last ${missed.length} missed Quests came from recurring series.`,
-    interpretation: "Your one-off commitments are currently more reliable than your recurring ones.",
-    adjustment: "Consider reducing or restructuring one recurring commitment.",
+    categoryLabel: "Repeating habits",
+    observation: "Repeating quests are where you miss the most.",
+    evidence: `${recurringMissed} of your last ${missed.length} missed quests were repeating.`,
+    interpretation: "You finish one-time quests more easily than repeating habits right now.",
+    adjustment: "Try moving or pausing one repeating quest.",
     ratio: { value: recurringMissed, total: missed.length },
     // Has a concrete adjustment — small actionability bonus (+0.1),
     // matching the brief's explicit preference for "actionable
@@ -203,18 +205,18 @@ function goalAlignmentInsight(quests: Quest[]): Insight | null {
     ? {
         id: "goal-alignment",
         category: "goal-alignment",
-        categoryLabel: "Goal alignment",
-        observation: "Commitments linked to your goal complete less often than everything else you commit to.",
-        evidence: `${Math.round(linkedRate * 100)}% completion on goal-linked Quests, vs ${Math.round(unlinkedRate * 100)}% elsewhere.`,
-        interpretation: "Goal-linked commitments may currently be set at a harder bar than the rest of what you take on.",
+        categoryLabel: "Goal focus",
+        observation: "Goal quests get finished less often than other quests.",
+        evidence: `${Math.round(linkedRate * 100)}% on goal quests, vs ${Math.round(unlinkedRate * 100)}% elsewhere.`,
+        interpretation: "Goal quests might be set a bit too hard right now.",
         strength: Math.abs(gap) * Math.min(Math.min(linked.length, unlinked.length) / 8, 1),
       }
     : {
         id: "goal-alignment",
         category: "goal-alignment",
-        categoryLabel: "Goal alignment",
-        observation: "Commitments linked to your goal complete more reliably than everything else you commit to.",
-        evidence: `${Math.round(linkedRate * 100)}% completion on goal-linked Quests, vs ${Math.round(unlinkedRate * 100)}% elsewhere.`,
+        categoryLabel: "Goal focus",
+        observation: "You finish goal quests more reliably than other quests.",
+        evidence: `${Math.round(linkedRate * 100)}% on goal quests, vs ${Math.round(unlinkedRate * 100)}% elsewhere.`,
         strength: Math.abs(gap) * Math.min(Math.min(linked.length, unlinked.length) / 8, 1),
       };
 }
