@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { MessageSquare, Sprout, Compass, RotateCcw } from "lucide-react";
+import { MessageSquare, Sprout, Compass, RotateCcw, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { cn } from "@/lib/utils";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
 import { AutoRebalanceModal } from "@/components/mentor/AutoRebalanceModal";
 import { useAuth } from "@/hooks/useAuth";
@@ -49,23 +50,6 @@ interface RankedItem {
 }
 
 const MAX_SURFACED_INSIGHTS = 3;
-
-function CompletionRing({ fraction, label }: { fraction: number; label: string }) {
-  const size = 56;
-  const stroke = 5;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={label}>
-      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth={stroke} />
-      <circle
-        cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--primary))" strokeWidth={stroke}
-        strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - fraction)}
-        transform={`rotate(-90 ${size / 2} ${size / 2})`}
-      />
-    </svg>
-  );
-}
 
 export default function Mentor() {
   const { profile } = useAuth();
@@ -190,21 +174,64 @@ export default function Mentor() {
                 {recurring.observation}
               </h2>
 
-              {/* Supporting Evidence */}
-              <div className="mt-3.5 flex items-center gap-4 rounded-xl bg-muted/40 p-3.5">
-                <CompletionRing
-                  fraction={recurring.ratio ? recurring.ratio.value / recurring.ratio.total : 0}
-                  label={recurring.evidence}
-                />
-                <div className="min-w-0">
-                  <p className="text-body-sm font-medium text-foreground">
-                    {recurring.ratio
-                      ? `${recurring.ratio.value} of ${recurring.ratio.total} missed occurrences`
-                      : "Recorded pattern"}
-                  </p>
-                  <p className="mt-0.5 text-body-xs text-muted-foreground">{recurring.evidence}</p>
+              {/* Supporting Evidence — Distribution Telemetry Bar */}
+              {recurring.ratio ? (
+                (() => {
+                  const recurringMissed = recurring.ratio.value;
+                  const totalMissed = recurring.ratio.total;
+                  const oneOffMissed = Math.max(0, totalMissed - recurringMissed);
+                  const recurringPct = totalMissed > 0 ? Math.round((recurringMissed / totalMissed) * 100) : 0;
+                  const oneOffPct = 100 - recurringPct;
+
+                  return (
+                    <div className="mt-3.5 rounded-xl bg-muted/40 p-3.5 space-y-2.5">
+                      <div className="flex items-center justify-between text-body-xs">
+                        <span className="font-medium text-foreground">Miss Concentration</span>
+                        <span className="font-mono text-muted-foreground">{totalMissed} recent misses recorded</span>
+                      </div>
+
+                      {/* 2-Tone Segmented Ratio Bar */}
+                      <div
+                        className="h-2.5 w-full overflow-hidden rounded-full bg-muted flex"
+                        role="progressbar"
+                        aria-valuenow={recurringPct}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`Miss distribution: ${recurringPct}% recurring, ${oneOffPct}% one-off`}
+                      >
+                        <div
+                          className="bg-primary transition-[width] duration-500 rounded-l-full"
+                          style={{ width: `${recurringPct}%` }}
+                          title={`Recurring: ${recurringPct}%`}
+                        />
+                        <div
+                          className="bg-muted-foreground/30 transition-[width] duration-500 rounded-r-full"
+                          style={{ width: `${oneOffPct}%` }}
+                          title={`One-off: ${oneOffPct}%`}
+                        />
+                      </div>
+
+                      {/* Legend */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-body-xs">
+                        <div className="flex items-center gap-1.5">
+                          <span className="size-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
+                          <span className="font-medium text-foreground">Recurring series</span>
+                          <span className="font-mono text-muted-foreground">({recurringMissed} misses • {recurringPct}%)</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="size-2 rounded-full bg-muted-foreground/40 shrink-0" aria-hidden="true" />
+                          <span className="text-muted-foreground">One-off</span>
+                          <span className="font-mono text-muted-foreground">({oneOffMissed} misses • {oneOffPct}%)</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()
+              ) : (
+                <div className="mt-3.5 rounded-xl bg-muted/40 p-3 text-body-sm text-muted-foreground">
+                  {recurring.evidence}
                 </div>
-              </div>
+              )}
 
               {/* Practical Adjustment Suggestion */}
               {recurring.adjustment && (
@@ -254,24 +281,49 @@ export default function Mentor() {
               </div>
             )}
 
-            {/* Trajectory Card with In-Place Grounded Context */}
+            {/* Trajectory Card with In-Place Grounded Context & Recent Step Horizon */}
             {hasTrajectory && (
               <div className="rounded-2xl border border-border/80 bg-card/80 p-5 flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <Compass className="size-4 text-primary" aria-hidden="true" />
-                    <p className="text-label text-muted-foreground">Trajectory Position</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Compass className="size-4 text-primary" aria-hidden="true" />
+                      <p className="text-label text-muted-foreground">Trajectory Position</p>
+                    </div>
+                    <span className="text-body-xs font-mono text-muted-foreground">
+                      {trajectory.actual.length} resolved
+                    </span>
                   </div>
+
                   <div className="mt-2 flex items-baseline gap-2">
                     <p className="text-3xl font-bold tracking-tight text-foreground">
                       {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
                     </p>
-                    <span className="text-body-xs text-muted-foreground">net points</span>
+                    <span className="text-body-xs text-muted-foreground font-medium">net points</span>
                   </div>
-                  <p className="mt-2 text-body-sm text-muted-foreground leading-relaxed">
-                    Net movement across your goal-linked Quests (+1 for completed, -1 for missed). Not a grade or personal score.
-                  </p>
+
+                  {/* Recent Step Events Horizon */}
+                  <div className="mt-3.5 space-y-1.5">
+                    <p className="text-body-xs text-muted-foreground">Recent resolution steps:</p>
+                    <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" aria-label="Recent resolution steps">
+                      {trajectory.actual.slice(-6).map((pt, idx) => (
+                        <span
+                          key={pt.quest.id || idx}
+                          className={cn(
+                            "inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-mono font-semibold transition-transform active:scale-95",
+                            pt.outcome === "completed"
+                              ? "bg-primary/10 text-primary border border-primary/25"
+                              : "bg-muted text-muted-foreground border border-border/60"
+                          )}
+                          title={`${pt.quest.title}: ${pt.outcome} (${pt.outcome === "completed" ? "+1" : "-1"})`}
+                        >
+                          {pt.outcome === "completed" ? "+1" : "-1"}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
+
                 <div className="mt-4 pt-3 border-t border-border/40">
                   <Link
                     to="/journey"
@@ -299,18 +351,77 @@ export default function Mentor() {
             )}
 
             {momentum && (
-              <div className="rounded-2xl border border-border/80 bg-card/80 p-5 space-y-2">
-                <div className="flex items-center gap-2">
-                  <RotateCcw className="size-4 text-primary" aria-hidden="true" />
-                  <p className="text-label text-muted-foreground">Momentum</p>
-                </div>
-                <p className="text-body-md font-medium leading-relaxed text-foreground">{momentum.observation}</p>
-                {momentum.evidence && (
-                  <div className="rounded-lg bg-muted/40 px-3 py-2 text-body-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">Evidence: </span>
-                    {momentum.evidence}
+              <div className="rounded-2xl border border-border/80 bg-card/80 p-5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <RotateCcw className="size-4 text-primary" aria-hidden="true" />
+                      <p className="text-label text-muted-foreground">Momentum</p>
+                    </div>
+                    {momentum.comparison && (
+                      <span className={cn(
+                        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium",
+                        momentum.comparison.delta >= 0
+                          ? "bg-primary/10 text-primary border border-primary/20"
+                          : "bg-destructive/10 text-destructive border border-destructive/20"
+                      )}>
+                        {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}%
+                      </span>
+                    )}
                   </div>
-                )}
+
+                  <p className="mt-2 text-body-sm font-medium text-foreground">
+                    Goal-linked completion rate
+                  </p>
+
+                  {momentum.comparison ? (
+                    <div className="mt-3 space-y-2.5">
+                      {/* Recent Period Track */}
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-body-xs">
+                          <span className="font-medium text-foreground">Recent</span>
+                          <span className="font-mono text-foreground font-semibold">
+                            {Math.round(momentum.comparison.recentRate * 100)}%{" "}
+                            <span className="text-muted-foreground font-normal">
+                              ({momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal})
+                            </span>
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full bg-primary rounded-full transition-[width] duration-500"
+                            style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Prior Period Track */}
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-body-xs">
+                          <span className="text-muted-foreground">Prior</span>
+                          <span className="font-mono text-muted-foreground">
+                            {Math.round(momentum.comparison.previousRate * 100)}%{" "}
+                            <span>
+                              ({momentum.comparison.previousCompleted}/{momentum.comparison.previousTotal})
+                            </span>
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
+                            style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-body-sm text-foreground">{momentum.observation}</p>
+                  )}
+                </div>
+
+                <p className="mt-3 text-body-xs text-muted-foreground">
+                  Comparing chronological goal-linked halves.
+                </p>
               </div>
             )}
           </div>
@@ -329,21 +440,26 @@ export default function Mentor() {
           <ul className="space-y-3.5">
             {surfaced.map((item) => (
               <li key={item.key} className="rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 space-y-2.5">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-label text-muted-foreground">{item.categoryLabel}</span>
+                  {item.evidence && (
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-0.5 text-xs font-mono text-muted-foreground">
+                      <span className="size-1.5 rounded-full bg-primary/70 shrink-0" aria-hidden="true" />
+                      {item.evidence}
+                    </span>
+                  )}
                 </div>
                 <p className="text-body-md font-medium leading-snug text-foreground">{item.observation}</p>
-                {item.evidence && (
-                  <div className="rounded-lg bg-muted/40 px-3 py-2 text-body-sm">
-                    <span className="font-medium text-foreground">Evidence: </span>
-                    <span className="text-muted-foreground">{item.evidence}</span>
-                  </div>
-                )}
                 {item.interpretation && (
-                  <p className="text-body-sm text-foreground">
-                    <span className="text-muted-foreground">What this might mean: </span>
-                    {item.interpretation}
-                  </p>
+                  <details className="group text-body-xs text-muted-foreground">
+                    <summary className="cursor-pointer list-none inline-flex items-center gap-1 font-medium hover:text-foreground transition-colors">
+                      <span>Why this happens</span>
+                      <ChevronDown className="size-3 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
+                    </summary>
+                    <div className="mt-2 rounded-xl bg-muted/30 border border-border/40 p-3 text-body-sm text-foreground/90 leading-relaxed">
+                      {item.interpretation}
+                    </div>
+                  </details>
                 )}
                 {item.adjustment && (
                   <div className="rounded-xl border border-primary/25 bg-primary/[0.04] p-3 text-body-sm">

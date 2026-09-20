@@ -41,6 +41,16 @@ export interface Insight {
   // roundtrip instead of directly. undefined for insight types where a
   // single ratio doesn't apply (e.g. momentum, which has two rates).
   ratio?: { value: number; total: number };
+  // Structured comparison numbers for visual telemetry (e.g. Momentum dual tracks)
+  comparison?: {
+    recentRate: number;
+    previousRate: number;
+    recentCompleted: number;
+    recentTotal: number;
+    previousCompleted: number;
+    previousTotal: number;
+    delta: number;
+  };
   strength: number;
 }
 
@@ -96,6 +106,15 @@ function momentumInsight(quests: Quest[]): Insight | null {
     categoryLabel: "Momentum",
     observation: `Your goal-linked completion rate has ${direction} — ${Math.round(recentRate * 100)}% recently, vs ${Math.round(previousRate * 100)}% before that.`,
     evidence: `${recentCompleted} of your last ${recent.length} goal-linked Quests completed, compared to ${previous.filter((q) => q.completed).length} of ${previous.length} before.`,
+    comparison: {
+      recentRate,
+      previousRate,
+      recentCompleted,
+      recentTotal: recent.length,
+      previousCompleted: previous.filter((q) => q.completed).length,
+      previousTotal: previous.length,
+      delta,
+    },
     strength: Math.abs(delta) * Math.min(Math.min(recent.length, previous.length) / 6, 1),
   };
 }
