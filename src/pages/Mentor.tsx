@@ -74,7 +74,7 @@ export default function Mentor() {
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
         <div className="h-40 animate-pulse rounded-2xl bg-muted" aria-label="Loading your mentor" />
       </div>
     );
@@ -82,7 +82,7 @@ export default function Mentor() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
         <section className="rounded-2xl border border-border bg-card p-7" aria-label="Mentor unavailable">
           <p className="text-label text-muted-foreground">Your mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
@@ -151,7 +151,7 @@ export default function Mentor() {
 
   if (!anyGridSlot && surfaced.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
         <PlaceholderExperience
           icon={MessageSquare}
           title="No clear pattern yet."
@@ -162,118 +162,204 @@ export default function Mentor() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(116px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
       <PageHeader
         eyebrow="Your mentor"
-        title="Your history."
-        description="Grounded in your own Quests, never a guess or a score."
+        title="Patterns in your history."
+        description="Observations and practical adjustments grounded in your recorded Quests — never a score or verdict."
       />
 
       {anyGridSlot && (
         <div className="mt-6 space-y-4">
+          {/* ── Primary Actionable Pattern (Recurring Friction) ── */}
           {recurring && (
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <p className="text-label text-muted-foreground">Recurring commitments</p>
-              <div className="mt-3 flex items-center gap-4">
+            <section
+              aria-labelledby="primary-insight-heading"
+              className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-label font-semibold text-primary">
+                  Primary Observation • Recurring commitments
+                </span>
+              </div>
+
+              <h2
+                id="primary-insight-heading"
+                className="mt-2 text-body-lg font-semibold text-foreground leading-snug"
+              >
+                {recurring.observation}
+              </h2>
+
+              {/* Supporting Evidence */}
+              <div className="mt-3.5 flex items-center gap-4 rounded-xl bg-muted/40 p-3.5">
                 <CompletionRing
                   fraction={recurring.ratio ? recurring.ratio.value / recurring.ratio.total : 0}
                   label={recurring.evidence}
                 />
-                <div>
-                  <p className="text-body-md font-medium leading-5 text-foreground">{recurring.observation}</p>
-                  <p className="mt-1 text-body-sm text-muted-foreground">{recurring.evidence}</p>
+                <div className="min-w-0">
+                  <p className="text-body-sm font-medium text-foreground">
+                    {recurring.ratio
+                      ? `${recurring.ratio.value} of ${recurring.ratio.total} missed occurrences`
+                      : "Recorded pattern"}
+                  </p>
+                  <p className="mt-0.5 text-body-xs text-muted-foreground">{recurring.evidence}</p>
                 </div>
               </div>
-              <Button asChild size="sm" className="mt-4 min-h-9">
-                <Link to="/quests">Restructure Quests</Link>
-              </Button>
-              {rebalanceProposal && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="mt-4 ml-2 min-h-9"
-                  onClick={() => setRebalanceOpen(true)}
-                >
-                  <RotateCcw className="size-3.5" aria-hidden="true" />
-                  Auto-Rebalance
-                </Button>
+
+              {/* Practical Adjustment Suggestion */}
+              {recurring.adjustment && (
+                <div className="mt-3.5 border-l-2 border-primary/60 pl-3 py-0.5 text-body-sm text-foreground">
+                  <span className="font-medium text-primary">Suggested adjustment: </span>
+                  <span className="text-muted-foreground">{recurring.adjustment}</span>
+                </div>
               )}
-            </div>
+
+              {/* Clear Action Hierarchy */}
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                {rebalanceProposal ? (
+                  <>
+                    <Button
+                      size="sm"
+                      className="min-h-10"
+                      onClick={() => setRebalanceOpen(true)}
+                    >
+                      <RotateCcw className="mr-1.5 size-3.5" aria-hidden="true" />
+                      Review Day-Shift Proposal
+                    </Button>
+                    <Button asChild size="sm" variant="outline" className="min-h-10">
+                      <Link to="/quests">Manage Quests</Link>
+                    </Button>
+                  </>
+                ) : (
+                  <Button asChild size="sm" className="min-h-10">
+                    <Link to="/quests">Review Recurring Quests</Link>
+                  </Button>
+                )}
+              </div>
+            </section>
           )}
 
+          {/* ── Secondary Insights Grid ── */}
           <div className="grid gap-4 sm:grid-cols-2">
             {leadWithRecovery && recovery && (
-              <div className="rounded-2xl border border-border bg-card p-5 sm:col-span-2">
+              <div className="rounded-2xl border border-border bg-card p-5 sm:col-span-2 shadow-sm">
                 <div className="flex items-center gap-2">
                   <Sprout className="size-4 text-primary" aria-hidden="true" />
                   <p className="text-label text-muted-foreground">Recovery</p>
                 </div>
-                <p className="mt-2 text-body-md font-medium leading-6 text-foreground">{recovery.text}</p>
-              </div>
-            )}
-            {hasTrajectory && (
-              <div className="rounded-2xl border border-border bg-card p-5">
-                <div className="flex items-center gap-2">
-                  <Compass className="size-4 text-primary" aria-hidden="true" />
-                  <p className="text-label text-muted-foreground">Trajectory</p>
-                </div>
-                <p className="mt-2 text-2xl font-semibold text-foreground">
-                  {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
+                <p className="mt-2 text-body-md font-medium leading-relaxed text-foreground">{recovery.text}</p>
+                <p className="mt-2 text-body-xs text-muted-foreground">
+                  Grounded in how you resolve subsequent commitments after an uncompleted Quest.
                 </p>
-                <p className="mt-1 text-body-sm text-muted-foreground">Your current position — see Journey for the full picture.</p>
               </div>
             )}
-            {recovery && !leadWithRecovery && (
-              <div className="rounded-2xl border border-border bg-card p-5">
-                <div className="flex items-center gap-2">
-                  <Sprout className="size-4 text-primary" aria-hidden="true" />
-                  <p className="text-label text-muted-foreground">Recovery</p>
+
+            {/* Trajectory Card with In-Place Grounded Context */}
+            {hasTrajectory && (
+              <div className="rounded-2xl border border-border/80 bg-card/80 p-5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Compass className="size-4 text-primary" aria-hidden="true" />
+                    <p className="text-label text-muted-foreground">Trajectory Position</p>
+                  </div>
+                  <div className="mt-2 flex items-baseline gap-2">
+                    <p className="text-3xl font-bold tracking-tight text-foreground">
+                      {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
+                    </p>
+                    <span className="text-body-xs text-muted-foreground">net points</span>
+                  </div>
+                  <p className="mt-2 text-body-sm text-muted-foreground leading-relaxed">
+                    Net movement across your goal-linked Quests (+1 for completed, -1 for missed). Not a grade or personal score.
+                  </p>
                 </div>
-                <p className="mt-2 text-body-md font-medium leading-6 text-foreground">{recovery.text}</p>
+                <div className="mt-4 pt-3 border-t border-border/40">
+                  <Link
+                    to="/journey"
+                    className="inline-flex items-center gap-1 text-body-sm font-medium text-primary hover:underline"
+                  >
+                    View full trajectory on Journey →
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {recovery && !leadWithRecovery && (
+              <div className="rounded-2xl border border-border/80 bg-card/80 p-5 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Sprout className="size-4 text-primary" aria-hidden="true" />
+                    <p className="text-label text-muted-foreground">Recovery</p>
+                  </div>
+                  <p className="mt-2 text-body-md font-medium leading-relaxed text-foreground">{recovery.text}</p>
+                </div>
+                <p className="mt-3 text-body-xs text-muted-foreground">
+                  Measured from chronological follow-up after misses.
+                </p>
+              </div>
+            )}
+
+            {momentum && (
+              <div className="rounded-2xl border border-border/80 bg-card/80 p-5 space-y-2">
+                <div className="flex items-center gap-2">
+                  <RotateCcw className="size-4 text-primary" aria-hidden="true" />
+                  <p className="text-label text-muted-foreground">Momentum</p>
+                </div>
+                <p className="text-body-md font-medium leading-relaxed text-foreground">{momentum.observation}</p>
+                {momentum.evidence && (
+                  <div className="rounded-lg bg-muted/40 px-3 py-2 text-body-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Evidence: </span>
+                    {momentum.evidence}
+                  </div>
+                )}
               </div>
             )}
           </div>
-
-          {momentum && (
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <div className="flex items-center gap-2">
-                <RotateCcw className="size-4 text-primary" aria-hidden="true" />
-                <p className="text-label text-muted-foreground">Momentum</p>
-              </div>
-              <p className="mt-2 text-body-md font-medium leading-6 text-foreground">{momentum.observation}</p>
-              <p className="mt-1 text-body-sm text-muted-foreground">{momentum.evidence}</p>
-            </div>
-          )}
         </div>
       )}
 
-      {/* Founder Decision (Visual override chunk — Mentor grid redesign):
-          any other real pattern that doesn't fit the four grid slots
-          above (e.g. weekday concentration, priority gap, series
-          reliability) still shows here — same ranked pool as before,
-          just relabeled from the page's sole content to a secondary
-          "Other patterns" section beneath the grid. */}
+      {/* ── Other Patterns Section (Secondary Surfaced List) ── */}
       {surfaced.length > 0 && (
         <div className={anyGridSlot ? "mt-8" : "mt-6"}>
-          {anyGridSlot && <p className="text-label text-muted-foreground">Other patterns</p>}
-          <ul className="mt-3 space-y-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-label font-semibold text-muted-foreground">Other observed patterns</h2>
+            <span className="text-body-xs text-muted-foreground">
+              {surfaced.length} {surfaced.length === 1 ? "pattern" : "patterns"}
+            </span>
+          </div>
+          <ul className="space-y-3.5">
             {surfaced.map((item) => (
-              <li key={item.key} className="rounded-2xl border border-border/60 bg-card/40 p-5">
-                <p className="text-label text-muted-foreground">{item.categoryLabel}</p>
-                <p className="mt-2 text-body-md leading-6 text-foreground">{item.observation}</p>
-                {item.evidence && <p className="mt-1.5 text-body-sm text-muted-foreground">{item.evidence}</p>}
+              <li key={item.key} className="rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-label text-muted-foreground">{item.categoryLabel}</span>
+                </div>
+                <p className="text-body-md font-medium leading-snug text-foreground">{item.observation}</p>
+                {item.evidence && (
+                  <div className="rounded-lg bg-muted/40 px-3 py-2 text-body-sm">
+                    <span className="font-medium text-foreground">Evidence: </span>
+                    <span className="text-muted-foreground">{item.evidence}</span>
+                  </div>
+                )}
                 {item.interpretation && (
-                  <p className="mt-3 text-body-sm text-foreground">
-                    <span className="text-muted-foreground">What this might mean — </span>
+                  <p className="text-body-sm text-foreground">
+                    <span className="text-muted-foreground">What this might mean: </span>
                     {item.interpretation}
                   </p>
                 )}
-                {item.adjustment && <p className="mt-1.5 text-body-sm text-primary">{item.adjustment}</p>}
+                {item.adjustment && (
+                  <div className="border-l-2 border-primary/60 pl-3 py-0.5 text-body-sm">
+                    <span className="font-medium text-primary">Possible adjustment: </span>
+                    <span className="text-muted-foreground">{item.adjustment}</span>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
         </div>
       )}
+
+      {/* Safety spacer ensuring clean scroll buffer above mobile SystemBar */}
+      <div className="h-6 sm:h-0" aria-hidden="true" />
+
       {rebalanceProposal && (
         <AutoRebalanceModal
           open={rebalanceOpen}
