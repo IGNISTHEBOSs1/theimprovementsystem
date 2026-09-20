@@ -30,16 +30,19 @@ export default function Profile() {
   const { profile, updateProfile } = useAuth();
   const [editingGoal, setEditingGoal] = useState(false);
   const [goal, setGoal] = useState(profile?.primary_goal ?? "");
+  const [targetDate, setTargetDate] = useState(profile?.primary_goal_target_date ?? "");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     setGoal(profile?.primary_goal ?? "");
-  }, [profile?.primary_goal]);
+    setTargetDate(profile?.primary_goal_target_date ?? "");
+  }, [profile?.primary_goal, profile?.primary_goal_target_date]);
 
   const startEditing = () => {
     setGoal(profile?.primary_goal ?? "");
+    setTargetDate(profile?.primary_goal_target_date ?? "");
     setSaveError(false);
     setSaveSuccess(false);
     setEditingGoal(true);
@@ -47,6 +50,7 @@ export default function Profile() {
 
   const cancelEditing = () => {
     setGoal(profile?.primary_goal ?? "");
+    setTargetDate(profile?.primary_goal_target_date ?? "");
     setSaveError(false);
     setEditingGoal(false);
   };
@@ -56,15 +60,21 @@ export default function Profile() {
     setSaving(true);
     setSaveError(false);
     setSaveSuccess(false);
-    const trimmed = goal.trim();
-    const { error, profile: saved } = await updateProfile({ primary_goal: trimmed || null });
+    const trimmedGoal = goal.trim();
+    const trimmedDate = targetDate.trim();
+    const { error, profile: saved } = await updateProfile({
+      primary_goal: trimmedGoal || null,
+      primary_goal_target_date: trimmedDate || null,
+    });
     setSaving(false);
     if (error || !saved) {
       setGoal(profile?.primary_goal ?? "");
+      setTargetDate(profile?.primary_goal_target_date ?? "");
       setSaveError(true);
       return;
     }
     setGoal(saved.primary_goal ?? "");
+    setTargetDate(saved.primary_goal_target_date ?? "");
     setSaveSuccess(true);
     setEditingGoal(false);
   };
@@ -115,26 +125,66 @@ export default function Profile() {
             // as large, direct text when set, or an inviting (not
             // pushy) empty state when it isn't.
             profile?.primary_goal ? (
-              <p className="mt-3 text-2xl font-semibold leading-tight text-foreground">
-                {profile.primary_goal}
-              </p>
+              <div>
+                <p className="mt-3 text-2xl font-semibold leading-tight text-foreground">
+                  {profile.primary_goal}
+                </p>
+                {profile.primary_goal_target_date && (
+                  <p className="mt-2 text-body-sm text-muted-foreground flex items-center gap-1.5">
+                    <span>Targeting:</span>
+                    <span className="font-medium text-foreground">
+                      {new Date(
+                        profile.primary_goal_target_date.includes("T")
+                          ? profile.primary_goal_target_date
+                          : `${profile.primary_goal_target_date}T12:00:00`
+                      ).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </p>
+                )}
+              </div>
             ) : (
               <p className="mt-3 text-body-md text-muted-foreground">
                 No goal set yet. Optional — Quests work fine without one, but a goal lets TIS connect your commitments to a direction.
               </p>
             )
           ) : (
-            <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
-              <Input
-                value={goal}
-                onChange={(event) => setGoal(event.target.value)}
-                placeholder="What are you working toward?"
-                aria-label="Primary goal"
-                disabled={saving}
-                autoFocus
-                className="min-h-11"
-              />
-              <div className="flex gap-2">
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
+              <div className="space-y-3">
+                <div>
+                  <label htmlFor="goal-input" className="text-body-sm font-medium text-foreground block mb-1.5">
+                    Goal
+                  </label>
+                  <Input
+                    id="goal-input"
+                    value={goal}
+                    onChange={(event) => setGoal(event.target.value)}
+                    placeholder="What are you working toward?"
+                    aria-label="Primary goal"
+                    disabled={saving}
+                    autoFocus
+                    className="min-h-11"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="target-date-input" className="text-body-sm font-medium text-foreground block mb-1.5">
+                    Target date <span className="text-muted-foreground font-normal">(optional)</span>
+                  </label>
+                  <Input
+                    id="target-date-input"
+                    type="date"
+                    value={targetDate}
+                    onChange={(event) => setTargetDate(event.target.value)}
+                    aria-label="Goal target date"
+                    disabled={saving}
+                    className="min-h-11 w-full sm:w-64"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2 pt-1">
                 <Button type="submit" className="min-h-11 shrink-0" disabled={saving}>
                   {saving ? "Saving…" : "Save"}
                 </Button>

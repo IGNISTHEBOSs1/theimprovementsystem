@@ -229,3 +229,86 @@ export function deriveFollowThroughStats(quests: Quest[]): FollowThroughStats {
     total: resolved.length,
   };
 }
+
+export interface GoalPaceResult {
+  targetDate: string;
+  targetDateFormatted: string;
+  daysRemaining: number;
+  remainingGoalQuests: number;
+  requiredDailyPace: number;
+  actualDailyPace: number;
+  paceRatio: number;
+  isOnTrack: boolean;
+  daysObserved: number;
+  recentGoalCompleted: number;
+}
+
+// Evidence-based Goal Pace derivation.
+// Computes required daily pace from the remaining goal-linked quests and target date,
+// and compares it against actual daily pace observed over the user's recent history (up to 14 days).
+// Pure function: no invented quotas, no fallback numbers, no fake momentum.
+export function deriveGoalPace(
+  quests: Quest[],
+  targetDateStr: string | null | undefined,
+): GoalPaceResult | null {
+  if (!targetDateStr) return null;
+
+  const targetDate = new Date(
+    targetDateStr.includes("T") ? targetDateStr : `${targetDateStr}T23:59:59`
+  );
+  if (isNaN(targetDate.getTime())) return null;
+
+  const now = new Date();
+  const diffMs = targetDate.getTime() - now.getTime();
+  if (diffMs <= 0) return null;
+
+  const daysRemaining = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+  const remainingGoalQuests = quests.filter((q) => q.linkedToGoal && !q.completed).length;
+  const requiredDailyPace = Number((remainingGoalQuests / daysRemaining).toFixed(2));
+
+  const fourteenDaysAgo = now.getTime() - 14 * 24 * 60 * 60 * 1000;
+  const recentGoalCompletedQuests = quests.filter((q) => {
+    if (!q.linkedToGoal || !q.completed) return false;
+    const resolved = new Date(deriveResolvedAt(q)).getTime();
+    return !isNaN(resolved) && resolved >= fourteenDaysAgo;
+  });
+  const recentGoalCompleted = recentGoalCompletedQuests.length;
+
+  const timestamps = quests
+    .map((q) => new Date(deriveResolvedAt(q)).getTime())
+    .filter((t) => !isNaN(t));
+  const earliestTimestamp = timestamps.length > 0 ? Math.min(...timestamps) : now.getTime();
+  const daysSinceEarliest = Math.max(1, Math.ceil((now.getTime() - earliestTimestamp) / (1000 * 60 * 60 * 24)));
+  const daysObserved = Math.min(14, daysSinceEarliest);
+
+  const actualDailyPace = Number((recentGoalCompleted / daysObserved).toFixed(2));
+
+  let paceRatio: number;
+  if (requiredDailyPace > 0) {
+    paceRatio = Number((actualDailyPace / requiredDailyPace).toFixed(2));
+  } else {
+    paceRatio = remainingGoalQuests === 0 ? 1 : 0;
+  }
+
+  const isOnTrack = paceRatio >= 0.9;
+
+  const targetDateFormatted = targetDate.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  return {
+    targetDate: targetDateStr,
+    targetDateFormatted,
+    daysRemaining,
+    remainingGoalQuests,
+    requiredDailyPace,
+    actualDailyPace,
+    paceRatio,
+    isOnTrack,
+    daysObserved,
+    recentGoalCompleted,
+  };
+}
+

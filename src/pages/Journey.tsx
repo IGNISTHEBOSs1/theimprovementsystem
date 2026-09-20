@@ -20,8 +20,7 @@ import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience
 import { TrajectoryVisualizer } from "@/components/journey/TrajectoryVisualizer";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
-import { deriveCurrentStreak, deriveResolvedAt } from "@/lib/trajectory";
-import { computeTrajectoryEngine } from "@/lib/trajectoryEngine";
+import { deriveGoalPace, deriveGoalStats, deriveResolvedAt } from "@/lib/trajectory";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { triggerHaptic } from "@/lib/haptics";
 
@@ -80,8 +79,8 @@ export default function Journey() {
     );
   }
 
-  const streak = todayStr ? deriveCurrentStreak(state.quests, todayStr, profile?.timezone || "UTC") : 0;
-  const engine = computeTrajectoryEngine(state.quests, streak, profile?.primary_goal || undefined);
+  const goalStats = deriveGoalStats(state.quests);
+  const pace = deriveGoalPace(state.quests, profile?.primary_goal_target_date);
 
   // Filter evidence to strictly the last 48 hours only (Neutralized History)
   const fortyEightHoursAgo = Date.now() - 48 * 60 * 60 * 1000;
@@ -164,7 +163,15 @@ export default function Journey() {
               Summary
             </p>
             <p className="mt-1 text-sm sm:text-base font-medium leading-relaxed text-foreground">
-              {engine.narrative}
+              {pace ? (
+                pace.isOnTrack ? (
+                  `You're averaging ${pace.actualDailyPace} goal quest${pace.actualDailyPace === 1 ? "" : "s"}/day, on track to reach your goal by ${pace.targetDateFormatted}.`
+                ) : (
+                  `A pace of ${pace.requiredDailyPace} goal quests/day is required to meet your target by ${pace.targetDateFormatted} (currently averaging ${pace.actualDailyPace}/day).`
+                )
+              ) : (
+                `You are working toward "${profile?.primary_goal}". Set an optional target date in your Profile to unlock daily pace calculations and ETA forecasting.`
+              )}
             </p>
           </div>
         </div>
@@ -175,106 +182,181 @@ export default function Journey() {
         {/* ── CARD 1 (Top, Full Width): The Trajectory Visualizer ── */}
         <div className="col-span-1 md:col-span-2">
           <TrajectoryVisualizer
-            engine={engine}
+            completedQuests={goalStats.completed}
+            targetQuests={goalStats.linked}
+            isOnTrack={pace ? pace.isOnTrack : goalStats.failed === 0}
             goalLabel={profile?.primary_goal || undefined}
           />
         </div>
 
-        {/* ── CARD 2 (Half Width): Dynamic ETA ── */}
-        <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
-                <CalendarClock className="size-4 text-primary" aria-hidden="true" />
-                <span>Goal ETA</span>
+        {/* ── CARD 2 (Half Width): Goal ETA or Target Date Prompt ── */}
+        {pace ? (
+          <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                  <CalendarClock className="size-4 text-primary" aria-hidden="true" />
+                  <span>Goal ETA</span>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={`text-[10px] font-mono uppercase ${
+                    pace.paceRatio >= 1.1
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                      : pace.isOnTrack
+                      ? "border-primary/30 bg-primary/10 text-primary"
+                      : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                  }`}
+                >
+                  {pace.paceRatio >= 1.1
+                    ? "Ahead of pace"
+                    : pace.isOnTrack
+                    ? "On track"
+                    : "Behind pace"}
+                </Badge>
               </div>
-              <Badge
-                variant="outline"
-                className={`text-[10px] font-mono uppercase ${
-                  engine.paceRatio >= 1.1
-                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                    : engine.paceRatio >= 0.9
-                    ? "border-primary/30 bg-primary/10 text-primary"
-                    : "border-amber-500/30 bg-amber-500/10 text-amber-400"
-                }`}
-              >
-                {engine.paceRatio >= 1.1
-                  ? "Earlier"
-                  : engine.paceRatio >= 0.9
-                  ? "On track"
-                  : "Extended +1D"}
-              </Badge>
-            </div>
 
-            <h3 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              {engine.targetDateLabel}
-            </h3>
-            <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-              {engine.paceRatio >= 1.1
-                ? "Your consistent pace is bringing your goal date closer."
-                : engine.paceRatio >= 0.9
-                ? `Calculated at your needed pace (${engine.requiredPace} quests/day).`
-                : "Timeline adjusted to keep your daily pace realistic and sustainable."}
-            </p>
-          </div>
-
-          <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Goal Target</span>
-            <span className="font-mono font-semibold text-foreground">
-              {engine.completedQuests} / {engine.targetQuests} Quests Done
-            </span>
-          </div>
-        </div>
-
-        {/* ── CARD 3 (Half Width): Current Pace / Velocity ── */}
-        <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
-                <Gauge className="size-4 text-primary" aria-hidden="true" />
-                <span>Your pace</span>
-              </div>
-              <Badge
-                variant="outline"
-                className={`text-[10px] font-mono ${
-                  engine.isOnTrack
-                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                    : "border-amber-500/30 bg-amber-500/10 text-amber-400"
-                }`}
-              >
-                {Math.round(engine.paceRatio * 100)}% of target pace
-              </Badge>
-            </div>
-
-            <div className="mt-3 flex items-baseline gap-2">
-              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-mono">
-                {engine.velocity}
+              <h3 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                {pace.targetDateFormatted}
               </h3>
-              <span className="text-sm font-medium text-muted-foreground">Quests / day</span>
+              <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                {pace.paceRatio >= 1.1
+                  ? "Your consistent pace puts you comfortably ahead of schedule."
+                  : pace.isOnTrack
+                  ? `Pacing on track for target date (${pace.daysRemaining} days remaining).`
+                  : `${pace.daysRemaining} days remaining. Focus on goal-linked quests to close the gap.`}
+              </p>
             </div>
 
-            {/* Velocity meter bar */}
-            <div className="mt-3">
-              <div className="h-2 w-full overflow-hidden rounded-full bg-muted/60">
-                <div
-                  className="h-full rounded-full bg-primary transition-all duration-500"
-                  style={{ width: `${Math.min(Math.round(engine.paceRatio * 100), 100)}%` }}
-                />
+            <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Goal Progress</span>
+              <span className="font-mono font-semibold text-foreground">
+                {goalStats.completed} / {goalStats.linked} Quests Done
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                  <CalendarClock className="size-4 text-primary" aria-hidden="true" />
+                  <span>Target date</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-mono border-muted-foreground/30 text-muted-foreground">
+                  Optional
+                </Badge>
               </div>
+
+              <h3 className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                No target date set
+              </h3>
+              <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
+                Set a target date for your goal in Profile to unlock pace calculations and ETA projections.
+              </p>
             </div>
 
-            <p className="mt-2 text-xs text-muted-foreground">
-              {engine.paceRatio >= 1.0
-                ? "At this pace, you are on track to reach your goal early. Keep this momentum."
-                : `Aim for ${engine.requiredPace} quests/day. One completed quest today helps draw your goal date closer.`}
-            </p>
+            <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between">
+              <Button asChild variant="outline" size="sm" className="rounded-xl text-xs">
+                <Link to="/profile">
+                  <span>Set target date</span>
+                  <ArrowRight className="size-3.5 ml-1.5" />
+                </Link>
+              </Button>
+              <span className="font-mono text-xs text-muted-foreground">
+                {goalStats.completed} / {goalStats.linked} done
+              </span>
+            </div>
           </div>
+        )}
 
-          <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Acceptable range</span>
-            <span className="font-mono font-medium text-primary">±{engine.variancePct}% variance</span>
+        {/* ── CARD 3 (Half Width): Current Pace or Goal Quests Overview ── */}
+        {pace ? (
+          <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                  <Gauge className="size-4 text-primary" aria-hidden="true" />
+                  <span>Your pace</span>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={`text-[10px] font-mono ${
+                    pace.isOnTrack
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                      : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                  }`}
+                >
+                  {Math.round(pace.paceRatio * 100)}% of required pace
+                </Badge>
+              </div>
+
+              <div className="mt-3 flex items-baseline gap-2">
+                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-mono">
+                  {pace.actualDailyPace}
+                </h3>
+                <span className="text-sm font-medium text-muted-foreground">Quests / day</span>
+              </div>
+
+              {/* Velocity meter bar */}
+              <div className="mt-3">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted/60">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all duration-500"
+                    style={{ width: `${Math.min(Math.round(pace.paceRatio * 100), 100)}%` }}
+                  />
+                </div>
+              </div>
+
+              <p className="mt-2 text-xs text-muted-foreground">
+                {pace.isOnTrack
+                  ? `Required pace is ${pace.requiredDailyPace} quests/day. Observed across the last ${pace.daysObserved} days.`
+                  : `Aim for ${pace.requiredDailyPace} quests/day to meet your target. Current: ${pace.actualDailyPace}/day.`}
+              </p>
+            </div>
+
+            <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Recent completions</span>
+              <span className="font-mono font-medium text-primary">
+                {pace.recentGoalCompleted} in last {pace.daysObserved} days
+              </span>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                  <Gauge className="size-4 text-primary" aria-hidden="true" />
+                  <span>Goal progress</span>
+                </div>
+                <Badge variant="outline" className="text-[10px] font-mono border-primary/30 bg-primary/10 text-primary">
+                  Evidence
+                </Badge>
+              </div>
+
+              <div className="mt-3 flex items-baseline gap-2">
+                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-mono">
+                  {goalStats.completed}
+                </h3>
+                <span className="text-sm font-medium text-muted-foreground">Quests completed</span>
+              </div>
+
+              <p className="mt-2 text-xs text-muted-foreground">
+                {goalStats.linked > 0
+                  ? `${goalStats.completed} of ${goalStats.linked} goal-linked quests completed.`
+                  : "Link quests to your primary goal to track evidence toward it."}
+              </p>
+            </div>
+
+            <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Remaining</span>
+              <span className="font-mono font-medium text-foreground">
+                {Math.max(0, goalStats.linked - goalStats.completed - goalStats.failed)} active
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* ── CARD 4 (Full Width): Next Immediate Action ── */}
         <div className="col-span-1 md:col-span-2 rounded-2xl p-5 sm:p-6 liquid-glass border border-primary/20">

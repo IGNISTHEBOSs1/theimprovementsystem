@@ -81,8 +81,8 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
         />
       )}
       <p className="text-label text-primary">Today&apos;s focus</p>
-      <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+      <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <CircleDot className="size-4 text-primary" aria-hidden="true" />
             <span>{quest.timeFrame}</span>
@@ -105,7 +105,9 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
             </p>
           )}
         </div>
-        <SwipeToComplete completing={Boolean(completing)} onComplete={onComplete} />
+        <div className="w-full sm:w-auto sm:shrink-0">
+          <SwipeToComplete completing={Boolean(completing)} onComplete={onComplete} />
+        </div>
       </div>
     </section>
   );
@@ -190,7 +192,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
     } else {
       handle.style.transition = "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)";
     }
-    handle.style.transform = `translateX(${x}px)`;
+    handle.style.transform = `translate3d(${x}px, -50%, 0)`;
   };
 
   const setTrackFill = (progress: number, animate: boolean) => {
@@ -279,17 +281,17 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       onPointerMove={handlePointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
-      className="relative flex min-h-11 w-full items-center overflow-hidden rounded-full bg-foreground/20 px-1 py-1 text-left touch-none"
+      className="relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full bg-foreground/15 px-1 text-left touch-none border border-border/40"
       aria-label={completing ? "Marking Quest complete" : "Mark this Quest complete"}
     >
       <span
         ref={handleRef}
-        className="pointer-events-none absolute left-1 top-1 flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
-        style={{ transform: "translateX(0px)" }}
+        className="pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm"
+        style={{ transform: "translate3d(0px, -50%, 0)" }}
       >
         <ArrowRight className="size-4" aria-hidden="true" />
       </span>
-      <span className="w-full text-center text-sm font-medium text-foreground">
+      <span className="w-full text-center text-sm font-medium text-foreground select-none pl-8 pr-3">
         {completing ? "Saving…" : "Swipe to complete"}
       </span>
     </button>

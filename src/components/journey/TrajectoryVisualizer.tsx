@@ -1,10 +1,12 @@
 import { useId } from "react";
 import { Compass, Radio, Target, Sparkles, Navigation } from "lucide-react";
-import type { TrajectoryEngineState } from "@/lib/trajectoryEngine";
 import { cn } from "@/lib/utils";
 
 interface TrajectoryVisualizerProps {
-  engine: TrajectoryEngineState;
+  completedQuests: number;
+  targetQuests: number;
+  isOnTrack: boolean;
+  variancePct?: number;
   goalLabel?: string;
   className?: string;
 }
@@ -12,12 +14,18 @@ interface TrajectoryVisualizerProps {
 const WIDTH = 680;
 const HEIGHT = 260;
 
-export function TrajectoryVisualizer({ engine, goalLabel, className }: TrajectoryVisualizerProps) {
+export function TrajectoryVisualizer({
+  completedQuests,
+  targetQuests,
+  isOnTrack,
+  variancePct = 10,
+  goalLabel,
+  className,
+}: TrajectoryVisualizerProps) {
   const gradientId = useId();
   const coneGradId = useId();
   const glowFilterId = useId();
 
-  const { completedQuests, targetQuests, isOnTrack, variancePct } = engine;
   const progressRatio = Math.min(Math.max(completedQuests / (targetQuests || 1), 0), 1);
 
   // Coordinate geometry

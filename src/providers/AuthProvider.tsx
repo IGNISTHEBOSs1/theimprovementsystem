@@ -15,6 +15,9 @@ export interface Profile {
   // untouched by this). Free text, not a referenced entity — see Chunk 3
   // report for why a full Goal model wasn't built.
   primary_goal: string | null;
+  // Optional ISO date string (e.g. '2026-10-15') representing the target date
+  // for achieving the primary goal. Nullable — optional target date.
+  primary_goal_target_date: string | null;
   // IANA timezone (e.g. 'Asia/Kolkata'), detected from the device once on
   // first authenticated use and stored server-side. Identifies the
   // user's INTENDED zone only — the authoritative clock for Quest
@@ -37,7 +40,7 @@ interface AuthContextValue {
   signUp: (email: string, password: string, username: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
-  updateProfile: (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal' | 'timezone'>>) => Promise<{ error: Error | null; profile: Profile | null }>;
+  updateProfile: (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal' | 'primary_goal_target_date' | 'timezone'>>) => Promise<{ error: Error | null; profile: Profile | null }>;
   completeFirstLaunch: () => Promise<{ error: Error | null }>;
   resetGameProgress: () => Promise<void>;
   deleteAccount: () => Promise<void>;
@@ -214,7 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const updateProfile = async (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal' | 'timezone'>>) => {
+  const updateProfile = async (updates: Partial<Pick<Profile, 'username' | 'avatar_id' | 'date_of_birth' | 'bio' | 'primary_goal' | 'primary_goal_target_date' | 'timezone'>>) => {
     if (!user) return { error: new Error('Not authenticated'), profile: null };
     const { data, error } = await supabase
       .from('profiles')
