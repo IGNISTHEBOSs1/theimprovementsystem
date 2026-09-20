@@ -68,7 +68,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
   return (
     <section
       ref={spotlight.bind}
-      className="relative overflow-hidden rounded-2xl border border-white/10 bg-card p-5 shadow-[var(--shadow-card)] sm:p-7"
+      className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-7"
       aria-labelledby="focus-heading"
     >
       {spotlight.enabled && (

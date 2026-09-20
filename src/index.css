@@ -32,7 +32,18 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 8%;
     --border: 0 0% 15%;
-    --input: 0 0% 12%;
+    /* Was hardcoded to "0 0% 12%" here and NEVER appeared in any of the
+       10 per-theme/per-mode var blocks in ThemeProvider.tsx — meaning
+       every <Input> border (border-input, see input.tsx) stayed pinned
+       to this one dark-mode value in EVERY theme and EVERY mode,
+       including light mode, where a near-black 12%-lightness border on
+       a white field renders as a harsh, wrong-looking heavy outline —
+       likely a real contributor to "the shadows/borders look different"
+       in light mode. Aliased to --border instead of duplicating a
+       value into 10 separate blocks: it now always matches whatever
+       the active theme+mode's real border color is, automatically, and
+       can't drift out of sync with it again. */
+    --input: var(--border);
     --ring: 270 91% 55%;
     --glass: 0 0% 8%;
     --glass-border: 0 0% 20%;

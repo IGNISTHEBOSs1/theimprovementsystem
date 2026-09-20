@@ -46,67 +46,64 @@ export interface ThemeConfig {
 
 export const THEMES: Record<ThemeName, ThemeConfig> = {
   /**
-   * Monarch — dusty violet ("perfume" ramp), the default palette.
+   * Monarch — Radix Colors "violet" (step 9), the default palette.
    *
-   * Replaces the original saturated `#7c3aed` (270 91% 55/50%) violet,
-   * which was never actually composed for light mode — it was the dark
-   * palette's hue/saturation with lightness nudged down 5%, and reads as
-   * the generic high-chroma-at-mid-lightness "SaaS purple button" look
-   * as a result. This uses `perfume` (a dustier, lower-chroma violet
-   * ramp) with mode-appropriate steps instead of one flat value:
-   * light mode uses a DARKER step with white text (perfume-700, 5.44:1),
-   * dark mode uses perfume-400 (`#c2b1e0`, a deliberate pick, not derived)
-   * with DARK text (9.71:1) — a light primary needs dark text on it, not
-   * white; using white text on a light purple is exactly what made the
-   * old dark-mode primary fail WCAG AA at 4.44:1. Fixed here as a side
-   * effect of doing the light/dark split correctly.
+   * Third and (hopefully) final iteration on this theme's primary. The
+   * previous two passes were me deriving HSL values by hand — reasoned,
+   * contrast-checked, but still homegrown. This one isn't: it's the
+   * exact, unmodified hex from Radix Colors' violet scale (the
+   * `@radix-ui/colors` npm package, pulled from its actual source, not
+   * eyeballed off a rendered page), the same accessible color system
+   * shadcn/ui's own ecosystem is built around.
+   *
+   * Radix's step-9 is specifically engineered to be usable with white
+   * text and to hold up on both light and dark backgrounds AT THE SAME
+   * HEX VALUE — which is the direct, professionally-solved answer to
+   * "I want one color that works in both modes" raised earlier this
+   * session. No more dark-text-on-light-primary workaround: violet-9
+   * passes AA with white text in both contexts (5.05:1 against a light
+   * page, 5.39:1 as a filled surface against a dark one). Step 10 is
+   * Radix's own designated next-step (hover/glow) — used here for
+   * --primary-glow, also identical across modes.
    */
   Monarch: {
     name: "Monarch",
-    description: "Dusty violet — the default palette",
-    swatch: "#c2b1e0",
+    description: "Violet (Radix Colors) — the default palette",
+    swatch: "#6e56cf",
     vars: {
       dark: {
         "--background":          "0 0% 2%",
         "--foreground":          "0 0% 95%",
         "--card":                "0 0% 6.5%",
         "--card-elevated":       "0 0% 8%",
-        "--primary":             "262 43% 79%", // perfume-400 (c2b1e0)
-        "--primary-foreground":  "0 0% 6%",     // dark text — even a light-toned primary needs dark text at this lightness
-        "--primary-glow":        "259 45% 85%", // perfume-300 — one step lighter, for glow effects
+        "--primary":             "252 56% 57%", // Radix violet-9 (#6e56cf) — identical value in light mode, by design
+        "--primary-foreground":  "0 0% 100%",
+        "--primary-glow":        "252 60% 63%", // Radix violet-10 (#7d66d9)
         "--secondary":           "217 91% 60%",
         "--accent":              "45 93% 47%",
         "--muted":               "0 0% 12%",
         "--muted-foreground":    "0 0% 60%",
         "--border":              "0 0% 15%",
-        "--ring":                "262 43% 79%", // perfume-400
+        "--ring":                "252 56% 57%", // Radix violet-9
       },
       light: {
         "--background":          "270 20% 98%",
         "--foreground":          "270 10% 10%",
         "--card":                "0 0% 100%",
-        // Was 270 15% 96% — DARKER than both --background (98%) and
-        // --card (100%). That inverted the elevation direction mid-
-        // ladder: background→card got lighter (98→100, a "floating
-        // white card" pattern), then card→card-elevated got darker
-        // again (100→96), which reads as the "elevated" surface
-        // sinking below its own base card rather than rising above it.
-        // Per the color video's own rule — dark mode elevation MUST
-        // get lighter as it rises, but light mode is flexible — once
-        // a surface hits pure white there's nowhere lighter to go, so
-        // "elevated" here is expressed by the Material System's shadow
-        // computation (already elevation-driven, see index.css §6-7),
-        // not by a background delta that can't exist past 100%.
+        // Elevation direction bug fixed last pass: was darker than both
+        // --background and --card, inverting the elevation ladder.
+        // Pure white; "elevated" is expressed via shadow, not lightness,
+        // since light mode has nowhere lighter to go past 100%.
         "--card-elevated":       "0 0% 100%",
-        "--primary":             "270 33% 50%", // perfume-700
+        "--primary":             "252 56% 57%", // Radix violet-9 — same value as dark mode, by design (see comment above)
         "--primary-foreground":  "0 0% 100%",
-        "--primary-glow":        "269 40% 58%", // perfume-600 — brighter step for glow effects
+        "--primary-glow":        "252 60% 63%", // Radix violet-10
         "--secondary":           "217 91% 55%",
         "--accent":              "45 93% 42%",
         "--muted":               "270 15% 92%",
         "--muted-foreground":    "270 10% 45%",
-        "--border":              "270 15% 85%",
-        "--ring":                "270 33% 50%", // perfume-700
+        "--border":              "270 15% 58%", // was 85% -— 1.4:1 against white, imperceptible. 58% clears 3:1 (WCAG 1.4.11 non-text minimum).
+        "--ring":                "252 56% 57%", // Radix violet-9
       },
     },
   },
@@ -147,7 +144,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
         "--accent":              "84 55% 42%",
         "--muted":               "120 15% 90%",
         "--muted-foreground":    "150 12% 42%",
-        "--border":              "120 15% 82%",
+        "--border":              "120 15% 55%", // was 82% — same too-faint bug, same fix
         "--ring":                "142 55% 32%",
       },
     },
@@ -188,7 +185,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
         "--accent":              "172 60% 42%",
         "--muted":               "210 25% 90%",
         "--muted-foreground":    "215 18% 42%",
-        "--border":              "210 25% 82%",
+        "--border":              "210 25% 58%", // was 82% — same too-faint bug, same fix
         "--ring":                "199 55% 36%",
       },
     },
@@ -229,7 +226,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
         "--accent":              "45 85% 48%",
         "--muted":               "30 20% 90%",
         "--muted-foreground":    "25 14% 42%",
-        "--border":              "30 20% 82%",
+        "--border":              "30 20% 54%", // was 82% — same too-faint bug, same fix
         "--ring":                "22 55% 38%",
       },
     },
@@ -272,7 +269,7 @@ export const THEMES: Record<ThemeName, ThemeConfig> = {
         "--accent":              "43 65% 34%",
         "--muted":               "0 0% 92%",
         "--muted-foreground":    "0 0% 45%",
-        "--border":              "0 0% 84%",
+        "--border":              "0 0% 58%", // was 84% — same too-faint bug, same fix
         "--ring":                "43 65% 34%",
       },
     },

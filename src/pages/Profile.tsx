@@ -100,7 +100,7 @@ export default function Profile() {
             buttons, unchanged, so the contrast in visual weight is
             deliberate, not incidental. */}
         <section
-          className="rounded-2xl border border-white/10 bg-card p-6 shadow-[var(--shadow-card)]"
+          className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]"
           aria-labelledby="primary-goal-heading"
         >
           <div className="flex items-center gap-2">
