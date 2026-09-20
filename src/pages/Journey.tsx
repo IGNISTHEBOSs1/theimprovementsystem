@@ -202,10 +202,10 @@ export default function Journey() {
                   variant="outline"
                   className={`text-[10px] font-mono uppercase ${
                     pace.paceRatio >= 1.1
-                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                      ? "border-success/30 bg-success/10 text-success"
                       : pace.isOnTrack
                       ? "border-primary/30 bg-primary/10 text-primary"
-                      : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                      : "border-warning/30 bg-warning/10 text-warning"
                   }`}
                 >
                   {pace.paceRatio >= 1.1
@@ -283,8 +283,8 @@ export default function Journey() {
                   variant="outline"
                   className={`text-[10px] font-mono ${
                     pace.isOnTrack
-                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                      : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                      ? "border-success/30 bg-success/10 text-success"
+                      : "border-warning/30 bg-warning/10 text-warning"
                   }`}
                 >
                   {Math.round(pace.paceRatio * 100)}% of required pace
@@ -460,7 +460,7 @@ export default function Journey() {
                     <div className="flex items-center gap-3 min-w-0">
                       {/* Neutral Icons: Checkmark for completed, Neutral Dash for skipped */}
                       {isCompleted ? (
-                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-success/10 text-success border border-success/20">
                           <Check className="size-3.5" aria-hidden="true" />
                         </div>
                       ) : (
@@ -478,7 +478,7 @@ export default function Journey() {
                       <span
                         className={`font-mono text-[11px] px-2 py-0.5 rounded-full ${
                           isCompleted
-                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium"
+                            ? "bg-success/10 text-success border border-success/20 font-medium"
                             : "bg-muted text-muted-foreground border border-border/40"
                         }`}
                       >
