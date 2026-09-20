@@ -263,6 +263,14 @@ export default function Mentor() {
                     </div>
                     <p className="mt-2 text-body-md font-medium leading-relaxed text-foreground">{recovery.text}</p>
                   </div>
+                  <div className="mt-4 pt-3 border-t border-border/40">
+                    <Link
+                      to="/quests"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                    >
+                      Commit to today's focus →
+                    </Link>
+                  </div>
                 </div>
               )}
 
@@ -329,6 +337,14 @@ export default function Mentor() {
                       <p className="text-label text-muted-foreground">Bouncing back</p>
                     </div>
                     <p className="mt-2 text-body-sm sm:text-body-md font-medium leading-relaxed text-foreground">{recovery.text}</p>
+                  </div>
+                  <div className="mt-4 pt-3 border-t border-border/40">
+                    <Link
+                      to="/quests"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                    >
+                      Commit to today's focus →
+                    </Link>
                   </div>
                 </div>
               )}
@@ -402,6 +418,14 @@ export default function Mentor() {
                       <p className="mt-2 text-body-xs sm:text-body-sm text-foreground">{momentum.observation}</p>
                     )}
                   </div>
+                  <div className="mt-4 pt-3 border-t border-border/40">
+                    <Link
+                      to="/journey"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                    >
+                      View trajectory →
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
@@ -434,9 +458,17 @@ export default function Mentor() {
               </div>
               <p className="text-body-sm font-medium text-foreground">{item.observation}</p>
               {item.adjustment && (
-                <div className="rounded-xl border border-primary/20 bg-primary/[0.03] p-2.5 text-body-xs sm:text-body-sm">
-                  <span className="font-semibold text-primary">Try this: </span>
-                  <span className="text-foreground">{item.adjustment}</span>
+                <div className="rounded-xl border border-primary/20 bg-primary/[0.03] p-2.5 text-body-xs sm:text-body-sm flex items-center justify-between gap-2.5">
+                  <div>
+                    <span className="font-semibold text-primary">Try this: </span>
+                    <span className="text-foreground">{item.adjustment}</span>
+                  </div>
+                  <Link
+                    to="/quests"
+                    className="shrink-0 text-xs font-semibold text-primary hover:underline px-1 py-0.5"
+                  >
+                    Act →
+                  </Link>
                 </div>
               )}
             </div>

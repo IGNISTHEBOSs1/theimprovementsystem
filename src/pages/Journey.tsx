@@ -45,7 +45,7 @@ export default function Journey() {
   if (loading) {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
-        <div className="h-72 animate-pulse rounded-3xl bg-muted/60" aria-label="Loading your journey" />
+        <div className="h-72 animate-pulse rounded-2xl bg-muted/60" aria-label="Loading your journey" />
       </div>
     );
   }
@@ -53,7 +53,7 @@ export default function Journey() {
   if (error) {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
-        <section className="rounded-3xl border border-border bg-card p-7 shadow-sm" aria-label="Journey unavailable">
+        <section className="rounded-2xl border border-border bg-card p-7 shadow-sm" aria-label="Journey unavailable">
           <p className="text-label text-muted-foreground">Your journey</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your journey.</h2>
           <p className="mt-2 text-body-md text-muted-foreground">
@@ -181,7 +181,7 @@ export default function Journey() {
         </div>
 
         {/* ── CARD 2 (Half Width): Dynamic ETA ── */}
-        <div className="rounded-3xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+        <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -227,7 +227,7 @@ export default function Journey() {
         </div>
 
         {/* ── CARD 3 (Half Width): Current Pace / Velocity ── */}
-        <div className="rounded-3xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+        <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -264,7 +264,9 @@ export default function Journey() {
             </div>
 
             <p className="mt-2 text-xs text-muted-foreground">
-              Aim for <span className="font-mono font-medium text-foreground">{engine.requiredPace}</span> quests/day to reach your goal on time.
+              {engine.paceRatio >= 1.0
+                ? "At this pace, you are on track to reach your goal early. Keep this momentum."
+                : `Aim for ${engine.requiredPace} quests/day. One completed quest today helps draw your goal date closer.`}
             </p>
           </div>
 
@@ -275,7 +277,7 @@ export default function Journey() {
         </div>
 
         {/* ── CARD 4 (Full Width): Next Immediate Action ── */}
-        <div className="col-span-1 md:col-span-2 rounded-3xl p-5 sm:p-6 liquid-glass border border-primary/20">
+        <div className="col-span-1 md:col-span-2 rounded-2xl p-5 sm:p-6 liquid-glass border border-primary/20">
           {primaryActionQuest ? (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="min-w-0 flex-1">

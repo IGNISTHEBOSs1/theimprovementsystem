@@ -234,7 +234,7 @@ export default function Quests() {
               ) : (
                 <Button
                   size="lg"
-                  className="min-h-11"
+                  className="min-h-11 rounded-full px-6 shadow-[0_4px_16px_hsl(var(--primary)/0.25)] hover:shadow-[0_4px_20px_hsl(var(--primary)/0.35)] active:scale-[0.98] transition-all"
                   disabled={activeQuests.length >= MAX_ACTIVE_QUESTS}
                   onClick={() => setShowCommitForm(true)}
                   title={activeQuests.length >= MAX_ACTIVE_QUESTS ? `You can have up to ${MAX_ACTIVE_QUESTS} active quests at a time` : undefined}
@@ -245,7 +245,7 @@ export default function Quests() {
               )}
               {activeQuests.length >= MAX_ACTIVE_QUESTS && (
                 <p className="mt-2 text-body-sm text-muted-foreground">
-                  You've reached the limit of {MAX_ACTIVE_QUESTS} active {MAX_ACTIVE_QUESTS === 1 ? "quest" : "quests"}. Complete one to add another.
+                  You have {MAX_ACTIVE_QUESTS} active commitment locked. Focus on this single step before opening another.
                 </p>
               )}
             </div>
@@ -257,7 +257,7 @@ export default function Quests() {
                   {upcoming.map((quest) => (
                     <li
                       key={quest.seriesId}
-                      className="flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-card/40 px-4 py-3 text-body-sm"
+                      className="flex flex-wrap items-center gap-2 rounded-xl border border-border/60 border-l-2 border-l-primary/40 bg-card/40 px-4 py-3 text-body-sm"
                     >
                       <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>
                         {quest.priority}

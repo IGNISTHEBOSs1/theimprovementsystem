@@ -70,7 +70,7 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
   const historicTrailPath = `M ${xOrigin} ${yOrigin} C ${trailC1x} ${trailC1y}, ${trailC2x} ${trailC2y}, ${xCurrent} ${yCurrent}`;
 
   return (
-    <div className={cn("relative overflow-hidden rounded-3xl p-5 sm:p-7 liquid-glass", className)}>
+    <div className={cn("relative overflow-hidden rounded-2xl p-5 sm:p-7 liquid-glass", className)}>
       {/* Ambient background illumination */}
       <div
         className="pointer-events-none absolute inset-0 opacity-40"
@@ -80,12 +80,12 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
         aria-hidden="true"
       />
 
-      {/* Navigational Telemetry Bar */}
+      {/* Progress Status Bar */}
       <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] dark:border-white/[0.04] pb-4 text-xs">
         <div className="flex items-center gap-2">
           <Navigation className="size-4 text-primary animate-pulse" aria-hidden="true" />
           <span className="font-mono text-[11px] font-semibold tracking-wider uppercase text-foreground">
-            Flight Corridor
+            Goal Trajectory
           </span>
           {goalLabel && (
             <span className="hidden sm:inline-block rounded-full bg-primary/10 px-2.5 py-0.5 font-medium text-primary text-[11px]">
@@ -94,7 +94,7 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
           )}
         </div>
 
-        {/* Dynamic Navigational Status Badge */}
+        {/* Dynamic Status Badge */}
         <div className="flex items-center gap-2">
           <div
             className={cn(
@@ -118,18 +118,18 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
                 )}
               />
             </span>
-            <span>{isOnTrack ? "Course Confirmed • On Track" : "Course Drift • Recalibrating"}</span>
+            <span>{isOnTrack ? "On Track • Steady Progress" : "Needs Focus • Pacing Recalibrated"}</span>
           </div>
         </div>
       </div>
 
-      {/* Vector Visualization Canvas */}
+      {/* Trajectory Canvas */}
       <div className="relative mt-4 w-full">
         <svg
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           className="w-full h-auto overflow-visible select-none"
           role="img"
-          aria-label="Predictive Trajectory Curve and Cone of Possibility navigational visualizer"
+          aria-label="Progress trajectory visualizer"
         >
           <defs>
             {/* Cone Frosted Glass Gradient */}
@@ -208,10 +208,10 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
             fontFamily="monospace"
             opacity={0.7}
           >
-            ±{variancePct}% corridor
+            ±{variancePct}% range
           </text>
 
-          {/* 2. HISTORIC FLIGHT TRAIL (Departure -> Current) */}
+          {/* 2. RECENT PROGRESS TRAIL */}
           <path
             d={historicTrailPath}
             fill="none"
@@ -221,7 +221,7 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
             strokeDasharray="4 3"
           />
 
-          {/* 3. THE PREDICTIVE BEZIER CURVE (Glowing glide slope) */}
+          {/* 3. PROJECTED PATH */}
           <path
             d={predictiveCurvePath}
             fill="none"
@@ -231,7 +231,7 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
             filter={`url(#${glowFilterId})`}
           />
 
-          {/* Origin Departure Waypoint */}
+          {/* Origin Start Point */}
           <g transform={`translate(${xOrigin}, ${yOrigin})`}>
             <circle r={3} fill="hsl(var(--muted-foreground))" opacity={0.5} />
             <text
@@ -242,11 +242,11 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
               fontFamily="monospace"
               opacity={0.6}
             >
-              Departure
+              Start
             </text>
           </g>
 
-          {/* Current Navigation Node (Pulsing Aircraft Beacon) */}
+          {/* Current Progress Node */}
           <g transform={`translate(${xCurrent}, ${yCurrent})`}>
             {/* Outer radar pulse circle */}
             <circle
@@ -265,7 +265,7 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
               fontWeight="600"
               fontFamily="sans-serif"
             >
-              Current Position
+              Where you are
             </text>
             <text
               y={20}
@@ -296,7 +296,7 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
               fontWeight="600"
               fontFamily="sans-serif"
             >
-              Target Arrival
+              Goal Target
             </text>
             <text
               x={-8}
@@ -306,26 +306,26 @@ export function TrajectoryVisualizer({ engine, goalLabel, className }: Trajector
               fontSize="9"
               fontFamily="monospace"
             >
-              Milestone Horizon
+              Target Milestone
             </text>
           </g>
         </svg>
       </div>
 
-      {/* Corridor Legend & Explanation */}
+      {/* Legend & Status */}
       <div className="mt-2 flex flex-wrap items-center justify-between gap-3 text-[11px] text-muted-foreground border-t border-white/[0.06] dark:border-white/[0.04] pt-3">
         <div className="flex flex-wrap items-center gap-4">
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-1 w-3.5 rounded-full bg-primary" />
-            <span>Predictive Glide Curve</span>
+            <span>Projected path</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-2 w-3 rounded-sm bg-primary/20 border border-primary/40" />
-            <span>Cone of Possibility (±10% Tolerance)</span>
+            <span>Acceptable range (±10%)</span>
           </span>
         </div>
         <span className="font-mono text-[10px] text-foreground/80">
-          Status: {isOnTrack ? "Within Nominal Corridor" : "Recalibration Active"}
+          Status: {isOnTrack ? "On track" : "Pace adjusted"}
         </span>
       </div>
     </div>
