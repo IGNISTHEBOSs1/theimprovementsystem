@@ -2,6 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import SystemBar from "@/components/system-bar/SystemBar";
 import { DashboardDataProvider } from "@/providers/DashboardDataProvider";
 import { ViewportNavDiagnostic } from "@/components/diagnostics/ViewportNavDiagnostic";
+import { CommandPalette } from "@/components/shared/CommandPalette";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -21,9 +22,10 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
     <div className="min-h-screen bg-background text-foreground flex">
       <div className="env-light-layer" aria-hidden="true" />
       <ViewportNavDiagnostic />
+      <CommandPalette />
 
       <SystemBar
-        username={profile?.username ?? "Hunter"}
+        username={profile?.username ?? "Member"}
       />
 
       {/* ── Content area ─────────────────────────────────────────────── */}

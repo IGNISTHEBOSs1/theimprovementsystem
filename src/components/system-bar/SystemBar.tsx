@@ -6,6 +6,7 @@ import {
   CheckSquare,
   MessageSquare,
   User,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SystemLogo } from "@/components/branding/Logo";
@@ -151,15 +152,25 @@ export default function SystemBar({ username }: SystemBarProps) {
           })}
         </nav>
 
-        {/* Founder Decision (Bottom-nav polish chunk): the "Voice /
-            system message" footer block that was here — an italic
-            aphorism signed "— The System" — was removed, not carried
-            forward. RPG-era System framing has been an explicit, standing
-            prohibition across this project ("RPG mechanics are
-            permanently removed... do not introduce RPG styling"), not a
-            style preference open to reinterpretation. If this footer
-            area is wanted back, it needs its own, non-System-voiced
-            content — a Founder call, not something to silently restore. */}
+        {/* Command Palette trigger */}
+        <div className="mt-auto px-4 pb-6">
+          <button
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
+            }}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border/70 bg-card/60 hover:bg-accent hover:text-accent-foreground text-xs text-muted-foreground transition-colors group cursor-pointer"
+            title="Open Command Palette (⌘K / Ctrl+K)"
+          >
+            <span className="flex items-center gap-2">
+              <Search className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
+              <span>Commands...</span>
+            </span>
+            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </button>
+        </div>
       </aside>
 
       {/* ─────────────────────────────────────────────────────────

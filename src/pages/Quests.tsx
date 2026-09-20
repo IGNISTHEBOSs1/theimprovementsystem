@@ -6,6 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { TodaysCommitment } from "@/components/quests/TodaysCommitment";
 import { QuestCard } from "@/components/quests/QuestCard";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { nextEligibleDayLabel, MAX_ACTIVE_QUESTS, type CadencePreset } from "@/hooks/useDashboardData";
@@ -26,6 +36,7 @@ export default function Quests() {
   const [completeError, setCompleteError] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState(false);
+  const [cancelTargetId, setCancelTargetId] = useState<string | null>(null);
   // Founder Decision (Quest defaults chunk): commitment is centered on an
   // explicit "+ New Commitment" entry point rather than an
   // always-visible form. Tapping it, typing, and tapping Commit is the
@@ -121,17 +132,17 @@ export default function Quests() {
     if (completeErr) setCompleteError(true);
   };
 
-  // Founder Decision (Cancel/abandon chunk): a native confirm() rather
-  // than a custom dialog component — this app has no existing modal
-  // primitive, and building one is UI surface this chunk doesn't
-  // authorize. Cancellation is also irreversible (the Quest record is
-  // removed, not marked), so a confirmation step matters even in its
-  // simplest form.
-  const handleCancel = async (questId: string) => {
-    if (!window.confirm("Cancel this commitment? This can't be undone.")) return;
+  const handleCancel = (questId: string) => {
+    setCancelTargetId(questId);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!cancelTargetId) return;
+    const id = cancelTargetId;
+    setCancelTargetId(null);
     setCancelError(false);
     setCancelling(true);
-    const { error: cancelErr } = await cancelQuest(questId);
+    const { error: cancelErr } = await cancelQuest(id);
     setCancelling(false);
     if (cancelErr) setCancelError(true);
   };
@@ -226,7 +237,7 @@ export default function Quests() {
                   className="min-h-11"
                   disabled={activeQuests.length >= MAX_ACTIVE_QUESTS}
                   onClick={() => setShowCommitForm(true)}
-                  title={activeQuests.length >= MAX_ACTIVE_QUESTS ? `You can have up to ${MAX_ACTIVE_QUESTS} active quest${MAX_ACTIVE_QUESTS === 1 ? "" : "s"} at a time` : undefined}
+                  title={activeQuests.length >= MAX_ACTIVE_QUESTS ? `You can have up to ${MAX_ACTIVE_QUESTS} active quests at a time` : undefined}
                 >
                   <Plus className="size-4" aria-hidden="true" />
                   Make a commitment
@@ -234,7 +245,7 @@ export default function Quests() {
               )}
               {activeQuests.length >= MAX_ACTIVE_QUESTS && (
                 <p className="mt-2 text-body-sm text-muted-foreground">
-                  You've reached the limit of {MAX_ACTIVE_QUESTS} active quest{MAX_ACTIVE_QUESTS === 1 ? "" : "s"}. Complete it to add another.
+                  You've reached the limit of {MAX_ACTIVE_QUESTS} active {MAX_ACTIVE_QUESTS === 1 ? "quest" : "quests"}. Complete one to add another.
                 </p>
               )}
             </div>
@@ -248,15 +259,6 @@ export default function Quests() {
                       key={quest.seriesId}
                       className="flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-card/40 px-4 py-3 text-body-sm"
                     >
-                      {/* Was three badges per row: Priority, a
-                          "Recurring" badge, and Goal. The "Recurring"
-                          one is pure noise here — this entire list is
-                          titled "Upcoming" and only ever contains
-                          recurring occurrences, so every single row had
-                          an identical badge that told you nothing you
-                          didn't already know from the section heading.
-                          Dropped it; Priority and Goal both still vary
-                          per row and carry real information. */}
                       <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>
                         {quest.priority}
                       </Badge>
@@ -269,15 +271,6 @@ export default function Quests() {
                       <span className="text-muted-foreground">
                         {(() => {
                           const day = nextEligibleDayLabel(quest.recurrenceDays ?? [], serverLocal.weekday);
-                          // Founder Decision (Copy clarity chunk): "resumes
-                          // tomorrow"/"resumes Wednesday" replaced with a
-                          // plain date reference — "Tomorrow" / "Next:
-                          // Wednesday" — matching how a person actually
-                          // reads a calendar, not system-log phrasing.
-                          // nextEligibleDayLabel's own return values are
-                          // unchanged (still "tomorrow" / a weekday name /
-                          // "soon") — only how this one call site displays
-                          // them changed.
                           if (day === "tomorrow") return "Tomorrow";
                           if (day === "soon") return "Soon";
                           return `Next: ${day}`;
@@ -291,6 +284,26 @@ export default function Quests() {
           </>
         )}
       </div>
+
+      <AlertDialog open={Boolean(cancelTargetId)} onOpenChange={(open) => { if (!open) setCancelTargetId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel commitment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to withdraw this commitment? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep commitment</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => void handleConfirmCancel()}
+            >
+              Cancel commitment
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -5,13 +5,9 @@ import { Json } from "@/integrations/supabase/types";
 import { getServerLocalDate, toServerLocalDate } from "@/lib/serverTime";
 import { comparePriorityThenCreatedAt } from "@/lib/priority";
 
-// Founder Decision (Quest lifecycle reconciliation chunk): reverses the
-// multi-active Quest chunk. The account may hold at most one active
-// Quest at any time (0 or 1) — not a per-priority-tier count, not a
-// setting. This constant is now the single active-Quest slot count, kept
-// as a named constant (rather than inlining 1) only so every capacity
-// check below reads from one place, exactly as when it was 5.
-export const MAX_ACTIVE_QUESTS = 1;
+// Focus & Cadence Model (2026): allows up to 3 active quests at a time
+// (e.g. 1 primary deep focus commitment + up to 2 daily recurring routines).
+export const MAX_ACTIVE_QUESTS = 3;
 
 // Founder Decision (RPG removal / Trajectory finalization chunk):
 // DashboardState no longer carries level, currentXp, maxXp, credits,
@@ -412,6 +408,39 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     return { error: dbError };
   }, [load, state, userId]);
 
+  const updateQuest = useCallback(async (
+    questId: string,
+    updates: { title?: string; priority?: Quest["priority"]; linkedToGoal?: boolean; goalName?: string }
+  ) => {
+    if (!userId || writeLockRef.current) return { error: null };
+    const quest = state.quests.find((item) => item.id === questId);
+    if (!quest || quest.completed || quest.failed) return { error: null };
+
+    const nextQuests = state.quests.map((item) => {
+      if (item.id !== questId) return item;
+      return {
+        ...item,
+        ...(updates.title !== undefined ? { title: updates.title.trim() } : {}),
+        ...(updates.priority !== undefined ? { priority: updates.priority } : {}),
+        ...(updates.linkedToGoal !== undefined ? { linkedToGoal: updates.linkedToGoal } : {}),
+        ...(updates.goalName !== undefined ? { goalName: updates.goalName } : {}),
+      };
+    });
+
+    writeLockRef.current = true;
+    setSaving(true);
+    setState((prev) => ({ ...prev, quests: nextQuests }));
+    const { error: dbError } = await supabase
+      .from("game_state")
+      .update({ quests: nextQuests as unknown as Json })
+      .eq("user_id", userId);
+
+    if (dbError) await load();
+    writeLockRef.current = false;
+    setSaving(false);
+    return { error: dbError };
+  }, [load, state, userId]);
+
   // Founder Decision (Quest domain model cleanup chunk): xpReward and
   // creditReward — RPG-era fields with no live consumer, fixed unseen
   // defaults previously set here (25/10) only because the Quest type
@@ -497,6 +526,6 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
 
   return {
-    state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, cancelQuest, commitToTodaysQuest, reload: load, todayStr,
+    state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, cancelQuest, updateQuest, commitToTodaysQuest, reload: load, todayStr,
   };
 }

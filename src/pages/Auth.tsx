@@ -75,13 +75,13 @@ const Auth = () => {
       if (error) {
         playError();
         toast({ title: 'Sign up failed', description: error.message.includes('already registered') ? 'This email is already registered.' : error.message, variant: 'destructive' });
-      } else { playQuestComplete(); toast({ title: 'Welcome, Hunter!', description: 'Your account has been created' }); }
+      } else { playQuestComplete(); toast({ title: 'Welcome!', description: 'Your account has been created.' }); }
     } else {
       const { error } = await signIn(email, password);
       if (error) {
         playError();
         toast({ title: 'Sign in failed', description: error.message.includes('Invalid login') ? 'Invalid email or password.' : error.message, variant: 'destructive' });
-      } else { playQuestComplete(); toast({ title: 'Welcome back, Hunter!' }); }
+      } else { playQuestComplete(); toast({ title: 'Welcome back!' }); }
     }
     // Navigation to '/' is handled by the effect above once `user` is set
     // AND `authLoading` resolves to false — which now only happens after
@@ -120,19 +120,19 @@ const Auth = () => {
           Back to home
         </button>
 
-        <div className="glass-strong rounded-2xl border border-white/12 overflow-hidden shadow-[0_0_60px_hsl(var(--primary)/0.1)]">
+        <div className="material-surface rounded-2xl border border-border overflow-hidden shadow-card">
           {/* Header */}
-          <div className="p-6 pb-5 text-center bg-gradient-to-br from-primary/8 to-transparent border-b border-white/5">
+          <div className="p-6 pb-5 text-center bg-card/60 border-b border-border/60">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: 'spring', stiffness: 300 }}
-              className="flex-center mb-4"
+              className="flex-center mb-3"
             >
-              <SystemLogo size={48} />
+              <SystemLogo size={44} />
             </motion.div>
-            <h1 className="font-display font-black text-2xl text-foreground tracking-widest">THE SYSTEM</h1>
-            <p className="text-caption text-muted-foreground font-jp mt-1 tracking-widest">システム</p>
+            <h1 className="font-display font-bold text-xl text-foreground tracking-tight">The Improvement System</h1>
+            <p className="text-xs text-muted-foreground mt-0.5 font-mono tracking-wider">PERSONAL TRAJECTORY ENGINE</p>
           </div>
 
           {/* Mode tabs — pill toggle */}
@@ -177,13 +177,13 @@ const Auth = () => {
                   exit={{ opacity: 0, height: 0 }}
                   className="space-y-2"
                 >
-                  <Label htmlFor="username" className="text-label text-muted-foreground">Hunter Name</Label>
+                  <Label htmlFor="username" className="text-label text-muted-foreground">Your Name</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       id="username" type="text" value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Enter your hunter name"
+                      placeholder="Enter your name"
                       className="pl-10 bg-muted/50 border-white/10 focus:border-primary/50 focus-visible:ring-primary/30"
                       maxLength={20}
                     />
@@ -199,7 +199,7 @@ const Auth = () => {
                 <Input
                   id="email" type="email" value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="hunter@example.com"
+                  placeholder="you@example.com"
                   className="pl-10 bg-muted/50 border-white/10 focus:border-primary/50 focus-visible:ring-primary/30"
                 />
               </div>
@@ -244,7 +244,7 @@ const Auth = () => {
               size="lg"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {!loading && (mode === 'signin' ? 'Enter The System' : mode === 'reset' ? 'Send Reset Link' : 'Awaken Your Power')}
+              {!loading && (mode === 'signin' ? 'Sign In' : mode === 'reset' ? 'Send Reset Link' : 'Create Account')}
             </Button>
 
             {mode === 'reset' && (
@@ -305,8 +305,8 @@ const Auth = () => {
           </form>
         </div>
 
-        <p className="text-center text-label text-muted-foreground/50 mt-6 font-jp">
-          システムに選ばれし者よ、覚醒せよ
+        <p className="text-center text-label text-muted-foreground/60 mt-6">
+          A quiet operating system for deliberate growth.
         </p>
       </motion.div>
     </div>

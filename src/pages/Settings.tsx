@@ -1,9 +1,19 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sun, Moon, Monitor } from "lucide-react";
+import { Sun, Moon, Monitor, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { useThemeContext, type ThemeMode } from "@/providers/ThemeProvider";
@@ -63,8 +73,11 @@ export default function Settings() {
   const [resetting, setResetting] = useState(false);
   const [resetError, setResetError] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     setTimezone(profile?.timezone ?? "");
@@ -81,9 +94,6 @@ export default function Settings() {
       return;
     }
     const known = getKnownTimezones();
-    // Only validate against the known list when the browser actually
-    // provides one — refusing every entry because the check itself is
-    // unavailable would be worse than not validating at all.
     if (known && !known.includes(trimmed)) {
       setTzError(`"${trimmed}" isn't a recognized timezone (e.g. "Asia/Kolkata", "America/New_York").`);
       return;
@@ -104,13 +114,10 @@ export default function Settings() {
   const handleSignOut = async () => {
     setSigningOut(true);
     await signOut();
-    // AuthProvider's own auth-state listener will clear user/profile and
-    // ProtectedRoute will redirect — no navigate() needed for the normal
-    // path, but signingOut prevents a double-click in the meantime.
   };
 
-  const handleReset = async () => {
-    if (!window.confirm("Reset all Quest progress? Your goal and account stay — every Quest, active and historical, is cleared. This can't be undone.")) return;
+  const executeReset = async () => {
+    setResetDialogOpen(false);
     setResetError(false);
     setResetSuccess(false);
     setResetting(true);
@@ -125,8 +132,8 @@ export default function Settings() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm("Delete your account? Your goal and all Quest history are permanently removed. This can't be undone.")) return;
+  const executeDelete = async () => {
+    setDeleteDialogOpen(false);
     setDeleteError(false);
     setDeleting(true);
     try {
@@ -242,7 +249,7 @@ export default function Settings() {
               <Button
                 variant="outline"
                 className="mt-3 min-h-11 border-destructive/40 text-destructive hover:bg-destructive/10"
-                onClick={() => void handleReset()}
+                onClick={() => setResetDialogOpen(true)}
                 disabled={resetting}
               >
                 {resetting ? "Resetting…" : "Reset progress"}
@@ -267,7 +274,7 @@ export default function Settings() {
               <Button
                 variant="outline"
                 className="mt-3 min-h-11 border-destructive/40 text-destructive hover:bg-destructive/10"
-                onClick={() => void handleDelete()}
+                onClick={() => setDeleteDialogOpen(true)}
                 disabled={deleting}
               >
                 {deleting ? "Deleting…" : "Delete account"}
@@ -281,6 +288,54 @@ export default function Settings() {
           </div>
         </section>
       </div>
+
+      {/* Reset Progress Alert Dialog */}
+      <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="size-5" aria-hidden="true" />
+              <AlertDialogTitle>Reset all Quest progress?</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription>
+              Your primary goal and login account remain intact. Every active and historical Quest record will be permanently cleared. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 gap-2">
+            <AlertDialogCancel className="min-h-11">Keep my progress</AlertDialogCancel>
+            <AlertDialogAction
+              className="min-h-11 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => void executeReset()}
+            >
+              Reset everything
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Account Alert Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="size-5" aria-hidden="true" />
+              <AlertDialogTitle>Permanently delete account?</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription>
+              This will permanently remove your goal, profile, and all Quest history. You will be signed out immediately. This cannot be reversed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 gap-2">
+            <AlertDialogCancel className="min-h-11">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="min-h-11 bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => void executeDelete()}
+            >
+              Delete account
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
