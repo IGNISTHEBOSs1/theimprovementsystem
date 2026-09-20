@@ -118,7 +118,7 @@ export default function Landing() {
               <motion.span
                 key={`2-${i}`}
                 variants={wordVariants}
-                className={`inline-block mr-[0.25em] ${i === 0 ? 'text-gradient-primary' : ''}`}
+                className={`inline-block mr-[0.25em] ${i === 0 ? 'text-primary' : ''}`}
               >
                 {word}
               </motion.span>

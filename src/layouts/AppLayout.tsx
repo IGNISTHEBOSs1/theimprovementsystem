@@ -31,13 +31,11 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
       {/* ── Content area ─────────────────────────────────────────────── */}
       {/* Founder Decision (Bottom-nav polish chunk): reserved bottom
           space recalculated after the nav bar's own height changed from
-          60px to 56px — this is exactly the class of bug that caused
-          "shadow above the nav bar": the two files' floating-pill math
-          drifted out of sync when only one side was edited. Pill height
-          (56px) + floating clearance above the safe area (12px, see
-          SystemBar.tsx) + 8px breathing room so content doesn't sit
-          flush against the pill = 76px, plus the safe-area inset itself. */}
-      <main className="flex-1 min-w-0 overflow-y-auto pb-[calc(92px+env(safe-area-inset-bottom))] md:pb-0 material-surface material-workspace">
+          60px to 56px. Pill height (56px) + floating clearance above
+          the safe area (12px, see SystemBar.tsx) + 40px breathing room
+          so trailing content and action buttons never collide with the
+          floating pill or its ambient shadow = 108px + safe-area inset. */}
+      <main className="flex-1 min-w-0 overflow-y-auto pb-[calc(108px+env(safe-area-inset-bottom,0px))] md:pb-0 material-surface material-workspace">
         {children}
       </main>
 

@@ -208,9 +208,9 @@ export default function Mentor() {
 
               {/* Practical Adjustment Suggestion */}
               {recurring.adjustment && (
-                <div className="mt-3.5 border-l-2 border-primary/60 pl-3 py-0.5 text-body-sm text-foreground">
-                  <span className="font-medium text-primary">Suggested adjustment: </span>
-                  <span className="text-muted-foreground">{recurring.adjustment}</span>
+                <div className="mt-3.5 rounded-xl border border-primary/25 bg-primary/[0.04] p-3 text-body-sm">
+                  <span className="font-semibold text-primary">Suggested adjustment: </span>
+                  <span className="text-foreground">{recurring.adjustment}</span>
                 </div>
               )}
 
@@ -346,9 +346,9 @@ export default function Mentor() {
                   </p>
                 )}
                 {item.adjustment && (
-                  <div className="border-l-2 border-primary/60 pl-3 py-0.5 text-body-sm">
-                    <span className="font-medium text-primary">Possible adjustment: </span>
-                    <span className="text-muted-foreground">{item.adjustment}</span>
+                  <div className="rounded-xl border border-primary/25 bg-primary/[0.04] p-3 text-body-sm">
+                    <span className="font-semibold text-primary">Possible adjustment: </span>
+                    <span className="text-foreground">{item.adjustment}</span>
                   </div>
                 )}
               </li>

@@ -51,10 +51,10 @@ function CompletionRing({ completed, total }: { completed: number; total: number
 
 export function DirectionCard({ name, goalStats, streak }: DirectionCardProps) {
   return (
-    <section className="border-l-2 border-primary/25 pl-4" aria-labelledby="direction-heading">
+    <section className="rounded-2xl border border-border/80 bg-card/60 p-5 shadow-sm" aria-labelledby="direction-heading">
       <div className="flex items-start gap-3">
         <Compass className="mt-0.5 size-4 shrink-0 text-primary/80" aria-hidden="true" />
-        <div>
+        <div className="min-w-0 flex-1">
           <p className="text-label text-muted-foreground">Your direction</p>
           <h2 id="direction-heading" className="mt-1 text-lg font-semibold tracking-tight text-foreground">
             Build a life you can direct with confidence.
@@ -64,12 +64,12 @@ export function DirectionCard({ name, goalStats, streak }: DirectionCardProps) {
           </p>
 
           {goalStats && goalStats.linked > 0 && (
-            <div className="mt-3 flex items-center gap-4">
+            <div className="mt-3.5 flex items-center gap-4 rounded-xl bg-muted/40 p-3">
               <CompletionRing completed={goalStats.completed} total={goalStats.linked} />
               <div>
-                <p className="text-body-sm text-foreground">Quests completed</p>
+                <p className="text-body-sm font-medium text-foreground">Quests completed</p>
                 {Boolean(streak) && streak! > 0 && (
-                  <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
+                  <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-background/80 border border-border/60 px-2 py-0.5 text-xs font-medium text-foreground">
                     <Flame className="size-3.5 text-primary" aria-hidden="true" />
                     {streak} day streak
                   </span>
@@ -78,7 +78,7 @@ export function DirectionCard({ name, goalStats, streak }: DirectionCardProps) {
             </div>
           )}
           {goalStats && goalStats.linked === 0 && (
-            <p className="mt-1.5 text-body-sm text-muted-foreground">No Quests linked to this goal yet.</p>
+            <p className="mt-2 text-body-sm text-muted-foreground">No Quests linked to this goal yet.</p>
           )}
         </div>
       </div>
