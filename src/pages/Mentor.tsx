@@ -1,8 +1,14 @@
 import { useState } from "react";
-import { MessageSquare, Sprout, Compass, RotateCcw, ChevronDown } from "lucide-react";
+import { MessageSquare, Sprout, Compass, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
 import { AutoRebalanceModal } from "@/components/mentor/AutoRebalanceModal";
@@ -71,13 +77,13 @@ export default function Mentor() {
           <p className="text-label text-muted-foreground">Your mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
           <p className="mt-2 text-body-md text-muted-foreground">This is usually temporary. You can try again now.</p>
-          <button
-            type="button"
+          <Button
+            size="lg"
             onClick={() => void reload()}
-            className="mt-4 min-h-11 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground"
+            className="mt-4 min-h-11"
           >
             Try again
-          </button>
+          </Button>
         </section>
       </div>
     );
@@ -159,7 +165,7 @@ export default function Mentor() {
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm"
+              className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-label font-semibold text-primary">
@@ -174,7 +180,7 @@ export default function Mentor() {
                 {recurring.observation}
               </h2>
 
-              {/* Supporting Evidence — Distribution Telemetry Bar */}
+              {/* Supporting Evidence — Integrated Miss Telemetry (No heavy nested gray container) */}
               {recurring.ratio ? (
                 (() => {
                   const recurringMissed = recurring.ratio.value;
@@ -184,7 +190,7 @@ export default function Mentor() {
                   const oneOffPct = 100 - recurringPct;
 
                   return (
-                    <div className="mt-3.5 rounded-xl bg-muted/40 p-3.5 space-y-2.5">
+                    <div className="mt-4 pt-3.5 border-t border-border/50 space-y-2.5">
                       <div className="flex items-center justify-between text-body-xs">
                         <span className="font-medium text-foreground">Miss Concentration</span>
                         <span className="font-mono text-muted-foreground">{totalMissed} recent misses recorded</span>
@@ -192,7 +198,7 @@ export default function Mentor() {
 
                       {/* 2-Tone Segmented Ratio Bar */}
                       <div
-                        className="h-2.5 w-full overflow-hidden rounded-full bg-muted flex"
+                        className="h-2 w-full overflow-hidden rounded-full bg-muted flex"
                         role="progressbar"
                         aria-valuenow={recurringPct}
                         aria-valuemin={0}
@@ -216,49 +222,49 @@ export default function Mentor() {
                         <div className="flex items-center gap-1.5">
                           <span className="size-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
                           <span className="font-medium text-foreground">Recurring series</span>
-                          <span className="font-mono text-muted-foreground">({recurringMissed} misses • {recurringPct}%)</span>
+                          <span className="font-mono text-muted-foreground">({recurringMissed} • {recurringPct}%)</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="size-2 rounded-full bg-muted-foreground/40 shrink-0" aria-hidden="true" />
                           <span className="text-muted-foreground">One-off</span>
-                          <span className="font-mono text-muted-foreground">({oneOffMissed} misses • {oneOffPct}%)</span>
+                          <span className="font-mono text-muted-foreground">({oneOffMissed} • {oneOffPct}%)</span>
                         </div>
                       </div>
                     </div>
                   );
                 })()
               ) : (
-                <div className="mt-3.5 rounded-xl bg-muted/40 p-3 text-body-sm text-muted-foreground">
+                <div className="mt-3.5 text-body-sm text-muted-foreground">
                   {recurring.evidence}
                 </div>
               )}
 
               {/* Practical Adjustment Suggestion */}
               {recurring.adjustment && (
-                <div className="mt-3.5 rounded-xl border border-primary/25 bg-primary/[0.04] p-3 text-body-sm">
+                <div className="mt-3.5 rounded-xl border border-primary/20 bg-primary/[0.03] p-3 text-body-sm">
                   <span className="font-semibold text-primary">Suggested adjustment: </span>
                   <span className="text-foreground">{recurring.adjustment}</span>
                 </div>
               )}
 
-              {/* Clear Action Hierarchy */}
-              <div className="mt-5 flex flex-wrap items-center gap-3">
+              {/* Clear Action Hierarchy - Mobile thumb-friendly buttons */}
+              <div className="mt-4 sm:mt-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
                 {rebalanceProposal ? (
                   <>
                     <Button
                       size="sm"
-                      className="min-h-10"
+                      className="w-full sm:w-auto min-h-11"
                       onClick={() => setRebalanceOpen(true)}
                     >
                       <RotateCcw className="mr-1.5 size-3.5" aria-hidden="true" />
                       Review Day-Shift Proposal
                     </Button>
-                    <Button asChild size="sm" variant="outline" className="min-h-10">
+                    <Button asChild size="sm" variant="outline" className="w-full sm:w-auto min-h-11">
                       <Link to="/quests">Manage Quests</Link>
                     </Button>
                   </>
                 ) : (
-                  <Button asChild size="sm" className="min-h-10">
+                  <Button asChild size="sm" className="w-full sm:w-auto min-h-11">
                     <Link to="/quests">Review Recurring Quests</Link>
                   </Button>
                 )}
@@ -266,210 +272,231 @@ export default function Mentor() {
             </section>
           )}
 
-          {/* ── Secondary Insights Grid ── */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            {leadWithRecovery && recovery && (
-              <div className="rounded-2xl border border-border bg-card p-5 sm:col-span-2 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <Sprout className="size-4 text-primary" aria-hidden="true" />
-                  <p className="text-label text-muted-foreground">Recovery</p>
-                </div>
-                <p className="mt-2 text-body-md font-medium leading-relaxed text-foreground">{recovery.text}</p>
-                <p className="mt-2 text-body-xs text-muted-foreground">
-                  Grounded in how you resolve subsequent commitments after an uncompleted Quest.
-                </p>
-              </div>
-            )}
+          {/* ── Secondary Metrics: Horizontal Snap Deck on Mobile, 2-Col Grid on Desktop ── */}
+          <div>
+            <div className="flex items-center justify-between mb-2 sm:hidden px-0.5">
+              <span className="text-caption font-semibold text-muted-foreground uppercase tracking-wider">
+                Key Signals
+              </span>
+              <span className="text-[11px] text-muted-foreground/80 font-mono">
+                Swipe to view →
+              </span>
+            </div>
 
-            {/* Trajectory Card with In-Place Grounded Context & Recent Step Horizon */}
-            {hasTrajectory && (
-              <div className="rounded-2xl border border-border/80 bg-card/80 p-5 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between">
+            <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 -mx-4 px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible">
+              {leadWithRecovery && recovery && (
+                <div className="w-[82vw] max-w-[320px] shrink-0 snap-center sm:w-auto sm:col-span-2 rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+                  <div>
                     <div className="flex items-center gap-2">
-                      <Compass className="size-4 text-primary" aria-hidden="true" />
-                      <p className="text-label text-muted-foreground">Trajectory Position</p>
+                      <Sprout className="size-4 text-primary" aria-hidden="true" />
+                      <p className="text-label text-muted-foreground">Recovery</p>
                     </div>
-                    <span className="text-body-xs font-mono text-muted-foreground">
-                      {trajectory.actual.length} resolved
-                    </span>
+                    <p className="mt-2 text-body-md font-medium leading-relaxed text-foreground">{recovery.text}</p>
                   </div>
-
-                  <div className="mt-2 flex items-baseline gap-2">
-                    <p className="text-3xl font-bold tracking-tight text-foreground">
-                      {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
-                    </p>
-                    <span className="text-body-xs text-muted-foreground font-medium">net points</span>
-                  </div>
-
-                  {/* Recent Step Events Horizon */}
-                  <div className="mt-3.5 space-y-1.5">
-                    <p className="text-body-xs text-muted-foreground">Recent resolution steps:</p>
-                    <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" aria-label="Recent resolution steps">
-                      {trajectory.actual.slice(-6).map((pt, idx) => (
-                        <span
-                          key={pt.quest.id || idx}
-                          className={cn(
-                            "inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-mono font-semibold transition-transform active:scale-95",
-                            pt.outcome === "completed"
-                              ? "bg-primary/10 text-primary border border-primary/25"
-                              : "bg-muted text-muted-foreground border border-border/60"
-                          )}
-                          title={`${pt.quest.title}: ${pt.outcome} (${pt.outcome === "completed" ? "+1" : "-1"})`}
-                        >
-                          {pt.outcome === "completed" ? "+1" : "-1"}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  <p className="mt-3 text-[11px] text-muted-foreground">
+                    Grounded in how you resolve subsequent commitments after an uncompleted Quest.
+                  </p>
                 </div>
+              )}
 
-                <div className="mt-4 pt-3 border-t border-border/40">
-                  <Link
-                    to="/journey"
-                    className="inline-flex items-center gap-1 text-body-sm font-medium text-primary hover:underline"
-                  >
-                    View full trajectory on Journey →
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {recovery && !leadWithRecovery && (
-              <div className="rounded-2xl border border-border/80 bg-card/80 p-5 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Sprout className="size-4 text-primary" aria-hidden="true" />
-                    <p className="text-label text-muted-foreground">Recovery</p>
-                  </div>
-                  <p className="mt-2 text-body-md font-medium leading-relaxed text-foreground">{recovery.text}</p>
-                </div>
-                <p className="mt-3 text-body-xs text-muted-foreground">
-                  Measured from chronological follow-up after misses.
-                </p>
-              </div>
-            )}
-
-            {momentum && (
-              <div className="rounded-2xl border border-border/80 bg-card/80 p-5 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <RotateCcw className="size-4 text-primary" aria-hidden="true" />
-                      <p className="text-label text-muted-foreground">Momentum</p>
-                    </div>
-                    {momentum.comparison && (
-                      <span className={cn(
-                        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium",
-                        momentum.comparison.delta >= 0
-                          ? "bg-primary/10 text-primary border border-primary/20"
-                          : "bg-destructive/10 text-destructive border border-destructive/20"
-                      )}>
-                        {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}%
+              {/* Trajectory Card with In-Place Grounded Context & Recent Step Horizon */}
+              {hasTrajectory && (
+                <div className="w-[82vw] max-w-[320px] shrink-0 snap-center sm:w-auto rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Compass className="size-4 text-primary" aria-hidden="true" />
+                        <p className="text-label text-muted-foreground">Trajectory Position</p>
+                      </div>
+                      <span className="text-body-xs font-mono text-muted-foreground">
+                        {trajectory.actual.length} resolved
                       </span>
+                    </div>
+
+                    <div className="mt-2 flex items-baseline gap-2">
+                      <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                        {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
+                      </p>
+                      <span className="text-body-xs text-muted-foreground font-medium">net points</span>
+                    </div>
+
+                    {/* Recent Step Events Horizon */}
+                    <div className="mt-3 space-y-1.5">
+                      <p className="text-[11px] text-muted-foreground">Recent resolution steps:</p>
+                      <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" aria-label="Recent resolution steps">
+                        {trajectory.actual.slice(-6).map((pt, idx) => (
+                          <span
+                            key={pt.quest.id || idx}
+                            className={cn(
+                              "inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-mono font-semibold transition-transform active:scale-95",
+                              pt.outcome === "completed"
+                                ? "bg-primary/10 text-primary border border-primary/25"
+                                : "bg-muted text-muted-foreground border border-border/60"
+                            )}
+                            title={`${pt.quest.title}: ${pt.outcome} (${pt.outcome === "completed" ? "+1" : "-1"})`}
+                          >
+                            {pt.outcome === "completed" ? "+1" : "-1"}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3.5 pt-2.5 border-t border-border/40">
+                    <Link
+                      to="/journey"
+                      className="inline-flex items-center gap-1 text-body-xs sm:text-body-sm font-medium text-primary hover:underline"
+                    >
+                      View full trajectory on Journey →
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {recovery && !leadWithRecovery && (
+                <div className="w-[82vw] max-w-[320px] shrink-0 snap-center sm:w-auto rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Sprout className="size-4 text-primary" aria-hidden="true" />
+                      <p className="text-label text-muted-foreground">Recovery</p>
+                    </div>
+                    <p className="mt-2 text-body-sm sm:text-body-md font-medium leading-relaxed text-foreground">{recovery.text}</p>
+                  </div>
+                  <p className="mt-3 text-[11px] text-muted-foreground">
+                    Measured from chronological follow-up after misses.
+                  </p>
+                </div>
+              )}
+
+              {momentum && (
+                <div className="w-[82vw] max-w-[320px] shrink-0 snap-center sm:w-auto rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <RotateCcw className="size-4 text-primary" aria-hidden="true" />
+                        <p className="text-label text-muted-foreground">Momentum</p>
+                      </div>
+                      {momentum.comparison && (
+                        <span className={cn(
+                          "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium",
+                          momentum.comparison.delta >= 0
+                            ? "bg-primary/10 text-primary border border-primary/20"
+                            : "bg-destructive/10 text-destructive border border-destructive/20"
+                        )}>
+                          {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}%
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="mt-2 text-body-xs sm:text-body-sm font-medium text-foreground">
+                      Goal-linked completion rate
+                    </p>
+
+                    {momentum.comparison ? (
+                      <div className="mt-3 space-y-2">
+                        {/* Recent Period Track */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[11px] sm:text-body-xs">
+                            <span className="font-medium text-foreground">Recent</span>
+                            <span className="font-mono text-foreground font-semibold">
+                              {Math.round(momentum.comparison.recentRate * 100)}%{" "}
+                              <span className="text-muted-foreground font-normal">
+                                ({momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal})
+                              </span>
+                            </span>
+                          </div>
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full bg-primary rounded-full transition-[width] duration-500"
+                              style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Prior Period Track */}
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[11px] sm:text-body-xs">
+                            <span className="text-muted-foreground">Prior</span>
+                            <span className="font-mono text-muted-foreground">
+                              {Math.round(momentum.comparison.previousRate * 100)}%{" "}
+                              <span>
+                                ({momentum.comparison.previousCompleted}/{momentum.comparison.previousTotal})
+                              </span>
+                            </span>
+                          </div>
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
+                              style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-body-xs sm:text-body-sm text-foreground">{momentum.observation}</p>
                     )}
                   </div>
 
-                  <p className="mt-2 text-body-sm font-medium text-foreground">
-                    Goal-linked completion rate
+                  <p className="mt-3 text-[11px] text-muted-foreground">
+                    Comparing chronological goal-linked halves.
                   </p>
-
-                  {momentum.comparison ? (
-                    <div className="mt-3 space-y-2.5">
-                      {/* Recent Period Track */}
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-body-xs">
-                          <span className="font-medium text-foreground">Recent</span>
-                          <span className="font-mono text-foreground font-semibold">
-                            {Math.round(momentum.comparison.recentRate * 100)}%{" "}
-                            <span className="text-muted-foreground font-normal">
-                              ({momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal})
-                            </span>
-                          </span>
-                        </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full bg-primary rounded-full transition-[width] duration-500"
-                            style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Prior Period Track */}
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-body-xs">
-                          <span className="text-muted-foreground">Prior</span>
-                          <span className="font-mono text-muted-foreground">
-                            {Math.round(momentum.comparison.previousRate * 100)}%{" "}
-                            <span>
-                              ({momentum.comparison.previousCompleted}/{momentum.comparison.previousTotal})
-                            </span>
-                          </span>
-                        </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
-                            style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="mt-2 text-body-sm text-foreground">{momentum.observation}</p>
-                  )}
                 </div>
-
-                <p className="mt-3 text-body-xs text-muted-foreground">
-                  Comparing chronological goal-linked halves.
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* ── Other Patterns Section (Secondary Surfaced List) ── */}
+      {/* ── Other Patterns Section (Secondary Surfaced List as Accordion) ── */}
       {surfaced.length > 0 && (
-        <div className={anyGridSlot ? "mt-8" : "mt-6"}>
-          <div className="flex items-center justify-between mb-3">
+        <div className={anyGridSlot ? "mt-7 sm:mt-8" : "mt-6"}>
+          <div className="flex items-center justify-between mb-3 px-0.5">
             <h2 className="text-label font-semibold text-muted-foreground">Other observed patterns</h2>
-            <span className="text-body-xs text-muted-foreground">
+            <span className="text-body-xs font-mono text-muted-foreground">
               {surfaced.length} {surfaced.length === 1 ? "pattern" : "patterns"}
             </span>
           </div>
-          <ul className="space-y-3.5">
+          <Accordion
+            type="multiple"
+            className="rounded-2xl border border-border/70 bg-card/60 divide-y divide-border/50 overflow-hidden shadow-sm"
+          >
             {surfaced.map((item) => (
-              <li key={item.key} className="rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 space-y-2.5">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-label text-muted-foreground">{item.categoryLabel}</span>
-                  {item.evidence && (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-0.5 text-xs font-mono text-muted-foreground">
-                      <span className="size-1.5 rounded-full bg-primary/70 shrink-0" aria-hidden="true" />
-                      {item.evidence}
+              <AccordionItem key={item.key} value={item.key} className="border-b-0 px-4 sm:px-5">
+                <AccordionTrigger className="py-3.5 hover:no-underline text-left">
+                  <div className="flex flex-col gap-1 pr-2 text-left">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground font-mono">
+                        {item.categoryLabel}
+                      </span>
+                      {item.evidence && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-mono text-muted-foreground">
+                          <span className="size-1 rounded-full bg-primary/70 shrink-0" aria-hidden="true" />
+                          {item.evidence}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-body-sm font-medium text-foreground leading-snug">
+                      {item.observation}
                     </span>
-                  )}
-                </div>
-                <p className="text-body-md font-medium leading-snug text-foreground">{item.observation}</p>
-                {item.interpretation && (
-                  <details className="group text-body-xs text-muted-foreground">
-                    <summary className="cursor-pointer list-none inline-flex items-center gap-1 font-medium hover:text-foreground transition-colors">
-                      <span>Why this happens</span>
-                      <ChevronDown className="size-3 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
-                    </summary>
-                    <div className="mt-2 rounded-xl bg-muted/30 border border-border/40 p-3 text-body-sm text-foreground/90 leading-relaxed">
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pt-1 pb-4 text-body-sm space-y-2.5">
+                  {item.interpretation && (
+                    <div className="rounded-xl bg-muted/30 border border-border/40 p-3 text-body-xs sm:text-body-sm text-foreground/90 leading-relaxed">
+                      <span className="font-semibold text-muted-foreground block mb-1">Why this happens:</span>
                       {item.interpretation}
                     </div>
-                  </details>
-                )}
-                {item.adjustment && (
-                  <div className="rounded-xl border border-primary/25 bg-primary/[0.04] p-3 text-body-sm">
-                    <span className="font-semibold text-primary">Possible adjustment: </span>
-                    <span className="text-foreground">{item.adjustment}</span>
-                  </div>
-                )}
-              </li>
+                  )}
+                  {item.adjustment && (
+                    <div className="rounded-xl border border-primary/25 bg-primary/[0.04] p-3 text-body-xs sm:text-body-sm">
+                      <span className="font-semibold text-primary">Possible adjustment: </span>
+                      <span className="text-foreground">{item.adjustment}</span>
+                    </div>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </ul>
+          </Accordion>
         </div>
       )}
 
