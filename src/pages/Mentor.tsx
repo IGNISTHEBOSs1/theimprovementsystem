@@ -128,7 +128,7 @@ export default function Mentor() {
         description="What works and where you get stuck, based on what you actually do."
       />
 
-      {anyGridSlot ? (
+      {anyGridSlot && (
         <div className="mt-6 space-y-4">
           {/* ── Main Habit Pattern (Recurring) ── */}
           {recurring && (
@@ -138,7 +138,7 @@ export default function Mentor() {
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-label font-semibold text-primary">
-                  Main pattern • Repeating habits
+                  Your main pattern
                 </span>
               </div>
 
@@ -245,17 +245,17 @@ export default function Mentor() {
           <div>
             <div className="flex items-center justify-between mb-2 sm:hidden px-0.5">
               <span className="text-caption font-semibold text-muted-foreground uppercase tracking-wider">
-                Signals
+                What we observe
               </span>
               <span className="text-[11px] text-muted-foreground/80 font-mono">
-                Swipe →
+                Swipe for more →
               </span>
             </div>
 
             <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 -mx-4 px-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible">
               {/* Recovery Card (Evening / Lead) */}
               {leadWithRecovery && recovery && (
-                <div className="w-[82vw] max-w-[320px] shrink-0 snap-center sm:w-auto sm:col-span-2 rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+                <div className="w-[78vw] max-w-[300px] shrink-0 snap-start sm:w-auto sm:col-span-2 rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-2">
                       <Sprout className="size-4 text-primary" aria-hidden="true" />
@@ -268,12 +268,12 @@ export default function Mentor() {
 
               {/* Trajectory Card */}
               {hasTrajectory && (
-                <div className="w-[82vw] max-w-[320px] shrink-0 snap-center sm:w-auto rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+                <div className="w-[78vw] max-w-[300px] shrink-0 snap-start sm:w-auto rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Compass className="size-4 text-primary" aria-hidden="true" />
-                        <p className="text-label text-muted-foreground">Direction</p>
+                        <p className="text-label text-muted-foreground">Momentum score</p>
                       </div>
                       <span className="text-body-xs font-mono text-muted-foreground">
                         {trajectory.actual.length} done
@@ -322,7 +322,7 @@ export default function Mentor() {
 
               {/* Recovery Card (Standard) */}
               {recovery && !leadWithRecovery && (
-                <div className="w-[82vw] max-w-[320px] shrink-0 snap-center sm:w-auto rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+                <div className="w-[78vw] max-w-[300px] shrink-0 snap-start sm:w-auto rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
                   <div>
                     <div className="flex items-center gap-2">
                       <Sprout className="size-4 text-primary" aria-hidden="true" />
@@ -335,7 +335,7 @@ export default function Mentor() {
 
               {/* Momentum Card */}
               {momentum && (
-                <div className="w-[82vw] max-w-[320px] shrink-0 snap-center sm:w-auto rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+                <div className="w-[78vw] max-w-[300px] shrink-0 snap-start sm:w-auto rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
@@ -407,33 +407,41 @@ export default function Mentor() {
             </div>
           </div>
         </div>
-      ) : (
-        /* Fallback when none of the 4 main grid slots exist */
-        surfaced.length > 0 && (
-          <div className="mt-6 space-y-3">
-            {surfaced.map((item) => (
-              <div key={item.key} className="rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-caption font-semibold uppercase tracking-wider text-muted-foreground font-mono">
-                    {item.categoryLabel}
+      )}
+
+      {/* ── Additional Surfaced Observations (Always shown when available) ── */}
+      {surfaced.length > 0 && (
+        <div className="mt-8 space-y-3">
+          <div className="flex items-center justify-between px-0.5">
+            <span className="text-caption font-semibold text-muted-foreground uppercase tracking-wider">
+              More observations
+            </span>
+            <span className="text-[11px] font-mono text-muted-foreground">
+              {surfaced.length} noted
+            </span>
+          </div>
+          {surfaced.map((item) => (
+            <div key={item.key} className="rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-caption font-semibold uppercase tracking-wider text-muted-foreground font-mono">
+                  {item.categoryLabel}
+                </span>
+                {item.evidence && (
+                  <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-mono text-muted-foreground">
+                    {item.evidence}
                   </span>
-                  {item.evidence && (
-                    <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-mono text-muted-foreground">
-                      {item.evidence}
-                    </span>
-                  )}
-                </div>
-                <p className="text-body-sm font-medium text-foreground">{item.observation}</p>
-                {item.adjustment && (
-                  <div className="rounded-xl border border-primary/20 bg-primary/[0.03] p-2.5 text-body-xs sm:text-body-sm">
-                    <span className="font-semibold text-primary">Try this: </span>
-                    <span className="text-foreground">{item.adjustment}</span>
-                  </div>
                 )}
               </div>
-            ))}
-          </div>
-        )
+              <p className="text-body-sm font-medium text-foreground">{item.observation}</p>
+              {item.adjustment && (
+                <div className="rounded-xl border border-primary/20 bg-primary/[0.03] p-2.5 text-body-xs sm:text-body-sm">
+                  <span className="font-semibold text-primary">Try this: </span>
+                  <span className="text-foreground">{item.adjustment}</span>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Safety spacer ensuring clean scroll buffer above mobile SystemBar */}

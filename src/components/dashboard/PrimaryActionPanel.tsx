@@ -56,7 +56,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
           Begin with one meaningful action.
         </h2>
         <p className="mt-2 max-w-xl text-body-md text-muted-foreground">
-          Choose one task that moves your life in the direction you intend.
+          Your next commitment starts here.
         </p>
         <Button className="mt-6 min-h-11" onClick={onChooseQuest}>
           Choose today&apos;s focus <ChevronRight className="size-4" aria-hidden="true" />

@@ -45,7 +45,7 @@ export default function Journey() {
   if (loading) {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
-        <div className="h-72 animate-pulse rounded-3xl bg-muted/60" aria-label="Loading trajectory flight deck" />
+        <div className="h-72 animate-pulse rounded-3xl bg-muted/60" aria-label="Loading your journey" />
       </div>
     );
   }
@@ -53,14 +53,14 @@ export default function Journey() {
   if (error) {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
-        <section className="rounded-3xl border border-border bg-card p-7 shadow-sm" aria-label="Flight deck unavailable">
-          <p className="text-label text-muted-foreground">Navigational System</p>
-          <h2 className="mt-2 text-lg font-semibold text-foreground">Flight telemetry is temporarily offline.</h2>
+        <section className="rounded-3xl border border-border bg-card p-7 shadow-sm" aria-label="Journey unavailable">
+          <p className="text-label text-muted-foreground">Your journey</p>
+          <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your journey.</h2>
           <p className="mt-2 text-body-md text-muted-foreground">
-            Your flight recorder is intact. Try establishing a link now.
+            This is usually temporary. Try again now.
           </p>
           <Button variant="neon" size="lg" className="mt-4" onClick={() => void reload()}>
-            Re-engage System
+            Try again
           </Button>
         </section>
       </div>
@@ -73,8 +73,8 @@ export default function Journey() {
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <PlaceholderExperience
           icon={Compass}
-          title="No flight target set yet."
-          message="Your trajectory engine calculates a route toward a goal you choose. Set your primary destination in your profile to initialize flight telemetry."
+          title="No goal set yet."
+          message="Your journey tracks progress toward a goal you choose. Set your primary goal in your profile to get started."
         />
       </div>
     );
@@ -97,19 +97,19 @@ export default function Journey() {
     try {
       const { shiftedCount, error: recalibrateError } = await recalibrateSchedule();
       if (recalibrateError) {
-        toast.error("Telemetry adjustment failed. Please try again.");
+        toast.error("Reschedule failed. Please try again.");
       } else if (shiftedCount > 0) {
         triggerHaptic("success");
         toast.success(
-          `Trajectory recalibrated: ${shiftedCount} non-essential commitment${
+          `Rescheduled: ${shiftedCount} non-essential commitment${
             shiftedCount > 1 ? "s" : ""
-          } shifted to tomorrow to protect your momentum.`
+          } moved to tomorrow to protect your momentum.`
         );
       } else {
-        toast.info("Flight plan already optimal: Only essential commitments remain for today.");
+        toast.info("Nothing to reschedule — only essential commitments remain for today.");
       }
     } catch {
-      toast.error("Could not recalibrate trajectory.");
+      toast.error("Could not reschedule commitments.");
     } finally {
       setIsRecalibrating(false);
     }
@@ -120,40 +120,40 @@ export default function Journey() {
     triggerHaptic("success");
     await completeQuest(questId);
     setCompletingId(null);
-    toast.success("Focus action recorded. Velocity updated!");
+    toast.success("Action recorded. Keep going!");
   };
 
   const primaryActionQuest = activeQuests[0];
 
   return (
     <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
-      {/* ── Page Header & One-Tap Recalibrate Trigger ── */}
+      {/* ── Page Header & Reschedule Trigger ── */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
           <p className="hidden md:block text-label text-primary mb-1">
-            Navigational Engine
+            Your progress
           </p>
-          <h1 className="text-display-lg text-foreground">Your trajectory.</h1>
+          <h1 className="text-display-lg text-foreground">Your journey.</h1>
           <p className="mt-1 text-body-md text-muted-foreground">
-            Ambient flight telemetry for "{profile?.primary_goal}".
+            Tracking your path toward "{profile?.primary_goal}".
           </p>
         </div>
 
-        {/* Global Recalibrate Button in Header */}
+        {/* Global Reschedule Button in Header */}
         <Button
           variant="outline"
           size="sm"
           disabled={isRecalibrating || saving}
           onClick={handleOneTapBump}
           className="self-start sm:self-auto rounded-full border-border/80 bg-card/70 hover:bg-accent text-xs font-medium backdrop-blur-md shadow-sm transition-all"
-          title="Protect momentum by shifting non-essential quests to tomorrow"
+          title="Shift non-essential quests to tomorrow to protect your momentum"
         >
           <RotateCcw className={`size-3.5 ${isRecalibrating ? "animate-spin" : ""}`} />
-          <span>One-Tap Recalibrate</span>
+          <span>Reschedule</span>
         </Button>
       </div>
 
-      {/* ── Deterministic Narrative Summary ("Mad Libs" Engine Banner) ── */}
+      {/* ── Summary Banner ── */}
       <div className="mt-6 rounded-2xl p-4 sm:p-5 liquid-glass border border-primary/25 relative overflow-hidden">
         <div className="flex items-start gap-3.5">
           <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
@@ -161,7 +161,7 @@ export default function Journey() {
           </div>
           <div>
             <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
-              Trajectory Synthesis
+              Summary
             </p>
             <p className="mt-1 text-sm sm:text-base font-medium leading-relaxed text-foreground">
               {engine.narrative}
@@ -186,7 +186,7 @@ export default function Journey() {
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
                 <CalendarClock className="size-4 text-primary" aria-hidden="true" />
-                <span>Estimated Arrival</span>
+                <span>Goal ETA</span>
               </div>
               <Badge
                 variant="outline"
@@ -199,10 +199,10 @@ export default function Journey() {
                 }`}
               >
                 {engine.paceRatio >= 1.1
-                  ? "Pulls Closer"
+                  ? "Earlier"
                   : engine.paceRatio >= 0.9
-                  ? "Holding Steady"
-                  : "Recalibrated +1D"}
+                  ? "On track"
+                  : "Extended +1D"}
               </Badge>
             </div>
 
@@ -211,17 +211,17 @@ export default function Journey() {
             </h3>
             <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
               {engine.paceRatio >= 1.1
-                ? "Your elevated velocity is drawing the milestone arrival date closer."
+                ? "Your consistent pace is bringing your goal date closer."
                 : engine.paceRatio >= 0.9
-                ? `Calculated at standard required velocity (${engine.requiredPace} Quests/day).`
-                : "Timeline gently relaxed to ensure sustainable follow-through."}
+                ? `Calculated at your needed pace (${engine.requiredPace} quests/day).`
+                : "Timeline adjusted to keep your daily pace realistic and sustainable."}
             </p>
           </div>
 
           <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Milestone Target</span>
+            <span className="text-muted-foreground">Goal Target</span>
             <span className="font-mono font-semibold text-foreground">
-              {engine.completedQuests} / {engine.targetQuests} Quests Locked
+              {engine.completedQuests} / {engine.targetQuests} Quests Done
             </span>
           </div>
         </div>
@@ -232,7 +232,7 @@ export default function Journey() {
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
                 <Gauge className="size-4 text-primary" aria-hidden="true" />
-                <span>Flight Velocity</span>
+                <span>Your pace</span>
               </div>
               <Badge
                 variant="outline"
@@ -242,7 +242,7 @@ export default function Journey() {
                     : "border-amber-500/30 bg-amber-500/10 text-amber-400"
                 }`}
               >
-                {Math.round(engine.paceRatio * 100)}% of flight plan
+                {Math.round(engine.paceRatio * 100)}% of target pace
               </Badge>
             </div>
 
@@ -250,7 +250,7 @@ export default function Journey() {
               <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-mono">
                 {engine.velocity}
               </h3>
-              <span className="text-sm font-medium text-muted-foreground">Quests / Day</span>
+              <span className="text-sm font-medium text-muted-foreground">Quests / day</span>
             </div>
 
             {/* Velocity meter bar */}
@@ -264,13 +264,13 @@ export default function Journey() {
             </div>
 
             <p className="mt-2 text-xs text-muted-foreground">
-              Flight plan requires <span className="font-mono font-medium text-foreground">{engine.requiredPace}</span> Quests/day to maintain current horizon.
+              Aim for <span className="font-mono font-medium text-foreground">{engine.requiredPace}</span> quests/day to reach your goal on time.
             </p>
           </div>
 
           <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Corridor Tolerance</span>
-            <span className="font-mono font-medium text-primary">±{engine.variancePct}% Acceptable</span>
+            <span className="text-muted-foreground">Acceptable range</span>
+            <span className="font-mono font-medium text-primary">±{engine.variancePct}% variance</span>
           </div>
         </div>
 
@@ -284,14 +284,14 @@ export default function Journey() {
                     {primaryActionQuest.priority}
                   </Badge>
                   <span className="font-mono text-[10px] text-primary uppercase font-bold tracking-wider">
-                    Next Immediate Thrust Vector
+                    Up next
                   </span>
                 </div>
                 <h4 className="mt-1.5 text-lg sm:text-xl font-bold text-foreground truncate">
                   {primaryActionQuest.title}
                 </h4>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Executing this action powers your trajectory forward into the optimal corridor.
+                  Completing this keeps you on track toward your goal.
                 </p>
               </div>
 
@@ -302,7 +302,7 @@ export default function Journey() {
                   className="min-h-11 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 px-6 text-xs font-semibold shadow-[0_4px_16px_hsl(var(--primary)/0.3)] transition-all"
                 >
                   <Check className="size-4 mr-1.5" />
-                  <span>{completingId === primaryActionQuest.id ? "Recording…" : "Engage Action"}</span>
+                  <span>{completingId === primaryActionQuest.id ? "Recording…" : "Mark done"}</span>
                 </Button>
                 <Button
                   asChild
@@ -320,18 +320,18 @@ export default function Journey() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <span className="font-mono text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
-                  Flight Deck Idle
+                  Nothing active
                 </span>
                 <h4 className="mt-1 text-base sm:text-lg font-semibold text-foreground">
-                  No active commitment locked into today's flight plan.
+                  No commitment active for today.
                 </h4>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Commit to a single deliberate focus to initiate today's thrust vector.
+                  Pick one clear quest to focus on today.
                 </p>
               </div>
               <Button asChild className="min-h-11 rounded-2xl bg-primary text-primary-foreground px-6 text-xs font-semibold">
                 <Link to="/quests">
-                  <span>Lock Today's Focus</span>
+                  <span>Choose Today's Focus</span>
                   <ArrowRight className="size-4 ml-1.5" />
                 </Link>
               </Button>
@@ -340,13 +340,13 @@ export default function Journey() {
         </div>
       </div>
 
-      {/* ── 5. NEUTRALIZED RECENT EVIDENCE (LAST 48 HOURS ONLY) ── */}
+      {/* ── 5. RECENT ACTIVITY (LAST 48 HOURS ONLY) ── */}
       <div className="mt-8">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-label text-muted-foreground">Flight Recorder</p>
+            <p className="text-label text-muted-foreground">Recent activity</p>
             <h3 className="mt-0.5 text-sm font-semibold text-foreground">
-              Recent Commitments (Last 48 Hours)
+              Recent commitments (last 48 hours)
             </h3>
           </div>
           <span className="text-[11px] font-mono text-muted-foreground">
@@ -398,7 +398,7 @@ export default function Journey() {
                             : "bg-muted text-muted-foreground border border-border/40"
                         }`}
                       >
-                        {isCompleted ? "Completed" : "Neutral Re-entry"}
+                        {isCompleted ? "Completed" : "Skipped"}
                       </span>
                       <span className="font-mono text-[11px] text-muted-foreground">
                         {dateStr} {timeStr}
@@ -410,7 +410,7 @@ export default function Journey() {
             </ul>
           ) : (
             <div className="rounded-2xl border border-white/[0.06] bg-card/40 p-5 text-center text-xs text-muted-foreground">
-              No flight events recorded in the last 48 hours. Standing by for next action.
+              No events recorded in the last 48 hours. Complete a quest to see it here.
             </div>
           )}
         </div>
