@@ -76,9 +76,13 @@ export default function Quests() {
   const [serverLocal, setServerLocal] = useState<ServerLocalDate | null>(null);
   useEffect(() => {
     let cancelled = false;
-    getServerLocalDate(profile?.timezone).then((result) => {
-      if (!cancelled) setServerLocal(result);
-    });
+    getServerLocalDate(profile?.timezone)
+      .then((result) => {
+        if (!cancelled) setServerLocal(result);
+      })
+      .catch(() => {
+        // Degrades gracefully — upcoming section stays hidden until next resolution
+      });
     return () => { cancelled = true; };
   }, [profile?.timezone]);
 

@@ -251,82 +251,68 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     }
 
     setLoading(true);
-    for (let attempt = 0; attempt < attempts; attempt++) {
-      const { data, error: dbError } = await supabase
-        .from("game_state")
-        .select("quests")
-        .eq("user_id", userId)
-        .maybeSingle();
+    try {
+      for (let attempt = 0; attempt < attempts; attempt++) {
+        const { data, error: dbError } = await supabase
+          .from("game_state")
+          .select("quests")
+          .eq("user_id", userId)
+          .maybeSingle();
 
-      if (!dbError && data) {
-        const loadedQuests = Array.isArray(data.quests) ? data.quests as unknown as Quest[] : [];
-        // Server-authoritative clock: never the client's own Date(). See
-        // @/lib/serverTime — this fetches the server's real UTC instant
-        // and converts it through the user's stored IANA timezone.
-        const serverLocal = await getServerLocalDate(timezone);
-        setTodayStr(serverLocal.dateStr);
+        if (!dbError && data) {
+          const loadedQuests = Array.isArray(data.quests) ? data.quests as unknown as Quest[] : [];
+          // Server-authoritative clock: never the client's own Date(). See
+          // @/lib/serverTime — this fetches the server's real UTC instant
+          // and converts it through the user's stored IANA timezone.
+          const serverLocal = await getServerLocalDate(timezone);
+          setTodayStr(serverLocal.dateStr);
 
-        // Sweep: any quest that is now expired-and-not-yet-marked-failed
-        // gets marked failed exactly once. This is a real, persisted
-        // write, not a derived value — Trajectory itself is derived
-        // separately (see lib/trajectory.ts's deriveTrajectory), directly
-        // from this same `quests` array, so marking a Quest failed here
-        // is the only write this sweep needs to make correct.
-        const toExpire = loadedQuests.filter((quest) => isQuestExpired(quest, serverLocal.dateStr, timezone || "UTC"));
-        const expiredQuests = toExpire.length > 0
-          ? loadedQuests.map((quest) => isQuestExpired(quest, serverLocal.dateStr, timezone || "UTC")
-              ? { ...quest, failed: true, resolvedAt: serverLocal.instant.toISOString() }
-              : quest)
-          : loadedQuests;
+          // Sweep: any quest that is now expired-and-not-yet-marked-failed
+          // gets marked failed exactly once. This is a real, persisted
+          // write, not a derived value — Trajectory itself is derived
+          // separately (see lib/trajectory.ts's deriveTrajectory), directly
+          // from this same `quests` array, so marking a Quest failed here
+          // is the only write this sweep needs to make correct.
+          const toExpire = loadedQuests.filter((quest) => isQuestExpired(quest, serverLocal.dateStr, timezone || "UTC"));
+          const expiredQuests = toExpire.length > 0
+            ? loadedQuests.map((quest) => isQuestExpired(quest, serverLocal.dateStr, timezone || "UTC")
+                ? { ...quest, failed: true, resolvedAt: serverLocal.instant.toISOString() }
+                : quest)
+            : loadedQuests;
 
-        // Continuation runs against the post-expiry quest list — a series
-        // whose occurrence just got swept to failed above is immediately
-        // eligible to continue in this same pass if today is a
-        // recurrence day, rather than waiting for a second load.
-        const toCreate = nextOccurrencesToCreate(expiredQuests, serverLocal.dateStr, serverLocal.weekday, serverLocal.instant, timezone || "UTC");
-        const sweptQuests = toCreate.length > 0 ? [...expiredQuests, ...toCreate] : expiredQuests;
+          // Continuation runs against the post-expiry quest list — a series
+          // whose occurrence just got swept to failed above is immediately
+          // eligible to continue in this same pass if today is a
+          // recurrence day, rather than waiting for a second load.
+          const toCreate = nextOccurrencesToCreate(expiredQuests, serverLocal.dateStr, serverLocal.weekday, serverLocal.instant, timezone || "UTC");
+          const sweptQuests = toCreate.length > 0 ? [...expiredQuests, ...toCreate] : expiredQuests;
 
-        if (toExpire.length > 0 || toCreate.length > 0) {
-          setState({ quests: sweptQuests });
+          if (toExpire.length > 0 || toCreate.length > 0) {
+            setState({ quests: sweptQuests });
+            setError(false);
+            setLoading(false);
+            await supabase
+              .from("game_state")
+              .update({ quests: sweptQuests as unknown as Json })
+              .eq("user_id", userId);
+            return;
+          }
+
+          setState({ quests: loadedQuests });
           setError(false);
           setLoading(false);
-          // Best-effort persistence of the sweep. If this write fails, the
-          // in-memory state above is still correct for this session; the
-          // same quests will simply be swept again (idempotently — marking
-          // an already-expired quest failed again is a no-op in effect, and
-          // nextOccurrencesToCreate's alreadyHasToday check makes
-          // continuation idempotent the same way) on the next load.
-          //
-          // This failure is deliberately NOT surfaced through `error`: the
-          // read that got us here already succeeded, and `error` is what
-          // Dashboard/Quests use to show a full "we couldn't load your
-          // progress" screen. Setting it here would hide a user's correct,
-          // successfully-read state behind a false "unavailable" screen —
-          // conflating a background housekeeping write failure with an
-          // actual read failure, which is worse than the current silent
-          // behavior. No existing mechanism can surface just this without
-          // either that conflation or inventing a new UI pattern (e.g. a
-          // non-blocking sync-status indicator), which is a product
-          // decision this chunk doesn't authorize. Left unchanged —
-          // reported instead.
-          await supabase
-            .from("game_state")
-            .update({ quests: sweptQuests as unknown as Json })
-            .eq("user_id", userId);
           return;
         }
-
-        setState({ quests: loadedQuests });
-        setError(false);
-        setLoading(false);
-        return;
+        if (attempt < attempts - 1) {
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
       }
-      if (attempt < attempts - 1) {
-        await new Promise((resolve) => setTimeout(resolve, delayMs));
-      }
+      setError(true);
+      setLoading(false);
+    } catch {
+      setError(true);
+      setLoading(false);
     }
-    setError(true);
-    setLoading(false);
   }, [userId, timezone]);
 
   useEffect(() => { void load(); }, [load]);

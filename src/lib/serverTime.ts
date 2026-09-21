@@ -45,19 +45,23 @@ export function detectDeviceTimezone(): string {
 // fresh round-trip on purpose — this is the actual current moment, not a
 // cached one.
 async function fetchServerNow(): Promise<Date> {
-  const { data, error } = await supabase.rpc("get_server_time");
-  if (error || !data) {
-    // If the server clock is unreachable, falling back to the client's
-    // own clock is strictly better than blocking Quest expiry/recurrence
-    // entirely — this is a degraded-but-functional fallback, not a
-    // silent correctness claim. Reliability requirements (see
-    // useDashboardData's load()) mean a read failure here must not
-    // surface as a fabricated "everything is fine" state elsewhere; it
-    // simply means this specific sweep pass uses client time instead of
-    // server time for that one pass.
+  try {
+    const { data, error } = await supabase.rpc("get_server_time");
+    if (error || !data) {
+      // If the server clock is unreachable, falling back to the client's
+      // own clock is strictly better than blocking Quest expiry/recurrence
+      // entirely — this is a degraded-but-functional fallback, not a
+      // silent correctness claim. Reliability requirements (see
+      // useDashboardData's load()) mean a read failure here must not
+      // surface as a fabricated "everything is fine" state elsewhere; it
+      // simply means this specific sweep pass uses client time instead of
+      // server time for that one pass.
+      return new Date();
+    }
+    return new Date(data as string);
+  } catch {
     return new Date();
   }
-  return new Date(data as string);
 }
 
 // Converts an authoritative UTC instant through the given IANA timezone
