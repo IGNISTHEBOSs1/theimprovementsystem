@@ -1,10 +1,7 @@
 import { useState } from "react";
-import { Check, Target, Loader2 } from "lucide-react";
+import { Check, Target, Loader2, Repeat, Zap, X } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
-import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { triggerHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 
@@ -12,31 +9,19 @@ interface QuestCardProps {
   quest: Quest;
   completing?: boolean;
   onComplete: (questId: string) => void;
-  // Founder Decision (Cancel/abandon chunk): optional and only ever
-  // passed by a caller that also wants the cancel action rendered — see
-  // Quests.tsx. Undefined here (Dashboard's usage, Quest History's
-  // read-only usage) means no cancel button, not a disabled one; History
-  // in particular must never offer to cancel an already-resolved Quest.
   onCancel?: (questId: string) => void;
   cancelling?: boolean;
 }
 
-// Displays only fields that already exist on the Quest model. There is no
-// `description` field in the canonical quest data — one was not invented
-// for this card (see TIS-QUEST-001 report).
 export function QuestCard({ quest, completing, onComplete, onCancel, cancelling }: QuestCardProps) {
   const [justCompleted, setJustCompleted] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const isDone = quest.completed || quest.failed;
-  // Cancel is only ever meaningful for an active, one-shot Quest — a
-  // recurring series has its own lifecycle (see cancelQuest's own
-  // comment in useDashboardData.ts). Enforced again here, not just in the
-  // caller, so this component can never render a cancel action that
-  // wouldn't actually be honored.
+  const isCompleted = quest.completed || justCompleted;
   const canCancel = Boolean(onCancel) && !isDone && !quest.seriesId && !justCompleted;
 
   const handleMarkComplete = () => {
-    if (completing || justCompleted) return;
+    if (completing || justCompleted || isDone) return;
     setJustCompleted(true);
     triggerHaptic("success");
     if (shouldReduceMotion) {
@@ -51,68 +36,165 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
   return (
     <li
       className={cn(
-        "flex flex-col gap-3 rounded-2xl border p-5 transition-all duration-300 sm:flex-row sm:items-center sm:justify-between shadow-[var(--shadow-card)]",
+        "group relative flex flex-col justify-between gap-2.5 px-4 py-3.5 transition-all duration-200 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4",
         justCompleted
-          ? "border-success/50 bg-success/[0.04] scale-[0.99]"
+          ? "bg-success/[0.05] border-l-2 border-l-success"
           : isDone
-          ? "border-border bg-card opacity-70"
-          : "border-border bg-card"
+          ? "bg-muted/15 opacity-65"
+          : "hover:bg-muted/30"
       )}
     >
-      <div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>{quest.priority}</Badge>
-          <span className="text-xs text-muted-foreground">{quest.timeFrame}</span>
+      {/* LEFT AXIS: Tactile check-target & task title (The Receipt Left Edge) */}
+      <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+        {/* Tactile Check Target (Show, Don't Tell: Stop-Sign Signifier) */}
+        <button
+          type="button"
+          onClick={handleMarkComplete}
+          disabled={completing || isDone || justCompleted}
+          aria-label={
+            isCompleted
+              ? `Quest "${quest.title}" completed`
+              : `Mark "${quest.title}" as complete`
+          }
+          className={cn(
+            "relative mt-0.5 sm:mt-0 size-6 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95",
+            isCompleted
+              ? "border-success bg-success text-success-foreground shadow-[0_2px_8px_hsl(var(--success)/0.35)]"
+              : quest.failed
+              ? "border-muted-foreground/30 bg-muted/40 text-muted-foreground cursor-not-allowed"
+              : "border-border/80 bg-background/90 text-transparent hover:border-primary/80 hover:text-primary/30 shadow-xs"
+          )}
+        >
+          {completing && !justCompleted ? (
+            <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
+          ) : isCompleted ? (
+            <Check className="size-3.5 stroke-[2.5] animate-in zoom-in-75 duration-200" aria-hidden="true" />
+          ) : (
+            <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
+          )}
+        </button>
+
+        {/* Manufactured Text Edge */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h3
+              className={cn(
+                "text-sm sm:text-base font-semibold tracking-tight text-foreground transition-all line-clamp-2 sm:line-clamp-1",
+                isCompleted && "line-through text-muted-foreground font-normal",
+                quest.failed && "text-muted-foreground line-through"
+              )}
+            >
+              {quest.title}
+            </h3>
+          </div>
+
+          {/* Mobile Manufactured Secondary Baseline */}
+          <div className="mt-1 flex flex-wrap items-center gap-2 sm:hidden text-xs text-muted-foreground">
+            {quest.linkedToGoal && quest.goalName && (
+              <span className="inline-flex items-center gap-1 font-medium text-foreground/85 max-w-[190px] truncate">
+                <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
+                <span className="truncate">{quest.goalName}</span>
+              </span>
+            )}
+            {quest.linkedToGoal && quest.goalName && <span>·</span>}
+            <span className="inline-flex items-center gap-1 font-mono text-[11px]">
+              {quest.seriesId ? <Repeat className="size-3 text-primary/70" /> : <Zap className="size-3 text-amber-500/70" />}
+              {quest.seriesId ? "Daily" : "Today"}
+            </span>
+            {quest.priority !== "Essential" && (
+              <>
+                <span>·</span>
+                <span className={cn("font-medium", quest.priority === "Important" ? "text-amber-500" : "text-muted-foreground")}>
+                  {quest.priority}
+                </span>
+              </>
+            )}
+            {canCancel && (
+              <>
+                <span>·</span>
+                <button
+                  type="button"
+                  onClick={() => onCancel!(quest.id)}
+                  disabled={cancelling || completing}
+                  className="font-medium text-destructive/80 hover:text-destructive underline-offset-2 hover:underline"
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
         </div>
-        <h3 className="mt-2 text-lg font-semibold tracking-tight text-foreground">
-          {quest.title}
-        </h3>
-        {quest.linkedToGoal && quest.goalName && (
-          <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Target className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
-            Supports: {quest.goalName}
-          </p>
-        )}
       </div>
 
-      {quest.completed || justCompleted ? (
-        <div className="flex items-center gap-2 text-sm font-semibold text-success shrink-0 animate-in zoom-in-75 duration-200">
-          <div className="flex size-6 items-center justify-center rounded-full bg-success/15 border border-success/30 text-success">
-            <Check className="size-3.5" aria-hidden="true" />
+      {/* RIGHT AXIS (Tablet/Desktop): Pinned hard-right metadata & actions (The Receipt Right Edge) */}
+      <div className="hidden sm:flex items-center gap-3 shrink-0 text-xs">
+        {/* Goal Indicator (Show, Don't Tell: No redundant "Supports:" word) */}
+        {quest.linkedToGoal && quest.goalName && (
+          <div
+            className="flex items-center gap-1.5 rounded-full bg-muted/50 px-2.5 py-1 text-muted-foreground border border-border/60 max-w-[180px] truncate"
+            title={`Goal: ${quest.goalName}`}
+          >
+            <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
+            <span className="truncate font-medium">{quest.goalName}</span>
           </div>
-          <span>Completed</span>
+        )}
+
+        {/* Cadence Tag */}
+        <div className="flex items-center gap-1 text-muted-foreground font-mono text-[11px] px-2 py-0.5 rounded-md bg-muted/40 border border-border/40">
+          {quest.seriesId ? (
+            <>
+              <Repeat className="size-3 text-primary/70" aria-hidden="true" />
+              <span>Daily</span>
+            </>
+          ) : (
+            <>
+              <Zap className="size-3 text-amber-500/70" aria-hidden="true" />
+              <span>Today</span>
+            </>
+          )}
         </div>
-      ) : quest.failed ? (
-        <div className="text-sm font-medium text-muted-foreground shrink-0">Not completed</div>
-      ) : (
-        <div className="flex flex-wrap shrink-0 items-center gap-2">
-          {canCancel && (
-            <Button
-              variant="ghost"
-              className="min-h-11 text-muted-foreground hover:text-foreground"
+
+        {/* Relational Emphasis Priority Tag */}
+        {quest.priority !== "Essential" ? (
+          <span
+            className={cn(
+              "font-semibold px-2 py-0.5 rounded-md border text-[11px]",
+              quest.priority === "Important"
+                ? "text-amber-500 bg-amber-500/10 border-amber-500/25"
+                : "text-muted-foreground bg-muted/30 border-border/60"
+            )}
+          >
+            {quest.priority}
+          </span>
+        ) : (
+          <span className="text-muted-foreground/60 font-mono text-[11px] px-1.5 py-0.5">
+            Standard
+          </span>
+        )}
+
+        {/* Status or Secondary Actions */}
+        {isCompleted ? (
+          <div className="flex items-center gap-1.5 font-medium text-success text-xs pl-1">
+            <Check className="size-3.5" aria-hidden="true" />
+            <span>Done</span>
+          </div>
+        ) : quest.failed ? (
+          <span className="text-muted-foreground text-xs font-mono">Missed</span>
+        ) : (
+          canCancel && (
+            <button
+              type="button"
               onClick={() => onCancel!(quest.id)}
               disabled={cancelling || completing || justCompleted}
+              className="p-1 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
+              title="Cancel commitment"
+              aria-label="Cancel commitment"
             >
-              Cancel
-            </Button>
-          )}
-          <Button
-            className={cn(
-              "min-h-11 transition-all duration-200",
-              justCompleted ? "bg-success text-success-foreground" : ""
-            )}
-            onClick={handleMarkComplete}
-            disabled={completing || justCompleted}
-          >
-            {completing && !justCompleted ? (
-              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <Check className="size-4" aria-hidden="true" />
-            )}
-            {completing && !justCompleted ? "Saving…" : justCompleted ? "Done!" : "Mark complete"}
-          </Button>
-        </div>
-      )}
+              <X className="size-4" aria-hidden="true" />
+            </button>
+          )
+        )}
+      </div>
     </li>
   );
 }

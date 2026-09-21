@@ -1,11 +1,10 @@
 import { FormEvent, useState } from "react";
-import { ArrowRight, Settings2 } from "lucide-react";
+import { ArrowRight, Settings2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { cn } from "@/lib/utils";
 import type { QuestPriority } from "@/types/quest";
 import type { CadencePreset } from "@/hooks/useDashboardData";
 
@@ -82,78 +81,91 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
 
   return (
     <section
-      className="rounded-2xl border border-border bg-card p-6"
+      className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[var(--shadow-card)]"
       aria-labelledby="todays-commitment-heading"
     >
-      <p className="text-label text-primary">Today&apos;s quest</p>
-      <h2 id="todays-commitment-heading" className="mt-2 text-lg font-semibold tracking-tight text-foreground">
-        What&apos;s one thing you&apos;re committing to today?
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-primary">New commitment</p>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={committing}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Cancel
+          </button>
+        )}
+      </div>
+
+      <h2 id="todays-commitment-heading" className="mt-1.5 text-base sm:text-lg font-semibold tracking-tight text-foreground">
+        What are you committing to today?
       </h2>
+
       <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
-        <div className="flex flex-col gap-3 sm:flex-row">
+        {/* INPUT & COMMIT AXIS */}
+        <div className="flex flex-col gap-2.5 sm:flex-row">
           <Input
             value={commitment}
             onChange={(event) => setCommitment(event.target.value)}
-            placeholder="Say what you're committing to"
+            placeholder="Name your commitment..."
             aria-label="Your commitment"
             disabled={committing}
-            className="min-h-11"
+            className="min-h-11 flex-1 bg-background"
             autoFocus
           />
           <div className="flex items-center gap-2 shrink-0">
             <Button
               type="submit"
-              className="min-h-11 shrink-0"
+              className="min-h-11 shrink-0 px-5"
               disabled={committing || !commitment.trim() || cadenceInvalid}
             >
               {committing ? "Committing…" : "Commit"}
               {!committing && <ArrowRight className="size-4" aria-hidden="true" />}
             </Button>
-            {onCancel && (
-              <Button
-                type="button"
-                variant="ghost"
-                className="min-h-11 shrink-0 text-muted-foreground hover:text-foreground"
-                onClick={onCancel}
-                disabled={committing}
-              >
-                Cancel
-              </Button>
-            )}
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {goalLabel && (
+        {/* METADATA TOGGLES: Pinned Left Goal Chip, Pinned Right Custom Toggle */}
+        <div className="flex items-center justify-between gap-3 pt-1">
+          {goalLabel ? (
             <div className="flex items-center gap-2">
               <Checkbox
                 id="linked-to-goal"
                 checked={linkedToGoal}
                 onCheckedChange={(checked) => setLinkedToGoal(checked === true)}
                 disabled={committing}
+                className="size-4"
               />
-              <Label htmlFor="linked-to-goal" className="text-body-sm text-muted-foreground font-normal">
-                This supports my goal: {goalLabel}
+              <Label
+                htmlFor="linked-to-goal"
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer select-none font-medium"
+              >
+                <Target className="size-3.5 text-primary shrink-0" aria-hidden="true" />
+                <span className="truncate max-w-[220px] sm:max-w-[340px]">{goalLabel}</span>
               </Label>
             </div>
+          ) : (
+            <div />
           )}
 
           <button
             type="button"
             onClick={() => setShowOptions((v) => !v)}
             disabled={committing}
-            className="ml-auto flex items-center gap-1.5 text-body-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground shrink-0"
             aria-expanded={showOptions}
           >
             <Settings2 className="size-3.5" aria-hidden="true" />
-            {showOptions ? "Hide custom options" : "Custom"}
+            <span>{showOptions ? "Fewer options" : "Custom options"}</span>
           </button>
         </div>
 
+        {/* EXPANDABLE OPTIONS: Clean Structured Grid */}
         {showOptions && (
-          <div className="flex flex-col gap-4 rounded-xl border border-border/60 bg-background/40 p-4">
+          <div className="mt-2 flex flex-col gap-3.5 rounded-xl border border-border/70 bg-muted/20 p-3.5 sm:p-4 text-xs">
             <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-              <span className="w-16 text-body-sm text-muted-foreground shrink-0">Priority</span>
+              <span className="w-16 font-medium text-muted-foreground shrink-0">Priority</span>
               <ToggleGroup
                 type="single"
                 value={priority}
@@ -169,7 +181,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
                     key={level}
                     value={level}
                     size="sm"
-                    className="h-8 px-2.5 text-xs data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary"
+                    className="h-7 px-2.5 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
                   >
                     {level}
                   </ToggleGroupItem>
@@ -178,7 +190,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
             </div>
 
             <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-              <span className="w-16 text-body-sm text-muted-foreground shrink-0">Repeats</span>
+              <span className="w-16 font-medium text-muted-foreground shrink-0">Repeats</span>
               <ToggleGroup
                 type="single"
                 value={cadence}
@@ -194,7 +206,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
                     key={preset}
                     value={preset}
                     size="sm"
-                    className="h-8 px-2.5 text-xs data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary"
+                    className="h-7 px-2.5 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
                   >
                     {preset}
                   </ToggleGroupItem>
@@ -204,7 +216,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
 
             {cadence === "Custom" && (
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-                <span className="w-16 text-body-sm text-muted-foreground shrink-0">Days</span>
+                <span className="w-16 font-medium text-muted-foreground shrink-0">Days</span>
                 <ToggleGroup
                   type="multiple"
                   value={customDays.map(String)}
@@ -218,7 +230,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
                       key={i}
                       value={String(i)}
                       size="sm"
-                      className="h-8 w-10 px-0 text-xs data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary"
+                      className="h-7 w-9 px-0 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
                     >
                       {label}
                     </ToggleGroupItem>

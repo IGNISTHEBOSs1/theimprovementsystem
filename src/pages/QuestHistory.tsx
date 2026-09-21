@@ -2,12 +2,10 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Check, X, Search, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
-import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { cn } from "@/lib/utils";
 import type { Quest } from "@/types/quest";
 
@@ -22,41 +20,75 @@ function HistoryItem({ quest }: { quest: Quest }) {
     : "";
 
   return (
-    <li className="flex flex-col gap-2 rounded-xl border border-border/70 bg-card/60 p-3.5 transition-colors hover:bg-card sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-4 sm:py-3">
-      <div className="flex min-w-0 items-start gap-3 sm:items-center">
+    <li className="flex flex-col gap-2.5 px-4 py-3.5 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5 sm:py-3.5">
+      {/* LEFT AXIS: Hard-aligned status icon & task title (Receipt Left Edge) */}
+      <div className="flex min-w-0 items-start gap-3 sm:items-center flex-1">
         <div
           className={cn(
-            "flex size-7 shrink-0 items-center justify-center rounded-full mt-0.5 sm:mt-0",
-            isCompleted ? "bg-primary/10 text-primary border border-primary/20" : "bg-muted text-muted-foreground border border-border/60"
+            "flex size-6 shrink-0 items-center justify-center rounded-lg mt-0.5 sm:mt-0 border transition-colors",
+            isCompleted
+              ? "bg-primary/10 text-primary border-primary/25"
+              : "bg-muted/50 text-muted-foreground border-border/70"
           )}
           aria-hidden="true"
         >
-          {isCompleted ? <Check className="size-3.5" /> : <X className="size-3.5" />}
+          {isCompleted ? <Check className="size-3.5 stroke-[2.5]" /> : <X className="size-3.5 stroke-[2]" />}
         </div>
+
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0", PRIORITY_BADGE_CLASSES[quest.priority])}>
-              {quest.priority}
-            </Badge>
-            <span className="font-medium text-foreground text-sm truncate">{quest.title}</span>
+          <div className="flex items-center gap-2">
+            <span
+              className={cn(
+                "text-sm font-medium text-foreground truncate",
+                !isCompleted && "text-muted-foreground"
+              )}
+            >
+              {quest.title}
+            </span>
           </div>
+
+          {/* Goal pill on mobile (Show, Don't Tell: no redundant 'Supports:' text) */}
           {quest.linkedToGoal && quest.goalName && (
-            <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground truncate">
-              <Target className="size-3 shrink-0" aria-hidden="true" />
-              <span>Supports: {quest.goalName}</span>
-            </p>
+            <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground sm:hidden truncate">
+              <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
+              <span className="truncate">{quest.goalName}</span>
+            </div>
           )}
         </div>
       </div>
 
-      <div className="flex items-center justify-between sm:justify-end gap-2.5 pl-10 sm:pl-0 shrink-0">
-        <span className="font-mono text-xs text-muted-foreground">{resolvedDate}</span>
+      {/* RIGHT AXIS: Goal pill (desktop), Priority, Date & Status (Receipt Right Edge) */}
+      <div className="flex items-center justify-between sm:justify-end gap-2.5 pl-9 sm:pl-0 shrink-0 text-xs">
+        {/* Desktop Goal Pill */}
+        {quest.linkedToGoal && quest.goalName && (
+          <div className="hidden sm:flex items-center gap-1 rounded-full bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground border border-border/50 max-w-[150px] truncate">
+            <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
+            <span className="truncate">{quest.goalName}</span>
+          </div>
+        )}
+
+        {/* Priority (Relational emphasis: only Important/elevated gets badge) */}
+        {quest.priority !== "Essential" ? (
+          <span
+            className={cn(
+              "font-medium text-[11px] px-1.5 py-0.5 rounded border",
+              quest.priority === "Important"
+                ? "text-amber-500 bg-amber-500/10 border-amber-500/20"
+                : "text-muted-foreground bg-muted/30 border-border/60"
+            )}
+          >
+            {quest.priority}
+          </span>
+        ) : null}
+
+        <span className="font-mono text-xs text-muted-foreground/80">{resolvedDate}</span>
+
         <span
           className={cn(
-            "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+            "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium border",
             isCompleted
-              ? "bg-primary/10 text-primary border border-primary/25"
-              : "bg-muted text-muted-foreground border border-border/60"
+              ? "bg-primary/10 text-primary border-primary/25"
+              : "bg-muted/40 text-muted-foreground border-border/60 font-mono"
           )}
         >
           {isCompleted ? "Completed" : "Missed"}
@@ -68,30 +100,34 @@ function HistoryItem({ quest }: { quest: Quest }) {
 
 export default function QuestHistory() {
   const { state, loading, error, reload } = useDashboardDataContext();
-  const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "completed" | "failed">("all");
+  const [search, setSearch] = useState("");
 
-  const resolved = useMemo(() => {
-    return state.quests
-      .filter((quest) => quest.completed || quest.failed)
-      .sort((a, b) => (b.resolvedAt || b.createdAt).localeCompare(a.resolvedAt || a.createdAt));
-  }, [state.quests]);
+  const resolved = useMemo(
+    () => state.quests.filter((q) => q.completed || q.failed),
+    [state.quests]
+  );
 
-  const completedCount = useMemo(() => resolved.filter((q) => q.completed).length, [resolved]);
-  const failedCount = useMemo(() => resolved.filter((q) => q.failed).length, [resolved]);
+  const completedCount = useMemo(
+    () => resolved.filter((q) => q.completed).length,
+    [resolved]
+  );
+  const failedCount = useMemo(
+    () => resolved.filter((q) => q.failed).length,
+    [resolved]
+  );
 
   const filteredQuests = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return resolved.filter((quest) => {
-      // Tab filter
-      if (activeTab === "completed" && !quest.completed) return false;
-      if (activeTab === "failed" && !quest.failed) return false;
-
-      // Text search
-      if (!query) return true;
-      const titleMatch = quest.title.toLowerCase().includes(query);
-      const goalMatch = Boolean(quest.goalName?.toLowerCase().includes(query));
-      return titleMatch || goalMatch;
+    return resolved.filter((q) => {
+      if (activeTab === "completed" && !q.completed) return false;
+      if (activeTab === "failed" && !q.failed) return false;
+      if (search.trim()) {
+        const query = search.toLowerCase();
+        const matchesTitle = q.title.toLowerCase().includes(query);
+        const matchesGoal = q.goalName?.toLowerCase().includes(query) ?? false;
+        return matchesTitle || matchesGoal;
+      }
+      return true;
     });
   }, [resolved, activeTab, search]);
 
@@ -168,19 +204,21 @@ export default function QuestHistory() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Filter by title or goal..."
-                  className="pl-8 text-xs h-9"
+                  className="pl-8 text-xs h-9 bg-background"
                   aria-label="Filter quests"
                 />
               </div>
             </div>
 
-            {/* List of Filtered Items */}
+            {/* UNIFIED RECEIPT LEDGER CONTAINER */}
             {filteredQuests.length > 0 ? (
-              <ul className="space-y-2" aria-label="Filtered quest history list">
-                {filteredQuests.map((quest) => (
-                  <HistoryItem key={quest.id} quest={quest} />
-                ))}
-              </ul>
+              <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] overflow-hidden">
+                <ul className="divide-y divide-border/60" aria-label="Filtered quest history list">
+                  {filteredQuests.map((quest) => (
+                    <HistoryItem key={quest.id} quest={quest} />
+                  ))}
+                </ul>
+              </div>
             ) : (
               <div className="rounded-2xl border border-border/70 bg-card/40 p-8 text-center">
                 <p className="text-body-sm text-muted-foreground">

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { CheckSquare, Plus } from "lucide-react";
+import { CheckSquare, Plus, Repeat, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { TodaysCommitment } from "@/components/quests/TodaysCommitment";
 import { QuestCard } from "@/components/quests/QuestCard";
@@ -20,7 +19,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { nextEligibleDayLabel, MAX_ACTIVE_QUESTS, type CadencePreset } from "@/hooks/useDashboardData";
 import { getServerLocalDate, toServerLocalDate, type ServerLocalDate } from "@/lib/serverTime";
-import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
+import { cn } from "@/lib/utils";
 import type { Quest, QuestPriority } from "@/types/quest";
 
 interface RecommitPrefill {
@@ -37,17 +36,7 @@ export default function Quests() {
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState(false);
   const [cancelTargetId, setCancelTargetId] = useState<string | null>(null);
-  // Founder Decision (Quest defaults chunk): commitment is centered on an
-  // explicit "+ New Commitment" entry point rather than an
-  // always-visible form. Tapping it, typing, and tapping Commit is the
-  // whole normal path — still well inside the 1-3 interaction budget.
-  //
-  // Founder Decision (Recovery/Guidance chunk): arriving here via a
-  // Dashboard recommit action (see Dashboard.tsx handleRecommit) opens
-  // the form pre-populated, rather than making the user retype a
-  // commitment they already made once and just missed. history.state is
-  // read once on mount and immediately replaced (see effect below) so a
-  // browser back-navigation to this page doesn't silently re-prefill.
+
   const location = useLocation();
   const navigate = useNavigate();
   const [recommitPrefill] = useState<RecommitPrefill | undefined>(
@@ -59,20 +48,9 @@ export default function Quests() {
     if (recommitPrefill) {
       navigate(location.pathname, { replace: true, state: null });
     }
-    // Intentionally runs once on mount only — consumes the navigation
-    // state exactly once, regardless of later location/navigate identity
-    // changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Server-authoritative "today", fetched once per page visit — used
-  // only for the read-only Upcoming display below (which day a dormant
-  // recurring series resumes on). The actual persisted expiry/
-  // continuation decisions happen inside useDashboardData's load(), using
-  // their own independently-fetched server time; this is a separate,
-  // display-only fetch so Quests.tsx doesn't need to reach into that
-  // internal state. Null while loading — the Upcoming section simply
-  // doesn't render its date-dependent parts until this resolves.
   const [serverLocal, setServerLocal] = useState<ServerLocalDate | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -81,19 +59,11 @@ export default function Quests() {
         if (!cancelled) setServerLocal(result);
       })
       .catch(() => {
-        // Degrades gracefully — upcoming section stays hidden until next resolution
+        // Degrades gracefully
       });
     return () => { cancelled = true; };
   }, [profile?.timezone]);
 
-  // Upcoming: recurring series whose most recent occurrence has already
-  // resolved (completed or failed) and hasn't been re-created for today
-  // yet — i.e. it's waiting for its next eligible day. This reads only
-  // data that already exists (seriesId, recurrenceDays, createdAt); it
-  // does not introduce a backlog of committable-but-inactive Quests, and
-  // it never creates or activates anything itself — that stays entirely
-  // in useDashboardData's load() sweep. Deliberately secondary: smaller,
-  // muted, and rendered after the active Quest section, never before it.
   const seriesMap = new Map<string, Quest[]>();
   for (const quest of state.quests) {
     if (!quest.seriesId) continue;
@@ -107,13 +77,6 @@ export default function Quests() {
       (mostRecent.completed || mostRecent.failed) &&
       mostRecent.recurrenceDays &&
       mostRecent.recurrenceDays.length > 0 &&
-      // Founder Decision (Reliability chunk): root-cause fix, same bug
-      // class as isQuestExpired/nextOccurrencesToCreate in
-      // useDashboardData.ts. createdAt is a UTC instant; serverLocal.dateStr
-      // is the user's local calendar date. Comparing createdAt's raw UTC
-      // date portion against a local date string could misclassify a
-      // series near a local day boundary (showing it as "Upcoming" when
-      // it just became active locally, or vice versa).
       toServerLocalDate(new Date(mostRecent.createdAt), profile?.timezone || "UTC").dateStr !== serverLocal.dateStr,
     ) : [];
 
@@ -152,14 +115,14 @@ export default function Quests() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-6 sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-8 sm:px-8 sm:py-10">
       <PageHeader
         eyebrow="Your commitments"
         title="Your commitments."
         description="What you're committed to right now, in one place."
       />
 
-      <div className="mt-8">
+      <div className="mt-8 space-y-6">
         {loading ? (
           <div className="space-y-3" aria-label="Loading quests">
             <div className="h-20 animate-pulse rounded-2xl bg-muted" />
@@ -167,10 +130,6 @@ export default function Quests() {
             <div className="h-20 animate-pulse rounded-2xl bg-muted" />
           </div>
         ) : error ? (
-          // A failed load must never be treated as "no quests yet" — that
-          // would risk the commitment form appearing on top of quests that
-          // actually exist but couldn't be read, and a subsequent commit
-          // overwriting them once the read eventually succeeds.
           <section
             className="rounded-2xl border border-border bg-card p-7"
             aria-label="Quests unavailable"
@@ -188,9 +147,75 @@ export default function Quests() {
           </section>
         ) : (
           <>
-            {activeQuests.length > 0 ? (
+            {/* NEW COMMITMENT FORM (When toggled open) */}
+            {showCommitForm && (
               <div>
-                <ul className="space-y-3">
+                <TodaysCommitment
+                  committing={saving}
+                  onCommit={handleCommit}
+                  onCancel={() => setShowCommitForm(false)}
+                  goalLabel={profile?.primary_goal ?? undefined}
+                  initialValues={recommitPrefill}
+                />
+                {commitError && (
+                  <p className="mt-3 text-body-sm text-destructive" role="alert">
+                    That didn't go through. You can try again.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* ACTIVE COMMITMENTS: UNIFIED RECEIPT LEDGER (Container Discipline + Edge Alignment) */}
+            {activeQuests.length > 0 ? (
+              <section
+                className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] overflow-hidden"
+                aria-label="Active commitments ledger"
+              >
+                {/* Ledger Header: Hard-left Title & Capacity Meter, Hard-right Add CTA */}
+                <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-3.5 border-b border-border/60 bg-muted/20">
+                  <div className="flex items-center gap-2.5">
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Active Commitments
+                    </h2>
+                    {/* Visual Capacity Meter (Show, Don't Tell) */}
+                    <div
+                      className="flex items-center gap-1.5 ml-1"
+                      title={`${activeQuests.length} of ${MAX_ACTIVE_QUESTS} slots committed`}
+                      aria-label={`${activeQuests.length} of ${MAX_ACTIVE_QUESTS} slots committed`}
+                    >
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: MAX_ACTIVE_QUESTS }).map((_, i) => (
+                          <span
+                            key={i}
+                            className={cn(
+                              "size-2 rounded-full transition-colors",
+                              i < activeQuests.length ? "bg-primary" : "bg-muted-foreground/25"
+                            )}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[11px] font-mono text-muted-foreground">
+                        {activeQuests.length}/{MAX_ACTIVE_QUESTS}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Top Action pinned hard-right */}
+                  {!showCommitForm && activeQuests.length < MAX_ACTIVE_QUESTS && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 gap-1 text-xs text-primary hover:text-primary hover:bg-primary/10 rounded-lg px-2.5 font-medium"
+                      onClick={() => setShowCommitForm(true)}
+                    >
+                      <Plus className="size-3.5" aria-hidden="true" />
+                      <span>Add</span>
+                    </Button>
+                  )}
+                </div>
+
+                {/* Hairline Divided Rows */}
+                <ul className="divide-y divide-border/60">
                   {activeQuests.map((quest) => (
                     <QuestCard
                       key={quest.id}
@@ -202,19 +227,9 @@ export default function Quests() {
                     />
                   ))}
                 </ul>
-                {completeError && (
-                  <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
-                    That didn't go through. You can try again.
-                  </p>
-                )}
-                {cancelError && (
-                  <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
-                    That didn't go through. You can try again.
-                  </p>
-                )}
-              </div>
+              </section>
             ) : !showCommitForm ? (
-              /* Welcoming Empty State Card with Prominent CTA */
+              /* Inviting Empty State when 0 quests */
               <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 text-center flex flex-col items-center justify-center shadow-[var(--shadow-card)]">
                 <div className="size-12 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center mb-4">
                   <CheckSquare className="size-6" aria-hidden="true" />
@@ -236,79 +251,78 @@ export default function Quests() {
               </div>
             ) : null}
 
-            {/* Commitment Form or Secondary Action Trigger */}
-            {(showCommitForm || activeQuests.length > 0) && (
-              <div className="mt-6">
-                {showCommitForm ? (
-                  <>
-                    <TodaysCommitment
-                      committing={saving}
-                      onCommit={handleCommit}
-                      onCancel={() => setShowCommitForm(false)}
-                      goalLabel={profile?.primary_goal ?? undefined}
-                      initialValues={recommitPrefill}
-                    />
-                    {commitError && (
-                      <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
-                        That didn't go through. You can try again.
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <Button
-                    size="lg"
-                    className="min-h-11 rounded-full px-6 shadow-[0_4px_16px_hsl(var(--primary)/0.25)] hover:shadow-[0_4px_20px_hsl(var(--primary)/0.35)] active:scale-[0.98] transition-all"
-                    disabled={activeQuests.length >= MAX_ACTIVE_QUESTS}
-                    onClick={() => setShowCommitForm(true)}
-                    title={activeQuests.length >= MAX_ACTIVE_QUESTS ? `You can have up to ${MAX_ACTIVE_QUESTS} active quests at a time` : undefined}
-                  >
-                    <Plus className="size-4" aria-hidden="true" />
-                    Make a commitment
-                  </Button>
-                )}
-                {activeQuests.length >= MAX_ACTIVE_QUESTS && (
-                  <p className="mt-2 text-body-sm text-muted-foreground">
-                    You have {MAX_ACTIVE_QUESTS} active commitment locked. Focus on this single step before opening another.
-                  </p>
-                )}
-              </div>
+            {/* Error notifications */}
+            {completeError && (
+              <p className="text-body-sm text-destructive" role="alert">
+                That didn't go through. You can try again.
+              </p>
+            )}
+            {cancelError && (
+              <p className="text-body-sm text-destructive" role="alert">
+                That didn't go through. You can try again.
+              </p>
             )}
 
+            {/* UPCOMING SERIES: UNIFIED LEDGER CONTAINER */}
             {upcoming.length > 0 && serverLocal && (
-              <div className="mt-10">
-                <p className="text-label text-muted-foreground">Upcoming</p>
-                <ul className="mt-3 space-y-2">
-                  {upcoming.map((quest) => (
-                    <li
-                      key={quest.seriesId}
-                      className="flex flex-wrap items-center gap-2 rounded-xl border border-border/60 border-l-2 border-l-primary/40 bg-card/40 px-4 py-3 text-body-sm"
-                    >
-                      <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>
-                        {quest.priority}
-                      </Badge>
-                      {quest.linkedToGoal && (
-                        <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary">
-                          Goal
-                        </Badge>
-                      )}
-                      <span className="text-foreground">{quest.title}</span>
-                      <span className="text-muted-foreground">
-                        {(() => {
-                          const day = nextEligibleDayLabel(quest.recurrenceDays ?? [], serverLocal.weekday);
-                          if (day === "tomorrow") return "Tomorrow";
-                          if (day === "soon") return "Soon";
-                          return `Next: ${day}`;
-                        })()}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+              <div className="mt-8 pt-2">
+                <div className="flex items-center justify-between px-1 mb-2.5">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Upcoming Series
+                  </h3>
+                  <span className="text-[11px] font-mono text-muted-foreground">
+                    {upcoming.length} scheduled
+                  </span>
+                </div>
+
+                <div className="rounded-2xl border border-border/70 bg-card/70 shadow-xs overflow-hidden">
+                  <ul className="divide-y divide-border/50">
+                    {upcoming.map((quest) => {
+                      const day = nextEligibleDayLabel(quest.recurrenceDays ?? [], serverLocal.weekday);
+                      const dayLabel = day === "tomorrow" ? "Tomorrow" : day === "soon" ? "Soon" : `Next: ${day}`;
+
+                      return (
+                        <li
+                          key={quest.seriesId}
+                          className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5 hover:bg-muted/20 transition-colors text-xs"
+                        >
+                          {/* Left Edge: Repeat Icon, Title, Goal */}
+                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            <div className="size-6 rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
+                              <Repeat className="size-3.5" aria-hidden="true" />
+                            </div>
+                            <span className="font-medium text-foreground truncate text-sm">
+                              {quest.title}
+                            </span>
+                            {quest.linkedToGoal && quest.goalName && (
+                              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-muted/50 px-2 py-0.5 text-[11px] text-muted-foreground border border-border/50 truncate max-w-[170px]">
+                                <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
+                                <span className="truncate">{quest.goalName}</span>
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Right Edge: Next Day & Priority */}
+                          <div className="flex items-center gap-2.5 shrink-0 text-muted-foreground">
+                            <span className="font-mono text-[11px] bg-muted/40 px-2 py-0.5 rounded border border-border/40 text-foreground/80">
+                              {dayLabel}
+                            </span>
+                            <span className="font-mono text-[11px] text-muted-foreground/70">
+                              {quest.priority}
+                            </span>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               </div>
             )}
           </>
         )}
       </div>
 
+      {/* Confirmation Dialog */}
       <AlertDialog open={Boolean(cancelTargetId)} onOpenChange={(open) => { if (!open) setCancelTargetId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
