@@ -76,7 +76,7 @@ export default function SystemBar({
           Desktop rail
       ───────────────────────────────────────────────────────── */}
       <aside
-        className="material-surface material-structural hidden md:flex md:flex-col md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
+        className="glass-rail hidden md:flex md:flex-col md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
         aria-label="Primary navigation"
       >
         {/* Identity */}
@@ -209,8 +209,7 @@ export default function SystemBar({
       ───────────────────────────────────────────────────────── */}
       <nav
         className="
-          material-surface
-          material-structural
+          glass-dock
           md:hidden
           fixed
           left-3
@@ -220,11 +219,9 @@ export default function SystemBar({
           items-stretch
           h-[56px]
           rounded-full
-          border border-border/60
-          shadow-[0_14px_28px_-4px_rgba(0,0,0,0.45)]
         "
         style={{
-          bottom: "calc(env(safe-area-inset-bottom) + 12px)",
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
         }}
         aria-label="Primary navigation, mobile"
       >
@@ -268,7 +265,10 @@ export default function SystemBar({
                       inset-y-1.5
                       inset-x-1
                       rounded-[60px]
-                      bg-foreground/[0.06]
+                      bg-foreground/[0.08]
+                      dark:bg-white/[0.08]
+                      border border-foreground/10 dark:border-white/15
+                      shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]
                     "
                     transition={INDICATOR_TRANSITION}
                   />

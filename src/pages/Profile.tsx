@@ -80,7 +80,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-[calc(96px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10">
       <PageHeader
         eyebrow="Your system"
         title="Your system."

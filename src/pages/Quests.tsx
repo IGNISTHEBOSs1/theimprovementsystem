@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { CheckSquare, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -148,7 +148,7 @@ export default function Quests() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-[calc(96px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10">
       <PageHeader
         eyebrow="Your commitments"
         title="Your commitments."
@@ -184,7 +184,7 @@ export default function Quests() {
           </section>
         ) : (
           <>
-            {activeQuests.length > 0 && (
+            {activeQuests.length > 0 ? (
               <div>
                 <ul className="space-y-3">
                   {activeQuests.map((quest) => (
@@ -209,46 +209,65 @@ export default function Quests() {
                   </p>
                 )}
               </div>
-            )}
-
-            {/* Founder Decision (Quest lifecycle reconciliation chunk):
-                at most MAX_ACTIVE_QUESTS (1) Quest may be active at a
-                time. The option to add another commitment stays visible
-                at all times — it's only disabled once the cap is
-                reached, with the reason stated, rather than disappearing. */}
-            <div className={activeQuests.length > 0 ? "mt-6" : undefined}>
-              {showCommitForm ? (
-                <>
-                  <TodaysCommitment
-                    committing={saving}
-                    onCommit={handleCommit}
-                    goalLabel={profile?.primary_goal ?? undefined}
-                    initialValues={recommitPrefill}
-                  />
-                  {commitError && (
-                    <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
-                      That didn't go through. You can try again.
-                    </p>
-                  )}
-                </>
-              ) : (
+            ) : !showCommitForm ? (
+              /* Welcoming Empty State Card with Prominent CTA */
+              <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 text-center flex flex-col items-center justify-center shadow-[var(--shadow-card)]">
+                <div className="size-12 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center mb-4">
+                  <CheckSquare className="size-6" aria-hidden="true" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-foreground">
+                  No active commitments
+                </h3>
+                <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
+                  Focus comes from clarity. Commit to one meaningful action for today.
+                </p>
                 <Button
                   size="lg"
-                  className="min-h-11 rounded-full px-6 shadow-[0_4px_16px_hsl(var(--primary)/0.25)] hover:shadow-[0_4px_20px_hsl(var(--primary)/0.35)] active:scale-[0.98] transition-all"
-                  disabled={activeQuests.length >= MAX_ACTIVE_QUESTS}
+                  className="mt-6 min-h-11 rounded-full px-6 shadow-[0_4px_16px_hsl(var(--primary)/0.25)] hover:shadow-[0_4px_20px_hsl(var(--primary)/0.35)] active:scale-[0.98] transition-all"
                   onClick={() => setShowCommitForm(true)}
-                  title={activeQuests.length >= MAX_ACTIVE_QUESTS ? `You can have up to ${MAX_ACTIVE_QUESTS} active quests at a time` : undefined}
                 >
-                  <Plus className="size-4" aria-hidden="true" />
+                  <Plus className="size-4 mr-1.5" aria-hidden="true" />
                   Make a commitment
                 </Button>
-              )}
-              {activeQuests.length >= MAX_ACTIVE_QUESTS && (
-                <p className="mt-2 text-body-sm text-muted-foreground">
-                  You have {MAX_ACTIVE_QUESTS} active commitment locked. Focus on this single step before opening another.
-                </p>
-              )}
-            </div>
+              </div>
+            ) : null}
+
+            {/* Commitment Form or Secondary Action Trigger */}
+            {(showCommitForm || activeQuests.length > 0) && (
+              <div className="mt-6">
+                {showCommitForm ? (
+                  <>
+                    <TodaysCommitment
+                      committing={saving}
+                      onCommit={handleCommit}
+                      goalLabel={profile?.primary_goal ?? undefined}
+                      initialValues={recommitPrefill}
+                    />
+                    {commitError && (
+                      <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
+                        That didn't go through. You can try again.
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <Button
+                    size="lg"
+                    className="min-h-11 rounded-full px-6 shadow-[0_4px_16px_hsl(var(--primary)/0.25)] hover:shadow-[0_4px_20px_hsl(var(--primary)/0.35)] active:scale-[0.98] transition-all"
+                    disabled={activeQuests.length >= MAX_ACTIVE_QUESTS}
+                    onClick={() => setShowCommitForm(true)}
+                    title={activeQuests.length >= MAX_ACTIVE_QUESTS ? `You can have up to ${MAX_ACTIVE_QUESTS} active quests at a time` : undefined}
+                  >
+                    <Plus className="size-4" aria-hidden="true" />
+                    Make a commitment
+                  </Button>
+                )}
+                {activeQuests.length >= MAX_ACTIVE_QUESTS && (
+                  <p className="mt-2 text-body-sm text-muted-foreground">
+                    You have {MAX_ACTIVE_QUESTS} active commitment locked. Focus on this single step before opening another.
+                  </p>
+                )}
+              </div>
+            )}
 
             {upcoming.length > 0 && serverLocal && (
               <div className="mt-10">

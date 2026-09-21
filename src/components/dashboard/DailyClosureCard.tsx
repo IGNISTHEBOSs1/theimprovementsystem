@@ -14,14 +14,14 @@ export function DailyClosureCard({
 }: DailyClosureCardProps) {
   return (
     <section
-      className="rounded-2xl border border-border bg-card p-5 sm:p-7 shadow-[var(--shadow-card)]"
+      className="rounded-2xl glass-hero p-5 sm:p-7 shadow-[var(--shadow-card)]"
       aria-labelledby="closure-heading"
     >
       <div className="flex items-center gap-2">
-        <span className="flex size-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+        <span className="flex size-7 items-center justify-center rounded-full bg-success/10 text-success border border-success/20">
           <CheckCircle2 className="size-4" aria-hidden="true" />
         </span>
-        <p className="text-label text-emerald-600 dark:text-emerald-400">Session complete</p>
+        <p className="text-label text-success">Session complete</p>
       </div>
 
       <h2
@@ -37,7 +37,7 @@ export function DailyClosureCard({
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/60 border border-border/70 px-3 py-1 text-xs font-mono text-foreground font-medium">
-          <CheckCircle2 className="size-3.5 text-emerald-500" aria-hidden="true" />
+          <CheckCircle2 className="size-3.5 text-success" aria-hidden="true" />
           {completedToday} {completedToday === 1 ? "quest" : "quests"} completed today
         </span>
 

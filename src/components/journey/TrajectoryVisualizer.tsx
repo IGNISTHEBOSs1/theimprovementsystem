@@ -78,7 +78,7 @@ export function TrajectoryVisualizer({
   const historicTrailPath = `M ${xOrigin} ${yOrigin} C ${trailC1x} ${trailC1y}, ${trailC2x} ${trailC2y}, ${xCurrent} ${yCurrent}`;
 
   return (
-    <div className={cn("relative overflow-hidden rounded-2xl p-5 sm:p-7 liquid-glass", className)}>
+    <div className={cn("relative overflow-hidden rounded-2xl p-5 sm:p-7 glass-hero", className)}>
       {/* Ambient background illumination */}
       <div
         className="pointer-events-none absolute inset-0 opacity-40"
@@ -108,25 +108,25 @@ export function TrajectoryVisualizer({
             className={cn(
               "inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider transition-all",
               isOnTrack
-                ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]"
-                : "border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.2)]"
+                ? "border border-success/30 bg-success/10 text-success shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+                : "border border-warning/30 bg-warning/10 text-warning shadow-[0_0_12px_rgba(245,158,11,0.15)]"
             )}
           >
             <span className="relative flex size-2">
               <span
                 className={cn(
                   "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
-                  isOnTrack ? "bg-emerald-400" : "bg-amber-400"
+                  isOnTrack ? "bg-success" : "bg-warning"
                 )}
               />
               <span
                 className={cn(
                   "relative inline-flex size-2 rounded-full",
-                  isOnTrack ? "bg-emerald-500" : "bg-amber-500"
+                  isOnTrack ? "bg-success" : "bg-warning"
                 )}
               />
             </span>
-            <span>{isOnTrack ? "On Track • Steady Progress" : "Needs Focus • Pacing Recalibrated"}</span>
+            <span>{isOnTrack ? "On Track" : "Needs Focus"}</span>
           </div>
         </div>
       </div>
@@ -250,7 +250,7 @@ export function TrajectoryVisualizer({
               fontFamily="monospace"
               opacity={0.6}
             >
-              Start
+              Started
             </text>
           </g>
 
@@ -273,7 +273,7 @@ export function TrajectoryVisualizer({
               fontWeight="600"
               fontFamily="sans-serif"
             >
-              Where you are
+              Today
             </text>
             <text
               y={20}
@@ -304,7 +304,7 @@ export function TrajectoryVisualizer({
               fontWeight="600"
               fontFamily="sans-serif"
             >
-              Goal Target
+              Goal
             </text>
             <text
               x={-8}
@@ -314,7 +314,7 @@ export function TrajectoryVisualizer({
               fontSize="9"
               fontFamily="monospace"
             >
-              Target Milestone
+              Target
             </text>
           </g>
         </svg>
@@ -329,7 +329,7 @@ export function TrajectoryVisualizer({
           </span>
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-2 w-3 rounded-sm bg-primary/20 border border-primary/40" />
-            <span>Acceptable range (±10%)</span>
+            <span>Target range (±10%)</span>
           </span>
         </div>
         <span className="font-mono text-[10px] text-foreground/80">

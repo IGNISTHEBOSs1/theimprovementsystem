@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Flame, CheckCircle2, Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DirectionCard } from "@/components/dashboard/DirectionCard";
@@ -150,12 +150,14 @@ export default function Dashboard() {
     (q) => q.status === "completed" && q.completedAt && (todayStr ? q.completedAt.startsWith(todayStr) : false)
   ).length;
 
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10"
+      transition={{ duration: shouldReduceMotion ? 0 : 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="mx-auto w-full max-w-4xl px-5 py-6 pb-[calc(96px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10"
     >
       <AppTour />
 
@@ -178,8 +180,8 @@ export default function Dashboard() {
             </div>
           )}
           {completedToday > 0 && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs font-medium text-emerald-400">
-              <CheckCircle2 className="size-3.5 text-emerald-400" aria-hidden="true" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-success/30 bg-success/10 text-xs font-medium text-success">
+              <CheckCircle2 className="size-3.5 text-success" aria-hidden="true" />
               <span>{completedToday} done today</span>
             </div>
           )}
@@ -200,6 +202,7 @@ export default function Dashboard() {
         ) : activeQuests.length > 0 ? (
           <>
             <PrimaryActionPanel
+              key={activeQuests[0].id}
               quest={activeQuests[0]}
               completing={saving}
               onComplete={() => void handleComplete(activeQuests[0].id)}

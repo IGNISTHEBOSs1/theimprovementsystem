@@ -125,7 +125,7 @@ export default function Journey() {
   const primaryActionQuest = activeQuests[0];
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-[calc(96px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10">
       {/* ── Page Header & Reschedule Trigger ── */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
@@ -153,7 +153,7 @@ export default function Journey() {
       </div>
 
       {/* ── Summary Banner ── */}
-      <div className="mt-6 rounded-2xl p-4 sm:p-5 liquid-glass border border-primary/25 relative overflow-hidden">
+      <div className="mt-6 rounded-2xl p-4 sm:p-5 glass-hero border border-primary/25 relative overflow-hidden">
         <div className="flex items-start gap-3.5">
           <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
             <Sparkles className="size-4" aria-hidden="true" />
@@ -165,12 +165,12 @@ export default function Journey() {
             <p className="mt-1 text-sm sm:text-base font-medium leading-relaxed text-foreground">
               {pace ? (
                 pace.isOnTrack ? (
-                  `You're averaging ${pace.actualDailyPace} goal quest${pace.actualDailyPace === 1 ? "" : "s"}/day, on track to reach your goal by ${pace.targetDateFormatted}.`
+                  `You're averaging ${pace.actualDailyPace} goal quest${pace.actualDailyPace === 1 ? "" : "s"} a day, on track to reach your goal by ${pace.targetDateFormatted}.`
                 ) : (
-                  `A pace of ${pace.requiredDailyPace} goal quests/day is required to meet your target by ${pace.targetDateFormatted} (currently averaging ${pace.actualDailyPace}/day).`
+                  `To reach your goal by ${pace.targetDateFormatted}, aim for ${pace.requiredDailyPace} goal quests a day (you're currently averaging ${pace.actualDailyPace}).`
                 )
               ) : (
-                `You are working toward "${profile?.primary_goal}". Set an optional target date in your Profile to unlock daily pace calculations and ETA forecasting.`
+                `You are working toward "${profile?.primary_goal}". Set an optional target date in your Profile to see your estimated completion date and daily pace.`
               )}
             </p>
           </div>
@@ -191,7 +191,7 @@ export default function Journey() {
 
         {/* ── CARD 2 (Half Width): Goal ETA or Target Date Prompt ── */}
         {pace ? (
-          <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+          <div className="rounded-2xl p-5 sm:p-6 glass-hero flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -236,7 +236,7 @@ export default function Journey() {
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+          <div className="rounded-2xl p-5 sm:p-6 glass-hero flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -272,7 +272,7 @@ export default function Journey() {
 
         {/* ── CARD 3 (Half Width): Current Pace or Goal Quests Overview ── */}
         {pace ? (
-          <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+          <div className="rounded-2xl p-5 sm:p-6 glass-hero flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -323,7 +323,7 @@ export default function Journey() {
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl p-5 sm:p-6 liquid-glass flex flex-col justify-between">
+          <div className="rounded-2xl p-5 sm:p-6 glass-hero flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -359,7 +359,7 @@ export default function Journey() {
         )}
 
         {/* ── CARD 4 (Full Width): Next Immediate Action ── */}
-        <div className="col-span-1 md:col-span-2 rounded-2xl p-5 sm:p-6 liquid-glass border border-primary/20">
+        <div className="col-span-1 md:col-span-2 rounded-2xl p-5 sm:p-6 glass-hero border border-primary/20">
           {primaryActionQuest ? (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="min-w-0 flex-1">
@@ -455,7 +455,7 @@ export default function Journey() {
                 return (
                   <li
                     key={q.id}
-                    className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.08] dark:border-white/[0.05] bg-card/50 backdrop-blur-md px-4 py-3 text-body-sm transition-all"
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-body-sm transition-all"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       {/* Neutral Icons: Checkmark for completed, Neutral Dash for skipped */}
@@ -493,7 +493,7 @@ export default function Journey() {
               })}
             </ul>
           ) : (
-            <div className="rounded-2xl border border-white/[0.06] bg-card/40 p-5 text-center text-xs text-muted-foreground">
+            <div className="rounded-2xl border border-border bg-card p-5 text-center text-xs text-muted-foreground">
               No events recorded in the last 48 hours. Complete a quest to see it here.
             </div>
           )}

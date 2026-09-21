@@ -1,10 +1,11 @@
-import { useRef, useState, type PointerEvent } from "react";
-import { ArrowRight, ChevronRight, CircleDot, Target } from "lucide-react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { ArrowRight, Check, ChevronRight, CircleDot, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { triggerHaptic } from "@/lib/haptics";
+import { cn } from "@/lib/utils";
 
 interface PrimaryActionPanelProps {
   quest?: Quest;
@@ -68,7 +69,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
   return (
     <section
       ref={spotlight.bind}
-      className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-7"
+      className="relative overflow-hidden rounded-2xl glass-hero p-5 sm:p-7"
       aria-labelledby="focus-heading"
     >
       {spotlight.enabled && (
@@ -106,7 +107,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
           )}
         </div>
         <div className="w-full sm:w-auto sm:shrink-0">
-          <SwipeToComplete completing={Boolean(completing)} onComplete={onComplete} />
+          <SwipeToComplete key={quest.id} completing={Boolean(completing)} onComplete={onComplete} />
         </div>
       </div>
     </section>
@@ -140,9 +141,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
 // completion is handled exactly once, directly in finishDrag — the
 // previous version could double-fire onComplete after a real swipe
 // (finishDrag calling it, then the native click event calling it again).
-// Founder Decision (Visual override chunk — swipe-to-complete, feel pass):
-// three concrete upgrades, each solving something specific rather than
-// generic "make it nicer" polish:
+// Founder Decision (Visual override chunk — swipe-to-complete, feel pass & closure):
 // (1) Velocity-based completion — a fast flick that doesn't cross the
 //     65% distance threshold used to just snap back and do nothing,
 //     which reads as broken/unsatisfying on a confident swipe. Now a
@@ -155,11 +154,11 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
 //     gesture feel satisfying rather than just functional. Fires once
 //     per drag (guarded by crossedRef), not on every pointermove past
 //     the line.
-// (3) On success the handle now animates to the END of the track (a
-//     real "completed" position, spring-eased) instead of snapping
-//     straight back to the start — snapping back on success reads as
-//     the action being undone, not confirmed. Snap-back still happens,
-//     but only on a genuine cancel (released before threshold).
+// (3) On success the handle animates to the END of the track (a
+//     real "completed" position, spring-eased) and morphs to a Check
+//     icon with success tokens. A 240ms cognitive closure delay holds
+//     the confirmed state before queue advance, providing clear task
+//     closure before the next quest appears with an auto-reset handle.
 function SwipeToComplete({ completing, onComplete }: { completing: boolean; onComplete: () => void }) {
   const trackRef = useRef<HTMLButtonElement>(null);
   const handleRef = useRef<HTMLSpanElement>(null);
@@ -168,6 +167,8 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
   const movedRef = useRef(false);
   const crossedRef = useRef(false);
   const startTimeRef = useRef(0);
+  const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isDone, setIsDone] = useState(false);
   const HANDLE_SIZE = 40;
   const THRESHOLD = 0.65;
   const FLICK_VELOCITY = 0.9; // px/ms — a confident flick completes even under the distance threshold
@@ -206,8 +207,31 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
     track.style.backgroundColor = `hsl(var(--primary) / ${(0.12 + progress * 0.28).toFixed(3)})`;
   };
 
+  useEffect(() => {
+    return () => {
+      if (completeTimerRef.current) {
+        clearTimeout(completeTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    // If completing finished or errored and this component didn't unmount (e.g. network error),
+    // cleanly snap back the handle after a short grace period.
+    if (!completing && isDone) {
+      const timer = setTimeout(() => {
+        setIsDone(false);
+        setHandleX(0, "snap");
+        if (trackRef.current) {
+          trackRef.current.style.backgroundColor = "";
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [completing, isDone]);
+
   const handlePointerDown = (e: PointerEvent) => {
-    if (completing) return;
+    if (completing || isDone) return;
     trackRef.current?.setPointerCapture(e.pointerId);
     draggingRef.current = true;
     movedRef.current = false;
@@ -218,7 +242,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
   };
 
   const handlePointerMove = (e: PointerEvent) => {
-    if (!draggingRef.current || completing) return;
+    if (!draggingRef.current || completing || isDone) return;
     const rect = trackRef.current?.getBoundingClientRect();
     if (!rect) return;
     const max = maxDrag();
@@ -247,13 +271,18 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
     const flickMet = movedRef.current && velocity >= FLICK_VELOCITY && dragXRef.current > HANDLE_SIZE;
     const success = distanceMet || flickMet;
 
-    setTrackFill(success ? 1 : 0, true);
-
     if (success) {
+      setIsDone(true);
+      if (trackRef.current) {
+        trackRef.current.style.backgroundColor = "";
+      }
       setHandleX(max, "settle");
       triggerHaptic("success");
-      onComplete();
+      completeTimerRef.current = setTimeout(() => {
+        onComplete();
+      }, 240);
     } else {
+      setTrackFill(0, true);
       setHandleX(0, "snap");
     }
     dragXRef.current = 0;
@@ -265,9 +294,17 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
     // This IS the tap-based fallback to the drag gesture: the whole
     // track is a real <button>, so a plain tap, Enter, or Space all
     // complete the Quest without requiring the drag motion at all.
-    if (!movedRef.current) {
+    if (!movedRef.current && !completing && !isDone) {
+      setIsDone(true);
+      const max = maxDrag();
+      if (trackRef.current) {
+        trackRef.current.style.backgroundColor = "";
+      }
+      setHandleX(max, "settle");
       triggerHaptic("success");
-      onComplete();
+      completeTimerRef.current = setTimeout(() => {
+        onComplete();
+      }, 240);
     }
   };
 
@@ -275,24 +312,43 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
     <button
       ref={trackRef}
       type="button"
-      disabled={completing}
+      disabled={completing || isDone}
       onClick={handleClick}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
-      className="relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full bg-foreground/15 px-1 text-left touch-none border border-border/40"
-      aria-label={completing ? "Marking Quest complete" : "Mark this Quest complete"}
+      className={cn(
+        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none transition-colors duration-200 border glass-control",
+        isDone
+          ? "border-success/40 bg-success/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
+          : ""
+      )}
+      aria-label={isDone ? "Quest completed" : completing ? "Marking Quest complete" : "Mark this Quest complete"}
     >
       <span
         ref={handleRef}
-        className="pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm"
+        className={cn(
+          "pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),0_2px_8px_rgba(0,0,0,0.25)] transition-colors duration-200",
+          isDone
+            ? "bg-success text-success-foreground"
+            : "bg-primary text-primary-foreground"
+        )}
         style={{ transform: "translate3d(0px, -50%, 0)" }}
       >
-        <ArrowRight className="size-4" aria-hidden="true" />
+        {isDone ? (
+          <Check className="size-4 animate-in zoom-in-75 duration-200" aria-hidden="true" />
+        ) : (
+          <ArrowRight className="size-4" aria-hidden="true" />
+        )}
       </span>
-      <span className="w-full text-center text-sm font-medium text-foreground select-none pl-8 pr-3">
-        {completing ? "Saving…" : "Swipe to complete"}
+      <span
+        className={cn(
+          "w-full text-center text-sm font-medium select-none pl-8 pr-3 transition-colors duration-200",
+          isDone ? "text-success font-semibold" : "text-foreground"
+        )}
+      >
+        {isDone ? "Done!" : completing ? "Saving…" : "Swipe to complete"}
       </span>
     </button>
   );
