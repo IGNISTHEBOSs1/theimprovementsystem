@@ -26,6 +26,7 @@ export default function Dashboard() {
   const name = profile?.username || "there";
   const chooseQuest = () => navigate("/quests");
   const [completeError, setCompleteError] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   // Founder Decision (Recovery/Guidance chunk): recommitting to a missed
   // one-shot Quest hands its title/priority/goal-link to the Quest page's
@@ -177,8 +178,6 @@ export default function Dashboard() {
       Boolean((q.resolvedAt || (q as any).completedAt) &&
         (todayStr ? String(q.resolvedAt || (q as any).completedAt).startsWith(todayStr) : false))
   ).length;
-
-  const shouldReduceMotion = useReducedMotion();
 
   return (
     <motion.div
