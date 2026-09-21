@@ -23,9 +23,12 @@ class InnerRouteErrorBoundary extends Component<InnerProps, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
+    // Unconditionally log to console so issues can be inspected in production
+    console.error("[TIS Route Error]:", error, info?.componentStack);
+
     logError(error, {
       component: "RouteErrorBoundary",
-      componentStack: info.componentStack,
+      componentStack: info?.componentStack,
     });
 
     // If this is a chunk failure (e.g. from an unhandled asset preload), attempt guarded reload
@@ -71,6 +74,17 @@ class InnerRouteErrorBoundary extends Component<InnerProps, State> {
                 ? "A new version of the system was deployed. Refreshing will load the latest interface."
                 : "An unexpected issue interrupted this section. You can try again or reload the page."}
             </p>
+
+            {this.state.error?.message && (
+              <details className="mt-3 text-left">
+                <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground text-center select-none">
+                  Diagnostic details
+                </summary>
+                <div className="mt-2 p-2.5 rounded-lg bg-muted/70 border border-border text-xs font-mono text-destructive break-all text-left">
+                  {this.state.error.message}
+                </div>
+              </details>
+            )}
 
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button

@@ -40,8 +40,20 @@ export const PRIORITY_RANK: Record<QuestPriority, number> = {
 // commitment first) as the tie-break within the same priority. Exported
 // so the data layer (ordering activeQuests) and any UI that needs the
 // same order stay in agreement — one definition, not two.
-export function comparePriorityThenCreatedAt(a: { priority: QuestPriority; createdAt: string }, b: { priority: QuestPriority; createdAt: string }): number {
-  const rankDiff = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
+export function comparePriorityThenCreatedAt(
+  a?: { priority?: QuestPriority | string; createdAt?: string } | null,
+  b?: { priority?: QuestPriority | string; createdAt?: string } | null
+): number {
+  if (!a && !b) return 0;
+  if (!a) return 1;
+  if (!b) return -1;
+
+  const rankA = PRIORITY_RANK[a.priority as QuestPriority] ?? 2;
+  const rankB = PRIORITY_RANK[b.priority as QuestPriority] ?? 2;
+  const rankDiff = rankA - rankB;
   if (rankDiff !== 0) return rankDiff;
-  return a.createdAt.localeCompare(b.createdAt);
+
+  const dateA = a.createdAt || "";
+  const dateB = b.createdAt || "";
+  return dateA.localeCompare(dateB);
 }

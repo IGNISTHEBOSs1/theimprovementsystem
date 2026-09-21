@@ -128,10 +128,36 @@ export default function Dashboard() {
     );
   }
 
-  const guidance = deriveGuidance(state.quests, profile?.timezone || "UTC");
-  const insights = deriveInsights(state.quests);
-  const trajectory = deriveTrajectory(state.quests);
-  const currentStreak = todayStr ? deriveCurrentStreak(state.quests, todayStr, profile?.timezone || "UTC") : 0;
+  const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
+
+  let guidance: ReturnType<typeof deriveGuidance> = [];
+  try {
+    guidance = deriveGuidance(safeQuests, profile?.timezone || "UTC");
+  } catch (e) {
+    console.warn("deriveGuidance error:", e);
+  }
+
+  let insights: ReturnType<typeof deriveInsights> = [];
+  try {
+    insights = deriveInsights(safeQuests);
+  } catch (e) {
+    console.warn("deriveInsights error:", e);
+  }
+
+  let trajectory: ReturnType<typeof deriveTrajectory> = { actual: [], intended: [], currentPosition: 0 };
+  try {
+    trajectory = deriveTrajectory(safeQuests);
+  } catch (e) {
+    console.warn("deriveTrajectory error:", e);
+  }
+
+  let currentStreak = 0;
+  try {
+    currentStreak = todayStr ? deriveCurrentStreak(safeQuests, todayStr, profile?.timezone || "UTC") : 0;
+  } catch (e) {
+    console.warn("deriveCurrentStreak error:", e);
+  }
+
   const contextualLink = (guidance.length > 0 || insights.length > 0)
     ? { to: "/mentor", label: "Your Mentor has a note based on your history." }
     : trajectory.actual.length > 0
@@ -146,8 +172,10 @@ export default function Dashboard() {
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-  const completedToday = state.quests.filter(
-    (q) => q.status === "completed" && q.completedAt && (todayStr ? q.completedAt.startsWith(todayStr) : false)
+  const completedToday = safeQuests.filter(
+    (q) => (q.completed || (q as any).status === "completed") &&
+      Boolean((q.resolvedAt || (q as any).completedAt) &&
+        (todayStr ? String(q.resolvedAt || (q as any).completedAt).startsWith(todayStr) : false))
   ).length;
 
   const shouldReduceMotion = useReducedMotion();
@@ -223,7 +251,7 @@ export default function Dashboard() {
                       className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-body-sm shadow-[var(--shadow-card)]"
                     >
                       <div className="flex flex-wrap items-center gap-2.5">
-                        <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority]}>
+                        <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>
                           {quest.priority}
                         </Badge>
                         <span className="text-foreground font-medium">{quest.title}</span>

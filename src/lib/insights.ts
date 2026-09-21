@@ -227,14 +227,23 @@ function goalAlignmentInsight(quests: Quest[]): Insight | null {
 // appear when its own threshold isn't met, rather than rendering an
 // empty/insufficient placeholder per type.
 export function deriveInsights(quests: Quest[]): Insight[] {
+  const safeQuests = Array.isArray(quests) ? quests.filter(Boolean) : [];
   const insights: Insight[] = [];
-  const momentum = momentumInsight(quests);
-  if (momentum) insights.push(momentum);
-  const followThrough = followThroughInsight(quests);
-  if (followThrough) insights.push(followThrough);
-  const friction = recurringFrictionInsight(quests);
-  if (friction) insights.push(friction);
-  const alignment = goalAlignmentInsight(quests);
-  if (alignment) insights.push(alignment);
+  try {
+    const momentum = momentumInsight(safeQuests);
+    if (momentum) insights.push(momentum);
+  } catch {}
+  try {
+    const followThrough = followThroughInsight(safeQuests);
+    if (followThrough) insights.push(followThrough);
+  } catch {}
+  try {
+    const friction = recurringFrictionInsight(safeQuests);
+    if (friction) insights.push(friction);
+  } catch {}
+  try {
+    const alignment = goalAlignmentInsight(safeQuests);
+    if (alignment) insights.push(alignment);
+  } catch {}
   return insights;
 }

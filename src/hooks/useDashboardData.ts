@@ -536,20 +536,15 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
   // separate, flagged data-reconciliation question, not resolved here.
   // Uses the cached server-local `todayStr` (see above), not a client
   // clock default.
+  const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
+
   const activeQuests = todayStr
-    ? state.quests.filter((q) => occupiesActiveSlot(q, todayStr, timezone || "UTC")).sort(comparePriorityThenCreatedAt)
+    ? safeQuests.filter((q) => occupiesActiveSlot(q, todayStr, timezone || "UTC")).sort(comparePriorityThenCreatedAt)
     : [];
 
-  // Founder Decision (Recovery/Guidance chunk): the single most recent
-  // failed Quest, if any — used by RecoveryState to differentiate "just
-  // missed something" from "never started" (previously both states
-  // showed identical copy). Deliberately not filtered to one-shot only
-  // here; the recommit affordance (only offered for non-recurring
-  // Quests, since a recurring series already self-resumes on its next
-  // eligible day) is decided by the caller, not this derivation.
-  const lastMissedQuest = state.quests
+  const lastMissedQuest = safeQuests
     .filter((q) => q.failed)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+    .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""))[0];
 
   return {
     state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, cancelQuest, updateQuest, recalibrateSchedule, commitToTodaysQuest, reload: load, todayStr,

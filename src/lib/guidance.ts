@@ -102,8 +102,8 @@ const RECOVERY_REPEAT_FAILURE_THRESHOLD = 0.6;
 
 function repeatedCommitmentGuidance(quests: Quest[]): GuidanceMessage | null {
   const oneShotTitles = quests
-    .filter((q) => !q.seriesId)
-    .map((q) => q.title.trim().toLowerCase())
+    .filter((q) => q && !q.seriesId && q.title)
+    .map((q) => (q.title || "").trim().toLowerCase())
     .filter(Boolean);
 
   const counts = new Map<string, number>();
@@ -120,7 +120,7 @@ function repeatedCommitmentGuidance(quests: Quest[]): GuidanceMessage | null {
   if (!best) return null;
 
   // Recover original-case title for display — first matching Quest.
-  const original = quests.find((q) => q.title.trim().toLowerCase() === best!.title)?.title ?? best.title;
+  const original = quests.find((q) => (q?.title || "").trim().toLowerCase() === best!.title)?.title ?? best.title;
 
   return {
     id: "repeated-commitment",
@@ -308,20 +308,44 @@ function recoveryAfterMissGuidance(quests: Quest[]): GuidanceMessage | null {
 // rule ever fires (not one per matching title/weekday/priority) — this
 // stays a short, occasional note, not a running commentary.
 export function deriveGuidance(quests: Quest[], timezone: string): GuidanceMessage[] {
+  const safeQuests = Array.isArray(quests) ? quests.filter(Boolean) : [];
+  const safeTz = timezone || "UTC";
   const messages: GuidanceMessage[] = [];
-  const repeated = repeatedCommitmentGuidance(quests);
-  if (repeated) messages.push(repeated);
-  const weekday = weekdayMissPatternGuidance(quests, timezone);
-  if (weekday) messages.push(weekday);
-  const seriesReliability = seriesReliabilityGuidance(quests);
-  if (seriesReliability) messages.push(seriesReliability);
-  const goalLinkage = goalLinkageGapGuidance(quests);
-  if (goalLinkage) messages.push(goalLinkage);
-  const recovery = recoveryAfterMissGuidance(quests);
-  if (recovery) messages.push(recovery);
-  const trajectoryPosition = trajectoryPositionGuidance(quests);
-  if (trajectoryPosition) messages.push(trajectoryPosition);
-  const priorityCompletion = priorityCompletionGuidance(quests);
-  if (priorityCompletion) messages.push(priorityCompletion);
+
+  try {
+    const repeated = repeatedCommitmentGuidance(safeQuests);
+    if (repeated) messages.push(repeated);
+  } catch {}
+
+  try {
+    const weekday = weekdayMissPatternGuidance(safeQuests, safeTz);
+    if (weekday) messages.push(weekday);
+  } catch {}
+
+  try {
+    const seriesReliability = seriesReliabilityGuidance(safeQuests);
+    if (seriesReliability) messages.push(seriesReliability);
+  } catch {}
+
+  try {
+    const goalLinkage = goalLinkageGapGuidance(safeQuests);
+    if (goalLinkage) messages.push(goalLinkage);
+  } catch {}
+
+  try {
+    const recovery = recoveryAfterMissGuidance(safeQuests);
+    if (recovery) messages.push(recovery);
+  } catch {}
+
+  try {
+    const trajectoryPosition = trajectoryPositionGuidance(safeQuests);
+    if (trajectoryPosition) messages.push(trajectoryPosition);
+  } catch {}
+
+  try {
+    const priorityCompletion = priorityCompletionGuidance(safeQuests);
+    if (priorityCompletion) messages.push(priorityCompletion);
+  } catch {}
+
   return messages;
 }

@@ -16,8 +16,9 @@ import { toServerLocalDate } from "@/lib/serverTime";
 // This is a real, honestly-computed count from existing resolvedAt
 // data — not a fabricated or persisted number, and not gameable by
 // creating empty Quests (only `completed: true` counts).
-export function deriveResolvedAt(quest: Quest): string {
-  return quest.resolvedAt ?? quest.createdAt;
+export function deriveResolvedAt(quest?: Quest | null): string {
+  if (!quest) return new Date().toISOString();
+  return quest.resolvedAt ?? quest.createdAt ?? new Date().toISOString();
 }
 
 // Founder Decision (Visual override chunk): current-streak derivation.
@@ -29,17 +30,28 @@ export function deriveResolvedAt(quest: Quest): string {
 // data — not a fabricated or persisted number, and not gameable by
 // creating empty Quests (only `completed: true` counts).
 export function deriveCurrentStreak(quests: Quest[], todayStr: string, timezone: string): number {
+  if (!todayStr || typeof todayStr !== "string") return 0;
+
+  const validQuests = Array.isArray(quests) ? quests.filter((q) => q && q.completed) : [];
   const completedDates = new Set(
-    quests.filter((q) => q.completed).map((q) => toServerLocalDate(new Date(deriveResolvedAt(q)), timezone).dateStr),
+    validQuests.map((q) => {
+      const resolved = deriveResolvedAt(q);
+      const parsed = new Date(resolved);
+      return toServerLocalDate(parsed, timezone).dateStr;
+    }),
   );
 
   let streak = 0;
-  const cursor = new Date(`${todayStr}T12:00:00`); // noon avoids DST edge cases when stepping by day
-  for (;;) {
+  const cursor = new Date(`${todayStr}T12:00:00Z`);
+  if (isNaN(cursor.getTime())) {
+    return 0;
+  }
+
+  for (let i = 0; i < 3650; i++) {
     const cursorStr = cursor.toISOString().split("T")[0];
     if (!completedDates.has(cursorStr)) break;
     streak += 1;
-    cursor.setDate(cursor.getDate() - 1);
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
   }
   return streak;
 }
@@ -93,7 +105,8 @@ export interface GoalStats {
 // not just Quests linked to today's exact goal text. That mirrors how
 // Journey's trajectory already treats goal-linked evidence.
 export function deriveGoalStats(quests: Quest[]): GoalStats {
-  const linkedQuests = quests.filter((q) => q.linkedToGoal);
+  const safeQuests = Array.isArray(quests) ? quests.filter(Boolean) : [];
+  const linkedQuests = safeQuests.filter((q) => q.linkedToGoal);
   return {
     linked: linkedQuests.length,
     completed: linkedQuests.filter((q) => q.completed).length,
@@ -113,9 +126,10 @@ export function deriveTrajectory(quests: Quest[]): TrajectoryResult {
   // (completed === true OR failed === true). A Quest that is merely
   // active or was never goal-linked contributes nothing — creating a
   // Quest never moves trajectory, only its resolution does.
-  const evidence = quests
+  const safeQuests = Array.isArray(quests) ? quests.filter(Boolean) : [];
+  const evidence = safeQuests
     .filter((q) => q.linkedToGoal && (q.completed || q.failed))
-    .sort((a, b) => deriveResolvedAt(a).localeCompare(deriveResolvedAt(b)));
+    .sort((a, b) => (deriveResolvedAt(a) || "").localeCompare(deriveResolvedAt(b) || ""));
 
   let actualPosition = 0;
   let intendedPosition = 0;

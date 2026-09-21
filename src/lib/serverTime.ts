@@ -69,18 +69,37 @@ async function fetchServerNow(): Promise<Date> {
 // dependency on the RPC above — testable and reusable independent of
 // where the "now" instant came from.
 export function toServerLocalDate(utcInstant: Date, timezone: string): ServerLocalDate {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: timezone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    weekday: "short",
-  });
-  const parts = formatter.formatToParts(utcInstant);
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
-  const dateStr = `${get("year")}-${get("month")}-${get("day")}`;
-  const weekday = WEEKDAY_INDEX[get("weekday")] ?? utcInstant.getUTCDay();
-  return { instant: utcInstant, dateStr, weekday };
+  const validInstant = (utcInstant instanceof Date && !isNaN(utcInstant.getTime()))
+    ? utcInstant
+    : new Date();
+
+  let safeTimezone = "UTC";
+  if (timezone && typeof timezone === "string") {
+    try {
+      new Intl.DateTimeFormat("en-US", { timeZone: timezone });
+      safeTimezone = timezone;
+    } catch {
+      safeTimezone = "UTC";
+    }
+  }
+
+  try {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: safeTimezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      weekday: "short",
+    });
+    const parts = formatter.formatToParts(validInstant);
+    const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+    const dateStr = `${get("year")}-${get("month")}-${get("day")}`;
+    const weekday = WEEKDAY_INDEX[get("weekday")] ?? validInstant.getUTCDay();
+    return { instant: validInstant, dateStr, weekday };
+  } catch {
+    const iso = validInstant.toISOString();
+    return { instant: validInstant, dateStr: iso.split("T")[0], weekday: validInstant.getUTCDay() };
+  }
 }
 
 // The single entry point most callers should use: fetch the

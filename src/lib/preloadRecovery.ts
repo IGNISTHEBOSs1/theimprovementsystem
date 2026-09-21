@@ -8,10 +8,10 @@
 const RELOAD_KEY = "tis_last_preload_reload";
 const RELOAD_COUNT_KEY = "tis_preload_reload_count";
 const COOLDOWN_MS = 15000; // 15 seconds cooldown
-const MAX_RELOADS_PER_WINDOW = 2;
+const MAX_RELOADS_PER_WINDOW = 3;
 
 /**
- * Checks if an error represents a failed chunk or stylesheet preload.
+ * Checks if an error represents a failed chunk, stylesheet, or dynamic script preload.
  */
 export function isChunkLoadError(error: unknown): boolean {
   if (!error) return false;
@@ -24,7 +24,10 @@ export function isChunkLoadError(error: unknown): boolean {
     lower.includes("failed to fetch dynamically imported module") ||
     lower.includes("importing a module script failed") ||
     lower.includes("error loading dynamically imported module") ||
-    lower.includes("failed to fetch") && lower.includes("assets") ||
+    lower.includes("error loading module") ||
+    lower.includes("failed to load module") ||
+    lower.includes("failed to fetch") ||
+    lower.includes("load failed") ||
     lower.includes("chunkloaderror") ||
     lower.includes("loading chunk")
   );
