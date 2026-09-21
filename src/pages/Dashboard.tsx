@@ -184,7 +184,7 @@ export default function Dashboard() {
       initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="mx-auto w-full max-w-4xl px-5 py-6 pb-[calc(96px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10"
+      className="mx-auto w-full max-w-4xl px-5 py-6 pb-6 sm:px-8 sm:py-10"
     >
       <AppTour />
 

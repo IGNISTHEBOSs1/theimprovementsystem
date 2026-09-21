@@ -100,12 +100,12 @@ export default function Journey() {
       } else if (shiftedCount > 0) {
         triggerHaptic("success");
         toast.success(
-          `Rescheduled: ${shiftedCount} non-essential commitment${
+          `Moved ${shiftedCount} secondary commitment${
             shiftedCount > 1 ? "s" : ""
-          } moved to tomorrow to protect your momentum.`
+          } to tomorrow to keep your focus clear.`
         );
       } else {
-        toast.info("Nothing to reschedule — only essential commitments remain for today.");
+        toast.info("Nothing to reschedule — only your main commitments remain for today.");
       }
     } catch {
       toast.error("Could not reschedule commitments.");
@@ -125,7 +125,7 @@ export default function Journey() {
   const primaryActionQuest = activeQuests[0];
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-[calc(96px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-6 sm:px-8 sm:py-10">
       {/* ── Page Header & Reschedule Trigger ── */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
@@ -190,13 +190,14 @@ export default function Journey() {
         </div>
 
         {/* ── CARD 2 (Half Width): Goal ETA or Target Date Prompt ── */}
+        {/* ── CARD 2 (Half Width): Goal Target Timeline ── */}
         {pace ? (
-          <div className="rounded-2xl p-5 sm:p-6 glass-hero flex flex-col justify-between">
+          <div className="rounded-2xl p-5 sm:p-6 border border-border bg-card shadow-[var(--shadow-card)] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
                   <CalendarClock className="size-4 text-primary" aria-hidden="true" />
-                  <span>Goal ETA</span>
+                  <span>Target timeline</span>
                 </div>
                 <Badge
                   variant="outline"
@@ -221,14 +222,14 @@ export default function Journey() {
               </h3>
               <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
                 {pace.paceRatio >= 1.1
-                  ? "Your consistent pace puts you comfortably ahead of schedule."
+                  ? "Your steady pace puts you comfortably ahead of schedule."
                   : pace.isOnTrack
-                  ? `Pacing on track for target date (${pace.daysRemaining} days remaining).`
-                  : `${pace.daysRemaining} days remaining. Focus on goal-linked quests to close the gap.`}
+                  ? `You're on track to reach your goal with ${pace.daysRemaining} days remaining.`
+                  : `${pace.daysRemaining} days remaining. Focus on your goal commitments to stay on track.`}
               </p>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
+            <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Goal Progress</span>
               <span className="font-mono font-semibold text-foreground">
                 {goalStats.completed} / {goalStats.linked} Quests Done
@@ -236,7 +237,7 @@ export default function Journey() {
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl p-5 sm:p-6 glass-hero flex flex-col justify-between">
+          <div className="rounded-2xl p-5 sm:p-6 border border-border bg-card shadow-[var(--shadow-card)] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -252,11 +253,11 @@ export default function Journey() {
                 No target date set
               </h3>
               <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                Set a target date for your goal in Profile to unlock pace calculations and ETA projections.
+                Set a target date in your Profile to see your estimated timeline and daily pace.
               </p>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between">
+            <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between">
               <Button asChild variant="outline" size="sm" className="rounded-xl text-xs">
                 <Link to="/profile">
                   <span>Set target date</span>
@@ -272,7 +273,7 @@ export default function Journey() {
 
         {/* ── CARD 3 (Half Width): Current Pace or Goal Quests Overview ── */}
         {pace ? (
-          <div className="rounded-2xl p-5 sm:p-6 glass-hero flex flex-col justify-between">
+          <div className="rounded-2xl p-5 sm:p-6 border border-border bg-card shadow-[var(--shadow-card)] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -295,7 +296,7 @@ export default function Journey() {
                 <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-mono">
                   {pace.actualDailyPace}
                 </h3>
-                <span className="text-sm font-medium text-muted-foreground">Quests / day</span>
+                <span className="text-sm font-medium text-muted-foreground">quests / day</span>
               </div>
 
               {/* Velocity meter bar */}
@@ -310,12 +311,12 @@ export default function Journey() {
 
               <p className="mt-2 text-xs text-muted-foreground">
                 {pace.isOnTrack
-                  ? `Required pace is ${pace.requiredDailyPace} quests/day. Observed across the last ${pace.daysObserved} days.`
-                  : `Aim for ${pace.requiredDailyPace} quests/day to meet your target. Current: ${pace.actualDailyPace}/day.`}
+                  ? `Aim for about ${pace.requiredDailyPace} quests a day to reach your goal. Based on your activity over the past ${pace.daysObserved} days.`
+                  : `Aim for ${pace.requiredDailyPace} quests a day to meet your target. Current average: ${pace.actualDailyPace}/day.`}
               </p>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
+            <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Recent completions</span>
               <span className="font-mono font-medium text-primary">
                 {pace.recentGoalCompleted} in last {pace.daysObserved} days
@@ -323,7 +324,7 @@ export default function Journey() {
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl p-5 sm:p-6 glass-hero flex flex-col justify-between">
+          <div className="rounded-2xl p-5 sm:p-6 border border-border bg-card shadow-[var(--shadow-card)] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -331,7 +332,7 @@ export default function Journey() {
                   <span>Goal progress</span>
                 </div>
                 <Badge variant="outline" className="text-[10px] font-mono border-primary/30 bg-primary/10 text-primary">
-                  Evidence
+                  Progress
                 </Badge>
               </div>
 
@@ -339,17 +340,17 @@ export default function Journey() {
                 <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-mono">
                   {goalStats.completed}
                 </h3>
-                <span className="text-sm font-medium text-muted-foreground">Quests completed</span>
+                <span className="text-sm font-medium text-muted-foreground">quests completed</span>
               </div>
 
               <p className="mt-2 text-xs text-muted-foreground">
                 {goalStats.linked > 0
-                  ? `${goalStats.completed} of ${goalStats.linked} goal-linked quests completed.`
-                  : "Link quests to your primary goal to track evidence toward it."}
+                  ? `${goalStats.completed} of ${goalStats.linked} goal commitments completed.`
+                  : "Link commitments to your primary goal to track your path toward it."}
               </p>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-white/[0.06] dark:border-white/[0.04] flex items-center justify-between text-xs">
+            <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Remaining</span>
               <span className="font-mono font-medium text-foreground">
                 {Math.max(0, goalStats.linked - goalStats.completed - goalStats.failed)} active
@@ -359,7 +360,7 @@ export default function Journey() {
         )}
 
         {/* ── CARD 4 (Full Width): Next Immediate Action ── */}
-        <div className="col-span-1 md:col-span-2 rounded-2xl p-5 sm:p-6 glass-hero border border-primary/20">
+        <div className="col-span-1 md:col-span-2 rounded-2xl p-5 sm:p-6 border border-primary/25 bg-card shadow-[var(--shadow-card)]">
           {primaryActionQuest ? (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="min-w-0 flex-1">
@@ -494,7 +495,7 @@ export default function Journey() {
             </ul>
           ) : (
             <div className="rounded-2xl border border-border bg-card p-5 text-center text-xs text-muted-foreground">
-              No events recorded in the last 48 hours. Complete a quest to see it here.
+              No activity recorded in the last 48 hours. When you complete a commitment, it will appear here.
             </div>
           )}
         </div>

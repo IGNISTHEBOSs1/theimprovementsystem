@@ -152,7 +152,7 @@ export default function Quests() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-[calc(96px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-6 sm:px-8 sm:py-10">
       <PageHeader
         eyebrow="Your commitments"
         title="Your commitments."
@@ -244,6 +244,7 @@ export default function Quests() {
                     <TodaysCommitment
                       committing={saving}
                       onCommit={handleCommit}
+                      onCancel={() => setShowCommitForm(false)}
                       goalLabel={profile?.primary_goal ?? undefined}
                       initialValues={recommitPrefill}
                     />

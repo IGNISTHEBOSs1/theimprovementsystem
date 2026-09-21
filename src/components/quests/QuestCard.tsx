@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Check, Target, Loader2 } from "lucide-react";
+import { useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { triggerHaptic } from "@/lib/haptics";
+import { cn } from "@/lib/utils";
 
 interface QuestCardProps {
   quest: Quest;
@@ -22,21 +25,39 @@ interface QuestCardProps {
 // `description` field in the canonical quest data — one was not invented
 // for this card (see TIS-QUEST-001 report).
 export function QuestCard({ quest, completing, onComplete, onCancel, cancelling }: QuestCardProps) {
+  const [justCompleted, setJustCompleted] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
   const isDone = quest.completed || quest.failed;
   // Cancel is only ever meaningful for an active, one-shot Quest — a
   // recurring series has its own lifecycle (see cancelQuest's own
   // comment in useDashboardData.ts). Enforced again here, not just in the
   // caller, so this component can never render a cancel action that
   // wouldn't actually be honored.
-  const canCancel = Boolean(onCancel) && !isDone && !quest.seriesId;
+  const canCancel = Boolean(onCancel) && !isDone && !quest.seriesId && !justCompleted;
+
+  const handleMarkComplete = () => {
+    if (completing || justCompleted) return;
+    setJustCompleted(true);
+    triggerHaptic("success");
+    if (shouldReduceMotion) {
+      onComplete(quest.id);
+    } else {
+      setTimeout(() => {
+        onComplete(quest.id);
+      }, 260);
+    }
+  };
 
   return (
     <li
-      className={
-        isDone
-          ? "flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 opacity-70 sm:flex-row sm:items-center sm:justify-between"
-          : "flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between"
-      }
+      className={cn(
+        "flex flex-col gap-3 rounded-2xl border p-5 transition-all duration-300 sm:flex-row sm:items-center sm:justify-between shadow-[var(--shadow-card)]",
+        justCompleted
+          ? "border-success/50 bg-success/[0.04] scale-[0.99]"
+          : isDone
+          ? "border-border bg-card opacity-70"
+          : "border-border bg-card"
+      )}
     >
       <div>
         <div className="flex flex-wrap items-center gap-2">
@@ -48,16 +69,18 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
         </h3>
         {quest.linkedToGoal && quest.goalName && (
           <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Target className="size-3.5 shrink-0" aria-hidden="true" />
+            <Target className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
             Supports: {quest.goalName}
           </p>
         )}
       </div>
 
-      {quest.completed ? (
-        <div className="flex items-center gap-2 text-sm font-medium text-primary shrink-0">
-          <Check className="size-4" aria-hidden="true" />
-          Completed
+      {quest.completed || justCompleted ? (
+        <div className="flex items-center gap-2 text-sm font-semibold text-success shrink-0 animate-in zoom-in-75 duration-200">
+          <div className="flex size-6 items-center justify-center rounded-full bg-success/15 border border-success/30 text-success">
+            <Check className="size-3.5" aria-hidden="true" />
+          </div>
+          <span>Completed</span>
         </div>
       ) : quest.failed ? (
         <div className="text-sm font-medium text-muted-foreground shrink-0">Not completed</div>
@@ -68,30 +91,25 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
               variant="ghost"
               className="min-h-11 text-muted-foreground hover:text-foreground"
               onClick={() => onCancel!(quest.id)}
-              disabled={cancelling}
+              disabled={cancelling || completing || justCompleted}
             >
               Cancel
             </Button>
           )}
           <Button
-            className="min-h-11"
-            onClick={() => {
-              triggerHaptic("success");
-              onComplete(quest.id);
-            }}
-            disabled={completing}
+            className={cn(
+              "min-h-11 transition-all duration-200",
+              justCompleted ? "bg-success text-success-foreground" : ""
+            )}
+            onClick={handleMarkComplete}
+            disabled={completing || justCompleted}
           >
-            {/* Was static text only ("Saving…") with no visual motion —
-                nothing confirmed the tap registered until the whole
-                list re-rendered on the network response. The spinner
-                gives immediate feedback in the same frame as the tap,
-                before the database round-trip resolves. */}
-            {completing ? (
+            {completing && !justCompleted ? (
               <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             ) : (
               <Check className="size-4" aria-hidden="true" />
             )}
-            {completing ? "Saving…" : "Mark complete"}
+            {completing && !justCompleted ? "Saving…" : justCompleted ? "Done!" : "Mark complete"}
           </Button>
         </div>
       )}

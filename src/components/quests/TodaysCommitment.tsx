@@ -18,6 +18,7 @@ const DEFAULT_CADENCE: CadencePreset = "Once";
 interface TodaysCommitmentProps {
   committing: boolean;
   onCommit: (commitment: string, linkedToGoal: boolean, cadence: CadencePreset, customDays: number[], priority: QuestPriority) => void;
+  onCancel?: () => void;
   // The account's primary goal, if one is set. When present, an explicit
   // opt-in checkbox is shown so the user can mark this commitment as
   // supporting that goal. When absent, no checkbox is shown at all —
@@ -53,7 +54,7 @@ interface TodaysCommitmentProps {
 // useDashboardData.commitToTodaysQuest, the one place that has
 // server-authoritative "today" available, so "Weekly" is never resolved
 // against the client's own clock.
-export function TodaysCommitment({ committing, onCommit, goalLabel, initialValues }: TodaysCommitmentProps) {
+export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, initialValues }: TodaysCommitmentProps) {
   const [commitment, setCommitment] = useState(initialValues?.title ?? "");
   const [linkedToGoal, setLinkedToGoal] = useState(initialValues?.linkedToGoal ?? false);
   const [showOptions, setShowOptions] = useState(Boolean(initialValues && initialValues.priority !== DEFAULT_PRIORITY));
@@ -99,14 +100,27 @@ export function TodaysCommitment({ committing, onCommit, goalLabel, initialValue
             className="min-h-11"
             autoFocus
           />
-          <Button
-            type="submit"
-            className="min-h-11 shrink-0"
-            disabled={committing || !commitment.trim() || cadenceInvalid}
-          >
-            {committing ? "Committing…" : "Commit"}
-            {!committing && <ArrowRight className="size-4" aria-hidden="true" />}
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              type="submit"
+              className="min-h-11 shrink-0"
+              disabled={committing || !commitment.trim() || cadenceInvalid}
+            >
+              {committing ? "Committing…" : "Commit"}
+              {!committing && <ArrowRight className="size-4" aria-hidden="true" />}
+            </Button>
+            {onCancel && (
+              <Button
+                type="button"
+                variant="ghost"
+                className="min-h-11 shrink-0 text-muted-foreground hover:text-foreground"
+                onClick={onCancel}
+                disabled={committing}
+              >
+                Cancel
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">

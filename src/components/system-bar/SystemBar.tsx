@@ -1,5 +1,5 @@
 import { useLocation, NavLink } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   LayoutDashboard,
   Compass,
@@ -48,7 +48,7 @@ const NAV_ITEMS = [
 
 // Smooth route-change animation.
 const INDICATOR_TRANSITION = {
-  duration: 0.4,
+  duration: 0.35,
   ease: [0.16, 1, 0.3, 1] as const,
 };
 
@@ -64,6 +64,8 @@ export default function SystemBar({
   hasMentorInsight = false,
 }: SystemBarProps) {
   const location = useLocation();
+  const shouldReduceMotion = useReducedMotion();
+  const indicatorTransition = shouldReduceMotion ? { duration: 0 } : INDICATOR_TRANSITION;
 
   const isActive = (to: string) =>
     to === "/"
@@ -270,29 +272,26 @@ export default function SystemBar({
                       border border-foreground/10 dark:border-white/15
                       shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]
                     "
-                    transition={INDICATOR_TRANSITION}
+                    transition={indicatorTransition}
                   />
                 )}
 
                 {/* Icon + label scale together as one unit: active tab
                     pops slightly larger, every other tab recedes
-                    slightly smaller — matches the "selected gets bold
-                    and enlarged while every other icon and text
-                    minimizes" behavior. The active tab's own scale-up
-                    is delayed ~80ms so the pill visibly arrives at its
-                    new position first, then the icon/label grow into
-                    it, rather than everything happening in one
-                    simultaneous jump. Inactive tabs shrink immediately
-                    — no reason to wait on those. */}
+                    slightly smaller — respects reduced motion. */}
                 <motion.div
                   className="relative flex flex-col items-center justify-center gap-1"
-                  animate={{ scale: active ? 1.12 : 0.94 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 420,
-                    damping: 26,
-                    delay: active ? 0.08 : 0,
-                  }}
+                  animate={shouldReduceMotion ? { scale: 1 } : { scale: active ? 1.12 : 0.94 }}
+                  transition={
+                    shouldReduceMotion
+                      ? { duration: 0 }
+                      : {
+                          type: "spring",
+                          stiffness: 420,
+                          damping: 26,
+                          delay: active ? 0.08 : 0,
+                        }
+                  }
                 >
                   {/* Profile avatar or Icon with notification pip */}
                   <div className="relative">

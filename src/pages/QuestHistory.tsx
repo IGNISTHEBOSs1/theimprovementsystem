@@ -96,7 +96,7 @@ export default function QuestHistory() {
   }, [resolved, activeTab, search]);
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(108px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-8 sm:px-8 sm:py-10 sm:pb-12">
       <PageHeader
         eyebrow="Your system"
         title="Quest history."

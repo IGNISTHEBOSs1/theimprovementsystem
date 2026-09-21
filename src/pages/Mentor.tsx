@@ -94,14 +94,14 @@ export default function Mentor() {
   const anyGridSlot = hasHero || signalCardsCount > 0;
 
   const usedInGrid = new Set([
-    recurring ? "insight-recurring-friction" : null,
-    recurring ? "guidance-series-reliability" : null,
-    recurring ? "guidance-repeated-commitment" : null,
-    momentum ? "insight-momentum" : null,
-    recovery ? "guidance-recovery-after-miss" : null,
-    hasTrajectory ? "guidance-trajectory-position" : null,
+    isRecurringHero ? "insight-recurring-friction" : null,
+    isRecurringHero ? "guidance-series-reliability" : null,
+    isRecurringHero ? "guidance-repeated-commitment" : null,
+    isRecoveryHero || showRecoveryCard ? "guidance-recovery-after-miss" : null,
+    isMomentumHero || showMomentumCard ? "insight-momentum" : null,
+    showTrajectoryCard ? "guidance-trajectory-position" : null,
+    // If richer insight-goal-alignment exists, suppress the single-line guidance-goal-linkage-gap duplicate
     insights.some((i) => i.id === "goal-alignment") ? "guidance-goal-linkage-gap" : null,
-    guidance.some((g) => g.id === "goal-linkage-gap") ? "insight-goal-alignment" : null,
   ].filter(Boolean));
 
   const pool: RankedItem[] = [
@@ -136,7 +136,7 @@ export default function Mentor() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(116px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-8 sm:px-8 sm:py-10 sm:pb-12">
       <PageHeader
         eyebrow="Mentor"
         title="Your patterns."
@@ -375,14 +375,14 @@ export default function Mentor() {
               </div>
 
               <div className={cn(
-                "flex overflow-x-auto snap-x snap-mandatory gap-3.5 pb-2 -mx-4 pl-4 pr-6 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:gap-4 sm:overflow-visible",
+                "flex overflow-x-auto snap-x snap-mandatory gap-3.5 pb-2 -mx-4 px-4 scroll-pl-4 scroll-pr-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:gap-4 sm:overflow-visible",
                 signalCardsCount === 1 ? "sm:grid-cols-1" : "sm:grid-cols-2"
               )}>
                 {/* Trajectory Card */}
                 {showTrajectoryCard && (
                   <div className={cn(
-                    signalCardsCount > 1 ? "w-[84vw] max-w-[320px] shrink-0 snap-start sm:w-auto" : "w-full sm:w-auto",
-                    "rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col justify-between"
+                    signalCardsCount > 1 ? "w-[calc(100vw-56px)] max-w-[340px] shrink-0 snap-start sm:w-auto" : "w-full sm:w-auto",
+                    "rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-[var(--shadow-card)] flex flex-col justify-between"
                   )}>
                     <div>
                       <div className="flex items-center justify-between">
@@ -412,8 +412,8 @@ export default function Mentor() {
                               className={cn(
                                 "inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-mono font-semibold transition-transform active:scale-95",
                                 pt.outcome === "completed"
-                                  ? "bg-primary/10 text-primary border border-primary/25"
-                                  : "bg-muted text-muted-foreground border border-border/60"
+                                    ? "bg-primary/10 text-primary border border-primary/25"
+                                    : "bg-muted text-muted-foreground border border-border/60"
                               )}
                               title={`${pt.quest.title}: ${pt.outcome}`}
                             >
@@ -438,8 +438,8 @@ export default function Mentor() {
                 {/* Recovery Card (when not hero) */}
                 {showRecoveryCard && recovery && (
                   <div className={cn(
-                    signalCardsCount > 1 ? "w-[84vw] max-w-[320px] shrink-0 snap-start sm:w-auto" : "w-full sm:w-auto",
-                    "rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col justify-between"
+                    signalCardsCount > 1 ? "w-[calc(100vw-56px)] max-w-[340px] shrink-0 snap-start sm:w-auto" : "w-full sm:w-auto",
+                    "rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-[var(--shadow-card)] flex flex-col justify-between"
                   )}>
                     <div>
                       <div className="flex items-center gap-2">
@@ -462,8 +462,8 @@ export default function Mentor() {
                 {/* Momentum Card (when not hero) */}
                 {showMomentumCard && momentum && (
                   <div className={cn(
-                    signalCardsCount > 1 ? "w-[84vw] max-w-[320px] shrink-0 snap-start sm:w-auto" : "w-full sm:w-auto",
-                    "rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col justify-between"
+                    signalCardsCount > 1 ? "w-[calc(100vw-56px)] max-w-[340px] shrink-0 snap-start sm:w-auto" : "w-full sm:w-auto",
+                    "rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-[var(--shadow-card)] flex flex-col justify-between"
                   )}>
                     <div>
                       <div className="flex items-center justify-between gap-2">
@@ -550,7 +550,7 @@ export default function Mentor() {
         <div className="mt-8 space-y-3">
           <div className="flex items-center justify-between px-0.5">
             <span className="text-caption font-semibold text-muted-foreground uppercase tracking-wider">
-              More observations
+              {anyGridSlot ? "More observations" : "Your observations"}
             </span>
             <span className="text-[11px] font-mono text-muted-foreground">
               {surfaced.length} noted
