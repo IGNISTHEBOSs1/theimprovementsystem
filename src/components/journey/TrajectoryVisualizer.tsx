@@ -11,8 +11,8 @@ interface TrajectoryVisualizerProps {
   className?: string;
 }
 
-const WIDTH = 680;
-const HEIGHT = 260;
+const WIDTH = 720;
+const HEIGHT = 340;
 
 export function TrajectoryVisualizer({
   completedQuests,
@@ -28,16 +28,16 @@ export function TrajectoryVisualizer({
 
   const progressRatio = Math.min(Math.max(completedQuests / (targetQuests || 1), 0), 1);
 
-  // Coordinate geometry
-  const xOrigin = 45;
-  const yOrigin = 200;
+  // Coordinate geometry with enhanced vertical amplitude
+  const xOrigin = 55;
+  const yOrigin = 270;
 
-  const xCurrent = 230;
+  const xCurrent = 260;
   // y position: higher progress = lower y (higher altitude on the chart)
-  const yCurrent = yOrigin - progressRatio * 110;
+  const yCurrent = yOrigin - progressRatio * 150;
 
-  const xGoal = 635;
-  const yGoal = 46;
+  const xGoal = 650;
+  const yGoal = 60;
 
   // Predictive Bezier Curve: Smooth glide slope from current position to destination
   const dx = xGoal - xCurrent;
@@ -51,7 +51,7 @@ export function TrajectoryVisualizer({
   const predictiveCurvePath = `M ${xCurrent} ${yCurrent} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${xGoal} ${yGoal}`;
 
   // Cone of Possibility: 10% acceptable variance corridor expanding from Current to Goal
-  const varianceSpan = 32; // +/- 10% variance expansion at horizon
+  const varianceSpan = 42; // +/- 10% variance expansion at horizon
   const yGoalUpper = yGoal - varianceSpan;
   const yGoalLower = yGoal + varianceSpan;
 
@@ -78,25 +78,25 @@ export function TrajectoryVisualizer({
   const historicTrailPath = `M ${xOrigin} ${yOrigin} C ${trailC1x} ${trailC1y}, ${trailC2x} ${trailC2y}, ${xCurrent} ${yCurrent}`;
 
   return (
-    <div className={cn("relative overflow-hidden rounded-2xl p-5 sm:p-7 glass-hero", className)}>
+    <div className={cn("relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-card/80 border border-border/80 shadow-md", className)}>
       {/* Ambient background illumination */}
       <div
         className="pointer-events-none absolute inset-0 opacity-40"
         style={{
-          background: "radial-gradient(ellipse 600px 300px at 70% 20%, hsl(var(--primary) / 0.12), transparent 70%)",
+          background: "radial-gradient(ellipse 700px 380px at 70% 20%, hsl(var(--primary) / 0.12), transparent 70%)",
         }}
         aria-hidden="true"
       />
 
       {/* Progress Status Bar */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] dark:border-white/[0.04] pb-4 text-xs">
-        <div className="flex items-center gap-2">
-          <Navigation className="size-4 text-primary animate-pulse" aria-hidden="true" />
-          <span className="font-mono text-[11px] font-semibold tracking-wider uppercase text-foreground">
-            Goal Trajectory
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-4 text-xs">
+        <div className="flex items-center gap-2.5">
+          <Navigation className="size-4 text-primary" aria-hidden="true" />
+          <span className="font-mono text-xs font-bold tracking-wider uppercase text-foreground">
+            Goal Trajectory Visualizer
           </span>
           {goalLabel && (
-            <span className="hidden sm:inline-block rounded-full bg-primary/10 px-2.5 py-0.5 font-medium text-primary text-[11px]">
+            <span className="hidden sm:inline-block rounded-full bg-primary/10 px-3 py-1 font-medium text-primary text-xs">
               {goalLabel}
             </span>
           )}
@@ -106,13 +106,13 @@ export function TrajectoryVisualizer({
         <div className="flex items-center gap-2">
           <div
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider transition-all",
+              "inline-flex items-center gap-2 rounded-full px-3 py-1 font-mono text-xs font-semibold uppercase tracking-wider transition-all",
               isOnTrack
-                ? "border border-success/30 bg-success/10 text-success shadow-[0_0_12px_rgba(16,185,129,0.15)]"
-                : "border border-warning/30 bg-warning/10 text-warning shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                ? "border border-success/40 bg-success/15 text-success shadow-[0_0_12px_rgba(16,185,129,0.2)]"
+                : "border border-warning/40 bg-warning/15 text-warning shadow-[0_0_12px_rgba(245,158,11,0.2)]"
             )}
           >
-            <span className="relative flex size-2">
+            <span className="relative flex size-2.5">
               <span
                 className={cn(
                   "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
@@ -121,7 +121,7 @@ export function TrajectoryVisualizer({
               />
               <span
                 className={cn(
-                  "relative inline-flex size-2 rounded-full",
+                  "relative inline-flex size-2.5 rounded-full",
                   isOnTrack ? "bg-success" : "bg-warning"
                 )}
               />
@@ -132,7 +132,7 @@ export function TrajectoryVisualizer({
       </div>
 
       {/* Trajectory Canvas */}
-      <div className="relative mt-4 w-full">
+      <div className="relative mt-5 w-full">
         <svg
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           className="w-full h-auto overflow-visible select-none"
@@ -142,60 +142,60 @@ export function TrajectoryVisualizer({
           <defs>
             {/* Cone Frosted Glass Gradient */}
             <linearGradient id={coneGradId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.18} />
-              <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity={0.10} />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.03} />
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.22} />
+              <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity={0.12} />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.04} />
             </linearGradient>
 
             {/* Glowing Trajectory Stroke Gradient */}
             <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.7} />
-              <stop offset="70%" stopColor="hsl(var(--primary))" stopOpacity={1} />
-              <stop offset="100%" stopColor="hsl(var(--primary-glow, var(--primary)))" stopOpacity={1} />
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.75} />
+              <stop offset="60%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+              <stop offset="100%" stopColor="hsl(var(--foreground))" stopOpacity={1} />
             </linearGradient>
 
             {/* Neon Flight Filter */}
             <filter id={glowFilterId} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="hsl(var(--primary))" floodOpacity="0.45" />
+              <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="hsl(var(--primary))" floodOpacity="0.4" />
             </filter>
           </defs>
 
           {/* Ambient Altitude Guide Grids */}
-          {[60, 120, 180].map((y) => (
+          {[80, 160, 240].map((y) => (
             <line
               key={y}
-              x1={35}
+              x1={40}
               y1={y}
-              x2={WIDTH - 35}
+              x2={WIDTH - 30}
               y2={y}
               stroke="hsl(var(--border))"
-              strokeOpacity={0.15}
+              strokeOpacity={0.25}
               strokeDasharray="4 8"
               strokeWidth={1}
             />
           ))}
 
-          {/* 1. THE CONE OF POSSIBILITY (Frosted-glass corridor +/- 10% variance) */}
+          {/* 1. THE CONE OF POSSIBILITY (Corridor +/- 10% variance) */}
           <path
             d={conePath}
             fill={`url(#${coneGradId})`}
-            className="transition-all duration-500 backdrop-blur-md"
+            className="transition-all duration-500"
           />
 
           {/* Cone Boundary Hairlines */}
           <path
             d={`M ${xCurrent} ${yCurrent} C ${c1x} ${c1yUpper}, ${c2x} ${c2yUpper}, ${xGoal} ${yGoalUpper}`}
             fill="none"
-            stroke="hsl(var(--primary) / 0.35)"
-            strokeWidth={1}
-            strokeDasharray="3 4"
+            stroke="hsl(var(--primary) / 0.4)"
+            strokeWidth={1.5}
+            strokeDasharray="4 5"
           />
           <path
             d={`M ${xCurrent} ${yCurrent} C ${c1x} ${c1yLower}, ${c2x} ${c2yLower}, ${xGoal} ${yGoalLower}`}
             fill="none"
-            stroke="hsl(var(--primary) / 0.35)"
-            strokeWidth={1}
-            strokeDasharray="3 4"
+            stroke="hsl(var(--primary) / 0.4)"
+            strokeWidth={1.5}
+            strokeDasharray="4 5"
           />
 
           {/* Cone Tolerance Bracket at Goal */}
@@ -204,19 +204,20 @@ export function TrajectoryVisualizer({
             y1={yGoalUpper}
             x2={xGoal}
             y2={yGoalLower}
-            stroke="hsl(var(--primary) / 0.4)"
-            strokeWidth={1.5}
+            stroke="hsl(var(--primary) / 0.5)"
+            strokeWidth={2}
             strokeLinecap="round"
           />
           <text
-            x={xGoal + 6}
+            x={xGoal + 8}
             y={yGoal + 4}
-            fill="hsl(var(--muted-foreground))"
-            fontSize="9"
+            fill="hsl(var(--foreground))"
+            fontSize="12"
+            fontWeight="600"
             fontFamily="monospace"
-            opacity={0.7}
+            opacity={0.85}
           >
-            ±{variancePct}% range
+            ±{variancePct}% corridor
           </text>
 
           {/* 2. RECENT PROGRESS TRAIL */}
@@ -224,64 +225,89 @@ export function TrajectoryVisualizer({
             d={historicTrailPath}
             fill="none"
             stroke="hsl(var(--foreground))"
-            strokeOpacity={0.25}
-            strokeWidth={2}
-            strokeDasharray="4 3"
+            strokeOpacity={0.3}
+            strokeWidth={2.5}
+            strokeDasharray="5 4"
           />
 
-          {/* 3. PROJECTED PATH */}
+          {/* 3. PROJECTED PATH (Prominent, High-Contrast) */}
           <path
             d={predictiveCurvePath}
             fill="none"
             stroke={`url(#${gradientId})`}
-            strokeWidth={3}
+            strokeWidth={4}
             strokeLinecap="round"
             filter={`url(#${glowFilterId})`}
           />
 
           {/* Origin Start Point */}
           <g transform={`translate(${xOrigin}, ${yOrigin})`}>
-            <circle r={3} fill="hsl(var(--muted-foreground))" opacity={0.5} />
+            <circle r={4.5} fill="hsl(var(--muted-foreground))" opacity={0.6} />
             <text
-              y={16}
+              y={20}
               textAnchor="middle"
               fill="hsl(var(--muted-foreground))"
-              fontSize="9"
+              fontSize="12"
+              fontWeight="500"
               fontFamily="monospace"
-              opacity={0.6}
             >
-              Started
+              Start
             </text>
           </g>
 
           {/* Current Progress Node */}
           <g transform={`translate(${xCurrent}, ${yCurrent})`}>
-            {/* Outer radar pulse circle — strictly anchored at node center */}
-            <circle r={6} fill="hsl(var(--primary) / 0.25)">
-              <animate attributeName="r" values="6;16;6" dur="2.6s" repeatCount="indefinite" />
+            {/* Outer radar pulse circles */}
+            <circle r={8} fill="hsl(var(--primary) / 0.25)">
+              <animate attributeName="r" values="8;24;8" dur="2.6s" repeatCount="indefinite" />
               <animate attributeName="opacity" values="0.7;0;0.7" dur="2.6s" repeatCount="indefinite" />
             </circle>
-            <circle r={6} fill="none" stroke="hsl(var(--primary) / 0.4)" strokeWidth={1}>
-              <animate attributeName="r" values="6;20;6" dur="2.6s" repeatCount="indefinite" />
+            <circle r={8} fill="none" stroke="hsl(var(--primary) / 0.5)" strokeWidth={1.5}>
+              <animate attributeName="r" values="8;30;8" dur="2.6s" repeatCount="indefinite" />
               <animate attributeName="opacity" values="0.6;0;0.6" dur="2.6s" repeatCount="indefinite" />
             </circle>
-            <circle r={6} fill="hsl(var(--primary))" stroke="hsl(var(--background))" strokeWidth={2} />
-            <circle r={2.5} fill="#ffffff" />
+            <circle r={8} fill="hsl(var(--foreground))" stroke="hsl(var(--background))" strokeWidth={2.5} />
+            <circle r={3.5} fill="hsl(var(--background))" />
+
+            {/* Pill Backdrop for "Today" label */}
+            <rect
+              x={-34}
+              y={-38}
+              width={68}
+              height={24}
+              rx={12}
+              fill="hsl(var(--card))"
+              stroke="hsl(var(--border))"
+              strokeWidth={1}
+            />
             <text
-              y={-14}
+              y={-22}
               textAnchor="middle"
               fill="hsl(var(--foreground))"
-              fontSize="10"
-              fontWeight="600"
+              fontSize="14"
+              fontWeight="700"
               fontFamily="sans-serif"
             >
               Today
             </text>
+
+            {/* Sub-label for Progress Count */}
+            <rect
+              x={-68}
+              y={16}
+              width={136}
+              height={24}
+              rx={6}
+              fill="hsl(var(--card))"
+              stroke="hsl(var(--border) / 0.6)"
+              strokeWidth={1}
+            />
             <text
-              y={20}
+              y={32}
               textAnchor="middle"
-              fill="hsl(var(--muted-foreground))"
-              fontSize="9"
+              fill="hsl(var(--foreground))"
+              fontSize="12"
+              fontWeight="600"
               fontFamily="monospace"
             >
               {completedQuests} of {targetQuests} Quests
@@ -291,30 +317,32 @@ export function TrajectoryVisualizer({
           {/* Destination Milestone Star */}
           <g transform={`translate(${xGoal}, ${yGoal})`}>
             <circle
-              r={7}
+              r={9}
               fill="hsl(var(--primary) / 0.2)"
               stroke="hsl(var(--primary))"
-              strokeWidth={1.5}
+              strokeWidth={2}
             />
-            <circle r={2.5} fill="hsl(var(--primary))" />
+            <circle r={4} fill="hsl(var(--primary))" />
+
+            {/* Pill Backdrop for "Goal Target" label */}
+            <rect
+              x={-102}
+              y={-38}
+              width={92}
+              height={24}
+              rx={12}
+              fill="hsl(var(--card))"
+              stroke="hsl(var(--border))"
+              strokeWidth={1}
+            />
             <text
-              x={-8}
-              y={-14}
-              textAnchor="end"
+              x={-56}
+              y={-22}
+              textAnchor="middle"
               fill="hsl(var(--foreground))"
-              fontSize="10"
-              fontWeight="600"
+              fontSize="14"
+              fontWeight="700"
               fontFamily="sans-serif"
-            >
-              Goal
-            </text>
-            <text
-              x={-8}
-              y={-2}
-              textAnchor="end"
-              fill="hsl(var(--muted-foreground))"
-              fontSize="9"
-              fontFamily="monospace"
             >
               Target
             </text>

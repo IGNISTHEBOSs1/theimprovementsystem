@@ -73,16 +73,35 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 // past it) only flips once the auth effect's own callback has returned —
 // which no longer depends on the profile fetch completing.
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const isDevPreview = import.meta.env.DEV && typeof window !== 'undefined' && (new URLSearchParams(window.location.search).has('dev_preview') || localStorage.getItem('tis_dev_mock') === 'true');
+
+  const devMockUser: User = {
+    id: 'dev-mock-user',
+    app_metadata: {},
+    user_metadata: {},
+    aud: 'authenticated',
+    created_at: new Date().toISOString(),
+  } as User;
+
+  const devMockProfile: Profile = {
+    id: 'dev-mock-profile',
+    user_id: 'dev-mock-user',
+    username: 'Alex',
+    avatar_id: 'monarch-1',
+    date_of_birth: null,
+    bio: 'Personal Trajectory System Operator.',
+    primary_goal: 'Build consistent daily discipline & master systems',
+    primary_goal_target_date: '2026-10-30',
+    timezone: 'UTC',
+    has_completed_first_launch: true,
+    created_at: '2026-01-01T00:00:00Z',
+    updated_at: '2026-01-01T00:00:00Z',
+  };
+
+  const [user, setUser] = useState<User | null>(isDevPreview ? devMockUser : null);
+  const [profile, setProfile] = useState<Profile | null>(isDevPreview ? devMockProfile : null);
+  const [loading, setLoading] = useState(!isDevPreview);
   const [profileLoading, setProfileLoading] = useState(false);
-  // Distinguishes "profile row could not be resolved after all retries"
-  // from "profile is still loading" and "profile resolved". Without this,
-  // an exhausted fetchProfile left `profile` as null with profileLoading
-  // false — indistinguishable, downstream, from a state that had simply
-  // never started loading. Consumers (e.g. Dashboard) must branch on this
-  // explicitly rather than inferring failure from `profile === null`.
   const [profileError, setProfileError] = useState(false);
 
   // Fetches the profile row, retrying briefly to cover the short window
@@ -92,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // retry (e.g. from a profile-unavailable error state) since it owns its
   // own profileLoading/profileError bookkeeping.
   const fetchProfile = async (userId: string, attempts = 3, delayMs = 300) => {
+    if (isDevPreview) return;
     setProfileLoading(true);
     for (let attempt = 0; attempt < attempts; attempt++) {
       const { data, error } = await supabase
@@ -99,24 +119,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .select('*')
         .eq('user_id', userId)
         .maybeSingle();
-      // If a newer fetch has since started for a different user (rapid
-      // account switch), abandon this one rather than clobbering state
-      // that no longer corresponds to the current user. Preserves the
-      // race protection the effect used to provide via its own
-      // `cancelled` flag, now centralized here so fetchProfile stays
-      // safe to call directly for a manual retry too.
       if (lastFetchedUserId.current !== userId) return;
       if (!error && data) {
         setProfile(data as Profile);
         setProfileError(false);
         setProfileLoading(false);
-        // Server-authoritative timezone system: identify the user's
-        // intended IANA zone from the device exactly once, on whichever
-        // authenticated session first has no timezone stored yet. This
-        // is fire-and-forget — a failure here doesn't affect profile
-        // loading (already resolved above); @/lib/serverTime falls back
-        // to UTC if timezone is still null on the next Quest evaluation,
-        // and this will simply try again on the next profile fetch.
         if ((data as Profile).timezone === null) {
           const detected = detectDeviceTimezone();
           void supabase
@@ -142,9 +149,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Auth-only effect. Performs zero database requests — only
   // supabase.auth.getSession() and supabase.auth.onAuthStateChange().
-  // `loading` represents auth state alone: whether we know yet if there
-  // is a user or not. It does not wait on profile data.
   useEffect(() => {
+    if (isDevPreview) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
@@ -159,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isDevPreview]);
 
   // Dedicated profile effect, watching the authenticated user. Runs
   // independently of and after the auth effect above — the app can

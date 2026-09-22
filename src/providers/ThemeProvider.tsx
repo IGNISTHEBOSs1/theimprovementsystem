@@ -179,9 +179,13 @@ export function ThemeProvider({
     readStored(STORAGE_KEY_THEME, defaultTheme, THEME_NAMES)
   );
 
-  const [mode, setModeState] = useState<ThemeMode>(() =>
-    readStored(STORAGE_KEY_MODE, defaultMode, ["light", "dark", "system"] as ThemeMode[])
-  );
+  const [mode, setModeState] = useState<ThemeMode>(() => {
+    if (typeof window !== 'undefined') {
+      const q = new URLSearchParams(window.location.search).get('mode') as ThemeMode | null;
+      if (q && ["light", "dark", "system"].includes(q)) return q;
+    }
+    return readStored(STORAGE_KEY_MODE, defaultMode, ["light", "dark", "system"] as ThemeMode[]);
+  });
 
   const resolvedMode = resolveMode(mode);
 

@@ -250,6 +250,166 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
       return;
     }
 
+    if (userId === 'dev-mock-user') {
+      const now = new Date();
+      const todayIso = now.toISOString();
+      const todayDate = todayIso.split('T')[0];
+      const d1 = new Date(Date.now() - 86400000).toISOString();
+      const d2 = new Date(Date.now() - 86400000 * 2).toISOString();
+      const d3 = new Date(Date.now() - 86400000 * 3).toISOString();
+      const d4 = new Date(Date.now() - 86400000 * 4).toISOString();
+      const d5 = new Date(Date.now() - 86400000 * 5).toISOString();
+
+      const mockQuests: Quest[] = [
+        {
+          id: 'dev-1',
+          title: 'Do pushups (3 sets of 20)',
+          timeFrame: 'Today',
+          priority: 'Important',
+          completed: false,
+          failed: false,
+          createdAt: todayIso,
+          linkedToGoal: true,
+          goalName: 'Build consistent daily discipline & master systems',
+        },
+        {
+          id: 'dev-2',
+          title: 'Read 20 pages of system design',
+          timeFrame: 'Today',
+          priority: 'Core',
+          completed: false,
+          failed: false,
+          createdAt: todayIso,
+          isPrimaryGoal: false,
+        },
+        {
+          id: 'dev-3',
+          title: 'Walk 3,000 steps morning brisk pace',
+          timeFrame: 'Today',
+          priority: 'Core',
+          completed: true,
+          failed: false,
+          createdAt: todayIso,
+          resolvedAt: todayIso,
+          isPrimaryGoal: false,
+        },
+        {
+          id: 'dev-4',
+          title: 'Review system architecture and prune cognitive noise',
+          timeFrame: 'Today',
+          priority: 'Important',
+          completed: true,
+          failed: false,
+          createdAt: d1,
+          resolvedAt: d1,
+          linkedToGoal: true,
+          goalName: 'Build consistent daily discipline & master systems',
+        },
+        {
+          id: 'dev-5',
+          title: 'Complete 5km outdoor cadence run',
+          timeFrame: 'Today',
+          priority: 'Core',
+          completed: true,
+          failed: false,
+          createdAt: d2,
+          resolvedAt: d2,
+          isPrimaryGoal: false,
+        },
+        {
+          id: 'dev-6',
+          title: 'Deep focus block — zero context switching',
+          timeFrame: 'Today',
+          priority: 'Important',
+          completed: true,
+          failed: false,
+          createdAt: d3,
+          resolvedAt: d3,
+          linkedToGoal: true,
+          goalName: 'Build consistent daily discipline & master systems',
+        },
+        {
+          id: 'dev-7',
+          title: 'Weekly system calibration & evidence review',
+          timeFrame: 'Today',
+          priority: 'Core',
+          completed: true,
+          failed: false,
+          createdAt: d4,
+          resolvedAt: d4,
+          isPrimaryGoal: false,
+        },
+        {
+          id: 'dev-8',
+          title: 'Draft architectural proposal for review',
+          timeFrame: 'Today',
+          priority: 'Important',
+          completed: true,
+          failed: false,
+          createdAt: d5,
+          resolvedAt: d5,
+          linkedToGoal: true,
+          goalName: 'Build consistent daily discipline & master systems',
+        },
+        {
+          id: 'dev-9',
+          title: 'Morning stretch routine',
+          timeFrame: 'Today',
+          priority: 'Core',
+          completed: false,
+          failed: true,
+          seriesId: 'series-stretch',
+          recurrenceDays: [1, 2, 3, 4, 5],
+          createdAt: d1,
+          resolvedAt: d1,
+          isPrimaryGoal: false,
+        },
+        {
+          id: 'dev-10',
+          title: 'Morning stretch routine',
+          timeFrame: 'Today',
+          priority: 'Core',
+          completed: false,
+          failed: true,
+          seriesId: 'series-stretch',
+          recurrenceDays: [1, 2, 3, 4, 5],
+          createdAt: d2,
+          resolvedAt: d2,
+          isPrimaryGoal: false,
+        },
+        {
+          id: 'dev-11',
+          title: 'Morning stretch routine',
+          timeFrame: 'Today',
+          priority: 'Core',
+          completed: false,
+          failed: true,
+          seriesId: 'series-stretch',
+          recurrenceDays: [1, 2, 3, 4, 5],
+          createdAt: d3,
+          resolvedAt: d3,
+          isPrimaryGoal: false,
+        },
+        {
+          id: 'dev-12',
+          title: 'One-off quick errand',
+          timeFrame: 'Today',
+          priority: 'Core',
+          completed: false,
+          failed: true,
+          createdAt: d4,
+          resolvedAt: d4,
+          isPrimaryGoal: false,
+        },
+      ];
+
+      setState({ quests: mockQuests });
+      setTodayStr(todayDate);
+      setLoading(false);
+      setError(false);
+      return;
+    }
+
     setLoading(true);
     try {
       for (let attempt = 0; attempt < attempts; attempt++) {

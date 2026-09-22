@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageSquare, Sprout, Compass, RotateCcw } from "lucide-react";
+import { MessageSquare, Sprout, Compass, RotateCcw, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -33,7 +33,7 @@ interface RankedItem {
   strength: number;
 }
 
-const MAX_SURFACED_INSIGHTS = 3;
+const MAX_SURFACED_INSIGHTS = 4;
 
 export default function Mentor() {
   const { profile } = useAuth();
@@ -51,7 +51,7 @@ export default function Mentor() {
   if (error) {
     return (
       <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
-        <section className="rounded-2xl border border-border bg-card p-7" aria-label="Mentor unavailable">
+        <section className="rounded-3xl border border-border bg-card p-7" aria-label="Mentor unavailable">
           <p className="text-label text-muted-foreground">Mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
           <p className="mt-2 text-body-md text-muted-foreground">This is usually temporary. You can try again now.</p>
@@ -143,23 +143,26 @@ export default function Mentor() {
         description="What works and where you get stuck, based on what you actually do."
       />
 
-      {anyGridSlot && (
-        <div className="mt-6 space-y-4">
-          {/* ── Dominant Primary Insight: Recurring Friction ── */}
+      {/* ── 1. Executive Advisory Briefing (Zero Nested Cards) ── */}
+      {hasHero && (
+        <div className="mt-6">
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl glass-hero p-4 sm:p-6 shadow-sm"
+              className="rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-label font-semibold text-primary">
-                  Your main pattern
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
+                  Executive Briefing • Primary Pattern
+                </span>
+                <span className="text-xs font-mono text-muted-foreground">
+                  Behavioral Analysis
                 </span>
               </div>
 
               <h2
                 id="primary-insight-heading"
-                className="mt-2 text-body-lg font-semibold text-foreground leading-snug"
+                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground leading-snug"
               >
                 {recurring.observation}
               </h2>
@@ -174,15 +177,15 @@ export default function Mentor() {
                   const oneOffPct = 100 - recurringPct;
 
                   return (
-                    <div className="mt-4 pt-3.5 border-t border-border/50 space-y-2.5">
-                      <div className="flex items-center justify-between text-body-xs">
+                    <div className="pt-2 space-y-2.5">
+                      <div className="flex items-center justify-between text-xs font-mono">
                         <span className="font-medium text-foreground">Where misses happen</span>
-                        <span className="font-mono text-muted-foreground">{totalMissed} misses</span>
+                        <span className="text-muted-foreground">{totalMissed} total misses</span>
                       </div>
 
                       {/* 2-Tone Segmented Ratio Bar */}
                       <div
-                        className="h-2 w-full overflow-hidden rounded-full bg-muted flex"
+                        className="h-2.5 w-full overflow-hidden rounded-full bg-muted flex"
                         role="progressbar"
                         aria-valuenow={recurringPct}
                         aria-valuemin={0}
@@ -202,37 +205,40 @@ export default function Mentor() {
                       </div>
 
                       {/* Legend */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 text-body-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
                         <div className="flex items-center gap-1.5">
                           <span className="size-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
-                          <span className="font-medium text-foreground">Repeating</span>
-                          <span className="font-mono text-muted-foreground">({recurringMissed} • {recurringPct}%)</span>
+                          <span className="font-semibold text-foreground">Repeating series</span>
+                          <span className="text-muted-foreground">({recurringMissed} • {recurringPct}%)</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="size-2 rounded-full bg-muted-foreground/40 shrink-0" aria-hidden="true" />
-                          <span className="text-muted-foreground">One-time</span>
-                          <span className="font-mono text-muted-foreground">({oneOffMissed} • {oneOffPct}%)</span>
+                          <span className="text-muted-foreground">One-time quests</span>
+                          <span className="text-muted-foreground">({oneOffMissed} • {oneOffPct}%)</span>
                         </div>
                       </div>
                     </div>
                   );
                 })()
               ) : (
-                <div className="mt-3.5 text-body-sm text-muted-foreground">
+                <div className="text-xs sm:text-sm text-muted-foreground">
                   {recurring.evidence}
                 </div>
               )}
 
-              {/* Suggested Adjustment */}
+              {/* Seamless Recommendation Accent (No Nested Card Box) */}
               {recurring.adjustment && (
-                <div className="mt-3.5 rounded-xl border border-primary/20 bg-primary/[0.03] p-3 text-body-sm">
-                  <span className="font-semibold text-primary">Try this: </span>
-                  <span className="text-foreground">{recurring.adjustment}</span>
+                <div className="flex items-start gap-3 rounded-2xl bg-muted/40 p-4 border-l-2 border-primary text-xs sm:text-sm">
+                  <Sparkles className="size-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+                  <div>
+                    <span className="font-semibold text-foreground">Recommended adjustment: </span>
+                    <span className="text-muted-foreground">{recurring.adjustment}</span>
+                  </div>
                 </div>
               )}
 
               {/* Action Buttons */}
-              <div className="mt-4 sm:mt-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
                 {rebalanceProposal ? (
                   <>
                     <Button
@@ -256,24 +262,23 @@ export default function Mentor() {
             </section>
           )}
 
-          {/* ── Dominant Primary Insight: Recovery After Miss (when recurring is null) ── */}
           {isRecoveryHero && recovery && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl glass-hero p-4 sm:p-6 shadow-sm"
+              className="rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-label font-semibold text-primary">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
                   Your focus right now • Bouncing back
                 </span>
               </div>
               <h2
                 id="primary-insight-heading"
-                className="mt-2 text-body-lg font-semibold text-foreground leading-snug"
+                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground leading-snug"
               >
                 {recovery.text}
               </h2>
-              <div className="mt-4 pt-3.5 border-t border-border/50 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                 <Button asChild size="sm" className="w-full sm:w-auto min-h-11">
                   <Link to="/quests">Commit to today's focus →</Link>
                 </Button>
@@ -281,22 +286,21 @@ export default function Mentor() {
             </section>
           )}
 
-          {/* ── Dominant Primary Insight: Momentum (when recurring and evening recovery are null) ── */}
           {isMomentumHero && momentum && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl glass-hero p-4 sm:p-6 shadow-sm"
+              className="rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-label font-semibold text-primary">
-                  Your main pattern • Momentum
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
+                  Executive Briefing • Momentum
                 </span>
                 {momentum.comparison && (
                   <span className={cn(
                     "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-mono font-medium",
                     momentum.comparison.delta >= 0
-                      ? "bg-success/10 text-success border border-success/20"
-                      : "bg-warning/10 text-warning border border-warning/20"
+                      ? "bg-success/15 text-success border border-success/30"
+                      : "bg-warning/15 text-warning border border-warning/30"
                   )}>
                     {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}% shift
                   </span>
@@ -304,22 +308,22 @@ export default function Mentor() {
               </div>
               <h2
                 id="primary-insight-heading"
-                className="mt-2 text-body-lg font-semibold text-foreground leading-snug"
+                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground leading-snug"
               >
                 {momentum.observation}
               </h2>
               {momentum.comparison && (
-                <div className="mt-4 pt-3.5 border-t border-border/50 space-y-2.5">
-                  <div className="flex items-center justify-between text-body-xs">
+                <div className="pt-2 space-y-2.5">
+                  <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-medium text-foreground">Goal quest finish rate</span>
-                    <span className="font-mono text-muted-foreground">
+                    <span className="text-muted-foreground">
                       {momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal} recent
                     </span>
                   </div>
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px] sm:text-body-xs">
+                    <div className="flex items-center justify-between text-xs font-mono">
                       <span className="font-medium text-foreground">Recent</span>
-                      <span className="font-mono text-foreground font-semibold">
+                      <span className="text-foreground font-semibold">
                         {Math.round(momentum.comparison.recentRate * 100)}%
                       </span>
                     </div>
@@ -331,9 +335,9 @@ export default function Mentor() {
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px] sm:text-body-xs">
+                    <div className="flex items-center justify-between text-xs font-mono">
                       <span className="text-muted-foreground">Earlier</span>
-                      <span className="font-mono text-muted-foreground">
+                      <span className="text-muted-foreground">
                         {Math.round(momentum.comparison.previousRate * 100)}%
                       </span>
                     </div>
@@ -347,244 +351,239 @@ export default function Mentor() {
                 </div>
               )}
               {momentum.adjustment && (
-                <div className="mt-3.5 rounded-xl border border-primary/20 bg-primary/[0.03] p-3 text-body-sm">
-                  <span className="font-semibold text-primary">Try this: </span>
-                  <span className="text-foreground">{momentum.adjustment}</span>
+                <div className="flex items-start gap-3 rounded-2xl bg-muted/40 p-4 border-l-2 border-primary text-xs sm:text-sm">
+                  <Sparkles className="size-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+                  <div>
+                    <span className="font-semibold text-foreground">Recommended adjustment: </span>
+                    <span className="text-muted-foreground">{momentum.adjustment}</span>
+                  </div>
                 </div>
               )}
-              <div className="mt-4 sm:mt-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                 <Button asChild size="sm" className="w-full sm:w-auto min-h-11">
                   <Link to="/journey">View trajectory →</Link>
                 </Button>
               </div>
             </section>
           )}
-
-          {/* ── Key Signals: Horizontal Snap Deck on Mobile, Responsive Grid on Desktop ── */}
-          {signalCardsCount > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-2 sm:hidden px-0.5">
-                <span className="text-caption font-semibold text-muted-foreground uppercase tracking-wider">
-                  What we observe
-                </span>
-                {signalCardsCount > 1 && (
-                  <span className="text-[11px] text-muted-foreground/80 font-mono">
-                    Swipe for more →
-                  </span>
-                )}
-              </div>
-
-              <div className={cn(
-                "flex overflow-x-auto snap-x snap-mandatory gap-3.5 pb-2 -mx-4 px-4 scroll-pl-4 scroll-pr-4 scrollbar-none sm:mx-0 sm:px-0 sm:grid sm:gap-4 sm:overflow-visible",
-                signalCardsCount === 1 ? "sm:grid-cols-1" : "sm:grid-cols-2"
-              )}>
-                {/* Trajectory Card */}
-                {showTrajectoryCard && (
-                  <div className={cn(
-                    signalCardsCount > 1 ? "w-[calc(100vw-56px)] max-w-[340px] shrink-0 snap-start sm:w-auto" : "w-full sm:w-auto",
-                    "rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-[var(--shadow-card)] flex flex-col justify-between"
-                  )}>
-                    <div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Compass className="size-4 text-primary" aria-hidden="true" />
-                          <p className="text-label text-muted-foreground">Momentum score</p>
-                        </div>
-                        <span className="text-body-xs font-mono text-muted-foreground">
-                          {trajectory.actual.length} done
-                        </span>
-                      </div>
-
-                      <div className="mt-2 flex items-baseline gap-2">
-                        <p className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                          {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
-                        </p>
-                        <span className="text-body-xs text-muted-foreground font-medium">net score</span>
-                      </div>
-
-                      {/* Recent Step Events Horizon */}
-                      <div className="mt-3 space-y-1.5">
-                        <p className="text-[11px] text-muted-foreground">Recent:</p>
-                        <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" aria-label="Recent outcomes">
-                          {trajectory.actual.slice(-6).map((pt, idx) => (
-                            <span
-                              key={pt.quest.id || idx}
-                              className={cn(
-                                "inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-mono font-semibold transition-transform active:scale-95",
-                                pt.outcome === "completed"
-                                    ? "bg-primary/10 text-primary border border-primary/25"
-                                    : "bg-muted text-muted-foreground border border-border/60"
-                              )}
-                              title={`${pt.quest.title}: ${pt.outcome}`}
-                            >
-                              {pt.outcome === "completed" ? "+1" : "-1"}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-3.5 pt-2.5 border-t border-border/40">
-                      <Link
-                        to="/journey"
-                        className="inline-flex items-center gap-1 text-body-xs sm:text-body-sm font-medium text-primary hover:underline"
-                      >
-                        See Journey →
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-                {/* Recovery Card (when not hero) */}
-                {showRecoveryCard && recovery && (
-                  <div className={cn(
-                    signalCardsCount > 1 ? "w-[calc(100vw-56px)] max-w-[340px] shrink-0 snap-start sm:w-auto" : "w-full sm:w-auto",
-                    "rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-[var(--shadow-card)] flex flex-col justify-between"
-                  )}>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <Sprout className="size-4 text-primary" aria-hidden="true" />
-                        <p className="text-label text-muted-foreground">Bouncing back</p>
-                      </div>
-                      <p className="mt-2 text-body-sm sm:text-body-md font-medium leading-relaxed text-foreground">{recovery.text}</p>
-                    </div>
-                    <div className="mt-4 pt-3 border-t border-border/40">
-                      <Link
-                        to="/quests"
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-                      >
-                        Commit to today's focus →
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-                {/* Momentum Card (when not hero) */}
-                {showMomentumCard && momentum && (
-                  <div className={cn(
-                    signalCardsCount > 1 ? "w-[calc(100vw-56px)] max-w-[340px] shrink-0 snap-start sm:w-auto" : "w-full sm:w-auto",
-                    "rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-[var(--shadow-card)] flex flex-col justify-between"
-                  )}>
-                    <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <RotateCcw className="size-4 text-primary" aria-hidden="true" />
-                          <p className="text-label text-muted-foreground">Momentum</p>
-                        </div>
-                        {momentum.comparison && (
-                          <span className={cn(
-                            "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium",
-                            momentum.comparison.delta >= 0
-                              ? "bg-primary/10 text-primary border border-primary/20"
-                              : "bg-destructive/10 text-destructive border border-destructive/20"
-                          )}>
-                            {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}%
-                          </span>
-                        )}
-                      </div>
-
-                      <p className="mt-2 text-body-xs sm:text-body-sm font-medium text-foreground">
-                        Goal quest finish rate
-                      </p>
-
-                      {momentum.comparison ? (
-                        <div className="mt-3 space-y-2">
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-[11px] sm:text-body-xs">
-                              <span className="font-medium text-foreground">Recent</span>
-                              <span className="font-mono text-foreground font-semibold">
-                                {Math.round(momentum.comparison.recentRate * 100)}%{" "}
-                                <span className="text-muted-foreground font-normal">
-                                  ({momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal})
-                                </span>
-                              </span>
-                            </div>
-                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                              <div
-                                className="h-full bg-primary rounded-full transition-[width] duration-500"
-                                style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-[11px] sm:text-body-xs">
-                              <span className="text-muted-foreground">Earlier</span>
-                              <span className="font-mono text-muted-foreground">
-                                {Math.round(momentum.comparison.previousRate * 100)}%{" "}
-                                <span>
-                                  ({momentum.comparison.previousCompleted}/{momentum.comparison.previousTotal})
-                                </span>
-                              </span>
-                            </div>
-                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                              <div
-                                className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
-                                style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="mt-2 text-body-xs sm:text-body-sm text-foreground">{momentum.observation}</p>
-                      )}
-                    </div>
-                    <div className="mt-4 pt-3 border-t border-border/40">
-                      <Link
-                        to="/journey"
-                        className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-                      >
-                        View trajectory →
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       )}
 
-      {/* ── Additional Surfaced Observations (Always shown when available) ── */}
-      {surfaced.length > 0 && (
-        <div className="mt-8 space-y-3">
-          <div className="flex items-center justify-between px-0.5">
-            <span className="text-caption font-semibold text-muted-foreground uppercase tracking-wider">
-              {anyGridSlot ? "More observations" : "Your observations"}
-            </span>
-            <span className="text-[11px] font-mono text-muted-foreground">
-              {surfaced.length} noted
-            </span>
-          </div>
-          {surfaced.map((item) => (
-            <div key={item.key} className="rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-caption font-semibold uppercase tracking-wider text-muted-foreground font-mono">
-                  {item.categoryLabel}
-                </span>
-                {item.evidence && (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-mono text-muted-foreground">
-                    {item.evidence}
-                  </span>
-                )}
-              </div>
-              <p className="text-body-sm font-medium text-foreground">{item.observation}</p>
-              {item.adjustment && (
-                <div className="rounded-xl border border-primary/20 bg-primary/[0.03] p-2.5 text-body-xs sm:text-body-sm flex items-center justify-between gap-2.5">
-                  <div>
-                    <span className="font-semibold text-primary">Try this: </span>
-                    <span className="text-foreground">{item.adjustment}</span>
+      {/* ── 2. Unified Telemetry Band (Zero Stacked Cards) ── */}
+      {signalCardsCount > 0 && (
+        <div className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm">
+          <div className={cn(
+            "grid divide-y md:divide-y-0 divide-border/60",
+            signalCardsCount === 1 ? "grid-cols-1" :
+            signalCardsCount === 2 ? "grid-cols-1 md:grid-cols-2 md:divide-x" :
+            "grid-cols-1 md:grid-cols-3 md:divide-x"
+          )}>
+            {/* Tile A: Trajectory Direction & Score */}
+            {showTrajectoryCard && (
+              <div className="p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                      <Compass className="size-4 text-primary" aria-hidden="true" />
+                      <span>Momentum Score</span>
+                    </div>
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {trajectory.actual.length} events
+                    </span>
                   </div>
+
+                  <div className="mt-3 flex items-baseline gap-2">
+                    <span className="text-3xl font-bold font-mono tracking-tight text-foreground">
+                      {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
+                    </span>
+                    <span className="text-xs font-mono text-muted-foreground">net direction</span>
+                  </div>
+
+                  {/* Recent Step Events */}
+                  <div className="mt-4 space-y-1.5">
+                    <span className="text-[11px] font-mono text-muted-foreground">Recent outcomes:</span>
+                    <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" aria-label="Recent outcomes">
+                      {trajectory.actual.slice(-7).map((pt, idx) => (
+                        <span
+                          key={pt.quest.id || idx}
+                          className={cn(
+                            "inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-mono font-semibold transition-transform active:scale-95",
+                            pt.outcome === "completed"
+                              ? "bg-primary/10 text-primary border border-primary/25"
+                              : "bg-muted text-muted-foreground border border-border/60"
+                          )}
+                          title={`${pt.quest.title}: ${pt.outcome}`}
+                        >
+                          {pt.outcome === "completed" ? "+1" : "-1"}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-3 border-t border-border/50">
                   <Link
-                    to="/quests"
-                    className="shrink-0 text-xs font-semibold text-primary hover:underline px-1 py-0.5"
+                    to="/journey"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
                   >
-                    Act →
+                    <span>Explore trajectory</span>
+                    <ArrowRight className="size-3" />
                   </Link>
                 </div>
-              )}
-            </div>
-          ))}
+              </div>
+            )}
+
+            {/* Tile B: Resilience / Recovery */}
+            {showRecoveryCard && recovery && (
+              <div className="p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                    <Sprout className="size-4 text-primary" aria-hidden="true" />
+                    <span>Bouncing Back</span>
+                  </div>
+                  <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-foreground">
+                    {recovery.text}
+                  </p>
+                </div>
+                <div className="mt-5 pt-3 border-t border-border/50">
+                  <Link
+                    to="/quests"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                  >
+                    <span>Commit to today's focus</span>
+                    <ArrowRight className="size-3" />
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Tile C: Goal Momentum Shift */}
+            {showMomentumCard && momentum && (
+              <div className="p-5 sm:p-6 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                      <RotateCcw className="size-4 text-primary" aria-hidden="true" />
+                      <span>Velocity Momentum</span>
+                    </div>
+                    {momentum.comparison && (
+                      <span className={cn(
+                        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium",
+                        momentum.comparison.delta >= 0
+                          ? "bg-primary/10 text-primary border border-primary/20"
+                          : "bg-destructive/10 text-destructive border border-destructive/20"
+                      )}>
+                        {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}% shift
+                      </span>
+                    )}
+                  </div>
+
+                  {momentum.comparison ? (
+                    <div className="mt-3 space-y-2">
+                      <p className="text-xs text-muted-foreground font-mono">Goal quest finish rate</p>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs font-mono">
+                          <span className="text-foreground font-medium">Recent</span>
+                          <span className="text-foreground font-semibold">
+                            {Math.round(momentum.comparison.recentRate * 100)}%{" "}
+                            <span className="text-muted-foreground font-normal">
+                              ({momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal})
+                            </span>
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full bg-primary rounded-full transition-[width] duration-500"
+                            style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs font-mono">
+                          <span className="text-muted-foreground">Earlier</span>
+                          <span className="text-muted-foreground">
+                            {Math.round(momentum.comparison.previousRate * 100)}%{" "}
+                            <span>
+                              ({momentum.comparison.previousCompleted}/{momentum.comparison.previousTotal})
+                            </span>
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
+                            style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mt-3 text-sm text-foreground">{momentum.observation}</p>
+                  )}
+                </div>
+                <div className="mt-5 pt-3 border-t border-border/50">
+                  <Link
+                    to="/journey"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                  >
+                    <span>View trajectory telemetry</span>
+                    <ArrowRight className="size-3" />
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── 3. Open Behavioral Pattern Ledger (Zero Nested Cards) ── */}
+      {surfaced.length > 0 && (
+        <div className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm">
+          <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
+            <span className="text-xs font-mono uppercase font-semibold text-muted-foreground tracking-wider">
+              Observed Behavioral Dynamics
+            </span>
+            <span className="text-xs font-mono text-muted-foreground">
+              {surfaced.length} signals tracked
+            </span>
+          </div>
+
+          <div className="divide-y divide-border/40">
+            {surfaced.map((item) => (
+              <div key={item.key} className="p-5 sm:p-6 space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-primary">
+                    {item.categoryLabel}
+                  </span>
+                  {item.evidence && (
+                    <span className="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-mono text-muted-foreground border border-border/50">
+                      {item.evidence}
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-sm sm:text-base font-semibold text-foreground leading-snug">
+                  {item.observation}
+                </p>
+
+                {item.adjustment && (
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm text-muted-foreground pt-1">
+                    <div className="flex items-start sm:items-center gap-2">
+                      <span className="font-semibold text-primary shrink-0">Recommendation:</span>
+                      <span className="text-foreground/90">{item.adjustment}</span>
+                    </div>
+                    <Link
+                      to="/quests"
+                      className="inline-flex items-center gap-1 font-semibold text-primary hover:underline text-xs shrink-0 self-start sm:self-auto"
+                    >
+                      <span>Apply adjustment</span>
+                      <ArrowRight className="size-3" />
+                    </Link>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

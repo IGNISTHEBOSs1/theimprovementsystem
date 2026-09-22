@@ -30,7 +30,7 @@ export function AppTour() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (localStorage.getItem(TOUR_STORAGE_KEY)) return;
+    if (localStorage.getItem(TOUR_STORAGE_KEY) || new URLSearchParams(window.location.search).has('dev_preview')) return;
     setStep(0);
   }, []);
 
