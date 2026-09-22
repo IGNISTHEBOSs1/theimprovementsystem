@@ -99,9 +99,15 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
             {quest.title}
           </h2>
           {quest.linkedToGoal && quest.goalName ? (
-            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span>Direct step toward <strong className="text-foreground font-medium">{quest.goalName}</strong></span>
-            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+              <span className="text-muted-foreground">
+                Direct step toward <strong className="text-foreground font-medium">{quest.goalName}</strong>
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full border border-foreground/20 bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-foreground">
+                <Check className="size-3 text-foreground shrink-0" aria-hidden="true" />
+                <span>Advances today&apos;s goal velocity</span>
+              </span>
+            </div>
           ) : (
             <p className="mt-1.5 text-sm text-muted-foreground">
               One clear step is enough. Start here.

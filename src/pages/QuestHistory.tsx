@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Check, X, Search, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -73,7 +74,7 @@ function HistoryItem({ quest }: { quest: Quest }) {
             className={cn(
               "font-medium text-[11px] px-1.5 py-0.5 rounded border",
               quest.priority === "Important"
-                ? "text-amber-500 bg-amber-500/10 border-amber-500/20"
+                ? "text-foreground bg-muted/70 border-border"
                 : "text-muted-foreground bg-muted/30 border-border/60"
             )}
           >
@@ -87,7 +88,7 @@ function HistoryItem({ quest }: { quest: Quest }) {
           className={cn(
             "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium border",
             isCompleted
-              ? "bg-primary/10 text-primary border-primary/25"
+              ? "bg-foreground/10 text-foreground border-foreground/20"
               : "bg-muted/40 text-muted-foreground border-border/60 font-mono"
           )}
         >
@@ -115,6 +116,10 @@ export default function QuestHistory() {
   const failedCount = useMemo(
     () => resolved.filter((q) => q.failed).length,
     [resolved]
+  );
+  const completionRate = useMemo(
+    () => (resolved.length > 0 ? Math.round((completedCount / resolved.length) * 100) : 0),
+    [resolved.length, completedCount]
   );
 
   const filteredQuests = useMemo(() => {
@@ -177,6 +182,39 @@ export default function QuestHistory() {
           </section>
         ) : (
           <div className="space-y-4">
+            {/* Momentum & All-Time Completion Rate Anchor (Direct Cognitive Ratio) */}
+            <div className="rounded-2xl border border-border/80 bg-card/60 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="size-11 shrink-0 flex items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary font-mono font-bold text-xs">
+                  {completionRate}%
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {completionRate}% All-Time Completion Rate
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {completedCount} of {resolved.length} commitments honored to date
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-xs font-mono px-2.5 py-1",
+                    completionRate >= 80
+                      ? "border-foreground/30 bg-foreground/10 text-foreground font-semibold"
+                      : completionRate >= 60
+                      ? "border-border bg-muted/70 text-foreground/90 font-medium"
+                      : "border-border/60 bg-muted/40 text-muted-foreground"
+                  )}
+                >
+                  {completionRate >= 80 ? "✓ Strong Momentum" : completionRate >= 60 ? "Steady Rhythm" : "Rebuilding Flow"}
+                </Badge>
+              </div>
+            </div>
+
             {/* Filter Tabs & Search Bar Header */}
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Tabs

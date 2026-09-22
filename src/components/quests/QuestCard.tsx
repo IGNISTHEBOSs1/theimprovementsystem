@@ -98,13 +98,13 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
             )}
             {quest.linkedToGoal && quest.goalName && <span>·</span>}
             <span className="inline-flex items-center gap-1 font-mono text-[11px]">
-              {quest.seriesId ? <Repeat className="size-3 text-primary/70" /> : <Zap className="size-3 text-amber-500/70" />}
+              {quest.seriesId ? <Repeat className="size-3 text-primary/70" /> : <Zap className="size-3 text-muted-foreground" />}
               {quest.seriesId ? "Daily" : "Today"}
             </span>
             {quest.priority !== "Essential" && (
               <>
                 <span>·</span>
-                <span className={cn("font-medium", quest.priority === "Important" ? "text-amber-500" : "text-muted-foreground")}>
+                <span className={cn("font-medium", quest.priority === "Important" ? "text-foreground" : "text-muted-foreground")}>
                   {quest.priority}
                 </span>
               </>
@@ -148,7 +148,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
             </>
           ) : (
             <>
-              <Zap className="size-3 text-amber-500/70" aria-hidden="true" />
+              <Zap className="size-3 text-muted-foreground" aria-hidden="true" />
               <span>Today</span>
             </>
           )}
@@ -160,7 +160,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
             className={cn(
               "font-semibold px-2 py-0.5 rounded-md border text-[11px]",
               quest.priority === "Important"
-                ? "text-amber-500 bg-amber-500/10 border-amber-500/25"
+                ? "text-foreground bg-muted/70 border-border"
                 : "text-muted-foreground bg-muted/30 border-border/60"
             )}
           >

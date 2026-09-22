@@ -47,12 +47,17 @@ export function IdentityAvatar({ username, avatarUrl, className, active }: Ident
   return (
     <Avatar
       className={cn(
-        active ? "h-9 w-9 ring-2 ring-primary" : "h-9 w-9 ring-1 ring-primary/40",
+        active ? "h-9 w-9 ring-2 ring-background" : "h-9 w-9 ring-1 ring-border",
         className,
       )}
     >
       {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
-      <AvatarFallback className="text-[11px] font-medium text-foreground bg-muted">
+      <AvatarFallback
+        className={cn(
+          "text-[11px] font-medium transition-colors",
+          active ? "bg-background text-foreground font-bold" : "text-foreground bg-muted"
+        )}
+      >
         {initials}
       </AvatarFallback>
     </Avatar>

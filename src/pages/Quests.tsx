@@ -200,17 +200,24 @@ export default function Quests() {
                     </div>
                   </div>
 
-                  {/* Top Action pinned hard-right */}
-                  {!showCommitForm && activeQuests.length < MAX_ACTIVE_QUESTS && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-7 gap-1 text-xs text-primary hover:text-primary hover:bg-primary/10 rounded-lg px-2.5 font-medium"
-                      onClick={() => setShowCommitForm(true)}
-                    >
-                      <Plus className="size-3.5" aria-hidden="true" />
-                      <span>Add</span>
-                    </Button>
+                  {/* Top Action pinned hard-right (Explicit Capacity Framing) */}
+                  {!showCommitForm && (
+                    activeQuests.length < MAX_ACTIVE_QUESTS ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 gap-1.5 text-xs text-primary hover:text-primary hover:bg-primary/10 rounded-lg px-2.5 font-medium"
+                        onClick={() => setShowCommitForm(true)}
+                        title={`${MAX_ACTIVE_QUESTS - activeQuests.length} slot${MAX_ACTIVE_QUESTS - activeQuests.length > 1 ? "s" : ""} available`}
+                      >
+                        <Plus className="size-3.5" aria-hidden="true" />
+                        <span>Add ({MAX_ACTIVE_QUESTS - activeQuests.length} open)</span>
+                      </Button>
+                    ) : (
+                      <span className="text-[11px] font-mono text-muted-foreground bg-muted/60 px-2.5 py-0.5 rounded-full border border-border/70">
+                        Focus cap (3/3)
+                      </span>
+                    )
                   )}
                 </div>
 

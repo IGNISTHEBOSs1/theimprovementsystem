@@ -267,10 +267,8 @@ export default function SystemBar({
                       inset-y-1.5
                       inset-x-1
                       rounded-[60px]
-                      bg-foreground/[0.08]
-                      dark:bg-white/[0.08]
-                      border border-foreground/10 dark:border-white/15
-                      shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]
+                      bg-foreground
+                      shadow-sm
                     "
                     transition={indicatorTransition}
                   />
@@ -311,8 +309,8 @@ export default function SystemBar({
                         className={cn(
                           "w-[clamp(20px,5.8vw,24px)] h-[clamp(20px,5.8vw,24px)] transition-colors duration-150",
                           active
-                            ? "text-primary"
-                            : "text-foreground/75",
+                            ? "text-background"
+                            : "text-muted-foreground hover:text-foreground",
                         )}
                       />
                     )}
@@ -320,15 +318,15 @@ export default function SystemBar({
                     {/* Notification badge / pip for active Quests */}
                     {to === "/quests" && activeQuestCount > 0 && (
                       <span className="absolute -top-0.5 -right-1 flex size-2 pointer-events-none">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                        <span className="relative inline-flex rounded-full size-2 bg-primary"></span>
+                        <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", active ? "bg-background" : "bg-primary")}></span>
+                        <span className={cn("relative inline-flex rounded-full size-2", active ? "bg-background" : "bg-primary")}></span>
                       </span>
                     )}
 
                     {/* Notification badge / pip for Mentor guidance */}
                     {to === "/mentor" && hasMentorInsight && (
                       <span className="absolute -top-0.5 -right-1 flex size-2 pointer-events-none">
-                        <span className="relative inline-flex rounded-full size-2 bg-primary"></span>
+                        <span className={cn("relative inline-flex rounded-full size-2", active ? "bg-background" : "bg-primary")}></span>
                       </span>
                     )}
                   </div>
@@ -338,8 +336,8 @@ export default function SystemBar({
                     className={cn(
                       "text-[10px] leading-none transition-colors duration-150",
                       active
-                        ? "text-foreground font-semibold"
-                        : "text-foreground/70 font-medium",
+                        ? "text-background font-semibold"
+                        : "text-muted-foreground font-medium",
                     )}
                   >
                     {mobileLabel ?? label}
