@@ -147,13 +147,10 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
 //     which reads as broken/unsatisfying on a confident swipe. Now a
 //     flick above ~0.9 px/ms completes even under threshold, the same
 //     momentum-dismissal pattern used by e.g. Sonner's toast swipe.
-// (2) A single haptic "tick" the instant the drag crosses the
-//     completion threshold, separate from the completion haptic on
-//     release — lets a finger still mid-drag feel "this will land"
-//     before letting go, which is most of what makes a slide-to-confirm
-//     gesture feel satisfying rather than just functional. Fires once
-//     per drag (guarded by crossedRef), not on every pointermove past
-//     the line.
+// (2) Real-time visual feedback via setTrackFill as drag crosses the
+//     completion threshold without triggering browser intervention
+//     (navigator.vibrate requires user activation, blocked during pointermove).
+//     Completion haptics fire reliably on release via finishDrag.
 // (3) On success the handle animates to the END of the track (a
 //     real "completed" position, spring-eased) and morphs to a Check
 //     icon with success tokens. A 240ms cognitive closure delay holds
@@ -254,7 +251,6 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
     setTrackFill(progress, false);
     if (!crossedRef.current && progress >= THRESHOLD) {
       crossedRef.current = true;
-      triggerHaptic("light");
     } else if (crossedRef.current && progress < THRESHOLD) {
       // Dragged back below the line — let it re-trigger if crossed again
       crossedRef.current = false;

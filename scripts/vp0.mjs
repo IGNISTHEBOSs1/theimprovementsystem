@@ -6,7 +6,10 @@
  */
 
 const API_BASE = (process.env.VP0_API_URL || "https://api.vp0.com").replace(/\/+$/, "");
-const API_KEY = process.env.VP0_API_KEY || "vp0_9c645a0e_06447a2a783c7dcf5c86d323bd43e0fc62f84801f60b6455039b532a";
+const API_KEY = process.env.VP0_API_KEY;
+if (!API_KEY) {
+  throw new Error("VP0_API_KEY environment variable is not set.");
+}
 
 async function request(path) {
   const url = `${API_BASE}${path}`;
