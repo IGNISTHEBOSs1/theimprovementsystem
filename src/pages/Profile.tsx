@@ -133,7 +133,7 @@ export default function Profile() {
             <span className="text-[11px] font-semibold uppercase tracking-wider">
               Completion Rate
             </span>
-            <CheckCircle2 className="size-4 text-foreground" aria-hidden="true" />
+            <CheckCircle2 className="size-4 text-emerald-500" aria-hidden="true" />
           </div>
           <div className="mt-2 flex items-baseline gap-1.5">
             <span className="text-2xl font-bold font-mono text-foreground">{completionRate}%</span>
@@ -340,7 +340,7 @@ export default function Profile() {
                     <span className="font-semibold text-sm text-foreground group-hover:underline">
                       Quest History
                     </span>
-                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full border border-border bg-muted/60 text-muted-foreground">
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-medium">
                       {followThrough.completed} Done
                     </span>
                   </div>

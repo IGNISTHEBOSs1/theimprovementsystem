@@ -57,7 +57,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
     triggerHaptic("success");
     setTimeout(() => {
       onComplete();
-    }, 260);
+    }, 520);
   };
 
   const handleActionComplete = () => {
@@ -65,7 +65,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
     triggerHaptic("success");
     setTimeout(() => {
       onComplete();
-    }, 240);
+    }, 500);
   };
 
   if (!quest) {
@@ -92,16 +92,19 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
       initial={{ opacity: 0, y: 12 }}
       animate={
         justCompleted
-          ? { scale: 0.93, x: 90, opacity: 0 }
+          ? { scale: 0.94, x: 130, opacity: 0 }
           : { scale: 1, x: 0, opacity: 1, y: 0 }
       }
-      exit={{ scale: 0.93, x: 90, opacity: 0, transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } }}
+      exit={{ scale: 0.94, x: 140, opacity: 0, transition: { duration: 0.52, ease: [0.32, 0.72, 0, 1] } }}
       transition={{
-        duration: 0.28,
-        ease: [0.16, 1, 0.3, 1],
-        layout: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+        duration: 0.52,
+        ease: [0.32, 0.72, 0, 1],
+        layout: { duration: 0.45, ease: [0.32, 0.72, 0, 1] },
       }}
-      className="relative overflow-hidden rounded-2xl glass-hero p-5 sm:p-7"
+      className={cn(
+        "relative overflow-hidden rounded-2xl glass-hero p-5 sm:p-7 transition-colors duration-300",
+        justCompleted && "bg-emerald-500/[0.04] border-emerald-500/30"
+      )}
       aria-labelledby="focus-heading"
     >
       {spotlight.enabled && (
@@ -123,16 +126,16 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
             disabled={completing || justCompleted}
             aria-label={`Mark "${quest.title}" as complete`}
             className={cn(
-              "mt-1 size-7 shrink-0 rounded-xl border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 cursor-pointer",
+              "mt-1 size-7 shrink-0 rounded-xl border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer",
               justCompleted
-                ? "border-foreground bg-foreground text-background shadow-xs"
-                : "border-border/80 bg-background/90 text-transparent hover:border-foreground/80 hover:text-foreground/30 shadow-xs"
+                ? "border-emerald-500 bg-emerald-500 text-white shadow-md shadow-emerald-500/25 scale-105"
+                : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30 shadow-xs"
             )}
           >
             {completing && !justCompleted ? (
               <Loader2 className="size-4 animate-spin text-muted-foreground" aria-hidden="true" />
             ) : justCompleted ? (
-              <Check className="size-4 stroke-[2.5] animate-in zoom-in-75 duration-200" aria-hidden="true" />
+              <Check className="size-4 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
             ) : (
               <Check className="size-4 stroke-[2]" aria-hidden="true" />
             )}
@@ -340,7 +343,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       triggerHaptic("success");
       completeTimerRef.current = setTimeout(() => {
         onComplete();
-      }, 240);
+      }, 500);
     } else {
       setTrackFill(0, true);
       setHandleX(0, "snap");
@@ -364,7 +367,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       triggerHaptic("success");
       completeTimerRef.current = setTimeout(() => {
         onComplete();
-      }, 240);
+      }, 500);
     }
   };
 
@@ -379,9 +382,9 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
       className={cn(
-        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none transition-colors duration-200 border glass-control",
+        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none transition-colors duration-300 border glass-control",
         isDone
-          ? "border-success/40 bg-success/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
+          ? "border-emerald-500/50 bg-emerald-500/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
           : ""
       )}
       aria-label={isDone ? "Quest completed" : completing ? "Marking Quest complete" : "Mark this Quest complete"}
@@ -389,23 +392,23 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       <span
         ref={handleRef}
         className={cn(
-          "pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.35),0_2px_8px_rgba(0,0,0,0.25)] transition-colors duration-200",
+          "pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full shadow-md transition-colors duration-300",
           isDone
-            ? "bg-success text-success-foreground"
+            ? "bg-emerald-500 text-white shadow-emerald-500/30"
             : "bg-primary text-primary-foreground"
         )}
         style={{ transform: "translate3d(0px, -50%, 0)" }}
       >
         {isDone ? (
-          <Check className="size-4 animate-in zoom-in-75 duration-200" aria-hidden="true" />
+          <Check className="size-4 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
         ) : (
           <ArrowRight className="size-4" aria-hidden="true" />
         )}
       </span>
       <span
         className={cn(
-          "w-full text-center text-sm font-medium select-none pl-8 pr-3 transition-colors duration-200",
-          isDone ? "text-success font-semibold" : "text-foreground"
+          "w-full text-center text-sm font-medium select-none pl-8 pr-3 transition-colors duration-300",
+          isDone ? "text-emerald-500 font-semibold" : "text-foreground"
         )}
       >
         {isDone ? "Done!" : completing ? "Saving…" : "Swipe to complete"}

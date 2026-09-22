@@ -40,7 +40,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
     } else {
       setTimeout(() => {
         onComplete(quest.id);
-      }, 260);
+      }, 520);
     }
   };
 
@@ -52,22 +52,22 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         shouldReduceMotion
           ? { opacity: 1 }
           : justCompleted
-          ? { scale: 0.92, x: 90, opacity: 0 }
+          ? { scale: 0.94, x: 130, opacity: 0 }
           : { scale: 1, x: 0, opacity: 1 }
       }
       exit={
         shouldReduceMotion
           ? { opacity: 0 }
-          : { scale: 0.92, x: 90, opacity: 0, transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } }
+          : { scale: 0.94, x: 140, opacity: 0, transition: { duration: 0.52, ease: [0.32, 0.72, 0, 1] } }
       }
       transition={{
-        duration: 0.28,
-        ease: [0.16, 1, 0.3, 1],
-        layout: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+        duration: 0.52,
+        ease: [0.32, 0.72, 0, 1],
+        layout: { duration: 0.45, ease: [0.32, 0.72, 0, 1] },
       }}
       className={cn(
-        "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-body-sm shadow-[var(--shadow-card)] transition-colors duration-200",
-        justCompleted && "bg-foreground/[0.04] border-l-2 border-l-foreground"
+        "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-body-sm shadow-[var(--shadow-card)] transition-colors duration-300",
+        justCompleted && "bg-emerald-500/[0.08] border-l-2 border-l-emerald-500 border-emerald-500/30"
       )}
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -78,16 +78,16 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
           disabled={completing || justCompleted}
           aria-label={`Mark "${quest.title}" as complete`}
           className={cn(
-            "size-6 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 cursor-pointer",
+            "size-6 shrink-0 rounded-lg border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer",
             justCompleted
-              ? "border-foreground bg-foreground text-background shadow-xs"
-              : "border-border/80 bg-background/90 text-transparent hover:border-foreground/80 hover:text-foreground/30 shadow-xs"
+              ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105"
+              : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30 shadow-xs"
           )}
         >
           {completing && !justCompleted ? (
             <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
           ) : justCompleted ? (
-            <Check className="size-3.5 stroke-[2.5] animate-in zoom-in-75 duration-200" aria-hidden="true" />
+            <Check className="size-3.5 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
           ) : (
             <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
           )}
@@ -106,11 +106,14 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
       <Button
         size="sm"
         variant="ghost"
-        className="min-h-10 px-3 hover:bg-muted/80 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+        className={cn(
+          "min-h-10 px-3 hover:bg-muted/80 text-xs font-medium transition-colors",
+          justCompleted ? "text-emerald-500 font-semibold" : "text-muted-foreground hover:text-foreground"
+        )}
         disabled={completing || justCompleted}
         onClick={handleMarkComplete}
       >
-        {justCompleted ? "Done" : "Mark complete"}
+        {justCompleted ? "Done!" : "Mark complete"}
       </Button>
     </motion.li>
   );
@@ -348,8 +351,9 @@ export default function Dashboard() {
               <p className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1.5">
                 {completedToday > 0 ? (
                   <>
-                    <Check className="size-3.5 text-foreground stroke-[2.5]" aria-hidden="true" />
-                    <span>Streak preserved for today • Excellent focus</span>
+                    <Check className="size-3.5 text-emerald-500 stroke-[2.5]" aria-hidden="true" />
+                    <span className="text-emerald-500 font-medium">Streak preserved for today</span>
+                    <span>• Excellent focus</span>
                   </>
                 ) : currentStreak > 0 ? (
                   <span>Complete today&apos;s focus to extend your streak to {currentStreak + 1} days</span>
@@ -383,7 +387,7 @@ export default function Dashboard() {
                       className={cn(
                         "size-5 rounded-lg flex items-center justify-center transition-all",
                         day.completed
-                          ? "bg-foreground text-background shadow-xs"
+                          ? "bg-emerald-500 text-white border border-emerald-500 shadow-xs shadow-emerald-500/25"
                           : day.isToday
                           ? "border-2 border-dashed border-foreground/80 bg-foreground/10 text-foreground"
                           : "border border-border/80 bg-muted/40"
@@ -398,8 +402,8 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              <span className="text-[11px] font-medium text-muted-foreground">
-                {completedToday > 0 ? `${completedToday} completed today` : "No quests completed today yet"}
+              <span className={cn("text-[11px] font-medium", completedToday > 0 ? "text-emerald-500" : "text-muted-foreground")}>
+                {completedToday > 0 ? `✓ ${completedToday} completed today` : "No quests completed today yet"}
               </span>
             </div>
           )}

@@ -28,7 +28,7 @@ function HistoryItem({ quest }: { quest: Quest }) {
           className={cn(
             "flex size-6 shrink-0 items-center justify-center rounded-lg mt-0.5 sm:mt-0 border transition-colors",
             isCompleted
-              ? "bg-primary/10 text-primary border-primary/25"
+              ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
               : "bg-muted/50 text-muted-foreground border-border/70"
           )}
           aria-hidden="true"
@@ -88,7 +88,7 @@ function HistoryItem({ quest }: { quest: Quest }) {
           className={cn(
             "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium border",
             isCompleted
-              ? "bg-foreground/10 text-foreground border-foreground/20"
+              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/25"
               : "bg-muted/40 text-muted-foreground border-border/60 font-mono"
           )}
         >
