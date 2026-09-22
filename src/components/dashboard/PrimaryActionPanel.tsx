@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { ArrowRight, Check, ChevronRight, CircleDot, Target } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, CircleDot, Target, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
@@ -48,6 +49,24 @@ function useSpotlight() {
 
 export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQuest }: PrimaryActionPanelProps) {
   const spotlight = useSpotlight();
+  const [justCompleted, setJustCompleted] = useState(false);
+
+  const handleCheckmarkComplete = () => {
+    if (completing || justCompleted) return;
+    setJustCompleted(true);
+    triggerHaptic("success");
+    setTimeout(() => {
+      onComplete();
+    }, 260);
+  };
+
+  const handleActionComplete = () => {
+    setJustCompleted(true);
+    triggerHaptic("success");
+    setTimeout(() => {
+      onComplete();
+    }, 240);
+  };
 
   if (!quest) {
     return (
@@ -67,8 +86,21 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
   }
 
   return (
-    <section
+    <motion.section
       ref={spotlight.bind}
+      layout
+      initial={{ opacity: 0, y: 12 }}
+      animate={
+        justCompleted
+          ? { scale: 0.93, x: 90, opacity: 0 }
+          : { scale: 1, x: 0, opacity: 1, y: 0 }
+      }
+      exit={{ scale: 0.93, x: 90, opacity: 0, transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } }}
+      transition={{
+        duration: 0.28,
+        ease: [0.16, 1, 0.3, 1],
+        layout: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+      }}
       className="relative overflow-hidden rounded-2xl glass-hero p-5 sm:p-7"
       aria-labelledby="focus-heading"
     >
@@ -83,42 +115,66 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
       )}
       <p className="text-label text-primary">Today&apos;s focus</p>
       <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <CircleDot className="size-4 text-primary" aria-hidden="true" />
-            <span>{quest.timeFrame}</span>
-            <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>{quest.priority}</Badge>
-            {quest.linkedToGoal && quest.goalName && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
-                <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
-                <span className="truncate max-w-[200px]">Goal: {quest.goalName}</span>
-              </span>
+        <div className="flex items-start gap-3.5 min-w-0 flex-1">
+          {/* Tactile Check Target */}
+          <button
+            type="button"
+            onClick={handleCheckmarkComplete}
+            disabled={completing || justCompleted}
+            aria-label={`Mark "${quest.title}" as complete`}
+            className={cn(
+              "mt-1 size-7 shrink-0 rounded-xl border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 cursor-pointer",
+              justCompleted
+                ? "border-foreground bg-foreground text-background shadow-xs"
+                : "border-border/80 bg-background/90 text-transparent hover:border-foreground/80 hover:text-foreground/30 shadow-xs"
+            )}
+          >
+            {completing && !justCompleted ? (
+              <Loader2 className="size-4 animate-spin text-muted-foreground" aria-hidden="true" />
+            ) : justCompleted ? (
+              <Check className="size-4 stroke-[2.5] animate-in zoom-in-75 duration-200" aria-hidden="true" />
+            ) : (
+              <Check className="size-4 stroke-[2]" aria-hidden="true" />
+            )}
+          </button>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <CircleDot className="size-4 text-primary" aria-hidden="true" />
+              <span>{quest.timeFrame}</span>
+              <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>{quest.priority}</Badge>
+              {quest.linkedToGoal && quest.goalName && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 text-[11px] font-medium text-foreground">
+                  <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
+                  <span className="truncate max-w-[200px]">Goal: {quest.goalName}</span>
+                </span>
+              )}
+            </div>
+            <h2 id="focus-heading" className={cn("mt-2 text-2xl font-semibold tracking-tight text-foreground transition-all", justCompleted && "line-through text-muted-foreground")}>
+              {quest.title}
+            </h2>
+            {quest.linkedToGoal && quest.goalName ? (
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-muted-foreground">
+                  Direct step toward <strong className="text-foreground font-medium">{quest.goalName}</strong>
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full border border-foreground/20 bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-foreground">
+                  <Check className="size-3 text-foreground shrink-0" aria-hidden="true" />
+                  <span>Advances today&apos;s goal velocity</span>
+                </span>
+              </div>
+            ) : (
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                One clear step is enough. Start here.
+              </p>
             )}
           </div>
-          <h2 id="focus-heading" className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
-            {quest.title}
-          </h2>
-          {quest.linkedToGoal && quest.goalName ? (
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-              <span className="text-muted-foreground">
-                Direct step toward <strong className="text-foreground font-medium">{quest.goalName}</strong>
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full border border-foreground/20 bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-foreground">
-                <Check className="size-3 text-foreground shrink-0" aria-hidden="true" />
-                <span>Advances today&apos;s goal velocity</span>
-              </span>
-            </div>
-          ) : (
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              One clear step is enough. Start here.
-            </p>
-          )}
         </div>
         <div className="w-full sm:w-auto sm:shrink-0">
-          <SwipeToComplete key={quest.id} completing={Boolean(completing)} onComplete={onComplete} />
+          <SwipeToComplete key={quest.id} completing={Boolean(completing)} onComplete={handleActionComplete} />
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 

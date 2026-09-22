@@ -35,64 +35,64 @@ export interface ThemeConfig {
   };
 }
 
-// ── Canonical Theme: Monarch Iris & Obsidian Zinc (Option A) ─────────────────
+// ── Canonical Theme: Monochrome Palette ─────────────────────────────────────
 export const THEMES: Record<ThemeName, ThemeConfig> = {
   Monarch: {
     name: "Monarch",
-    description: "Iris & Obsidian Zinc — refined high-agency palette",
-    swatch: "#7c66dc",
+    description: "Monochrome Canvas — refined high-contrast graphite & porcelain palette",
+    swatch: "#171717",
     vars: {
       dark: {
-        "--background":          "240 10% 3.5%", // #09090b deep obsidian zinc
+        "--background":          "0 0% 4%",
         "--foreground":          "0 0% 98%",
-        "--card":                "240 7% 7.5%",  // #121215 refined surface
-        "--card-elevated":       "240 6% 10%",   // #19191e elevated surface
-        "--popover":             "240 7% 7.5%",
+        "--card":                "0 0% 8%",
+        "--card-elevated":       "0 0% 10%",
+        "--popover":             "0 0% 8%",
         "--popover-foreground":  "0 0% 98%",
-        "--primary":             "252 65% 62%",  // Radix Iris/Violet 9 (#7c66dc)
-        "--primary-foreground":  "0 0% 100%",
-        "--primary-glow":        "252 70% 70%",
-        "--secondary":           "217 91% 60%",
-        "--secondary-foreground":"0 0% 100%",
-        "--accent":              "45 93% 47%",
-        "--accent-foreground":   "0 0% 5%",
-        "--muted":               "240 6% 13%",
-        "--muted-foreground":    "240 5% 65%",
-        "--border":              "240 6% 15%",   // subtle hairline divider
-        "--input":               "240 6% 18%",
-        "--ring":                "252 65% 62%",
-        "--destructive":         "0 84% 60%",
-        "--destructive-foreground": "0 0% 100%",
-        "--success":             "142 71% 45%",
-        "--success-foreground":  "0 0% 100%",
-        "--warning":             "38 92% 50%",
-        "--warning-foreground":  "0 0% 8%",
+        "--primary":             "0 0% 98%",
+        "--primary-foreground":  "0 0% 6%",
+        "--primary-glow":        "0 0% 85%",
+        "--secondary":           "0 0% 88%",
+        "--secondary-foreground":"0 0% 6%",
+        "--accent":              "0 0% 14%",
+        "--accent-foreground":   "0 0% 98%",
+        "--muted":               "0 0% 12%",
+        "--muted-foreground":    "0 0% 64%",
+        "--border":              "0 0% 16%",
+        "--input":               "0 0% 18%",
+        "--ring":                "0 0% 80%",
+        "--destructive":         "0 0% 80%",
+        "--destructive-foreground": "0 0% 0%",
+        "--success":             "0 0% 90%",
+        "--success-foreground":  "0 0% 0%",
+        "--warning":             "0 0% 85%",
+        "--warning-foreground":  "0 0% 0%",
       },
       light: {
-        "--background":          "240 15% 98.5%", // #fafafa warm porcelain
-        "--foreground":          "240 10% 8%",    // #141416 sharp, crisp contrast
-        "--card":                "0 0% 100%",     // pure white card
+        "--background":          "60 2% 98%",
+        "--foreground":          "0 0% 9%",
+        "--card":                "0 0% 100%",
         "--card-elevated":       "0 0% 100%",
         "--popover":             "0 0% 100%",
-        "--popover-foreground":  "240 10% 8%",
-        "--primary":             "252 65% 54%",   // rich iris violet (5.5:1 on white)
+        "--popover-foreground":  "0 0% 9%",
+        "--primary":             "0 0% 9%",
         "--primary-foreground":  "0 0% 100%",
-        "--primary-glow":        "252 65% 62%",
-        "--secondary":           "217 91% 50%",
+        "--primary-glow":        "0 0% 25%",
+        "--secondary":           "0 0% 20%",
         "--secondary-foreground":"0 0% 100%",
-        "--accent":              "45 93% 42%",
-        "--accent-foreground":   "0 0% 5%",
-        "--muted":               "240 10% 94%",
-        "--muted-foreground":    "240 5% 45%",   // 4.6:1 WCAG AA text contrast
-        "--border":              "240 6% 90%",   // soft subtle hairline, not harsh 58%
-        "--input":               "240 6% 85%",   // clear input outline
-        "--ring":                "252 65% 54%",
-        "--destructive":         "0 84% 60%",
+        "--accent":              "0 0% 93%",
+        "--accent-foreground":   "0 0% 9%",
+        "--muted":               "0 0% 93%",
+        "--muted-foreground":    "0 0% 45%",
+        "--border":              "0 0% 88%",
+        "--input":               "0 0% 88%",
+        "--ring":                "0 0% 20%",
+        "--destructive":         "0 0% 20%",
         "--destructive-foreground": "0 0% 100%",
-        "--success":             "142 71% 40%",
+        "--success":             "0 0% 20%",
         "--success-foreground":  "0 0% 100%",
-        "--warning":             "38 92% 45%",
-        "--warning-foreground":  "0 0% 8%",
+        "--warning":             "0 0% 25%",
+        "--warning-foreground":  "0 0% 100%",
       },
     },
   },

@@ -256,13 +256,15 @@ export function TrajectoryVisualizer({
 
           {/* Current Progress Node */}
           <g transform={`translate(${xCurrent}, ${yCurrent})`}>
-            {/* Outer radar pulse circle */}
-            <circle
-              r={12}
-              fill="hsl(var(--primary) / 0.15)"
-              className="animate-ping"
-              style={{ transformOrigin: "center", animationDuration: "2.5s" }}
-            />
+            {/* Outer radar pulse circle — strictly anchored at node center */}
+            <circle r={6} fill="hsl(var(--primary) / 0.25)">
+              <animate attributeName="r" values="6;16;6" dur="2.6s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.7;0;0.7" dur="2.6s" repeatCount="indefinite" />
+            </circle>
+            <circle r={6} fill="none" stroke="hsl(var(--primary) / 0.4)" strokeWidth={1}>
+              <animate attributeName="r" values="6;20;6" dur="2.6s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.6;0;0.6" dur="2.6s" repeatCount="indefinite" />
+            </circle>
             <circle r={6} fill="hsl(var(--primary))" stroke="hsl(var(--background))" strokeWidth={2} />
             <circle r={2.5} fill="#ffffff" />
             <text

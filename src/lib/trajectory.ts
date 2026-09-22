@@ -47,6 +47,12 @@ export function deriveCurrentStreak(quests: Quest[], todayStr: string, timezone:
     return 0;
   }
 
+  // If today is completed, streak includes today.
+  // If today is not yet completed, check if yesterday was completed so the active streak is preserved.
+  if (!completedDates.has(todayStr)) {
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+
   for (let i = 0; i < 3650; i++) {
     const cursorStr = cursor.toISOString().split("T")[0];
     if (!completedDates.has(cursorStr)) break;

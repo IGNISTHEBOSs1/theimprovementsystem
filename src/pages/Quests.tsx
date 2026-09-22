@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { CheckSquare, Plus, Repeat, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -222,17 +223,19 @@ export default function Quests() {
                 </div>
 
                 {/* Hairline Divided Rows */}
-                <ul className="divide-y divide-border/60">
-                  {activeQuests.map((quest) => (
-                    <QuestCard
-                      key={quest.id}
-                      quest={quest}
-                      completing={saving}
-                      onComplete={handleComplete}
-                      onCancel={handleCancel}
-                      cancelling={cancelling}
-                    />
-                  ))}
+                <ul className="divide-y divide-border/60 overflow-hidden">
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {activeQuests.map((quest) => (
+                      <QuestCard
+                        key={quest.id}
+                        quest={quest}
+                        completing={saving}
+                        onComplete={handleComplete}
+                        onCancel={handleCancel}
+                        cancelling={cancelling}
+                      />
+                    ))}
+                  </AnimatePresence>
                 </ul>
               </section>
             ) : !showCommitForm ? (

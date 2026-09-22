@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Flame, CheckCircle2, Sparkles, Check } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { Flame, CheckCircle2, Sparkles, Check, Loader2 } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -18,7 +18,103 @@ import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { deriveGoalStats, deriveTrajectory, deriveCurrentStreak, deriveWeeklyCadence } from "@/lib/trajectory";
 import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
+import { triggerHaptic } from "@/lib/haptics";
 import type { Quest } from "@/types/quest";
+
+interface SecondaryQuestItemProps {
+  quest: Quest;
+  completing: boolean;
+  onComplete: (questId: string) => void;
+}
+
+function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestItemProps) {
+  const [justCompleted, setJustCompleted] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
+
+  const handleMarkComplete = () => {
+    if (completing || justCompleted) return;
+    setJustCompleted(true);
+    triggerHaptic("success");
+    if (shouldReduceMotion) {
+      onComplete(quest.id);
+    } else {
+      setTimeout(() => {
+        onComplete(quest.id);
+      }, 260);
+    }
+  };
+
+  return (
+    <motion.li
+      layout
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
+      animate={
+        shouldReduceMotion
+          ? { opacity: 1 }
+          : justCompleted
+          ? { scale: 0.92, x: 90, opacity: 0 }
+          : { scale: 1, x: 0, opacity: 1 }
+      }
+      exit={
+        shouldReduceMotion
+          ? { opacity: 0 }
+          : { scale: 0.92, x: 90, opacity: 0, transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } }
+      }
+      transition={{
+        duration: 0.28,
+        ease: [0.16, 1, 0.3, 1],
+        layout: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+      }}
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-body-sm shadow-[var(--shadow-card)] transition-colors duration-200",
+        justCompleted && "bg-foreground/[0.04] border-l-2 border-l-foreground"
+      )}
+    >
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        {/* Tactile Check Target */}
+        <button
+          type="button"
+          onClick={handleMarkComplete}
+          disabled={completing || justCompleted}
+          aria-label={`Mark "${quest.title}" as complete`}
+          className={cn(
+            "size-6 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 cursor-pointer",
+            justCompleted
+              ? "border-foreground bg-foreground text-background shadow-xs"
+              : "border-border/80 bg-background/90 text-transparent hover:border-foreground/80 hover:text-foreground/30 shadow-xs"
+          )}
+        >
+          {completing && !justCompleted ? (
+            <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
+          ) : justCompleted ? (
+            <Check className="size-3.5 stroke-[2.5] animate-in zoom-in-75 duration-200" aria-hidden="true" />
+          ) : (
+            <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
+          )}
+        </button>
+
+        <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
+          <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>
+            {quest.priority}
+          </Badge>
+          <span className={cn("text-foreground font-medium truncate", justCompleted && "line-through text-muted-foreground")}>
+            {quest.title}
+          </span>
+        </div>
+      </div>
+
+      <Button
+        size="sm"
+        variant="ghost"
+        className="min-h-10 px-3 hover:bg-muted/80 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+        disabled={completing || justCompleted}
+        onClick={handleMarkComplete}
+      >
+        {justCompleted ? "Done" : "Mark complete"}
+      </Button>
+    </motion.li>
+  );
+}
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -207,61 +303,108 @@ export default function Dashboard() {
           </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* 7-Day Rhythm Ribbon (inspired by (Not Boring) Habits) */}
-          {weeklyCadence.length === 7 && (
-            <div
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/70 bg-card/60 shadow-xs"
-              aria-label="Weekly completion rhythm"
-            >
-              {weeklyCadence.map((day) => (
-                <div
-                  key={day.dateStr}
-                  className="flex flex-col items-center gap-0.5"
-                  title={`${day.dateStr}: ${day.completed ? "Completed" : day.isToday ? "Today" : "Incomplete"}`}
-                >
-                  <span className="text-[8px] font-mono text-muted-foreground font-semibold leading-none">
-                    {day.dayLabel}
-                  </span>
-                  <span
-                    className={cn(
-                      "size-3.5 rounded-full flex items-center justify-center transition-all",
-                      day.completed
-                        ? "bg-primary text-primary-foreground shadow-xs"
-                        : day.isToday
-                        ? "border border-dashed border-primary/70 bg-primary/10 text-primary"
-                        : "border border-border/80 bg-muted/30"
-                    )}
-                  >
-                    {day.completed ? (
-                      <Check className="size-2 stroke-[3]" aria-hidden="true" />
-                    ) : day.isToday ? (
-                      <span className="size-1 rounded-full bg-primary animate-pulse" />
-                    ) : null}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {currentStreak > 0 && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-xs font-medium text-foreground">
-              <Flame className="size-3.5 text-primary" aria-hidden="true" />
-              <span>{currentStreak} day streak</span>
-            </div>
-          )}
-          {completedToday > 0 && (
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-success/30 bg-success/10 text-xs font-medium text-success">
-              <CheckCircle2 className="size-3.5 text-success" aria-hidden="true" />
-              <span>{completedToday} done today</span>
-            </div>
-          )}
+        <div className="flex items-center gap-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/70 bg-card/60 text-xs font-medium text-muted-foreground">
-            <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
+            <span className="size-1.5 rounded-full bg-foreground" aria-hidden="true" />
             <span>{activeQuests.length}/3 Active</span>
           </div>
         </div>
       </header>
+
+      {/* ── Rhythm & Momentum Cockpit (Prominent, Dedicated Streak & Weekly Rhythm) ── */}
+      <section
+        aria-label="Rhythm and Streak Momentum"
+        className="mt-6 rounded-2xl border border-border/80 bg-card/70 p-5 sm:p-6 shadow-[var(--shadow-card)] backdrop-blur-xs relative overflow-hidden"
+      >
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          {/* Left: Streak Counter & Status Microcopy */}
+          <div className="flex items-center gap-4">
+            <div className="size-12 shrink-0 rounded-2xl border border-border bg-background/80 flex items-center justify-center shadow-xs">
+              <Flame
+                className={cn(
+                  "size-6 transition-all",
+                  currentStreak > 0 ? "text-foreground fill-foreground/15" : "text-muted-foreground"
+                )}
+                aria-hidden="true"
+              />
+            </div>
+            <div>
+              <div className="flex items-baseline gap-2">
+                {currentStreak > 0 ? (
+                  <>
+                    <span className="text-2xl font-bold tracking-tight text-foreground font-mono">
+                      {currentStreak}
+                    </span>
+                    <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                      {currentStreak === 1 ? "Day Active" : "Days Active"}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-lg font-bold tracking-tight text-foreground">
+                    Build Momentum
+                  </span>
+                )}
+              </div>
+              <p className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1.5">
+                {completedToday > 0 ? (
+                  <>
+                    <Check className="size-3.5 text-foreground stroke-[2.5]" aria-hidden="true" />
+                    <span>Streak preserved for today • Excellent focus</span>
+                  </>
+                ) : currentStreak > 0 ? (
+                  <span>Complete today&apos;s focus to extend your streak to {currentStreak + 1} days</span>
+                ) : (
+                  <span>Complete today&apos;s focus to begin your active streak</span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* Right: 7-Day Rhythm Cadence */}
+          {weeklyCadence.length === 7 && (
+            <div className="flex flex-col sm:items-end gap-2 pt-2 sm:pt-0 border-t border-border/40 sm:border-t-0">
+              <div
+                className="inline-flex items-center gap-2 p-1.5 rounded-xl border border-border/80 bg-background/60"
+                aria-label="7-day completion cadence"
+              >
+                {weeklyCadence.map((day) => (
+                  <div
+                    key={day.dateStr}
+                    className="flex flex-col items-center gap-1"
+                    title={`${day.dateStr}: ${day.completed ? "Completed" : day.isToday ? "Today" : "Incomplete"}`}
+                  >
+                    <span className={cn(
+                      "text-[10px] font-mono font-semibold uppercase leading-none",
+                      day.isToday ? "text-foreground font-bold" : "text-muted-foreground"
+                    )}>
+                      {day.dayLabel}
+                    </span>
+                    <span
+                      className={cn(
+                        "size-5 rounded-lg flex items-center justify-center transition-all",
+                        day.completed
+                          ? "bg-foreground text-background shadow-xs"
+                          : day.isToday
+                          ? "border-2 border-dashed border-foreground/80 bg-foreground/10 text-foreground"
+                          : "border border-border/80 bg-muted/40"
+                      )}
+                    >
+                      {day.completed ? (
+                        <Check className="size-3 stroke-[3]" aria-hidden="true" />
+                      ) : day.isToday ? (
+                        <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
+                      ) : null}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <span className="text-[11px] font-medium text-muted-foreground">
+                {completedToday > 0 ? `${completedToday} completed today` : "No quests completed today yet"}
+              </span>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* ── Tier 1 Action — Today's Focus (Immediately Visible Without Scrolling) ── */}
       <div className="mt-6">
@@ -272,13 +415,15 @@ export default function Dashboard() {
           </section>
         ) : activeQuests.length > 0 ? (
           <>
-            <PrimaryActionPanel
-              key={activeQuests[0].id}
-              quest={activeQuests[0]}
-              completing={saving}
-              onComplete={() => void handleComplete(activeQuests[0].id)}
-              onChooseQuest={chooseQuest}
-            />
+            <AnimatePresence mode="popLayout" initial={false}>
+              <PrimaryActionPanel
+                key={activeQuests[0].id}
+                quest={activeQuests[0]}
+                completing={saving}
+                onComplete={() => void handleComplete(activeQuests[0].id)}
+                onChooseQuest={chooseQuest}
+              />
+            </AnimatePresence>
             {completeError && (
               <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
                 That didn't go through. You can try again.
@@ -288,28 +433,16 @@ export default function Dashboard() {
               <div className="mt-5">
                 <p className="text-label text-muted-foreground">Also active</p>
                 <ul className="mt-3 space-y-2.5">
-                  {activeQuests.slice(1).map((quest) => (
-                    <li
-                      key={quest.id}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-body-sm shadow-[var(--shadow-card)]"
-                    >
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>
-                          {quest.priority}
-                        </Badge>
-                        <span className="text-foreground font-medium">{quest.title}</span>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="min-h-11 px-3 hover:bg-primary/10 hover:text-primary transition-colors text-xs font-medium"
-                        disabled={saving}
-                        onClick={() => void handleComplete(quest.id)}
-                      >
-                        Mark complete
-                      </Button>
-                    </li>
-                  ))}
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {activeQuests.slice(1).map((quest) => (
+                      <SecondaryQuestItem
+                        key={quest.id}
+                        quest={quest}
+                        completing={saving}
+                        onComplete={handleComplete}
+                      />
+                    ))}
+                  </AnimatePresence>
                 </ul>
               </div>
             )}

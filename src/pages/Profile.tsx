@@ -1,33 +1,26 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Pencil, Settings as SettingsIcon, Target } from "lucide-react";
+import {
+  ArrowRight,
+  Pencil,
+  Settings as SettingsIcon,
+  Target,
+  CheckCircle2,
+  Flame,
+  Compass,
+  History,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PageHeader } from "@/components/dashboard/PageHeader";
 import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 import { useAuth } from "@/hooks/useAuth";
+import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
+import { deriveFollowThroughStats, deriveCurrentStreak } from "@/lib/trajectory";
 
-// Founder Decision (Profile/Settings separation chunk): Profile's job is
-// identity, primary goal, personal context, and Quest history — nothing
-// about timezone, session, or account-data controls belongs here
-// anymore (moved to Settings, reached via the link below). This keeps
-// Profile answering "who am I / what am I working toward" and Settings
-// answering "what does the system control.
-//
-// Founder Decision (Profile identity/anchor chunk): two real gaps found
-// on audit, both fixed below — (1) this page showed no identity at all,
-// not even a username, despite its own stated job being "who am I"; (2)
-// the goal was always rendered as a live, permanently-open input field,
-// with no distinct "this is your current goal" display state separate
-// from editing — undersizing it relative to its stated importance and
-// failing the "current / editing / saving / saved / error" state
-// requirement, which only ever had editing/saving/saved/error, never a
-// real "current" view. Timezone and account/data controls were
-// confirmed already correctly present in Settings.tsx with full state
-// handling — not duplicated here, since that would be a second
-// timezone/account-control surface, explicitly not wanted.
 export default function Profile() {
   const { profile, updateProfile } = useAuth();
+  const { state, todayStr } = useDashboardDataContext();
   const [editingGoal, setEditingGoal] = useState(false);
   const [goal, setGoal] = useState(profile?.primary_goal ?? "");
   const [targetDate, setTargetDate] = useState(profile?.primary_goal_target_date ?? "");
@@ -79,59 +72,147 @@ export default function Profile() {
     setEditingGoal(false);
   };
 
+  const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
+  const followThrough = deriveFollowThroughStats(safeQuests);
+  const completionRate =
+    followThrough.total > 0
+      ? Math.round((followThrough.completed / followThrough.total) * 100)
+      : 0;
+
+  const currentStreak = todayStr
+    ? deriveCurrentStreak(safeQuests, todayStr, profile?.timezone || "UTC")
+    : 0;
+
   return (
     <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-6 sm:px-8 sm:py-10">
-      <PageHeader
-        eyebrow="Your system"
-        title="Your system."
-        description="Who you are, and what you're working toward."
-      />
+      {/* ── Personal Identity Cockpit Header ── */}
+      <section
+        aria-label="User identity"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-2xl border border-border/80 bg-card/60 shadow-[var(--shadow-card)]"
+      >
+        <div className="flex items-center gap-4">
+          <IdentityAvatar
+            username={profile?.username ?? ""}
+            className="h-14 w-14 text-base font-bold border-2 border-border shadow-xs"
+          />
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="truncate text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                {profile?.username || "Operator"}
+              </h1>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-mono font-medium border border-border bg-muted/60 text-muted-foreground">
+                Operator Cockpit
+              </span>
+            </div>
+            <p className="text-body-sm text-muted-foreground mt-0.5">
+              Personal identity, trajectory momentum, and system settings.
+            </p>
+          </div>
+        </div>
 
-      {/* Founder Decision (Profile identity/anchor chunk): identity —
-          the page's own stated job, previously not shown anywhere on
-          it. Reuses IdentityAvatar exactly as-is (no avatar image system
-          exists — see that component's own docs — so this correctly
-          shows initials, nothing invented). */}
-      <div className="mt-8 flex items-center gap-4">
-        <IdentityAvatar username={profile?.username ?? ""} className="h-12 w-12" />
-        <div className="min-w-0">
-          <p className="truncate text-lg font-semibold text-foreground">{profile?.username}</p>
-          <p className="text-body-sm text-muted-foreground">This is how TIS knows you.</p>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+            className="min-h-10 gap-2 border-border/80 hover:bg-muted/50"
+          >
+            <Link to="/profile/settings">
+              <SettingsIcon className="size-4 text-muted-foreground" aria-hidden="true" />
+              <span>Settings</span>
+            </Link>
+          </Button>
+        </div>
+      </section>
+
+      {/* ── Standing & Performance Metrics (Bento Grid) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-6">
+        {/* Metric 1: Follow-through rate */}
+        <div className="p-4 rounded-xl border border-border/80 bg-card/60 shadow-xs">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
+              Completion Rate
+            </span>
+            <CheckCircle2 className="size-4 text-foreground" aria-hidden="true" />
+          </div>
+          <div className="mt-2 flex items-baseline gap-1.5">
+            <span className="text-2xl font-bold font-mono text-foreground">{completionRate}%</span>
+            <span className="text-xs text-muted-foreground">
+              ({followThrough.completed}/{followThrough.total})
+            </span>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">All-time commitment reliability</p>
+        </div>
+
+        {/* Metric 2: Active streak */}
+        <div className="p-4 rounded-xl border border-border/80 bg-card/60 shadow-xs">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">Active Streak</span>
+            <Flame className="size-4 text-foreground" aria-hidden="true" />
+          </div>
+          <div className="mt-2 flex items-baseline gap-1.5">
+            <span className="text-2xl font-bold font-mono text-foreground">{currentStreak}</span>
+            <span className="text-xs text-muted-foreground">
+              {currentStreak === 1 ? "day" : "days"}
+            </span>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">Consecutive days in momentum</p>
+        </div>
+
+        {/* Metric 3: Quests honored */}
+        <div className="p-4 rounded-xl border border-border/80 bg-card/60 shadow-xs">
+          <div className="flex items-center justify-between text-muted-foreground">
+            <span className="text-[11px] font-semibold uppercase tracking-wider">
+              Quests Honored
+            </span>
+            <Compass className="size-4 text-foreground" aria-hidden="true" />
+          </div>
+          <div className="mt-2 flex items-baseline gap-1.5">
+            <span className="text-2xl font-bold font-mono text-foreground">
+              {followThrough.completed}
+            </span>
+            <span className="text-xs text-muted-foreground">completed</span>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1">Tangible proof of execution</p>
         </div>
       </div>
 
-      <div className="mt-8 space-y-8">
-        {/* Founder Decision (Profile identity/anchor chunk): the goal is
-            the most important thing on this page after identity, per
-            the brief, so it gets the same restrained primary-tinted
-            treatment PrimaryActionPanel already uses on Dashboard for
-            "the one thing that matters" — reused, not invented. The
-            "Quest history" / "Settings" links below stay plain ghost
-            buttons, unchanged, so the contrast in visual weight is
-            deliberate, not incidental. */}
+      <div className="mt-6 space-y-6">
+        {/* ── Primary Goal Section (Anchor) ── */}
         <section
-          className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]"
+          className="rounded-2xl border border-border/80 bg-card p-6 shadow-[var(--shadow-card)]"
           aria-labelledby="primary-goal-heading"
         >
-          <div className="flex items-center gap-2">
-            <Target className="size-4 text-primary" aria-hidden="true" />
-            <h2 id="primary-goal-heading" className="text-label text-primary">Your goal</h2>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Target className="size-4 text-foreground" aria-hidden="true" />
+              <h2
+                id="primary-goal-heading"
+                className="text-label text-foreground uppercase tracking-wider font-semibold"
+              >
+                Primary Goal
+              </h2>
+            </div>
+            {profile?.primary_goal && !editingGoal && (
+              <Link
+                to="/journey"
+                className="text-xs font-medium text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+              >
+                <span>Track on Path</span>
+                <ArrowRight className="size-3.5" aria-hidden="true" />
+              </Link>
+            )}
           </div>
 
           {!editingGoal ? (
-            // Founder Decision (Profile identity/anchor chunk): the
-            // "current value" state that was previously missing — the
-            // goal read as a form field, never as an anchor. Now shown
-            // as large, direct text when set, or an inviting (not
-            // pushy) empty state when it isn't.
             profile?.primary_goal ? (
-              <div>
-                <p className="mt-3 text-2xl font-semibold leading-tight text-foreground">
+              <div className="mt-4">
+                <p className="text-xl sm:text-2xl font-semibold leading-tight text-foreground">
                   {profile.primary_goal}
                 </p>
                 {profile.primary_goal_target_date && (
                   <p className="mt-2 text-body-sm text-muted-foreground flex items-center gap-1.5">
-                    <span>Targeting:</span>
+                    <span>Target Date:</span>
                     <span className="font-medium text-foreground">
                       {new Date(
                         profile.primary_goal_target_date.includes("T")
@@ -148,14 +229,18 @@ export default function Profile() {
               </div>
             ) : (
               <p className="mt-3 text-body-md text-muted-foreground">
-                No goal set yet. Optional — Quests work fine without one, but a goal lets TIS connect your commitments to a direction.
+                No goal set yet. Optional — Quests work fine without one, but a goal lets TIS connect
+                your commitments to a direction.
               </p>
             )
           ) : (
             <form onSubmit={handleSubmit} className="mt-4 space-y-3.5">
               <div className="space-y-3">
                 <div>
-                  <label htmlFor="goal-input" className="text-body-sm font-medium text-foreground block mb-1.5">
+                  <label
+                    htmlFor="goal-input"
+                    className="text-body-sm font-medium text-foreground block mb-1.5"
+                  >
                     Goal
                   </label>
                   <Input
@@ -170,7 +255,10 @@ export default function Profile() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="target-date-input" className="text-body-sm font-medium text-foreground block mb-1.5">
+                  <label
+                    htmlFor="target-date-input"
+                    className="text-body-sm font-medium text-foreground block mb-1.5"
+                  >
                     Target date <span className="text-muted-foreground font-normal">(optional)</span>
                   </label>
                   <Input
@@ -212,40 +300,90 @@ export default function Profile() {
             </p>
           )}
 
-          {/* Was top-right — the hardest corner of a card to reach
-              one-handed on a large phone. Moved to bottom-right, inside
-              the natural thumb arc for a hand holding the device from
-              the bottom, next to the content it edits rather than
-              floating above it. */}
           {!editingGoal && (
             <div className="mt-4 flex justify-end">
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="min-h-11 text-muted-foreground hover:text-foreground"
+                className="min-h-10 text-muted-foreground hover:text-foreground"
                 onClick={startEditing}
               >
                 <Pencil className="size-3.5" aria-hidden="true" />
-                {profile?.primary_goal ? "Edit" : "Set a goal"}
+                {profile?.primary_goal ? "Edit Goal" : "Set Goal"}
               </Button>
             </div>
           )}
         </section>
 
-        <div className="flex flex-wrap gap-2">
-          <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
-            <Link to="/profile/history">
-              Quest history
-              <ArrowRight className="size-4" aria-hidden="true" />
+        {/* ── Navigation Hub (Quest History & System Settings) ── */}
+        <div className="space-y-3">
+          <p className="text-caption text-muted-foreground uppercase tracking-wider font-semibold px-1">
+            System & History
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            {/* Quest History Card */}
+            <Link
+              to="/profile/history"
+              className="group flex items-center justify-between p-4 rounded-xl border border-border/80 bg-card/60 hover:bg-muted/40 hover:border-border transition-all shadow-xs"
+            >
+              <div className="flex items-start gap-3.5 min-w-0">
+                <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">
+                  <History
+                    className="size-4 text-muted-foreground group-hover:text-foreground transition-colors"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-sm text-foreground group-hover:underline">
+                      Quest History
+                    </span>
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-full border border-border bg-muted/60 text-muted-foreground">
+                      {followThrough.completed} Done
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                    Audit log of all completed and past quests.
+                  </p>
+                </div>
+              </div>
+              <ChevronRight
+                className="size-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 ml-2"
+                aria-hidden="true"
+              />
             </Link>
-          </Button>
-          <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
-            <Link to="/profile/settings">
-              <SettingsIcon className="size-4" aria-hidden="true" />
-              Settings
+
+            {/* System Settings Card */}
+            <Link
+              to="/profile/settings"
+              className="group flex items-center justify-between p-4 rounded-xl border border-border/80 bg-card/60 hover:bg-muted/40 hover:border-border transition-all shadow-xs"
+            >
+              <div className="flex items-start gap-3.5 min-w-0">
+                <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">
+                  <SettingsIcon
+                    className="size-4 text-muted-foreground group-hover:text-foreground transition-colors"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-sm text-foreground group-hover:underline">
+                      System Settings
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                    Theme, timezone, session, and data controls.
+                  </p>
+                </div>
+              </div>
+              <ChevronRight
+                className="size-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 ml-2"
+                aria-hidden="true"
+              />
             </Link>
-          </Button>
+          </div>
         </div>
       </div>
     </div>

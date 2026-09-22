@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, Target, Loader2, Repeat, Zap, X } from "lucide-react";
-import { useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Quest } from "@/types/quest";
 import { triggerHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
@@ -34,11 +34,30 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
   };
 
   return (
-    <li
+    <motion.li
+      layout
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+      animate={
+        shouldReduceMotion
+          ? { opacity: isDone ? 0.65 : 1 }
+          : justCompleted
+          ? { scale: 0.92, x: 100, opacity: 0 }
+          : { scale: 1, x: 0, opacity: isDone ? 0.65 : 1 }
+      }
+      exit={
+        shouldReduceMotion
+          ? { opacity: 0 }
+          : { scale: 0.92, x: 120, opacity: 0, transition: { duration: 0.28, ease: [0.16, 1, 0.3, 1] } }
+      }
+      transition={{
+        duration: 0.28,
+        ease: [0.16, 1, 0.3, 1],
+        layout: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+      }}
       className={cn(
-        "group relative flex flex-col justify-between gap-2.5 px-4 py-3.5 transition-all duration-200 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4",
+        "group relative flex flex-col justify-between gap-2.5 px-4 py-3.5 transition-colors duration-200 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4",
         justCompleted
-          ? "bg-success/[0.05] border-l-2 border-l-success"
+          ? "bg-foreground/[0.04] border-l-2 border-l-foreground"
           : isDone
           ? "bg-muted/15 opacity-65"
           : "hover:bg-muted/30"
@@ -57,12 +76,12 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
               : `Mark "${quest.title}" as complete`
           }
           className={cn(
-            "relative mt-0.5 sm:mt-0 size-6 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95",
+            "relative mt-0.5 sm:mt-0 size-6 shrink-0 rounded-lg border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 cursor-pointer",
             isCompleted
-              ? "border-success bg-success text-success-foreground shadow-[0_2px_8px_hsl(var(--success)/0.35)]"
+              ? "border-foreground bg-foreground text-background shadow-xs"
               : quest.failed
               ? "border-muted-foreground/30 bg-muted/40 text-muted-foreground cursor-not-allowed"
-              : "border-border/80 bg-background/90 text-transparent hover:border-primary/80 hover:text-primary/30 shadow-xs"
+              : "border-border/80 bg-background/90 text-transparent hover:border-foreground/80 hover:text-foreground/30 shadow-xs"
           )}
         >
           {completing && !justCompleted ? (
@@ -174,7 +193,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
 
         {/* Status or Secondary Actions */}
         {isCompleted ? (
-          <div className="flex items-center gap-1.5 font-medium text-success text-xs pl-1">
+          <div className="flex items-center gap-1.5 font-medium text-foreground text-xs pl-1">
             <Check className="size-3.5" aria-hidden="true" />
             <span>Done</span>
           </div>
@@ -195,6 +214,6 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
           )
         )}
       </div>
-    </li>
+    </motion.li>
   );
 }
