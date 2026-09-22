@@ -273,7 +273,6 @@ export default function Dashboard() {
         ) : completedToday > 0 ? (
           <DailyClosureCard
             completedToday={completedToday}
-            currentStreak={currentStreak}
             onChooseQuest={chooseQuest}
           />
         ) : (
@@ -286,7 +285,6 @@ export default function Dashboard() {
         <DirectionCard
           name={name}
           goalStats={profile?.primary_goal ? deriveGoalStats(state.quests) : undefined}
-          streak={currentStreak > 0 ? currentStreak : undefined}
         />
       </div>
 

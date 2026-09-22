@@ -1,4 +1,4 @@
-import { Compass, Flame } from "lucide-react";
+import { Compass } from "lucide-react";
 import type { GoalStats } from "@/lib/trajectory";
 
 interface DirectionCardProps {
@@ -10,9 +10,6 @@ interface DirectionCardProps {
   // failed:0} and renders its own honest "nothing linked yet" line
   // rather than being hidden).
   goalStats?: GoalStats;
-  // Founder Decision (Visual override chunk): real, honestly-computed
-  // consecutive-day count (see deriveCurrentStreak in lib/trajectory.ts)
-  // — 0 renders nothing rather than "0 day streak".
   streak?: number;
 }
 
@@ -49,7 +46,7 @@ function CompletionRing({ completed, total }: { completed: number; total: number
   );
 }
 
-export function DirectionCard({ name, goalStats, streak }: DirectionCardProps) {
+export function DirectionCard({ name, goalStats }: DirectionCardProps) {
   return (
     <section className="rounded-2xl border border-border/80 bg-card/60 p-5 shadow-sm" aria-labelledby="direction-heading">
       <div className="flex items-start gap-3">
@@ -68,12 +65,6 @@ export function DirectionCard({ name, goalStats, streak }: DirectionCardProps) {
               <CompletionRing completed={goalStats.completed} total={goalStats.linked} />
               <div>
                 <p className="text-body-sm font-medium text-foreground">Quests completed</p>
-                {Boolean(streak) && streak! > 0 && (
-                  <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-background/80 border border-border/60 px-2 py-0.5 text-xs font-medium text-foreground">
-                    <Flame className="size-3.5 text-primary" aria-hidden="true" />
-                    {streak} day streak
-                  </span>
-                )}
               </div>
             </div>
           )}

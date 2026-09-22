@@ -126,30 +126,15 @@ export default function Journey() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-6 sm:px-8 sm:py-10">
-      {/* ── Page Header & Reschedule Trigger ── */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-        <div>
-          <p className="hidden md:block text-label text-primary mb-1">
-            Your progress
-          </p>
-          <h1 className="text-display-lg text-foreground">Your journey.</h1>
-          <p className="mt-1 text-body-md text-muted-foreground">
-            Tracking your path toward "{profile?.primary_goal}".
-          </p>
-        </div>
-
-        {/* Global Reschedule Button in Header */}
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={isRecalibrating || saving}
-          onClick={handleOneTapBump}
-          className="self-start sm:self-auto rounded-full border-border/80 bg-card/70 hover:bg-accent text-xs font-medium backdrop-blur-md shadow-sm transition-all"
-          title="Shift non-essential quests to tomorrow to protect your momentum"
-        >
-          <RotateCcw className={`size-3.5 ${isRecalibrating ? "animate-spin" : ""}`} />
-          <span>Reschedule</span>
-        </Button>
+      {/* ── Page Header ── */}
+      <div>
+        <p className="hidden md:block text-label text-primary mb-1">
+          Your progress
+        </p>
+        <h1 className="text-display-lg text-foreground">Your journey.</h1>
+        <p className="mt-1 text-body-md text-muted-foreground">
+          Tracking your path toward "{profile?.primary_goal}".
+        </p>
       </div>
 
       {/* ── Summary Banner ── */}
@@ -189,10 +174,13 @@ export default function Journey() {
           />
         </div>
 
-        {/* ── CARD 2 (Half Width): Goal ETA or Target Date Prompt ── */}
-        {/* ── CARD 2 (Half Width): Goal Target Timeline ── */}
-        {pace ? (
-          <div className="rounded-2xl p-5 sm:p-6 border border-border bg-card shadow-[var(--shadow-card)] flex flex-col justify-between">
+        {/* ── CARD 2: Merged Target Date & Goal Progress ── */}
+        <div
+          className={`rounded-2xl p-5 sm:p-6 border border-border bg-card shadow-[var(--shadow-card)] flex flex-col justify-between ${
+            pace ? "col-span-1" : "col-span-1 md:col-span-2"
+          }`}
+        >
+          {pace ? (
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -228,16 +216,7 @@ export default function Journey() {
                   : `${pace.daysRemaining} days remaining. Focus on your goal commitments to stay on track.`}
               </p>
             </div>
-
-            <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Goal Progress</span>
-              <span className="font-mono font-semibold text-foreground">
-                {goalStats.completed} / {goalStats.linked} Quests Done
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div className="rounded-2xl p-5 sm:p-6 border border-border bg-card shadow-[var(--shadow-card)] flex flex-col justify-between">
+          ) : (
             <div>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
@@ -249,30 +228,44 @@ export default function Journey() {
                 </Badge>
               </div>
 
-              <h3 className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                No target date set
-              </h3>
-              <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-                Set a target date in your Profile to see your estimated timeline and daily pace.
-              </p>
+              <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                    No target date set
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                    Set a target date in your Profile to see your estimated timeline and daily pace.
+                  </p>
+                </div>
+                <Button asChild variant="outline" size="sm" className="rounded-xl text-xs shrink-0 self-start sm:self-auto">
+                  <Link to="/profile">
+                    <span>Set target date</span>
+                    <ArrowRight className="size-3.5 ml-1.5" />
+                  </Link>
+                </Button>
+              </div>
             </div>
+          )}
 
-            <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between">
-              <Button asChild variant="outline" size="sm" className="rounded-xl text-xs">
-                <Link to="/profile">
-                  <span>Set target date</span>
-                  <ArrowRight className="size-3.5 ml-1.5" />
-                </Link>
-              </Button>
-              <span className="font-mono text-xs text-muted-foreground">
-                {goalStats.completed} / {goalStats.linked} done
+          {/* Goal-progress numbers (below target-date status/input in the same card) */}
+          <div className="mt-5 pt-4 border-t border-border/60 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Goal progress:</span>
+              <span className="font-mono font-semibold text-foreground">
+                {goalStats.completed} of {goalStats.linked} completed
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Remaining:</span>
+              <span className="font-mono font-medium text-foreground">
+                {Math.max(0, goalStats.linked - goalStats.completed - goalStats.failed)} active
               </span>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* ── CARD 3 (Half Width): Current Pace or Goal Quests Overview ── */}
-        {pace ? (
+        {/* ── CARD 3 (Half Width): Your Pace (Only rendered when pace exists) ── */}
+        {pace && (
           <div className="rounded-2xl p-5 sm:p-6 border border-border bg-card shadow-[var(--shadow-card)] flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between gap-2">
@@ -323,40 +316,6 @@ export default function Journey() {
               </span>
             </div>
           </div>
-        ) : (
-          <div className="rounded-2xl p-5 sm:p-6 border border-border bg-card shadow-[var(--shadow-card)] flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
-                  <Gauge className="size-4 text-primary" aria-hidden="true" />
-                  <span>Goal progress</span>
-                </div>
-                <Badge variant="outline" className="text-[10px] font-mono border-primary/30 bg-primary/10 text-primary">
-                  Progress
-                </Badge>
-              </div>
-
-              <div className="mt-3 flex items-baseline gap-2">
-                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-mono">
-                  {goalStats.completed}
-                </h3>
-                <span className="text-sm font-medium text-muted-foreground">quests completed</span>
-              </div>
-
-              <p className="mt-2 text-xs text-muted-foreground">
-                {goalStats.linked > 0
-                  ? `${goalStats.completed} of ${goalStats.linked} goal commitments completed.`
-                  : "Link commitments to your primary goal to track your path toward it."}
-              </p>
-            </div>
-
-            <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Remaining</span>
-              <span className="font-mono font-medium text-foreground">
-                {Math.max(0, goalStats.linked - goalStats.completed - goalStats.failed)} active
-              </span>
-            </div>
-          </div>
         )}
 
         {/* ── CARD 4 (Full Width): Next Immediate Action ── */}
@@ -380,7 +339,18 @@ export default function Journey() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0">
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isRecalibrating || saving}
+                  onClick={handleOneTapBump}
+                  className="min-h-11 rounded-2xl border-border/80 bg-card/70 hover:bg-accent px-4 text-xs font-medium backdrop-blur-md shadow-sm transition-all"
+                  title="Shift non-essential quests to tomorrow to protect your momentum"
+                >
+                  <RotateCcw className={`size-3.5 mr-1.5 ${isRecalibrating ? "animate-spin" : ""}`} />
+                  <span>Reschedule</span>
+                </Button>
                 <Button
                   onClick={() => void handleActionComplete(primaryActionQuest.id)}
                   disabled={completingId === primaryActionQuest.id || saving}
@@ -414,12 +384,25 @@ export default function Journey() {
                   Pick one clear quest to focus on today.
                 </p>
               </div>
-              <Button asChild className="min-h-11 rounded-2xl bg-primary text-primary-foreground px-6 text-xs font-semibold">
-                <Link to="/quests">
-                  <span>Choose Today's Focus</span>
-                  <ArrowRight className="size-4 ml-1.5" />
-                </Link>
-              </Button>
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isRecalibrating || saving}
+                  onClick={handleOneTapBump}
+                  className="min-h-11 rounded-2xl border-border/80 bg-card/70 hover:bg-accent px-4 text-xs font-medium backdrop-blur-md shadow-sm transition-all"
+                  title="Shift non-essential quests to tomorrow to protect your momentum"
+                >
+                  <RotateCcw className={`size-3.5 mr-1.5 ${isRecalibrating ? "animate-spin" : ""}`} />
+                  <span>Reschedule</span>
+                </Button>
+                <Button asChild className="min-h-11 rounded-2xl bg-primary text-primary-foreground px-6 text-xs font-semibold">
+                  <Link to="/quests">
+                    <span>Choose Today's Focus</span>
+                    <ArrowRight className="size-4 ml-1.5" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           )}
         </div>

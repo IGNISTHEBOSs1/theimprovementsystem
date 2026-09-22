@@ -1,4 +1,4 @@
-import { CheckCircle2, Flame, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface DailyClosureCardProps {
@@ -9,7 +9,6 @@ interface DailyClosureCardProps {
 
 export function DailyClosureCard({
   completedToday,
-  currentStreak = 0,
   onChooseQuest,
 }: DailyClosureCardProps) {
   return (
@@ -40,13 +39,6 @@ export function DailyClosureCard({
           <CheckCircle2 className="size-3.5 text-success" aria-hidden="true" />
           {completedToday} {completedToday === 1 ? "quest" : "quests"} completed today
         </span>
-
-        {currentStreak > 0 && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-mono text-primary font-medium">
-            <Flame className="size-3.5" aria-hidden="true" />
-            {currentStreak} day streak
-          </span>
-        )}
       </div>
 
       <div className="mt-6 pt-5 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
