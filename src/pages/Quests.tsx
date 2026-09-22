@@ -166,19 +166,16 @@ export default function Quests() {
               </div>
             )}
 
-            {/* ACTIVE COMMITMENTS: UNIFIED RECEIPT LEDGER (Container Discipline + Edge Alignment) */}
+            {/* ACTIVE COMMITMENTS: GROUPED BY GESTALT PROXIMITY RULE */}
             {activeQuests.length > 0 ? (
-              <section
-                className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] overflow-hidden"
-                aria-label="Active commitments ledger"
-              >
-                {/* Ledger Header: Hard-left Title & Capacity Meter, Hard-right Add CTA */}
-                <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-3.5 border-b border-border/60 bg-muted/20">
+              <div className="space-y-6">
+                {/* Ledger Header & Capacity Summary */}
+                <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2.5">
-                    <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
                       Active Commitments
                     </h2>
-                    {/* Visual Capacity Meter (Show, Don't Tell) */}
+                    {/* Visual Capacity Meter */}
                     <div
                       className="flex items-center gap-1.5 ml-1"
                       title={`${activeQuests.length} of ${MAX_ACTIVE_QUESTS} slots committed`}
@@ -201,7 +198,6 @@ export default function Quests() {
                     </div>
                   </div>
 
-                  {/* Top Action pinned hard-right (Explicit Capacity Framing) */}
                   {!showCommitForm && (
                     activeQuests.length < MAX_ACTIVE_QUESTS ? (
                       <Button
@@ -222,22 +218,57 @@ export default function Quests() {
                   )}
                 </div>
 
-                {/* Hairline Divided Rows */}
-                <ul className="divide-y divide-border/60 overflow-hidden">
-                  <AnimatePresence mode="popLayout" initial={false}>
-                    {activeQuests.map((quest) => (
-                      <QuestCard
-                        key={quest.id}
-                        quest={quest}
-                        completing={saving}
-                        onComplete={handleComplete}
-                        onCancel={handleCancel}
-                        cancelling={cancelling}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </ul>
-              </section>
+                {/* Proximity Clusters: Grouped by Priority with Tight Internal Row Proximity */}
+                {(
+                  [
+                    {
+                      label: "Essential Commitments",
+                      caption: "Core Anchor",
+                      quests: activeQuests.filter((q) => q.priority === "Essential"),
+                    },
+                    {
+                      label: "Important Objectives",
+                      caption: "High Leverage",
+                      quests: activeQuests.filter((q) => q.priority === "Important"),
+                    },
+                    {
+                      label: "Optional / Tactical",
+                      caption: "Bonus",
+                      quests: activeQuests.filter((q) => q.priority === "Optional"),
+                    },
+                  ] as const
+                )
+                  .filter((group) => group.quests.length > 0)
+                  .map((group) => (
+                    <section key={group.label} className="space-y-2" aria-label={group.label}>
+                      <div className="flex items-center justify-between px-1 text-xs">
+                        <span className="font-mono font-semibold uppercase tracking-wider text-muted-foreground text-[11px]">
+                          {group.label}
+                        </span>
+                        <span className="font-mono text-[11px] text-muted-foreground/75">
+                          {group.caption} · {group.quests.length}
+                        </span>
+                      </div>
+
+                      <div className="rounded-2xl border border-border/80 bg-card shadow-[var(--shadow-card)] overflow-hidden">
+                        <ul className="divide-y divide-border/50">
+                          <AnimatePresence mode="popLayout" initial={false}>
+                            {group.quests.map((quest) => (
+                              <QuestCard
+                                key={quest.id}
+                                quest={quest}
+                                completing={saving}
+                                onComplete={handleComplete}
+                                onCancel={handleCancel}
+                                cancelling={cancelling}
+                              />
+                            ))}
+                          </AnimatePresence>
+                        </ul>
+                      </div>
+                    </section>
+                  ))}
+              </div>
             ) : !showCommitForm ? (
               /* Inviting Empty State when 0 quests */
               <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 text-center flex flex-col items-center justify-center shadow-[var(--shadow-card)]">

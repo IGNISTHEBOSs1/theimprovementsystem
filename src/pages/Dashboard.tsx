@@ -28,19 +28,23 @@ interface SecondaryQuestItemProps {
 }
 
 function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestItemProps) {
-  const [justCompleted, setJustCompleted] = useState(false);
+  const [completionStage, setCompletionStage] = useState<"idle" | "shrink" | "slide">("idle");
   const shouldReduceMotion = useReducedMotion();
+  const isCompleted = completionStage !== "idle";
 
   const handleMarkComplete = () => {
-    if (completing || justCompleted) return;
-    setJustCompleted(true);
+    if (completing || completionStage !== "idle") return;
+    setCompletionStage("shrink");
     triggerHaptic("success");
     if (shouldReduceMotion) {
       onComplete(quest.id);
     } else {
       setTimeout(() => {
+        setCompletionStage("slide");
+      }, 250);
+      setTimeout(() => {
         onComplete(quest.id);
-      }, 520);
+      }, 570);
     }
   };
 
@@ -51,23 +55,25 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
       animate={
         shouldReduceMotion
           ? { opacity: 1 }
-          : justCompleted
-          ? { scale: 0.94, x: 130, opacity: 0 }
+          : completionStage === "slide"
+          ? { scale: 0.94, x: 260, opacity: 0 }
+          : completionStage === "shrink"
+          ? { scale: 0.94, x: 0, opacity: 1 }
           : { scale: 1, x: 0, opacity: 1 }
       }
       exit={
         shouldReduceMotion
           ? { opacity: 0 }
-          : { scale: 0.94, x: 140, opacity: 0, transition: { duration: 0.52, ease: [0.32, 0.72, 0, 1] } }
+          : { scale: 0.94, x: 280, opacity: 0, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }
       }
       transition={{
-        duration: 0.52,
-        ease: [0.32, 0.72, 0, 1],
-        layout: { duration: 0.45, ease: [0.32, 0.72, 0, 1] },
+        duration: completionStage === "shrink" ? 0.25 : 0.32,
+        ease: completionStage === "shrink" ? "easeOut" : [0.32, 0.72, 0, 1],
+        layout: { duration: 0.4, ease: [0.32, 0.72, 0, 1] },
       }}
       className={cn(
-        "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-body-sm shadow-[var(--shadow-card)] transition-colors duration-300",
-        justCompleted && "bg-emerald-500/[0.08] border-l-2 border-l-emerald-500 border-emerald-500/30"
+        "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-body-sm shadow-[var(--shadow-card)] transition-colors duration-250",
+        completionStage !== "idle" && "bg-emerald-500/[0.12] border-l-2 border-l-emerald-500 border-emerald-500/40"
       )}
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -75,18 +81,18 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         <button
           type="button"
           onClick={handleMarkComplete}
-          disabled={completing || justCompleted}
+          disabled={completing || isCompleted}
           aria-label={`Mark "${quest.title}" as complete`}
           className={cn(
             "size-6 shrink-0 rounded-lg border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer",
-            justCompleted
+            isCompleted
               ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105"
               : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30 shadow-xs"
           )}
         >
-          {completing && !justCompleted ? (
+          {completing && !isCompleted ? (
             <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
-          ) : justCompleted ? (
+          ) : isCompleted ? (
             <Check className="size-3.5 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
           ) : (
             <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
@@ -97,7 +103,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
           <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>
             {quest.priority}
           </Badge>
-          <span className={cn("text-foreground font-medium truncate", justCompleted && "line-through text-muted-foreground")}>
+          <span className={cn("text-foreground font-medium truncate", isCompleted && "line-through text-muted-foreground")}>
             {quest.title}
           </span>
         </div>
@@ -108,12 +114,12 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         variant="ghost"
         className={cn(
           "min-h-10 px-3 hover:bg-muted/80 text-xs font-medium transition-colors",
-          justCompleted ? "text-emerald-500 font-semibold" : "text-muted-foreground hover:text-foreground"
+          isCompleted ? "text-emerald-500 font-semibold" : "text-muted-foreground hover:text-foreground"
         )}
-        disabled={completing || justCompleted}
+        disabled={completing || isCompleted}
         onClick={handleMarkComplete}
       >
-        {justCompleted ? "Done!" : "Mark complete"}
+        {isCompleted ? "Done!" : "Mark complete"}
       </Button>
     </motion.li>
   );

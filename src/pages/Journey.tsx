@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   Compass,
   Check,
-  Minus,
   RotateCcw,
   Sparkles,
   CalendarClock,
@@ -424,35 +423,23 @@ export default function Journey() {
                 return (
                   <li
                     key={q.id}
-                    className="flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-muted/20 transition-colors"
+                    className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-muted/20 transition-colors"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {isCompleted ? (
-                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-success/15 text-success border border-success/30">
-                          <Check className="size-3.5" aria-hidden="true" />
-                        </div>
-                      ) : (
-                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground border border-border">
-                          <Minus className="size-3.5" aria-hidden="true" />
-                        </div>
-                      )}
-
-                      <span className="truncate font-medium text-foreground text-sm">
+                    <div className="min-w-0 flex-1">
+                      <span
+                        className={cn(
+                          "truncate text-sm block",
+                          isCompleted
+                            ? "line-through text-muted-foreground/60 font-normal"
+                            : "text-foreground font-medium"
+                        )}
+                      >
                         {q.title}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0 text-xs">
-                      <span
-                        className={`font-mono text-[11px] px-2.5 py-0.5 rounded-full ${
-                          isCompleted
-                            ? "bg-success/10 text-success border border-success/30 font-medium"
-                            : "bg-muted text-muted-foreground border border-border/50"
-                        }`}
-                      >
-                        {isCompleted ? "Completed" : "Skipped"}
-                      </span>
-                      <span className="hidden sm:inline font-mono text-[11px] text-muted-foreground">
+                    <div className="flex items-center shrink-0 text-xs">
+                      <span className="font-mono text-[11px] text-muted-foreground">
                         {dateStr} {timeStr}
                       </span>
                     </div>

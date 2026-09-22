@@ -14,22 +14,25 @@ interface QuestCardProps {
 }
 
 export function QuestCard({ quest, completing, onComplete, onCancel, cancelling }: QuestCardProps) {
-  const [justCompleted, setJustCompleted] = useState(false);
+  const [completionStage, setCompletionStage] = useState<"idle" | "shrink" | "slide">("idle");
   const shouldReduceMotion = useReducedMotion();
   const isDone = quest.completed || quest.failed;
-  const isCompleted = quest.completed || justCompleted;
-  const canCancel = Boolean(onCancel) && !isDone && !quest.seriesId && !justCompleted;
+  const isCompleted = quest.completed || completionStage !== "idle";
+  const canCancel = Boolean(onCancel) && !isDone && !quest.seriesId && completionStage === "idle";
 
   const handleMarkComplete = () => {
-    if (completing || justCompleted || isDone) return;
-    setJustCompleted(true);
+    if (completing || completionStage !== "idle" || isDone) return;
+    setCompletionStage("shrink");
     triggerHaptic("success");
     if (shouldReduceMotion) {
       onComplete(quest.id);
     } else {
       setTimeout(() => {
+        setCompletionStage("slide");
+      }, 250);
+      setTimeout(() => {
         onComplete(quest.id);
-      }, 520);
+      }, 570);
     }
   };
 
@@ -40,24 +43,26 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
       animate={
         shouldReduceMotion
           ? { opacity: isDone ? 0.65 : 1 }
-          : justCompleted
-          ? { scale: 0.94, x: 140, opacity: 0 }
+          : completionStage === "slide"
+          ? { scale: 0.94, x: 260, opacity: 0 }
+          : completionStage === "shrink"
+          ? { scale: 0.94, x: 0, opacity: 1 }
           : { scale: 1, x: 0, opacity: isDone ? 0.65 : 1 }
       }
       exit={
         shouldReduceMotion
           ? { opacity: 0 }
-          : { scale: 0.94, x: 160, opacity: 0, transition: { duration: 0.52, ease: [0.32, 0.72, 0, 1] } }
+          : { scale: 0.94, x: 280, opacity: 0, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }
       }
       transition={{
-        duration: 0.52,
-        ease: [0.32, 0.72, 0, 1],
-        layout: { duration: 0.45, ease: [0.32, 0.72, 0, 1] },
+        duration: completionStage === "shrink" ? 0.25 : 0.32,
+        ease: completionStage === "shrink" ? "easeOut" : [0.32, 0.72, 0, 1],
+        layout: { duration: 0.4, ease: [0.32, 0.72, 0, 1] },
       }}
       className={cn(
-        "group relative flex flex-col justify-between gap-2.5 px-4 py-3.5 transition-colors duration-300 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4",
-        justCompleted
-          ? "bg-emerald-500/[0.08] border-l-2 border-l-emerald-500"
+        "group relative flex flex-col justify-between gap-2.5 px-4 py-3.5 transition-colors duration-250 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4",
+        completionStage !== "idle"
+          ? "bg-emerald-500/[0.12] border-l-2 border-l-emerald-500"
           : isDone
           ? "bg-muted/15 opacity-65"
           : "hover:bg-muted/30"
@@ -69,7 +74,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
         <button
           type="button"
           onClick={handleMarkComplete}
-          disabled={completing || isDone || justCompleted}
+          disabled={completing || isDone || isCompleted}
           aria-label={
             isCompleted
               ? `Quest "${quest.title}" completed`
@@ -84,7 +89,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
               : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30 shadow-xs"
           )}
         >
-          {completing && !justCompleted ? (
+          {completing && !isCompleted ? (
             <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
           ) : isCompleted ? (
             <Check className="size-3.5 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
@@ -204,7 +209,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
             <button
               type="button"
               onClick={() => onCancel!(quest.id)}
-              disabled={cancelling || completing || justCompleted}
+              disabled={cancelling || completing || isCompleted}
               className="p-1 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
               title="Cancel commitment"
               aria-label="Cancel commitment"

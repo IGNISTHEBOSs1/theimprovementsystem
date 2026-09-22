@@ -49,23 +49,18 @@ function useSpotlight() {
 
 export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQuest }: PrimaryActionPanelProps) {
   const spotlight = useSpotlight();
-  const [justCompleted, setJustCompleted] = useState(false);
-
-  const handleCheckmarkComplete = () => {
-    if (completing || justCompleted) return;
-    setJustCompleted(true);
-    triggerHaptic("success");
-    setTimeout(() => {
-      onComplete();
-    }, 520);
-  };
+  const [completionStage, setCompletionStage] = useState<"idle" | "shrink" | "slide">("idle");
 
   const handleActionComplete = () => {
-    setJustCompleted(true);
+    if (completing || completionStage !== "idle") return;
+    setCompletionStage("shrink");
     triggerHaptic("success");
     setTimeout(() => {
+      setCompletionStage("slide");
+    }, 250);
+    setTimeout(() => {
       onComplete();
-    }, 500);
+    }, 570);
   };
 
   if (!quest) {
@@ -91,19 +86,21 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
       layout
       initial={{ opacity: 0, y: 12 }}
       animate={
-        justCompleted
-          ? { scale: 0.94, x: 130, opacity: 0 }
+        completionStage === "slide"
+          ? { scale: 0.94, x: 260, opacity: 0 }
+          : completionStage === "shrink"
+          ? { scale: 0.94, x: 0, opacity: 1 }
           : { scale: 1, x: 0, opacity: 1, y: 0 }
       }
-      exit={{ scale: 0.94, x: 140, opacity: 0, transition: { duration: 0.52, ease: [0.32, 0.72, 0, 1] } }}
+      exit={{ scale: 0.94, x: 280, opacity: 0, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }}
       transition={{
-        duration: 0.52,
-        ease: [0.32, 0.72, 0, 1],
-        layout: { duration: 0.45, ease: [0.32, 0.72, 0, 1] },
+        duration: completionStage === "shrink" ? 0.25 : 0.32,
+        ease: completionStage === "shrink" ? "easeOut" : [0.32, 0.72, 0, 1],
+        layout: { duration: 0.4, ease: [0.32, 0.72, 0, 1] },
       }}
       className={cn(
-        "relative overflow-hidden rounded-2xl glass-hero p-5 sm:p-7 transition-colors duration-300",
-        justCompleted && "bg-emerald-500/[0.04] border-emerald-500/30"
+        "relative overflow-hidden rounded-2xl glass-hero p-5 sm:p-7 transition-colors duration-250",
+        completionStage !== "idle" && "bg-emerald-500/[0.08] border-emerald-500/40"
       )}
       aria-labelledby="focus-heading"
     >
@@ -119,28 +116,6 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
       <p className="text-label text-primary">Today&apos;s focus</p>
       <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3.5 min-w-0 flex-1">
-          {/* Tactile Check Target */}
-          <button
-            type="button"
-            onClick={handleCheckmarkComplete}
-            disabled={completing || justCompleted}
-            aria-label={`Mark "${quest.title}" as complete`}
-            className={cn(
-              "mt-1 size-7 shrink-0 rounded-xl border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer",
-              justCompleted
-                ? "border-emerald-500 bg-emerald-500 text-white shadow-md shadow-emerald-500/25 scale-105"
-                : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30 shadow-xs"
-            )}
-          >
-            {completing && !justCompleted ? (
-              <Loader2 className="size-4 animate-spin text-muted-foreground" aria-hidden="true" />
-            ) : justCompleted ? (
-              <Check className="size-4 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
-            ) : (
-              <Check className="size-4 stroke-[2]" aria-hidden="true" />
-            )}
-          </button>
-
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <CircleDot className="size-4 text-primary" aria-hidden="true" />
@@ -153,7 +128,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
                 </span>
               )}
             </div>
-            <h2 id="focus-heading" className={cn("mt-2 text-2xl font-semibold tracking-tight text-foreground transition-all", justCompleted && "line-through text-muted-foreground")}>
+            <h2 id="focus-heading" className={cn("mt-2 text-2xl font-semibold tracking-tight text-foreground transition-all", completionStage !== "idle" && "line-through text-muted-foreground")}>
               {quest.title}
             </h2>
             {quest.linkedToGoal && quest.goalName ? (

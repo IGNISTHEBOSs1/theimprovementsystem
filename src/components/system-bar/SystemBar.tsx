@@ -247,26 +247,18 @@ export default function SystemBar({
                   min-w-[44px]
                   min-h-[44px]
                   touch-manipulation
-                  transition-transform
-                  duration-150
-                  active:scale-[0.96]
-                  active:transition-none
                 "
               >
-                {/* Active inner slider — layoutId already gives the
-                    "pill slides from the previously-active icon to the
-                    newly-clicked one" motion for free: framer-motion
-                    animates any element sharing a layoutId between its
-                    old and new position/size automatically (FLIP), no
-                    manual coordinate math needed. */}
+                {/* 1. Circular sliding active pill indicator */}
                 {active && (
                   <motion.div
                     layoutId="system-bar-active-indicator-mobile"
                     className="
                       absolute
-                      inset-y-1.5
-                      inset-x-1
-                      rounded-[60px]
+                      inset-0
+                      m-auto
+                      size-11
+                      rounded-full
                       bg-foreground
                       shadow-sm
                     "
@@ -274,40 +266,37 @@ export default function SystemBar({
                   />
                 )}
 
-                {/* Icon + label scale together as one unit: active tab
-                    pops slightly larger, every other tab recedes
-                    slightly smaller — respects reduced motion. */}
+                {/* 2. Icon + text subtle enlargement, bold, and understated time pop */}
                 <motion.div
-                  className="relative flex flex-col items-center justify-center gap-1"
-                  animate={shouldReduceMotion ? { scale: 1 } : { scale: active ? 1.12 : 0.94 }}
+                  className="relative flex flex-col items-center justify-center gap-0.5"
+                  animate={shouldReduceMotion ? { scale: 1 } : { scale: active ? 1.08 : 1 }}
                   transition={
                     shouldReduceMotion
                       ? { duration: 0 }
                       : {
                           type: "spring",
-                          stiffness: 420,
-                          damping: 26,
-                          delay: active ? 0.08 : 0,
+                          stiffness: 380,
+                          damping: 25,
                         }
                   }
                 >
-                  {/* Profile avatar or Icon with notification pip */}
+                  {/* Profile avatar or Icon with static notification pip */}
                   <div className="relative">
                     {isProfile ? (
                       <IdentityAvatar
                         username={username}
                         active={active}
                         className="
-                          w-[clamp(20px,5.8vw,24px)]
-                          h-[clamp(20px,5.8vw,24px)]
+                          w-[22px]
+                          h-[22px]
                         "
                       />
                     ) : (
                       <Icon
-                        size={24}
-                        strokeWidth={active ? 2 : 1.5}
+                        size={20}
+                        strokeWidth={active ? 2.2 : 1.6}
                         className={cn(
-                          "w-[clamp(20px,5.8vw,24px)] h-[clamp(20px,5.8vw,24px)] transition-colors duration-150",
+                          "size-[20px] transition-colors duration-150",
                           active
                             ? "text-background"
                             : "text-muted-foreground hover:text-foreground",
@@ -315,28 +304,29 @@ export default function SystemBar({
                       />
                     )}
 
-                    {/* Notification badge / pip for active Quests */}
+                    {/* Clean static notification pip for active Quests (no chaotic ping) */}
                     {to === "/quests" && activeQuestCount > 0 && (
-                      <span className="absolute -top-0.5 -right-1 flex size-2 pointer-events-none">
-                        <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", active ? "bg-background" : "bg-primary")}></span>
-                        <span className={cn("relative inline-flex rounded-full size-2", active ? "bg-background" : "bg-primary")}></span>
-                      </span>
+                      <span className={cn(
+                        "absolute -top-0.5 -right-1 size-1.5 rounded-full pointer-events-none",
+                        active ? "bg-background" : "bg-primary"
+                      )} />
                     )}
 
-                    {/* Notification badge / pip for Mentor guidance */}
+                    {/* Clean static notification pip for Mentor guidance */}
                     {to === "/mentor" && hasMentorInsight && (
-                      <span className="absolute -top-0.5 -right-1 flex size-2 pointer-events-none">
-                        <span className={cn("relative inline-flex rounded-full size-2", active ? "bg-background" : "bg-primary")}></span>
-                      </span>
+                      <span className={cn(
+                        "absolute -top-0.5 -right-1 size-1.5 rounded-full pointer-events-none",
+                        active ? "bg-background" : "bg-primary"
+                      )} />
                     )}
                   </div>
 
-                  {/* Label with crisp, readable contrast */}
+                  {/* Label with crisp contrast and bold active weight */}
                   <span
                     className={cn(
-                      "text-[10px] leading-none transition-colors duration-150",
+                      "text-[10px] leading-none transition-colors duration-150 tracking-tight",
                       active
-                        ? "text-background font-semibold"
+                        ? "text-background font-bold"
                         : "text-muted-foreground font-medium",
                     )}
                   >
