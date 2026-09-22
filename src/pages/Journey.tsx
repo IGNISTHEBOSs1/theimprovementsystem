@@ -11,6 +11,8 @@ import {
   ArrowRight,
   Target,
   Zap,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,7 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { deriveGoalPace, deriveGoalStats, deriveResolvedAt } from "@/lib/trajectory";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { triggerHaptic } from "@/lib/haptics";
+import { cn } from "@/lib/utils";
 
 export default function Journey() {
   const { profile } = useAuth();
@@ -40,6 +43,7 @@ export default function Journey() {
 
   const [isRecalibrating, setIsRecalibrating] = useState(false);
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [showAllActivity, setShowAllActivity] = useState(false);
 
   if (loading) {
     return (
@@ -87,6 +91,11 @@ export default function Journey() {
   const recentEvidence48h = state.quests
     .filter((q) => (q.completed || q.failed) && new Date(deriveResolvedAt(q)).getTime() >= fortyEightHoursAgo)
     .sort((a, b) => deriveResolvedAt(b).localeCompare(deriveResolvedAt(a)));
+
+  // Progressive disclosure: 3-4 by default (4), capped at 8-10 (10) when expanded
+  const visibleActivity = showAllActivity
+    ? recentEvidence48h.slice(0, 10)
+    : recentEvidence48h.slice(0, 4);
 
   // "One-Tap Bump" (Forgiving Rescheduling)
   const handleOneTapBump = async () => {
@@ -285,53 +294,77 @@ export default function Journey() {
                 </Badge>
               </div>
 
-              {/* Gentler Streak Inspired 2x2 Telemetry Matrix */}
-              <div className="mt-4 grid grid-cols-2 gap-2.5">
-                <div className="rounded-xl border border-border/70 bg-card/60 p-3 flex flex-col justify-between">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Current pace</span>
-                  <div className="mt-1 flex items-baseline gap-1">
-                    <span className="text-xl sm:text-2xl font-bold font-mono text-foreground">{pace.actualDailyPace}</span>
-                    <span className="text-[10px] text-muted-foreground">/day</span>
+              {/* Connected Velocity & Pace Module (Relational Anchor - No Mental Math) */}
+              <div className="mt-4 rounded-xl border border-border/70 bg-card/60 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground block">
+                      Daily Velocity vs Target
+                    </span>
+                    <div className="mt-1 flex items-baseline gap-1.5">
+                      <span className="text-2xl sm:text-3xl font-bold font-mono text-foreground">
+                        {pace.actualDailyPace}
+                      </span>
+                      <span className="text-xs font-mono text-muted-foreground">
+                        of <strong className="text-foreground font-semibold">{pace.requiredDailyPace}</strong> quests/day needed
+                      </span>
+                    </div>
                   </div>
-                  <div className="mt-1">
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-medium ${pace.isOnTrack ? "text-success" : "text-warning"}`}>
-                      {pace.isOnTrack ? "✓ On track" : "⚠️ Needs nudge"}
+
+                  <div className="text-right">
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-mono font-medium",
+                        pace.isOnTrack
+                          ? "bg-success/15 text-success border border-success/30"
+                          : "bg-warning/15 text-warning border border-warning/30"
+                      )}
+                    >
+                      {pace.isOnTrack
+                        ? `+${(pace.actualDailyPace - pace.requiredDailyPace).toFixed(1)}/day ahead`
+                        : `-${(pace.requiredDailyPace - pace.actualDailyPace).toFixed(1)}/day gap`}
                     </span>
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-border/70 bg-card/60 p-3 flex flex-col justify-between">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Required pace</span>
-                  <div className="mt-1 flex items-baseline gap-1">
-                    <span className="text-xl sm:text-2xl font-bold font-mono text-foreground">{pace.requiredDailyPace}</span>
-                    <span className="text-[10px] text-muted-foreground">/day</span>
-                  </div>
-                  <div className="mt-1">
-                    <span className="text-[10px] text-muted-foreground">To finish on date</span>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-border/70 bg-card/60 p-3 flex flex-col justify-between">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Velocity ratio</span>
-                  <div className="mt-1 flex items-baseline gap-1">
-                    <span className="text-xl sm:text-2xl font-bold font-mono text-foreground">{Math.round(pace.paceRatio * 100)}%</span>
-                  </div>
-                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted/60">
+                {/* Connected Comparative Ratio Bar with 100% Benchmark Notch */}
+                <div className="mt-3.5 space-y-1.5">
+                  <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted/80">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${pace.isOnTrack ? "bg-primary" : "bg-warning"}`}
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500",
+                        pace.isOnTrack ? "bg-primary" : "bg-warning"
+                      )}
                       style={{ width: `${Math.min(Math.round(pace.paceRatio * 100), 100)}%` }}
                     />
                   </div>
+
+                  <div className="flex items-center justify-between text-[10px] font-mono text-muted-foreground">
+                    <span className="text-foreground/90 font-medium">
+                      {Math.round(pace.paceRatio * 100)}% velocity ratio
+                    </span>
+                    <span>
+                      {pace.isOnTrack ? "✓ Meeting schedule" : "⚠️ Pace boost needed"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Supporting Telemetry Context (Dual Compact Strip) */}
+              <div className="mt-2.5 grid grid-cols-2 gap-2.5">
+                <div className="rounded-xl border border-border/60 bg-card/40 p-2.5 flex flex-col justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Observed Output</span>
+                  <div className="mt-1 flex items-baseline gap-1">
+                    <span className="text-base font-bold font-mono text-primary">{pace.recentGoalCompleted}</span>
+                    <span className="text-[10px] text-muted-foreground">quests / {pace.daysObserved}d window</span>
+                  </div>
                 </div>
 
-                <div className="rounded-xl border border-border/70 bg-card/60 p-3 flex flex-col justify-between">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Completions</span>
+                <div className="rounded-xl border border-border/60 bg-card/40 p-2.5 flex flex-col justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Remaining Window</span>
                   <div className="mt-1 flex items-baseline gap-1">
-                    <span className="text-xl sm:text-2xl font-bold font-mono text-primary">{pace.recentGoalCompleted}</span>
-                    <span className="text-[10px] text-muted-foreground">quests</span>
-                  </div>
-                  <div className="mt-1">
-                    <span className="text-[10px] text-muted-foreground">Past {pace.daysObserved}d observed</span>
+                    <span className="text-base font-bold font-mono text-foreground">{pace.daysRemaining}</span>
+                    <span className="text-[10px] text-muted-foreground">days to target</span>
                   </div>
                 </div>
               </div>
@@ -452,58 +485,99 @@ export default function Journey() {
 
         <div className="mt-3">
           {recentEvidence48h.length > 0 ? (
-            <ul className="space-y-2">
-              {recentEvidence48h.map((q) => {
-                const isCompleted = q.completed;
-                const timeStr = new Date(deriveResolvedAt(q)).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                });
-                const dateStr = new Date(deriveResolvedAt(q)).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                });
+            <>
+              <ul className="space-y-2">
+                {visibleActivity.map((q) => {
+                  const isCompleted = q.completed;
+                  const timeStr = new Date(deriveResolvedAt(q)).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  const dateStr = new Date(deriveResolvedAt(q)).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                  });
 
-                return (
-                  <li
-                    key={q.id}
-                    className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-body-sm transition-all"
+                  return (
+                    <li
+                      key={q.id}
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-body-sm transition-all"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        {/* Neutral Icons: Checkmark for completed, Neutral Dash for skipped */}
+                        {isCompleted ? (
+                          <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-success/10 text-success border border-success/20">
+                            <Check className="size-3.5" aria-hidden="true" />
+                          </div>
+                        ) : (
+                          <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted/60 text-muted-foreground border border-border/60">
+                            <Minus className="size-3.5" aria-hidden="true" />
+                          </div>
+                        )}
+
+                        <span className="truncate font-medium text-foreground text-sm">
+                          {q.title}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2.5 shrink-0 text-xs">
+                        <span
+                          className={`font-mono text-[11px] px-2 py-0.5 rounded-full ${
+                            isCompleted
+                              ? "bg-success/10 text-success border border-success/20 font-medium"
+                              : "bg-muted text-muted-foreground border border-border/40"
+                          }`}
+                        >
+                          {isCompleted ? "Completed" : "Skipped"}
+                        </span>
+                        <span className="font-mono text-[11px] text-muted-foreground">
+                          {dateStr} {timeStr}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              {/* Progressive disclosure toggle: show 4 initially, max 10 in dropdown */}
+              {recentEvidence48h.length > 4 && (
+                <div className="mt-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAllActivity((prev) => !prev)}
+                    className="w-full h-9 rounded-xl border border-border/70 hover:bg-muted/40 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1.5"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {/* Neutral Icons: Checkmark for completed, Neutral Dash for skipped */}
-                      {isCompleted ? (
-                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-success/10 text-success border border-success/20">
-                          <Check className="size-3.5" aria-hidden="true" />
-                        </div>
-                      ) : (
-                        <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted/60 text-muted-foreground border border-border/60">
-                          <Minus className="size-3.5" aria-hidden="true" />
-                        </div>
-                      )}
+                    {showAllActivity ? (
+                      <>
+                        <span>Show fewer</span>
+                        <ChevronUp className="size-3.5" aria-hidden="true" />
+                      </>
+                    ) : (
+                      <>
+                        <span>
+                          Show more ({Math.min(recentEvidence48h.length, 10) - 4} more)
+                        </span>
+                        <ChevronDown className="size-3.5" aria-hidden="true" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
 
-                      <span className="truncate font-medium text-foreground text-sm">
-                        {q.title}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2.5 shrink-0 text-xs">
-                      <span
-                        className={`font-mono text-[11px] px-2 py-0.5 rounded-full ${
-                          isCompleted
-                            ? "bg-success/10 text-success border border-success/20 font-medium"
-                            : "bg-muted text-muted-foreground border border-border/40"
-                        }`}
-                      >
-                        {isCompleted ? "Completed" : "Skipped"}
-                      </span>
-                      <span className="font-mono text-[11px] text-muted-foreground">
-                        {dateStr} {timeStr}
-                      </span>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+              {/* Cap explanation if there are more than 10 */}
+              {showAllActivity && recentEvidence48h.length > 10 && (
+                <div className="mt-2.5 text-center">
+                  <Link
+                    to="/history"
+                    className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <span>Showing 10 of {recentEvidence48h.length}. View full history in Quest History</span>
+                    <ArrowRight className="size-3" aria-hidden="true" />
+                  </Link>
+                </div>
+              )}
+            </>
           ) : (
             <div className="rounded-2xl border border-border bg-card p-5 text-center text-xs text-muted-foreground">
               No activity recorded in the last 48 hours. When you complete a commitment, it will appear here.
