@@ -56,6 +56,48 @@ export function deriveCurrentStreak(quests: Quest[], todayStr: string, timezone:
   return streak;
 }
 
+export interface CadenceDay {
+  dateStr: string;
+  dayLabel: string;
+  isToday: boolean;
+  completed: boolean;
+}
+
+// Founder Decision (Godly UI inspiration — (Not Boring) Habits 7-day rhythm):
+// Derives the last 7 calendar days ending today with real completion
+// status from resolvedAt data. Zero synthetic points, honest computation.
+export function deriveWeeklyCadence(quests: Quest[], todayStr: string, timezone: string): CadenceDay[] {
+  if (!todayStr || typeof todayStr !== "string") return [];
+
+  const validQuests = Array.isArray(quests) ? quests.filter((q) => q && q.completed) : [];
+  const completedDates = new Set(
+    validQuests.map((q) => {
+      const resolved = deriveResolvedAt(q);
+      const parsed = new Date(resolved);
+      return toServerLocalDate(parsed, timezone).dateStr;
+    }),
+  );
+
+  const days: CadenceDay[] = [];
+  const weekdayInitials = ["S", "M", "T", "W", "T", "F", "S"];
+
+  for (let i = 6; i >= 0; i--) {
+    const cursor = new Date(`${todayStr}T12:00:00Z`);
+    if (isNaN(cursor.getTime())) continue;
+    cursor.setUTCDate(cursor.getUTCDate() - i);
+    const dateStr = cursor.toISOString().split("T")[0];
+    const dayOfWeek = cursor.getUTCDay();
+    days.push({
+      dateStr,
+      dayLabel: weekdayInitials[dayOfWeek],
+      isToday: i === 0,
+      completed: completedDates.has(dateStr),
+    });
+  }
+
+  return days;
+}
+
 export interface TrajectoryPoint {
   // Cumulative position after this evidence point.
   position: number;

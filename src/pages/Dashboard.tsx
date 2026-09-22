@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Flame, CheckCircle2, Sparkles } from "lucide-react";
+import { Flame, CheckCircle2, Sparkles, Check } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { DirectionCard } from "@/components/dashboard/DirectionCard";
 import { FirstLaunchState } from "@/components/dashboard/FirstLaunchState";
 import { AppTour } from "@/components/onboarding/AppTour";
@@ -14,7 +15,7 @@ import { DailyClosureCard } from "@/components/dashboard/DailyClosureCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
-import { deriveGoalStats, deriveTrajectory, deriveCurrentStreak } from "@/lib/trajectory";
+import { deriveGoalStats, deriveTrajectory, deriveCurrentStreak, deriveWeeklyCadence } from "@/lib/trajectory";
 import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
 import type { Quest } from "@/types/quest";
@@ -159,6 +160,13 @@ export default function Dashboard() {
     console.warn("deriveCurrentStreak error:", e);
   }
 
+  let weeklyCadence: ReturnType<typeof deriveWeeklyCadence> = [];
+  try {
+    weeklyCadence = todayStr ? deriveWeeklyCadence(safeQuests, todayStr, profile?.timezone || "UTC") : [];
+  } catch (e) {
+    console.warn("deriveWeeklyCadence error:", e);
+  }
+
   const contextualLink = (guidance.length > 0 || insights.length > 0)
     ? { to: "/mentor", label: "Your Mentor has a note based on your history." }
     : trajectory.actual.length > 0
@@ -200,6 +208,42 @@ export default function Dashboard() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {/* 7-Day Rhythm Ribbon (inspired by (Not Boring) Habits) */}
+          {weeklyCadence.length === 7 && (
+            <div
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/70 bg-card/60 shadow-xs"
+              aria-label="Weekly completion rhythm"
+            >
+              {weeklyCadence.map((day) => (
+                <div
+                  key={day.dateStr}
+                  className="flex flex-col items-center gap-0.5"
+                  title={`${day.dateStr}: ${day.completed ? "Completed" : day.isToday ? "Today" : "Incomplete"}`}
+                >
+                  <span className="text-[8px] font-mono text-muted-foreground font-semibold leading-none">
+                    {day.dayLabel}
+                  </span>
+                  <span
+                    className={cn(
+                      "size-3.5 rounded-full flex items-center justify-center transition-all",
+                      day.completed
+                        ? "bg-primary text-primary-foreground shadow-xs"
+                        : day.isToday
+                        ? "border border-dashed border-primary/70 bg-primary/10 text-primary"
+                        : "border border-border/80 bg-muted/30"
+                    )}
+                  >
+                    {day.completed ? (
+                      <Check className="size-2 stroke-[3]" aria-hidden="true" />
+                    ) : day.isToday ? (
+                      <span className="size-1 rounded-full bg-primary animate-pulse" />
+                    ) : null}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
           {currentStreak > 0 && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-primary/20 bg-primary/10 text-xs font-medium text-foreground">
               <Flame className="size-3.5 text-primary" aria-hidden="true" />

@@ -88,14 +88,19 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
             <CircleDot className="size-4 text-primary" aria-hidden="true" />
             <span>{quest.timeFrame}</span>
             <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>{quest.priority}</Badge>
+            {quest.linkedToGoal && quest.goalName && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
+                <span className="truncate max-w-[200px]">Goal: {quest.goalName}</span>
+              </span>
+            )}
           </div>
           <h2 id="focus-heading" className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
             {quest.title}
           </h2>
           {quest.linkedToGoal && quest.goalName ? (
             <p className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Target className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
-              <span>Moves forward: <strong className="text-foreground font-medium">{quest.goalName}</strong></span>
+              <span>Direct step toward <strong className="text-foreground font-medium">{quest.goalName}</strong></span>
             </p>
           ) : (
             <p className="mt-1.5 text-sm text-muted-foreground">

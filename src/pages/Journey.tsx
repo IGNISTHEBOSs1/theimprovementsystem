@@ -271,7 +271,7 @@ export default function Journey() {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
                   <Gauge className="size-4 text-primary" aria-hidden="true" />
-                  <span>Your pace</span>
+                  <span>Telemetry & Pace</span>
                 </div>
                 <Badge
                   variant="outline"
@@ -285,34 +285,62 @@ export default function Journey() {
                 </Badge>
               </div>
 
-              <div className="mt-3 flex items-baseline gap-2">
-                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-mono">
-                  {pace.actualDailyPace}
-                </h3>
-                <span className="text-sm font-medium text-muted-foreground">quests / day</span>
-              </div>
+              {/* Gentler Streak Inspired 2x2 Telemetry Matrix */}
+              <div className="mt-4 grid grid-cols-2 gap-2.5">
+                <div className="rounded-xl border border-border/70 bg-card/60 p-3 flex flex-col justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Current pace</span>
+                  <div className="mt-1 flex items-baseline gap-1">
+                    <span className="text-xl sm:text-2xl font-bold font-mono text-foreground">{pace.actualDailyPace}</span>
+                    <span className="text-[10px] text-muted-foreground">/day</span>
+                  </div>
+                  <div className="mt-1">
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-medium ${pace.isOnTrack ? "text-success" : "text-warning"}`}>
+                      {pace.isOnTrack ? "✓ On track" : "⚠️ Needs nudge"}
+                    </span>
+                  </div>
+                </div>
 
-              {/* Velocity meter bar */}
-              <div className="mt-3">
-                <div className="h-2 w-full overflow-hidden rounded-full bg-muted/60">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all duration-500"
-                    style={{ width: `${Math.min(Math.round(pace.paceRatio * 100), 100)}%` }}
-                  />
+                <div className="rounded-xl border border-border/70 bg-card/60 p-3 flex flex-col justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Required pace</span>
+                  <div className="mt-1 flex items-baseline gap-1">
+                    <span className="text-xl sm:text-2xl font-bold font-mono text-foreground">{pace.requiredDailyPace}</span>
+                    <span className="text-[10px] text-muted-foreground">/day</span>
+                  </div>
+                  <div className="mt-1">
+                    <span className="text-[10px] text-muted-foreground">To finish on date</span>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-border/70 bg-card/60 p-3 flex flex-col justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Velocity ratio</span>
+                  <div className="mt-1 flex items-baseline gap-1">
+                    <span className="text-xl sm:text-2xl font-bold font-mono text-foreground">{Math.round(pace.paceRatio * 100)}%</span>
+                  </div>
+                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted/60">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${pace.isOnTrack ? "bg-primary" : "bg-warning"}`}
+                      style={{ width: `${Math.min(Math.round(pace.paceRatio * 100), 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-border/70 bg-card/60 p-3 flex flex-col justify-between">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Completions</span>
+                  <div className="mt-1 flex items-baseline gap-1">
+                    <span className="text-xl sm:text-2xl font-bold font-mono text-primary">{pace.recentGoalCompleted}</span>
+                    <span className="text-[10px] text-muted-foreground">quests</span>
+                  </div>
+                  <div className="mt-1">
+                    <span className="text-[10px] text-muted-foreground">Past {pace.daysObserved}d observed</span>
+                  </div>
                 </div>
               </div>
-
-              <p className="mt-2 text-xs text-muted-foreground">
-                {pace.isOnTrack
-                  ? `Aim for about ${pace.requiredDailyPace} quests a day to reach your goal. Based on your activity over the past ${pace.daysObserved} days.`
-                  : `Aim for ${pace.requiredDailyPace} quests a day to meet your target. Current average: ${pace.actualDailyPace}/day.`}
-              </p>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Recent completions</span>
-              <span className="font-mono font-medium text-primary">
-                {pace.recentGoalCompleted} in last {pace.daysObserved} days
+            <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+              <span>Calibration</span>
+              <span className="font-mono text-[11px] text-foreground">
+                {pace.daysRemaining} days remaining in window
               </span>
             </div>
           </div>
