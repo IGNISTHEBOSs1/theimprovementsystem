@@ -257,7 +257,7 @@ export default function SystemBar({
                       absolute
                       inset-0
                       m-auto
-                      size-11
+                      size-[52px]
                       rounded-full
                       bg-foreground
                       shadow-sm

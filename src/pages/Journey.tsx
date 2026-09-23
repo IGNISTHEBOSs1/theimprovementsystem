@@ -170,145 +170,133 @@ export default function Journey() {
         />
       </div>
 
-      {/* ── 2. Unified Telemetry & Horizon Bar (Zero Nested Cards) ── */}
-      <div className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border/60">
-          {/* Column A: Velocity & Target Ratio */}
-          <div className="p-5 sm:p-6 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
-                  <Gauge className="size-4 text-primary" aria-hidden="true" />
-                  <span>Velocity vs Target</span>
-                </div>
-                {pace && (
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-medium",
-                      pace.isOnTrack
-                        ? "bg-success/15 text-success border border-success/30"
-                        : "bg-warning/15 text-warning border border-warning/30"
-                    )}
-                  >
-                    {pace.isOnTrack
-                      ? `+${(pace.actualDailyPace - pace.requiredDailyPace).toFixed(1)}/day ahead`
-                      : `-${(pace.requiredDailyPace - pace.actualDailyPace).toFixed(1)}/day gap`}
-                  </span>
-                )}
-              </div>
-
-              {pace ? (
-                <div className="mt-4 space-y-3">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold font-mono text-foreground">
-                      {pace.actualDailyPace}
-                    </span>
-                    <span className="text-xs font-mono text-muted-foreground">
-                      of <strong className="text-foreground font-semibold">{pace.requiredDailyPace}</strong> quests/day needed
-                    </span>
-                  </div>
-
-                  {/* Connected Comparative Ratio Bar */}
-                  <div className="space-y-1.5">
-                    <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted/80">
-                      <div
-                        className={cn(
-                          "h-full rounded-full transition-all duration-500",
-                          pace.isOnTrack ? "bg-primary" : "bg-warning"
-                        )}
-                        style={{ width: `${Math.min(Math.round(pace.paceRatio * 100), 100)}%` }}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground">
-                      <span className="text-foreground font-medium">
-                        {Math.round(pace.paceRatio * 100)}% velocity ratio
-                      </span>
-                      <span>
-                        {pace.isOnTrack ? "✓ Meeting schedule" : "⚠️ Pace boost needed"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="mt-4">
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Set a target date to calculate daily velocity and target ratios.
-                  </p>
-                </div>
-              )}
+      {/* ── 2. Trajectory Telemetry Console (Spacious & Deconstructed) ── */}
+      <div className="mt-6 rounded-3xl border border-border/80 bg-card/50 p-6 sm:p-7 shadow-sm space-y-6">
+        {/* Console Header: Title & Global Pace Status Pill */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="size-8 rounded-xl border border-border/80 bg-background flex items-center justify-center text-primary shadow-xs">
+              <Gauge className="size-4" aria-hidden="true" />
             </div>
-
-            <div className="mt-5 pt-3 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground font-mono">
-              <span>Observed Window</span>
-              <span className="text-foreground">{pace ? `${pace.recentGoalCompleted} quests in ${pace.daysObserved}d` : "No data"}</span>
+            <div>
+              <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+                Trajectory Telemetry
+              </p>
+              <h3 className="text-sm font-bold text-foreground">
+                Velocity & Target Alignment
+              </h3>
             </div>
           </div>
 
-          {/* Column B: Timeline & Target Horizon */}
-          <div className="p-5 sm:p-6 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
-                  <CalendarClock className="size-4 text-primary" aria-hidden="true" />
-                  <span>Target Timeline</span>
+          {pace && (
+            <Badge
+              variant="outline"
+              className={cn(
+                "px-3 py-1 font-mono text-xs font-semibold rounded-full",
+                pace.paceRatio >= 1.1
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
+                  : pace.isOnTrack
+                  ? "border-primary/30 bg-primary/10 text-primary"
+                  : "border-warning/40 bg-warning/10 text-warning"
+              )}
+            >
+              {pace.paceRatio >= 1.1
+                ? `Ahead of pace · +${(pace.actualDailyPace - pace.requiredDailyPace).toFixed(1)}/day`
+                : pace.isOnTrack
+                ? `On track · pace aligned`
+                : `Behind pace · -${(pace.requiredDailyPace - pace.actualDailyPace).toFixed(1)}/day gap`}
+            </Badge>
+          )}
+        </div>
+
+        {/* Telemetry Metrics Grid: Clean 2-column on desktop, spacious vertical rhythm on mobile */}
+        {pace ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
+            {/* Metric 1: Velocity vs Required */}
+            <div className="rounded-2xl border border-border/60 bg-background/50 p-5 flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
+                  Daily Execution Velocity
+                </span>
+                <div className="mt-2.5 flex items-baseline gap-2">
+                  <span className="text-3xl sm:text-4xl font-bold font-mono tracking-tight text-foreground">
+                    {pace.actualDailyPace}
+                  </span>
+                  <span className="text-xs font-mono text-muted-foreground">
+                    / <strong className="text-foreground font-semibold">{pace.requiredDailyPace}</strong> quests/day needed
+                  </span>
                 </div>
-                {pace ? (
-                  <Badge
-                    variant="outline"
-                    className={`text-[10px] font-mono uppercase ${
-                      pace.paceRatio >= 1.1
-                        ? "border-success/30 bg-success/10 text-success"
-                        : pace.isOnTrack
-                        ? "border-primary/30 bg-primary/10 text-primary"
-                        : "border-warning/30 bg-warning/10 text-warning"
-                    }`}
-                  >
-                    {pace.paceRatio >= 1.1
-                      ? "Ahead of pace"
-                      : pace.isOnTrack
-                      ? "On track"
-                      : "Behind pace"}
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="text-[10px] font-mono border-muted-foreground/30 text-muted-foreground">
-                    Optional
-                  </Badge>
-                )}
+
+                {/* Ratio Progress Line */}
+                <div className="mt-4 space-y-1.5">
+                  <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all duration-500",
+                        pace.isOnTrack ? "bg-emerald-500" : "bg-warning"
+                      )}
+                      style={{ width: `${Math.min(Math.round(pace.paceRatio * 100), 100)}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground pt-0.5">
+                    <span className="text-foreground font-medium">
+                      {Math.round(pace.paceRatio * 100)}% velocity ratio
+                    </span>
+                    <span>
+                      {pace.isOnTrack ? "✓ Meeting schedule" : "⚠ Pace boost needed"}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              {pace ? (
-                <div className="mt-4">
-                  <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-mono">
+              <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between text-xs font-mono text-muted-foreground">
+                <span>Observed window</span>
+                <span className="text-foreground font-medium">
+                  {pace.recentGoalCompleted} quests in {pace.daysObserved}d
+                </span>
+              </div>
+            </div>
+
+            {/* Metric 2: Target Horizon & Milestone Progress */}
+            <div className="rounded-2xl border border-border/60 bg-background/50 p-5 flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
+                  Target Horizon & Milestone
+                </span>
+                <div className="mt-2.5">
+                  <h4 className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-foreground">
                     {pace.targetDateFormatted}
-                  </h3>
+                  </h4>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {pace.daysRemaining} days remaining in commitment window.
                   </p>
                 </div>
-              ) : (
-                <div className="mt-4 flex items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground">No target date set</h3>
-                    <p className="mt-0.5 text-xs text-muted-foreground">Define your milestone in Profile.</p>
-                  </div>
-                  <Button asChild variant="outline" size="sm" className="rounded-xl text-xs shrink-0">
-                    <Link to="/profile">
-                      <span>Set date</span>
-                      <ArrowRight className="size-3.5 ml-1" />
-                    </Link>
-                  </Button>
-                </div>
-              )}
-            </div>
+              </div>
 
-            <div className="mt-5 pt-3 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground font-mono">
-              <span>Goal Progress</span>
-              <span className="font-semibold text-foreground">
-                {goalStats.completed} of {goalStats.linked} completed
-              </span>
+              <div className="mt-6 pt-3 border-t border-border/40 flex items-center justify-between text-xs font-mono text-muted-foreground">
+                <span>Goal progress</span>
+                <span className="text-foreground font-semibold">
+                  {goalStats.completed} of {goalStats.linked} completed ({goalStats.linked > 0 ? Math.round((goalStats.completed / goalStats.linked) * 100) : 0}%)
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-2xl border border-border/60 bg-background/50 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <h4 className="text-base font-semibold text-foreground">No target milestone set</h4>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Set a target date in Profile to unlock predictive velocity ratios and pace tracking.
+              </p>
+            </div>
+            <Button asChild variant="outline" size="sm" className="rounded-xl text-xs shrink-0 min-h-10">
+              <Link to="/profile">
+                <span>Set milestone</span>
+                <ArrowRight className="size-3.5 ml-1" />
+              </Link>
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* ── 3. Up Next Commitment (Clean Horizon Bar) ── */}

@@ -41,10 +41,10 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
     } else {
       setTimeout(() => {
         setCompletionStage("slide");
-      }, 250);
+      }, 220);
       setTimeout(() => {
         onComplete(quest.id);
-      }, 570);
+      }, 540);
     }
   };
 
@@ -56,24 +56,38 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         shouldReduceMotion
           ? { opacity: 1 }
           : completionStage === "slide"
-          ? { scale: 0.94, x: 260, opacity: 0 }
+          ? {
+              scale: 0.92,
+              x: 340,
+              opacity: 0,
+              height: 0,
+              marginBottom: 0,
+              paddingTop: 0,
+              paddingBottom: 0,
+            }
           : completionStage === "shrink"
-          ? { scale: 0.94, x: 0, opacity: 1 }
-          : { scale: 1, x: 0, opacity: 1 }
+          ? {
+              scale: 0.93,
+              x: 0,
+              opacity: 1,
+              y: 2,
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.22), 0 8px 10px -6px rgba(0, 0, 0, 0.18)",
+            }
+          : { scale: 1, x: 0, opacity: 1, y: 0 }
       }
       exit={
         shouldReduceMotion
           ? { opacity: 0 }
-          : { scale: 0.94, x: 280, opacity: 0, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }
+          : { scale: 0.92, x: 340, opacity: 0, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }
       }
       transition={{
-        duration: completionStage === "shrink" ? 0.25 : 0.32,
-        ease: completionStage === "shrink" ? "easeOut" : [0.32, 0.72, 0, 1],
-        layout: { duration: 0.4, ease: [0.32, 0.72, 0, 1] },
+        duration: completionStage === "shrink" ? 0.22 : 0.34,
+        ease: [0.32, 0.72, 0, 1],
+        layout: { type: "spring", stiffness: 360, damping: 28 },
       }}
       className={cn(
-        "flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/60 px-4 py-3 text-body-sm shadow-[var(--shadow-card)] transition-colors duration-250",
-        completionStage !== "idle" && "bg-emerald-500/[0.12] border-l-2 border-l-emerald-500 border-emerald-500/40"
+        "flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/80 bg-card/80 px-4 py-3.5 text-body-sm shadow-sm transition-colors duration-250 overflow-hidden",
+        completionStage !== "idle" && "bg-emerald-500/[0.12] border-emerald-500/50"
       )}
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">

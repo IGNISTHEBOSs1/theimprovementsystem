@@ -250,22 +250,20 @@ export default function Quests() {
                         </span>
                       </div>
 
-                      <div className="rounded-2xl border border-border/80 bg-card shadow-[var(--shadow-card)] overflow-hidden">
-                        <ul className="divide-y divide-border/50">
-                          <AnimatePresence mode="popLayout" initial={false}>
-                            {group.quests.map((quest) => (
-                              <QuestCard
-                                key={quest.id}
-                                quest={quest}
-                                completing={saving}
-                                onComplete={handleComplete}
-                                onCancel={handleCancel}
-                                cancelling={cancelling}
-                              />
-                            ))}
-                          </AnimatePresence>
-                        </ul>
-                      </div>
+                      <ul className="space-y-2.5">
+                        <AnimatePresence mode="popLayout" initial={false}>
+                          {group.quests.map((quest) => (
+                            <QuestCard
+                              key={quest.id}
+                              quest={quest}
+                              completing={saving}
+                              onComplete={handleComplete}
+                              onCancel={handleCancel}
+                              cancelling={cancelling}
+                            />
+                          ))}
+                        </AnimatePresence>
+                      </ul>
                     </section>
                   ))}
               </div>

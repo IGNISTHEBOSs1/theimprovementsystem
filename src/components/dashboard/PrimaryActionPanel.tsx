@@ -57,10 +57,10 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
     triggerHaptic("success");
     setTimeout(() => {
       setCompletionStage("slide");
-    }, 250);
+    }, 220);
     setTimeout(() => {
       onComplete();
-    }, 570);
+    }, 540);
   };
 
   if (!quest) {
@@ -87,16 +87,30 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
       initial={{ opacity: 0, y: 12 }}
       animate={
         completionStage === "slide"
-          ? { scale: 0.94, x: 260, opacity: 0 }
+          ? {
+              scale: 0.92,
+              x: 340,
+              opacity: 0,
+              height: 0,
+              marginBottom: 0,
+              paddingTop: 0,
+              paddingBottom: 0,
+            }
           : completionStage === "shrink"
-          ? { scale: 0.94, x: 0, opacity: 1 }
+          ? {
+              scale: 0.94,
+              x: 0,
+              opacity: 1,
+              y: 3,
+              boxShadow: "0 24px 32px -6px rgba(0, 0, 0, 0.25), 0 10px 12px -6px rgba(0, 0, 0, 0.2)",
+            }
           : { scale: 1, x: 0, opacity: 1, y: 0 }
       }
-      exit={{ scale: 0.94, x: 280, opacity: 0, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }}
+      exit={{ scale: 0.92, x: 340, opacity: 0, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }}
       transition={{
-        duration: completionStage === "shrink" ? 0.25 : 0.32,
-        ease: completionStage === "shrink" ? "easeOut" : [0.32, 0.72, 0, 1],
-        layout: { duration: 0.4, ease: [0.32, 0.72, 0, 1] },
+        duration: completionStage === "shrink" ? 0.22 : 0.34,
+        ease: [0.32, 0.72, 0, 1],
+        layout: { type: "spring", stiffness: 360, damping: 28 },
       }}
       className={cn(
         "relative overflow-hidden rounded-2xl glass-hero p-5 sm:p-7 transition-colors duration-250",
