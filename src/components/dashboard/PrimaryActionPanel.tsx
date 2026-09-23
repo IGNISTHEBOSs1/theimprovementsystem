@@ -371,7 +371,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
       className={cn(
-        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none transition-colors duration-300 border glass-control",
+        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none transition-colors duration-300 border glass-slider-track",
         isDone
           ? "border-emerald-500/50 bg-emerald-500/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
           : ""
@@ -381,10 +381,10 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       <span
         ref={handleRef}
         className={cn(
-          "pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full shadow-md transition-colors duration-300",
+          "pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300",
           isDone
-            ? "bg-emerald-500 text-white shadow-emerald-500/30"
-            : "bg-primary text-primary-foreground"
+            ? "glass-slider-handle-done"
+            : "glass-slider-handle"
         )}
         style={{ transform: "translate3d(0px, -50%, 0)" }}
       >

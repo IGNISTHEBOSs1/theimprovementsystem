@@ -249,7 +249,7 @@ export default function SystemBar({
                   touch-manipulation
                 "
               >
-                {/* 1. Circular sliding active pill indicator */}
+                {/* 1. Circular sliding active pill indicator with concentric radius & real glassmorphism */}
                 {active && (
                   <motion.div
                     layoutId="system-bar-active-indicator-mobile"
@@ -257,10 +257,10 @@ export default function SystemBar({
                       absolute
                       inset-0
                       m-auto
-                      size-[52px]
+                      w-[50px]
+                      h-[42px]
                       rounded-full
-                      bg-foreground
-                      shadow-sm
+                      glass-nav-pill
                     "
                     transition={indicatorTransition}
                   />
@@ -269,7 +269,7 @@ export default function SystemBar({
                 {/* 2. Icon + text subtle enlargement, bold, and understated time pop */}
                 <motion.div
                   className="relative flex flex-col items-center justify-center gap-0.5"
-                  animate={shouldReduceMotion ? { scale: 1 } : { scale: active ? 1.08 : 1 }}
+                  animate={shouldReduceMotion ? { scale: 1 } : { scale: active ? 1.03 : 1 }}
                   transition={
                     shouldReduceMotion
                       ? { duration: 0 }
@@ -287,18 +287,18 @@ export default function SystemBar({
                         username={username}
                         active={active}
                         className="
-                          w-[22px]
-                          h-[22px]
+                          w-[20px]
+                          h-[20px]
                         "
                       />
                     ) : (
                       <Icon
-                        size={20}
-                        strokeWidth={active ? 2.2 : 1.6}
+                        size={19}
+                        strokeWidth={active ? 2.2 : 1.7}
                         className={cn(
-                          "size-[20px] transition-colors duration-150",
+                          "size-[19px] transition-colors duration-150",
                           active
-                            ? "text-background"
+                            ? "text-white"
                             : "text-muted-foreground hover:text-foreground",
                         )}
                       />
@@ -308,7 +308,7 @@ export default function SystemBar({
                     {to === "/quests" && activeQuestCount > 0 && (
                       <span className={cn(
                         "absolute -top-0.5 -right-1 size-1.5 rounded-full pointer-events-none",
-                        active ? "bg-background" : "bg-primary"
+                        active ? "bg-white" : "bg-primary"
                       )} />
                     )}
 
@@ -316,7 +316,7 @@ export default function SystemBar({
                     {to === "/mentor" && hasMentorInsight && (
                       <span className={cn(
                         "absolute -top-0.5 -right-1 size-1.5 rounded-full pointer-events-none",
-                        active ? "bg-background" : "bg-primary"
+                        active ? "bg-white" : "bg-primary"
                       )} />
                     )}
                   </div>
@@ -326,7 +326,7 @@ export default function SystemBar({
                     className={cn(
                       "text-[10px] leading-none transition-colors duration-150 tracking-tight",
                       active
-                        ? "text-background font-bold"
+                        ? "text-white font-bold"
                         : "text-muted-foreground font-medium",
                     )}
                   >
