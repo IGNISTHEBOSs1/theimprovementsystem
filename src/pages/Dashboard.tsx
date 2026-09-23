@@ -337,7 +337,7 @@ export default function Dashboard() {
       {/* ── Rhythm & Momentum Cockpit (Prominent, Dedicated Streak & Weekly Rhythm) ── */}
       <section
         aria-label="Rhythm and Streak Momentum"
-        className="mt-6 rounded-2xl border border-border/80 bg-card/70 p-5 sm:p-6 shadow-[var(--shadow-card)] backdrop-blur-xs relative overflow-hidden"
+        className="mt-6 rounded-2xl border border-border/80 bg-card/70 p-5 sm:p-6 shadow-[var(--shadow-card)] backdrop-blur-xs relative overflow-hidden glass-specular"
       >
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           {/* Left: Streak Counter & Status Microcopy */}

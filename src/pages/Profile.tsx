@@ -102,7 +102,7 @@ export default function Profile() {
       {/* ── 1. Operator Identity & Command Header ── */}
       <header
         aria-label="Operator Profile Header"
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-3xl border border-border/80 bg-card/60 shadow-sm"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-3xl border border-border/80 bg-card/60 shadow-sm glass-specular"
       >
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -151,7 +151,7 @@ export default function Profile() {
 
       {/* ── 2. The North Star Mission Spotlight ── */}
       <section
-        className="rounded-3xl border border-border/80 bg-card/80 p-6 sm:p-7 shadow-sm relative overflow-hidden"
+        className="rounded-3xl border border-border/80 bg-card/80 p-6 sm:p-7 shadow-sm relative overflow-hidden glass-specular"
         aria-labelledby="primary-goal-heading"
       >
         <div className="flex items-center justify-between gap-3">
@@ -311,7 +311,7 @@ export default function Profile() {
       {/* ── 3. Unified Performance Telemetry Console ── */}
       <section
         aria-label="Standing and Momentum Telemetry"
-        className="rounded-3xl border border-border/80 bg-card/60 p-5 sm:p-6 shadow-sm"
+        className="rounded-3xl border border-border/80 bg-card/60 p-5 sm:p-6 shadow-sm glass-specular"
       >
         <div className="flex items-center justify-between mb-4">
           <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground">

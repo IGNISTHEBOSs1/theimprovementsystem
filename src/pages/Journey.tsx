@@ -171,7 +171,7 @@ export default function Journey() {
       </div>
 
       {/* ── 2. Trajectory Telemetry Console (Spacious & Deconstructed) ── */}
-      <div className="mt-6 rounded-3xl border border-border/80 bg-card/50 p-6 sm:p-7 shadow-sm space-y-6">
+      <div className="mt-6 rounded-3xl border border-border/80 bg-card/50 p-6 sm:p-7 shadow-sm space-y-6 glass-specular">
         {/* Console Header: Title & Global Pace Status Pill */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
