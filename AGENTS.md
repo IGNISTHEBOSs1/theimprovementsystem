@@ -68,3 +68,16 @@ leftover TODO, an unexpected file), report it plainly rather than
 quietly fixing or working around it. The person you're working for
 decides what happens next — that's not a formality, it's the actual
 point of asking.
+
+## 4. The Improvement System (TIS) Visual Language & Brand Invariants
+
+- **Neoskeuomorphism over Flatness**: Use tactile depth, specular highlights (`inset 0 1px 1px 0 rgba(...)` on top edges), and liquid frosted glass (`backdrop-blur-xl`, saturation boost) for elevated cards and navigation docks. Every interactive element must provide a tangible press/hover state (`active:scale-[0.98]`).
+- **Intentional Minimalism & 3-Second Clarity**: Strip noise, never character. The app must communicate its purpose in under 3 seconds using 6th-grade clarity (except core branding terms):
+  1. Deep Obsidian + Emerald kinetic contrast.
+  2. The signature ±10% mathematical buffer cone.
+  3. Strict constraint: 1 Primary Focus + 2 Routines.
+  4. Local-first encrypted browser storage.
+- **No RPG Gamification**: Never introduce hunter ranks, XP bars, or fantasy game tropes. Frame user growth as deterministic personal trajectory and quiet mathematical velocity.
+- **Side-by-Side Comparative Clarity**: When contrasting TIS with conventional streak apps, use clean side-by-side matrices with responsive segmented controls, never ambiguous sliders.
+- **Story-Driven Motion**: Motion must do real work (guiding the eye, recalculating velocity curves, demonstrating buffer resilience). If the user notices the animation before the product, the motion is too loud.
+
