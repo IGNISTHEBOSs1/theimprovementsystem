@@ -36,43 +36,41 @@ const plans = [
     price: "$12 / mo",
     cadence: "Subscription Churn Trap",
     highlighted: false,
-    cta: "Avoid Fragility",
+    cta: "Fragile Streaks",
   },
   {
     name: "The Improvement System",
     price: "Free Forever",
     cadence: "100% Private Offline Vault",
     highlighted: true,
-    cta: "Start Your System",
+    cta: "Log In",
   },
 ] as const;
 
 const groups: FeatureGroup[] = [
   {
-    section: "Core Architecture",
+    section: "Core Differentiators",
     features: [
-      { label: "Daily Commitment Cap", values: ["20+ Backlog Overload", "1 Focus + 2 Routines Cap"] },
-      { label: "Offline Local-First Vault", values: [false, true] },
-      { label: "Zero Ad Trackers or Third-Party Pixels", values: [false, true] },
-      { label: "Encrypted Device Storage", values: [false, true] },
-    ],
-  },
-  {
-    section: "Daily Cadence & Motivation",
-    features: [
-      { label: "Feedback Mechanism", values: ["Casino Confetti & XP", "Quiet Mathematical Velocity"] },
-      { label: "Decision Fatigue", values: ["High (Endless lists)", "Zero (Locked each morning)"] },
-      { label: "Daily Time Required", values: ["15+ mins busywork", "Under 2 minutes"] },
-      { label: "Streak Broken After 1 Sick Day", values: [true, false] },
-    ],
-  },
-  {
-    section: "Resilience & Longevity",
-    features: [
-      { label: "Missed Day Protocol", values: ["Streak Reset to 0 (Guilt)", "±10% Buffer Cone (Absorbed)"] },
-      { label: "Burnout Protection", values: [false, true] },
-      { label: "Trajectory Horizon", values: ["Day-to-day anxiety", "90-Day Compounding Vector"] },
-      { label: "30-Day Retention Rate", values: ["< 12% (Industry average)", "92% (Compounding)"] },
+      {
+        label: "Missed Day Protocol",
+        values: ["Streak resets to 0 (Guilt)", "±10% Buffer Cone (Absorbed)"],
+      },
+      {
+        label: "Daily Task Load",
+        values: ["Endless 20+ item backlog", "Strict 1 Focus + 2 Routines cap"],
+      },
+      {
+        label: "Feedback & Motivation",
+        values: ["Casino confetti & fake XP", "Quiet mathematical velocity"],
+      },
+      {
+        label: "100% Offline Vault",
+        values: [false, true],
+      },
+      {
+        label: "Daily Time Required",
+        values: ["15+ mins sorting tasks", "Under 2 minutes execution"],
+      },
     ],
   },
 ];
@@ -228,12 +226,16 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                     >
                       <Button
                         size="sm"
-                        variant={plan.highlighted ? "default" : "secondary"}
-                        className="w-full text-xs font-display font-medium shadow-sm"
-                        onClick={() => onSelectPlan?.(plan.name)}
+                        variant={plan.highlighted ? "default" : "outline"}
+                        disabled={!plan.highlighted}
+                        className={cn(
+                          "w-full text-xs font-display font-medium shadow-sm touch-target",
+                          !plan.highlighted && "opacity-40 cursor-not-allowed text-muted-foreground",
+                        )}
+                        onClick={() => plan.highlighted && onSelectPlan?.(plan.name)}
                       >
                         <span>{plan.cta}</span>
-                        <RiArrowRightLine className="size-3.5 ml-1.5" />
+                        {plan.highlighted && <RiArrowRightLine className="size-3.5 ml-1.5" />}
                       </Button>
                     </TableCell>
                   ))}

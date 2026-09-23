@@ -163,12 +163,21 @@ export default function Landing() {
   const [routine2Done, setRoutine2Done] = useState<boolean>(false);
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
 
+  // Target element refs for precision human mouse simulation
+  const consoleRef = useRef<HTMLDivElement | null>(null);
+  const focusBoxRef = useRef<HTMLDivElement | null>(null);
+  const routine1BoxRef = useRef<HTMLDivElement | null>(null);
+  const routine2BoxRef = useRef<HTMLDivElement | null>(null);
+  const graphNodeRef = useRef<HTMLDivElement | null>(null);
+  const velocityBadgeRef = useRef<HTMLDivElement | null>(null);
+  const resetBtnRef = useRef<HTMLButtonElement | null>(null);
+
   // Video Sneak Peek Walkthrough Engine
   const [isPlayingWalkthrough, setIsPlayingWalkthrough] = useState<boolean>(true);
-  const [walkthroughStep, setWalkthroughStep] = useState<number>(0);
-  const [videoElapsedSec, setVideoElapsedSec] = useState<number>(4);
-  const [simCursorPos, setSimCursorPos] = useState({ x: 68, y: 34 });
+  const [videoElapsedSec, setVideoElapsedSec] = useState<number>(0);
+  const [simCursorPos, setSimCursorPos] = useState<{ x: number; y: number }>({ x: 260, y: 140 });
   const [isClicking, setIsClicking] = useState<boolean>(false);
+  const [activePressedTarget, setActivePressedTarget] = useState<string | null>(null);
 
   // ── TRAJECTORY MATHEMATICS & SEAMLESS C1 CONTINUITY ──
   const completedCount = (focusDone ? 1 : 0) + (routine1Done ? 1 : 0) + (routine2Done ? 1 : 0);
@@ -237,70 +246,132 @@ export default function Landing() {
   const bufferLowerPath = `M ${todayX},${todayY} C ${todayX + ctrlDx},${todayY + ctrlDy + 8} ${endX - 55},${projectedEndY + 20} ${endX},${projectedEndY + 22}`;
   const bufferPolygon = `M ${todayX},${todayY} C ${todayX + ctrlDx},${todayY + ctrlDy - 8} ${endX - 55},${projectedEndY - 20} ${endX},${projectedEndY - 22} L ${endX},${projectedEndY + 22} C ${endX - 55},${projectedEndY + 20} ${todayX + ctrlDx},${todayY + ctrlDy + 8} ${todayX},${todayY} Z`;
 
-  // ── SNEAK PEEK AUTO-PLAYING SIMULATED MOUSE ENGINE ──
-  const stepActions = useCallback((step: number) => {
-    switch (step) {
-      case 0:
-        // Move to Primary Focus checkbox
-        setSimCursorPos({ x: 60, y: 34 });
-        setIsClicking(false);
-        break;
-      case 1:
-        // Click Primary Focus
-        setIsClicking(true);
-        setFocusDone(true);
-        break;
-      case 2:
-        // Move to Routine 1
-        setIsClicking(false);
-        setSimCursorPos({ x: 60, y: 54 });
-        break;
-      case 3:
-        // Click Routine 1
-        setIsClicking(true);
-        setRoutine1Done(true);
-        break;
-      case 4:
-        // Move to Trajectory graph node
-        setIsClicking(false);
-        setSimCursorPos({ x: 26, y: 46 });
-        break;
-      case 5:
-        // Inspect the buffer cone
-        setSimCursorPos({ x: 38, y: 32 });
-        break;
-      case 6:
-        // Move to Routine 2
-        setSimCursorPos({ x: 60, y: 70 });
-        break;
-      case 7:
-        // Click Routine 2 to trigger peak momentum
-        setIsClicking(true);
-        setRoutine2Done(true);
-        break;
-      case 8:
-        // Move along peak trajectory
-        setIsClicking(false);
-        setSimCursorPos({ x: 44, y: 22 });
-        break;
-      default:
-        break;
-    }
-  }, []);
-
+  // ── HUMAN-LIKE SNEAK PEEK AUTO-PLAYING SIMULATED MOUSE ENGINE ──
   useEffect(() => {
     if (!isPlayingWalkthrough) return;
+
+    const totalCycleMs = 16000;
+    const startTime = Date.now();
+
+    // Reset initial state for fresh demonstration
+    setFocusDone(false);
+    setRoutine1Done(false);
+    setRoutine2Done(false);
+
+    const getPos = (el: HTMLElement | null, fallback: { x: number; y: number }, isGraphNode = false) => {
+      if (!consoleRef.current) return fallback;
+      const parentRect = consoleRef.current.getBoundingClientRect();
+      if (!el) return fallback;
+      const elRect = el.getBoundingClientRect();
+      if (isGraphNode) {
+        return {
+          x: elRect.left - parentRect.left + (elRect.width * 220) / 500,
+          y: elRect.top - parentRect.top + (elRect.height * todayY) / 210,
+        };
+      }
+      return {
+        x: elRect.left - parentRect.left + elRect.width / 2,
+        y: elRect.top - parentRect.top + elRect.height / 2,
+      };
+    };
+
     const interval = setInterval(() => {
-      setWalkthroughStep((prev) => {
-        const next = (prev + 1) % 9;
-        stepActions(next);
-        setVideoElapsedSec(Math.round(((next + 1) / 9) * 16));
-        return next;
-      });
-    }, 2000);
+      const elapsedMs = (Date.now() - startTime) % totalCycleMs;
+      const sec = Math.min(16, Math.floor(elapsedMs / 1000));
+      setVideoElapsedSec(sec);
+
+      // Human-like sequence with realistic pauses, glides, click-down depressions, and inspection
+      if (elapsedMs < 1200) {
+        // Initial glide into Daily Anchor section
+        const focusPos = getPos(focusBoxRef.current, { x: 340, y: 220 });
+        setSimCursorPos({ x: focusPos.x - 30, y: Math.max(20, focusPos.y - 70) });
+        setIsClicking(false);
+        setActivePressedTarget(null);
+      } else if (elapsedMs >= 1200 && elapsedMs < 2400) {
+        // Glide precisely onto Primary Focus checkbox
+        const pos = getPos(focusBoxRef.current, { x: 340, y: 220 });
+        setSimCursorPos(pos);
+        setIsClicking(false);
+        setActivePressedTarget(null);
+      } else if (elapsedMs >= 2400 && elapsedMs < 2900) {
+        // Human press: mouse down, checkbox activates, momentum thrust kicks in
+        const pos = getPos(focusBoxRef.current, { x: 340, y: 220 });
+        setSimCursorPos(pos);
+        setIsClicking(true);
+        setActivePressedTarget('focus');
+        setFocusDone(true);
+      } else if (elapsedMs >= 2900 && elapsedMs < 4000) {
+        // Release, pause to admire the +35% thrust reaction
+        setIsClicking(false);
+        setActivePressedTarget(null);
+      } else if (elapsedMs >= 4000 && elapsedMs < 5200) {
+        // Glide smoothly to Routine 1
+        const pos = getPos(routine1BoxRef.current, { x: 340, y: 280 });
+        setSimCursorPos(pos);
+        setIsClicking(false);
+        setActivePressedTarget(null);
+      } else if (elapsedMs >= 5200 && elapsedMs < 5700) {
+        // Click Routine 1
+        const pos = getPos(routine1BoxRef.current, { x: 340, y: 280 });
+        setSimCursorPos(pos);
+        setIsClicking(true);
+        setActivePressedTarget('routine1');
+        setRoutine1Done(true);
+      } else if (elapsedMs >= 5700 && elapsedMs < 7000) {
+        // Glide across to Today node on Trajectory graph to inspect curve
+        setIsClicking(false);
+        setActivePressedTarget(null);
+        const nodePos = getPos(graphNodeRef.current, { x: 180, y: 150 }, true);
+        setSimCursorPos(nodePos);
+      } else if (elapsedMs >= 7000 && elapsedMs < 9200) {
+        // Hover around the expanding ±10% buffer cone on the graph
+        const nodePos = getPos(graphNodeRef.current, { x: 180, y: 150 }, true);
+        setSimCursorPos({ x: nodePos.x + 35, y: nodePos.y - 12 });
+        setIsClicking(false);
+        setActivePressedTarget(null);
+      } else if (elapsedMs >= 9200 && elapsedMs < 10600) {
+        // Glide down to Routine 2
+        const pos = getPos(routine2BoxRef.current, { x: 340, y: 330 });
+        setSimCursorPos(pos);
+        setIsClicking(false);
+        setActivePressedTarget(null);
+      } else if (elapsedMs >= 10600 && elapsedMs < 11100) {
+        // Click Routine 2 to seal peak velocity
+        const pos = getPos(routine2BoxRef.current, { x: 340, y: 330 });
+        setSimCursorPos(pos);
+        setIsClicking(true);
+        setActivePressedTarget('routine2');
+        setRoutine2Done(true);
+      } else if (elapsedMs >= 11100 && elapsedMs < 12800) {
+        // Glide to Velocity Index badge celebrating peak compounding velocity
+        setIsClicking(false);
+        setActivePressedTarget(null);
+        const badgePos = getPos(velocityBadgeRef.current, { x: 420, y: 55 });
+        setSimCursorPos(badgePos);
+      } else if (elapsedMs >= 12800 && elapsedMs < 14200) {
+        // Glide to Reset button
+        const resetPos = getPos(resetBtnRef.current, { x: 430, y: 180 });
+        setSimCursorPos(resetPos);
+        setIsClicking(false);
+        setActivePressedTarget(null);
+      } else if (elapsedMs >= 14200 && elapsedMs < 14800) {
+        // Click Reset
+        const resetPos = getPos(resetBtnRef.current, { x: 430, y: 180 });
+        setSimCursorPos(resetPos);
+        setIsClicking(true);
+        setActivePressedTarget('reset');
+        setFocusDone(false);
+        setRoutine1Done(false);
+        setRoutine2Done(false);
+      } else if (elapsedMs >= 14800) {
+        // Release and prepare for next clean cycle
+        setIsClicking(false);
+        setActivePressedTarget(null);
+      }
+    }, 80);
 
     return () => clearInterval(interval);
-  }, [isPlayingWalkthrough, stepActions]);
+  }, [isPlayingWalkthrough, todayY]);
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden text-foreground selection:bg-white/20 selection:text-white">
@@ -326,24 +397,15 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Action Buttons Only */}
+          {/* Action Buttons Only - Single Log In Action */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/auth')}
-              className="text-xs text-muted-foreground hover:text-foreground font-medium px-3 touch-target"
-            >
-              Sign In
-            </Button>
             <Button
               variant="default"
               size="sm"
               onClick={() => navigate('/auth')}
-              className="text-xs px-3.5 py-1.5 font-display font-medium shadow-xs touch-target"
+              className="text-xs px-4 py-1.5 font-display font-medium shadow-xs touch-target"
             >
-              <span>Get Started</span>
-              <ArrowRight className="size-3.5 ml-1" />
+              <span>Log In</span>
             </Button>
           </div>
         </div>
@@ -398,9 +460,9 @@ export default function Landing() {
             size="lg"
             variant="default"
             onClick={() => navigate('/auth')}
-            className="w-full sm:w-auto px-7 py-5 font-display text-sm sm:text-base font-semibold shadow-md touch-target"
+            className="w-full sm:w-auto px-8 py-5 font-display text-sm sm:text-base font-semibold shadow-md touch-target"
           >
-            <span>Start Your System</span>
+            <span>Log In</span>
             <ArrowRight className="size-4 ml-2" />
           </Button>
           <Button
@@ -465,24 +527,39 @@ export default function Landing() {
             </div>
 
             {/* Inner Workspace: Trajectory Left + Daily Anchor Right */}
-            <div className="p-4 sm:p-6 md:p-8 relative">
-              {/* Simulated Mouse Cursor (Visible during auto-walkthrough) */}
+            <div ref={consoleRef} className="p-4 sm:p-6 md:p-8 relative">
+              {/* Simulated Human Mouse Cursor (Visible on all viewports during walkthrough) */}
               {isPlayingWalkthrough && (
                 <motion.div
-                  className="absolute pointer-events-none z-30 transition-all duration-700 ease-out hidden md:block"
-                  style={{
-                    left: `${simCursorPos.x}%`,
-                    top: `${simCursorPos.y}%`,
+                  className="absolute pointer-events-none z-30"
+                  animate={{
+                    x: simCursorPos.x,
+                    y: simCursorPos.y,
                   }}
+                  transition={{
+                    type: 'spring',
+                    damping: 28,
+                    stiffness: 140,
+                    mass: 0.8,
+                  }}
+                  style={{ left: 0, top: 0 }}
                 >
-                  <div className="relative">
-                    <MousePointer className="size-5 text-foreground drop-shadow-md -rotate-12 fill-foreground stroke-background stroke-2" />
+                  <div className="relative -top-1 -left-1">
+                    <motion.div
+                      animate={{
+                        scale: isClicking ? 0.84 : 1,
+                        rotate: isClicking ? -16 : -10,
+                      }}
+                      transition={{ duration: 0.12 }}
+                    >
+                      <MousePointer className="size-5 text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] fill-foreground stroke-background stroke-[1.5]" />
+                    </motion.div>
                     {isClicking && (
                       <motion.div
-                        initial={{ scale: 0.5, opacity: 0.9 }}
+                        initial={{ scale: 0.3, opacity: 0.9 }}
                         animate={{ scale: 2.2, opacity: 0 }}
-                        transition={{ duration: 0.4 }}
-                        className="absolute -top-1 -left-1 size-6 rounded-full border-2 border-foreground bg-foreground/20"
+                        transition={{ duration: 0.35, ease: 'easeOut' }}
+                        className="absolute -top-1 -left-1 size-5 rounded-full border-2 border-foreground bg-foreground/30 pointer-events-none"
                       />
                     )}
                   </div>
@@ -505,13 +582,16 @@ export default function Landing() {
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground font-tech-mono mt-0.5">
-                      90-Day horizon recalibrates smoothly as daily anchors complete
+                      90-Day horizon updates smoothly as daily anchors complete
                     </p>
                   </div>
                 </div>
 
                 {/* Velocity Readout */}
-                <div className="flex items-center gap-3 bg-muted/30 border border-border/80 rounded-xl px-3.5 py-1.5">
+                <div
+                  ref={velocityBadgeRef}
+                  className="flex items-center gap-3 bg-muted/30 border border-border/80 rounded-xl px-3.5 py-1.5"
+                >
                   <div className="text-right">
                     <div className="text-[10px] text-muted-foreground font-tech-mono uppercase tracking-wider">
                       Velocity Index
@@ -519,7 +599,7 @@ export default function Landing() {
                     <div className="font-tech-mono font-bold text-sm sm:text-base text-foreground flex items-center justify-end gap-1.5">
                       <span>{velocity}x</span>
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-foreground text-background font-bold">
-                        {isAhead ? 'AHEAD' : isInBuffer ? 'IN BUFFER' : 'RECALIBRATE'}
+                        {isAhead ? 'AHEAD' : isInBuffer ? 'IN BUFFER' : 'ABSORBING DRIFT'}
                       </span>
                     </div>
                   </div>
@@ -544,7 +624,7 @@ export default function Landing() {
                     </div>
 
                     {/* SVG Trajectory Canvas */}
-                    <div className="relative h-44 sm:h-52 w-full">
+                    <div ref={graphNodeRef} className="relative h-44 sm:h-52 w-full">
                       <svg
                         className="w-full h-full"
                         viewBox="0 0 500 210"
@@ -693,6 +773,7 @@ export default function Landing() {
                         </span>
                       </div>
                       <button
+                        ref={resetBtnRef}
                         type="button"
                         onClick={() => {
                           setIsPlayingWalkthrough(false);
@@ -700,7 +781,9 @@ export default function Landing() {
                           setRoutine1Done(false);
                           setRoutine2Done(false);
                         }}
-                        className="text-[10px] font-tech-mono text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded bg-muted/60 hover:bg-muted transition-colors touch-target"
+                        className={`text-[10px] font-tech-mono text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded bg-muted/60 hover:bg-muted transition-all touch-target ${
+                          activePressedTarget === 'reset' ? 'scale-95 bg-muted text-foreground' : ''
+                        }`}
                         title="Reset daily items"
                       >
                         <RotateCcw className="size-3" />
@@ -724,6 +807,8 @@ export default function Landing() {
                         }
                       }}
                       className={`mt-3 p-3.5 rounded-xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
+                        activePressedTarget === 'focus' ? 'scale-[0.98] ring-1 ring-foreground/30 shadow-sm' : ''
+                      } ${
                         focusDone
                           ? 'border-foreground/40 bg-muted/60 shadow-xs'
                           : 'border-border/80 bg-background hover:border-foreground/30'
@@ -731,6 +816,7 @@ export default function Landing() {
                     >
                       <div className="flex items-start gap-3">
                         <div
+                          ref={focusBoxRef}
                           className={`size-6 rounded-lg border flex items-center justify-center transition-colors mt-0.5 shrink-0 ${
                             focusDone
                               ? 'bg-foreground border-foreground text-background'
@@ -776,6 +862,8 @@ export default function Landing() {
                           }
                         }}
                         className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.99] flex items-center justify-between ${
+                          activePressedTarget === 'routine1' ? 'scale-[0.98] ring-1 ring-foreground/30 shadow-sm' : ''
+                        } ${
                           routine1Done
                             ? 'border-border/80 bg-muted/40'
                             : 'border-border/60 bg-background hover:border-border'
@@ -783,6 +871,7 @@ export default function Landing() {
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div
+                            ref={routine1BoxRef}
                             className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
                               routine1Done
                                 ? 'border-foreground bg-foreground text-background'
@@ -820,6 +909,8 @@ export default function Landing() {
                           }
                         }}
                         className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.99] flex items-center justify-between ${
+                          activePressedTarget === 'routine2' ? 'scale-[0.98] ring-1 ring-foreground/30 shadow-sm' : ''
+                        } ${
                           routine2Done
                             ? 'border-border/80 bg-muted/40'
                             : 'border-border/60 bg-background hover:border-border'
@@ -827,6 +918,7 @@ export default function Landing() {
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div
+                            ref={routine2BoxRef}
                             className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
                               routine2Done
                                 ? 'border-foreground bg-foreground text-background'
@@ -892,7 +984,7 @@ export default function Landing() {
               </div>
 
               {/* Progress Scrubber */}
-              <div className="hidden sm:flex items-center gap-2 flex-1 max-w-xs mx-6">
+              <div className="flex items-center gap-2 flex-1 max-w-xs mx-3 sm:mx-6">
                 <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full bg-foreground transition-all duration-300"
@@ -1087,7 +1179,7 @@ export default function Landing() {
                 onClick={() => navigate('/auth')}
                 className="w-full sm:w-auto px-8 py-5 font-display text-sm sm:text-base font-semibold shadow-lg touch-target"
               >
-                <span>Enter The System</span>
+                <span>Log In</span>
                 <ArrowRight className="size-4 ml-2" />
               </Button>
             </div>
@@ -1131,16 +1223,9 @@ export default function Landing() {
             <button
               type="button"
               onClick={() => navigate('/auth')}
-              className="hover:text-foreground transition-colors touch-target"
+              className="hover:text-foreground transition-colors touch-target font-medium"
             >
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/auth')}
-              className="hover:text-foreground transition-colors touch-target"
-            >
-              Start Free Vault
+              Log In
             </button>
             <span className="hidden sm:inline text-border">|</span>
             <span className="text-muted-foreground/60">© 2026 The Improvement System</span>
