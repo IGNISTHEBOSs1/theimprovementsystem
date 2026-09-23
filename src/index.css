@@ -396,18 +396,17 @@
     color: #ffffff;
   }
 
-  /* ── Liquid Glass Navbar Sliding Indicator ── */
+  /* ── Liquid Glass Navbar Sliding Indicator (Hardware-Accelerated Optical Glass) ── */
   .glass-nav-pill {
-    backdrop-filter: blur(14px) saturate(200%);
-    -webkit-backdrop-filter: blur(14px) saturate(200%);
-    background: linear-gradient(180deg, rgba(20, 24, 33, 0.92) 0%, rgba(10, 13, 20, 0.84) 100%);
+    backdrop-filter: blur(16px) saturate(200%);
+    -webkit-backdrop-filter: blur(16px) saturate(200%);
+    background: linear-gradient(180deg, rgba(20, 24, 33, 0.94) 0%, rgba(10, 13, 20, 0.86) 100%);
     border: 1px solid rgba(255, 255, 255, 0.24);
     box-shadow:
       inset 0 1px 1px 0 rgba(255, 255, 255, 0.45),
       inset 0 -1px 1px 0 rgba(0, 0, 0, 0.25),
       0 6px 18px -3px rgba(0, 0, 0, 0.28),
       0 2px 4px 0 rgba(0, 0, 0, 0.12);
-    filter: brightness(1.05) url(#liquid-glass-lens);
   }
   .dark .glass-nav-pill {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.08) 100%);
@@ -417,7 +416,6 @@
       inset 0 -1px 1px 0 rgba(0, 0, 0, 0.35),
       0 8px 24px -3px rgba(0, 0, 0, 0.6),
       0 2px 6px 0 rgba(0, 0, 0, 0.3);
-    filter: brightness(1.08) url(#liquid-glass-lens);
   }
 
   .glass-dialog {

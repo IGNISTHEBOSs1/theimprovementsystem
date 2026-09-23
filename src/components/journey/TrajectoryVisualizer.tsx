@@ -50,7 +50,7 @@ export function TrajectoryVisualizer({
 
   const predictiveCurvePath = `M ${xCurrent} ${yCurrent} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${xGoal} ${yGoal}`;
 
-  // Cone of Possibility: 10% acceptable variance corridor expanding from Current to Goal
+  // Cone of Possibility: 10% acceptable variance buffer expanding from Current to Goal
   const varianceSpan = 42; // +/- 10% variance expansion at horizon
   const yGoalUpper = yGoal - varianceSpan;
   const yGoalLower = yGoal + varianceSpan;
@@ -175,7 +175,7 @@ export function TrajectoryVisualizer({
             />
           ))}
 
-          {/* 1. THE CONE OF POSSIBILITY (Corridor +/- 10% variance) */}
+          {/* 1. THE CONE OF POSSIBILITY (Buffer +/- 10% variance) */}
           <path
             d={conePath}
             fill={`url(#${coneGradId})`}
@@ -217,7 +217,7 @@ export function TrajectoryVisualizer({
             fontFamily="monospace"
             opacity={0.85}
           >
-            ±{variancePct}% corridor
+            ±{variancePct}% buffer
           </text>
 
           {/* 2. RECENT PROGRESS TRAIL */}

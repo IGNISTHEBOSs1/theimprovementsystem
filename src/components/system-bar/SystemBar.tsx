@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SystemLogo } from "@/components/branding/Logo";
-import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 
 const NAV_ITEMS = [
   {
@@ -216,11 +215,17 @@ export default function SystemBar({
           fixed
           left-3
           right-3
+          sm:left-1/2
+          sm:-translate-x-1/2
+          sm:w-full
+          sm:max-w-md
           z-40
           flex
           items-stretch
           h-[56px]
           rounded-full
+          isolate
+          select-none
         "
         style={{
           bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
@@ -247,6 +252,7 @@ export default function SystemBar({
                   min-w-[44px]
                   min-h-[44px]
                   touch-manipulation
+                  group
                 "
               >
                 {/* 1. Circular sliding active pill indicator with concentric radius & real glassmorphism */}
@@ -261,6 +267,8 @@ export default function SystemBar({
                       h-[42px]
                       rounded-full
                       glass-nav-pill
+                      pointer-events-none
+                      z-0
                     "
                     transition={indicatorTransition}
                   />
@@ -268,7 +276,7 @@ export default function SystemBar({
 
                 {/* 2. Icon + text subtle enlargement, bold, and understated time pop */}
                 <motion.div
-                  className="relative flex flex-col items-center justify-center gap-0.5"
+                  className="relative z-10 flex flex-col items-center justify-center gap-0.5 pointer-events-none"
                   animate={shouldReduceMotion ? { scale: 1 } : { scale: active ? 1.03 : 1 }}
                   transition={
                     shouldReduceMotion
@@ -283,14 +291,16 @@ export default function SystemBar({
                   {/* Profile avatar or Icon with static notification pip */}
                   <div className="relative">
                     {isProfile ? (
-                      <IdentityAvatar
-                        username={username}
-                        active={active}
-                        className="
-                          w-[20px]
-                          h-[20px]
-                        "
-                      />
+                      <div
+                        className={cn(
+                          "size-[19px] rounded-full border flex items-center justify-center text-[9px] font-bold tracking-tight transition-colors duration-150",
+                          active
+                            ? "border-white/80 text-white"
+                            : "border-muted-foreground/60 text-muted-foreground group-hover:text-foreground group-hover:border-foreground",
+                        )}
+                      >
+                        {username.trim().slice(0, 2).toUpperCase() || "ME"}
+                      </div>
                     ) : (
                       <Icon
                         size={19}
@@ -299,7 +309,7 @@ export default function SystemBar({
                           "size-[19px] transition-colors duration-150",
                           active
                             ? "text-white"
-                            : "text-muted-foreground hover:text-foreground",
+                            : "text-muted-foreground group-hover:text-foreground",
                         )}
                       />
                     )}
@@ -308,7 +318,7 @@ export default function SystemBar({
                     {to === "/quests" && activeQuestCount > 0 && (
                       <span className={cn(
                         "absolute -top-0.5 -right-1 size-1.5 rounded-full pointer-events-none",
-                        active ? "bg-white" : "bg-primary"
+                        active ? "bg-white" : "bg-emerald-500"
                       )} />
                     )}
 
@@ -316,7 +326,7 @@ export default function SystemBar({
                     {to === "/mentor" && hasMentorInsight && (
                       <span className={cn(
                         "absolute -top-0.5 -right-1 size-1.5 rounded-full pointer-events-none",
-                        active ? "bg-white" : "bg-primary"
+                        active ? "bg-white" : "bg-emerald-500"
                       )} />
                     )}
                   </div>
@@ -327,7 +337,7 @@ export default function SystemBar({
                       "text-[10px] leading-none transition-colors duration-150 tracking-tight",
                       active
                         ? "text-white font-bold"
-                        : "text-muted-foreground font-medium",
+                        : "text-muted-foreground font-medium group-hover:text-foreground",
                     )}
                   >
                     {mobileLabel ?? label}
