@@ -5,6 +5,7 @@ import {
   RiArrowRightLine,
   RiSparkling2Line,
 } from "@remixicon/react";
+import { Flame } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { SystemLogo } from "@/components/branding/Logo";
 import { cn } from "@/lib/utils";
 
 type CellValue = boolean | string;
@@ -32,16 +34,12 @@ type FeatureGroup = {
 
 const plans = [
   {
-    name: "Rigid Streak Apps",
-    price: "$12 / mo",
-    cadence: "Subscription Churn Trap",
+    name: "Other Habit Apps",
     highlighted: false,
     cta: "Fragile Streaks",
   },
   {
     name: "The Improvement System",
-    price: "Free Forever",
-    cadence: "100% Private Offline Vault",
     highlighted: true,
     cta: "Log In",
   },
@@ -49,27 +47,44 @@ const plans = [
 
 const groups: FeatureGroup[] = [
   {
-    section: "Core Differentiators",
+    section: "Trajectory & Consistency",
     features: [
       {
-        label: "Missed Day Protocol",
-        values: ["Streak resets to 0 (Guilt)", "±10% Buffer Cone (Absorbed)"],
-      },
-      {
-        label: "Daily Task Load",
-        values: ["Endless 20+ item backlog", "Strict 1 Focus + 2 Routines cap"],
-      },
-      {
-        label: "Feedback & Motivation",
-        values: ["Casino confetti & fake XP", "Quiet mathematical velocity"],
-      },
-      {
-        label: "100% Offline Vault",
+        label: "±10% Mathematical Safety Buffer",
         values: [false, true],
       },
       {
-        label: "Daily Time Required",
-        values: ["15+ mins sorting tasks", "Under 2 minutes execution"],
+        label: "Strict 1 Focus + 2 Routines Cap",
+        values: [false, true],
+      },
+      {
+        label: "Guilt-Free Life Absorption",
+        values: [false, true],
+      },
+      {
+        label: "Deterministic 90-Day Vector",
+        values: [false, true],
+      },
+    ],
+  },
+  {
+    section: "Privacy & Architecture",
+    features: [
+      {
+        label: "100% Local Encrypted Vault",
+        values: [false, true],
+      },
+      {
+        label: "Zero Confetti / Casino Streaks",
+        values: [false, true],
+      },
+      {
+        label: "Under 2-Minute Daily Execution",
+        values: ["-", true],
+      },
+      {
+        label: "Free Forever (No Paywalls)",
+        values: [false, true],
       },
     ],
   },
@@ -86,8 +101,8 @@ function Cell({
     return value ? (
       <span
         className={cn(
-          "mx-auto flex size-5 items-center justify-center rounded",
-          highlighted ? "bg-foreground text-background" : "bg-muted-foreground/30 text-foreground",
+          "mx-auto flex size-5 items-center justify-center rounded-md transition-transform",
+          highlighted ? "bg-foreground text-background shadow-xs" : "bg-muted text-muted-foreground",
         )}
       >
         <RiCheckLine
@@ -97,21 +112,23 @@ function Cell({
         <span className="sr-only">Included</span>
       </span>
     ) : (
-      <span className="mx-auto flex size-5 items-center justify-center rounded bg-muted/60 text-muted-foreground">
+      <span className="mx-auto flex size-5 items-center justify-center rounded-md bg-muted/50 text-muted-foreground/60">
         <RiCloseLine className="size-3.5" aria-hidden />
         <span className="sr-only">Not included</span>
       </span>
     );
   }
 
+  // Null sign: "-" or "—"
   return (
     <span
       className={cn(
-        "text-xs sm:text-sm font-medium",
-        highlighted ? "text-foreground font-semibold" : "text-muted-foreground",
+        "mx-auto flex size-5 items-center justify-center text-xs font-tech-mono font-medium",
+        highlighted ? "text-foreground" : "text-muted-foreground/60",
       )}
+      aria-hidden
     >
-      {value}
+      —
     </span>
   );
 }
@@ -147,37 +164,42 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
             <Table className="table-fixed w-full text-sm">
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-b border-white/10">
-                  <TableHead className="sticky top-0 z-20 w-[42%] sm:w-[46%] border-b border-white/10 bg-card/90 align-bottom p-4">
+                  {/* Leftmost Column Header: Basis */}
+                  <TableHead className="sticky top-0 z-20 w-[44%] sm:w-[46%] border-b border-white/10 bg-card/90 align-bottom p-4">
                     <span className="inline-block text-xs font-tech-mono font-bold tracking-wider text-muted-foreground uppercase">
-                      Core Dimensions
+                      Basis
                     </span>
                   </TableHead>
-                  {plans.map((plan) => (
-                    <TableHead
-                      key={plan.name}
-                      className={cn(
-                        "sticky top-0 z-20 border-b border-white/10 text-center align-bottom p-4",
-                        plan.highlighted ? "bg-white/[0.04]" : "bg-card/90",
-                      )}
-                    >
-                      <div className="flex flex-col items-center gap-1">
-                        {plan.highlighted && (
-                          <span className="text-[10px] font-tech-mono font-bold tracking-widest uppercase px-2 py-0.5 rounded bg-foreground text-background mb-1">
-                            Recommended
-                          </span>
-                        )}
-                        <span className="text-xs sm:text-sm font-display font-bold text-foreground">
-                          {plan.name}
-                        </span>
-                        <span className="text-base sm:text-lg font-tech-mono font-bold text-foreground">
-                          {plan.price}
-                        </span>
-                        <span className="text-[11px] font-normal text-muted-foreground font-tech-mono">
-                          {plan.cadence}
-                        </span>
+
+                  {/* Middle Column: Random Habit App Logo */}
+                  <TableHead className="sticky top-0 z-20 border-b border-white/10 text-center align-bottom p-4 bg-card/90">
+                    <div className="flex flex-col items-center gap-1.5 py-1">
+                      <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center text-muted-foreground shadow-xs">
+                        <Flame className="size-4 text-muted-foreground" />
                       </div>
-                    </TableHead>
-                  ))}
+                      <span className="text-xs sm:text-sm font-display font-semibold text-muted-foreground">
+                        Other Habit Apps
+                      </span>
+                      <span className="text-[10px] font-tech-mono text-muted-foreground/60">
+                        Rigid Streaks
+                      </span>
+                    </div>
+                  </TableHead>
+
+                  {/* Rightmost Column: TIS Logo */}
+                  <TableHead className="sticky top-0 z-20 border-b border-white/10 text-center align-bottom p-4 bg-white/[0.04]">
+                    <div className="flex flex-col items-center gap-1.5 py-1">
+                      <div className="p-1 rounded-xl bg-card border border-white/20 shadow-xs backdrop-blur-md">
+                        <SystemLogo size={24} />
+                      </div>
+                      <span className="text-xs sm:text-sm font-display font-bold text-foreground">
+                        The Improvement System
+                      </span>
+                      <span className="text-[9px] sm:text-[10px] font-tech-mono font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-foreground text-background">
+                        Buffer Engine
+                      </span>
+                    </div>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -220,12 +242,12 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                 ))}
 
                 <TableRow className="hover:bg-transparent">
-                  <TableCell className="py-5 px-4" />
+                  <TableCell className="py-4 px-4" />
                   {plans.map((plan) => (
                     <TableCell
                       key={`cta-${plan.name}`}
                       className={cn(
-                        "py-5 px-4 text-center align-middle",
+                        "py-4 px-4 text-center align-middle",
                         plan.highlighted && "bg-white/[0.04]",
                       )}
                     >
@@ -234,7 +256,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                         variant={plan.highlighted ? "default" : "outline"}
                         disabled={!plan.highlighted}
                         className={cn(
-                          "w-full text-xs font-display font-medium shadow-sm touch-target",
+                          "w-full text-xs font-display font-medium shadow-xs h-9",
                           !plan.highlighted && "opacity-40 cursor-not-allowed text-muted-foreground",
                         )}
                         onClick={() => plan.highlighted && onSelectPlan?.(plan.name)}

@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { SystemLogo } from '@/components/branding/Logo';
 import ComparisonTable from '@/components/ui/comparison-table';
+import { cn } from '@/lib/utils';
 
 // ── MONOCHROMATIC AMBIENT BACKGROUND (QUIET WAVES, ZERO GREEN, ZERO SWIPING BALLS) ──
 function MonochromaticMeshBackground() {
@@ -191,14 +192,23 @@ export default function Landing() {
     }, 4000); // 4 seconds of inactivity
   }, []);
 
-  // Cleanup inactivity timer on unmount
+  // Responsive desktop detection for Three Steps hover expansion
+  const [isDesktop, setIsDesktop] = useState<boolean>(false);
   useEffect(() => {
-    return () => {
-      if (inactivityTimerRef.current) {
-        clearTimeout(inactivityTimerRef.current);
-      }
-    };
+    const updateSize = () => setIsDesktop(window.innerWidth >= 768);
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
   }, []);
+
+  // Passive user activity listener on console container (prevents mobile touch conflict/glitches)
+  useEffect(() => {
+    const el = consoleRef.current;
+    if (!el) return;
+    const onUserInteract = () => handleUserActivity();
+    el.addEventListener('click', onUserInteract, { passive: true });
+    return () => el.removeEventListener('click', onUserInteract);
+  }, [handleUserActivity]);
 
   // ── TRAJECTORY MATHEMATICS & SEAMLESS C1 CONTINUITY ──
   const completedCount = (focusDone ? 1 : 0) + (routine1Done ? 1 : 0) + (routine2Done ? 1 : 0);
@@ -268,10 +278,12 @@ export default function Landing() {
   // Projected Trajectory Line (Today -> Day 90) starts EXACTLY from (todayX, todayY) with identical tangent
   const projectedPath = `M ${todayX},${todayY} C ${todayX + ctrlDx},${todayY + ctrlDy} ${endX - 55},${projectedEndY + 6} ${endX},${projectedEndY}`;
 
-  // Elastic ±10% Buffer Cone starting EXACTLY at (todayX, todayY) with 0 width and expanding to Day 90
-  const bufferUpperPath = `M ${todayX},${todayY} C ${todayX + ctrlDx},${todayY + ctrlDy - 8} ${endX - 55},${projectedEndY - 20} ${endX},${projectedEndY - 22}`;
-  const bufferLowerPath = `M ${todayX},${todayY} C ${todayX + ctrlDx},${todayY + ctrlDy + 8} ${endX - 55},${projectedEndY + 20} ${endX},${projectedEndY + 22}`;
-  const bufferPolygon = `M ${todayX},${todayY} C ${todayX + ctrlDx},${todayY + ctrlDy - 8} ${endX - 55},${projectedEndY - 20} ${endX},${projectedEndY - 22} L ${endX},${projectedEndY + 22} C ${endX - 55},${projectedEndY + 20} ${todayX + ctrlDx},${todayY + ctrlDy + 8} ${todayX},${todayY} Z`;
+  // ── FIXED NOMINAL ±10% BUFFER CORRIDOR ──
+  // The buffer corridor is a stationary mathematical tolerance zone around the nominal baseline target (54).
+  // It remains fixed so the user's dynamic trajectory line moves relative to it (Ahead, In Buffer, Absorbing Drift).
+  const bufferUpperPath = `M ${todayX},96 C ${todayX + 60},84 ${endX - 60},40 ${endX},36`;
+  const bufferLowerPath = `M ${todayX},112 C ${todayX + 60},104 ${endX - 60},68 ${endX},72`;
+  const bufferPolygon = `M ${todayX},96 C ${todayX + 60},84 ${endX - 60},40 ${endX},36 L ${endX},72 C ${endX - 60},68 ${todayX + 60},104 ${todayX},112 Z`;
 
   // ── HUMAN-LIKE SNEAK PEEK AUTO-PLAYING SIMULATED MOUSE ENGINE ──
   useEffect(() => {
@@ -303,9 +315,11 @@ export default function Landing() {
       const parentRect = consoleRef.current.getBoundingClientRect();
       const elRect = el.getBoundingClientRect();
       if (parentRect.width === 0 || elRect.width === 0) return fallback;
+      const rawX = elRect.left - parentRect.left + elRect.width / 2;
+      const rawY = elRect.top - parentRect.top + elRect.height / 2;
       return {
-        x: elRect.left - parentRect.left + elRect.width / 2,
-        y: elRect.top - parentRect.top + elRect.height / 2,
+        x: Math.max(16, Math.min(parentRect.width - 24, rawX)),
+        y: Math.max(16, Math.min(parentRect.height - 24, rawY)),
       };
     };
 
@@ -459,14 +473,15 @@ export default function Landing() {
       <MonochromaticMeshBackground />
 
       {/* ── MINIMAL TOP NAVBAR (LIQUID FROSTED GLASS & SPECULAR EDGE) ── */}
-      <header className="sticky top-0 z-50 px-4 sm:px-6 md:px-8 py-3.5 backdrop-blur-2xl bg-background/70 border-b border-white/10 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_24px_rgba(0,0,0,0.2)]">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-50 px-3.5 sm:px-6 md:px-8 py-2 sm:py-3.5 backdrop-blur-2xl bg-background/70 border-b border-white/10 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_24px_rgba(0,0,0,0.2)]">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 sm:gap-4">
           {/* Brand Identity */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
             <div className="p-1 rounded-xl bg-card/80 border border-white/10 shadow-xs shrink-0 backdrop-blur-md">
-              <SystemLogo size={26} />
+              <SystemLogo size={22} className="sm:hidden" />
+              <SystemLogo size={26} className="hidden sm:block" />
             </div>
-            <div className="min-w-0 flex items-center gap-2.5">
+            <div className="min-w-0 flex items-center gap-2">
               <span className="font-display font-bold text-xs sm:text-sm tracking-tight text-foreground uppercase truncate">
                 The Improvement System
               </span>
@@ -478,12 +493,12 @@ export default function Landing() {
           </div>
 
           {/* Action Buttons Only - Single Log In Action */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <Button
               variant="default"
               size="sm"
               onClick={() => navigate('/auth')}
-              className="text-xs px-4 py-1.5 font-display font-medium shadow-xs touch-target"
+              className="text-xs px-3 sm:px-4 h-8 sm:h-9 font-display font-medium shadow-xs"
             >
               <span>Log In</span>
             </Button>
@@ -492,7 +507,7 @@ export default function Landing() {
       </header>
 
       {/* ── HERO SECTION: CADENCE & SNEAK PEEK (<3s CLARITY, SPACIOUS BREATHING ROOM) ── */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-8 pb-10 sm:pt-16 sm:pb-16 text-center">
+      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-6 pb-8 sm:pt-16 sm:pb-16 text-center">
         {/* Eyebrow */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -540,25 +555,23 @@ export default function Landing() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.15 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 sm:mb-12 px-4"
+          className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3.5 mb-6 sm:mb-10 px-3 max-w-sm sm:max-w-none mx-auto"
         >
           <Button
-            size="lg"
             variant="default"
             onClick={() => navigate('/auth')}
-            className="w-full sm:w-auto px-8 py-5 font-display text-sm sm:text-base font-semibold shadow-md touch-target"
+            className="w-full sm:w-auto h-10 sm:h-12 px-6 sm:px-8 font-display text-xs sm:text-sm font-semibold shadow-md active:scale-[0.98]"
           >
             <span>Log In</span>
-            <ArrowRight className="size-4 ml-2" />
+            <ArrowRight className="size-3.5 sm:size-4 ml-2" />
           </Button>
           <Button
-            size="lg"
             variant="outline"
             onClick={() => {
               const el = document.getElementById('sneak-peek-frame');
               el?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="w-full sm:w-auto px-6 py-5 text-sm font-medium text-muted-foreground hover:text-foreground border-border/80 backdrop-blur-md touch-target"
+            className="w-full sm:w-auto h-10 sm:h-12 px-5 sm:px-6 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground border-border/80 bg-card/60 backdrop-blur-md active:scale-[0.98]"
           >
             <span>Watch Live Sneak Peek</span>
           </Button>
@@ -597,70 +610,79 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Inner Workspace: Trajectory Left + Daily Anchor Right (Touch or tap anywhere to take control) */}
+            {/* Inner Workspace: Trajectory Left + Daily Anchor Right */}
             <div
               ref={consoleRef}
-              onPointerDown={handleUserActivity}
-              onTouchStart={handleUserActivity}
-              className="p-3.5 sm:p-6 md:p-8 relative"
+              className="p-3.5 sm:p-6 md:p-8 relative overflow-hidden"
             >
               {/* Simulated Human Mouse Cursor (Visible on all viewports during walkthrough) */}
               <AnimatePresence>
-                {isPlayingWalkthrough && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{
-                      opacity: 1,
-                      scale: 1,
-                      x: simCursorPos.x,
-                      y: simCursorPos.y,
-                    }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{
-                      x: { type: 'spring', damping: 24, stiffness: 160, mass: 0.6 },
-                      y: { type: 'spring', damping: 24, stiffness: 160, mass: 0.6 },
-                      opacity: { duration: 0.2 },
-                    }}
-                    style={{ left: 0, top: 0 }}
-                    className="absolute pointer-events-none z-30 flex items-start"
-                  >
-                    <div className="relative -top-1 -left-1">
-                      <motion.div
-                        animate={{
-                          scale: isClicking ? 0.82 : 1,
-                          rotate: isClicking ? -16 : -10,
-                        }}
-                        transition={{ duration: 0.12 }}
-                      >
-                        <MousePointer className="size-5 text-foreground drop-shadow-[0_3px_10px_rgba(0,0,0,0.6)] fill-foreground stroke-background stroke-[1.5]" />
-                      </motion.div>
-                      {isClicking && (
-                        <motion.div
-                          initial={{ scale: 0.3, opacity: 1 }}
-                          animate={{ scale: 2.2, opacity: 0 }}
-                          transition={{ duration: 0.35, ease: 'easeOut' }}
-                          className="absolute -top-1.5 -left-1.5 size-6 rounded-full border-2 border-foreground bg-foreground/25 pointer-events-none"
-                        />
-                      )}
-                    </div>
+                {isPlayingWalkthrough && (() => {
+                  const isPillFlipped = Boolean(
+                    consoleRef.current
+                      ? simCursorPos.x > (consoleRef.current.clientWidth - 135) && simCursorPos.x > 120
+                      : simCursorPos.x > 180
+                  );
 
-                    {/* Contextual Action Pill (Explains action in <2s clarity) */}
-                    <AnimatePresence mode="wait">
-                      {cursorLabel && (
+                  return (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{
+                        opacity: 1,
+                        scale: 1,
+                        x: simCursorPos.x,
+                        y: simCursorPos.y,
+                      }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{
+                        x: { type: 'spring', damping: 24, stiffness: 160, mass: 0.6 },
+                        y: { type: 'spring', damping: 24, stiffness: 160, mass: 0.6 },
+                        opacity: { duration: 0.2 },
+                      }}
+                      style={{ left: 0, top: 0 }}
+                      className="absolute pointer-events-none z-30 flex items-start"
+                    >
+                      <div className="relative -top-1 -left-1 shrink-0">
                         <motion.div
-                          key={cursorLabel}
-                          initial={{ opacity: 0, scale: 0.8, x: -4 }}
-                          animate={{ opacity: 1, scale: 1, x: 0 }}
-                          exit={{ opacity: 0, scale: 0.8, x: -4 }}
-                          transition={{ duration: 0.15 }}
-                          className="ml-2.5 px-2.5 py-0.5 rounded-full bg-foreground text-background text-[10px] font-tech-mono font-bold tracking-wider uppercase shadow-lg select-none whitespace-nowrap"
+                          animate={{
+                            scale: isClicking ? 0.82 : 1,
+                            rotate: isClicking ? -16 : -10,
+                          }}
+                          transition={{ duration: 0.12 }}
                         >
-                          {cursorLabel}
+                          <MousePointer className="size-5 text-foreground drop-shadow-[0_3px_10px_rgba(0,0,0,0.6)] fill-foreground stroke-background stroke-[1.5]" />
                         </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                )}
+                        {isClicking && (
+                          <motion.div
+                            initial={{ scale: 0.3, opacity: 1 }}
+                            animate={{ scale: 2.2, opacity: 0 }}
+                            transition={{ duration: 0.35, ease: 'easeOut' }}
+                            className="absolute -top-1.5 -left-1.5 size-6 rounded-full border-2 border-foreground bg-foreground/25 pointer-events-none"
+                          />
+                        )}
+                      </div>
+
+                      {/* Contextual Action Pill (Clamped inside edges, flips left when near right margin) */}
+                      <AnimatePresence mode="wait">
+                        {cursorLabel && (
+                          <motion.div
+                            key={cursorLabel}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            transition={{ duration: 0.15 }}
+                            className={cn(
+                              "absolute top-0 px-2.5 py-0.5 rounded-full bg-foreground text-background text-[10px] font-tech-mono font-bold tracking-wider uppercase shadow-lg select-none whitespace-nowrap pointer-events-none",
+                              isPillFlipped ? "right-full mr-2.5" : "left-full ml-2.5"
+                            )}
+                          >
+                            {cursorLabel}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  );
+                })()}
               </AnimatePresence>
 
               {/* Status Header */}
@@ -1152,57 +1174,32 @@ export default function Landing() {
           </p>
         </div>
 
-        {/* Smooth, slower hover expansion: active enlarges, inactive shrinks neatly */}
-        <div className="flex flex-col md:flex-row gap-4 sm:gap-5 items-stretch md:items-center justify-center min-h-[300px]">
+        {/* The Three Steps: Smart Shrinking on Desktop, Uniform Static Stack on Mobile */}
+        <div className="flex flex-col md:flex-row gap-4 sm:gap-5 items-stretch justify-center">
           {principles.map((p, index) => {
-            const isHovered = hoveredStep === index;
-            const isOtherHovered = hoveredStep !== null && hoveredStep !== index;
-            const Icon = p.icon;
+            const isHovered = isDesktop && hoveredStep === index;
+            const isOtherHovered = isDesktop && hoveredStep !== null && hoveredStep !== index;
 
-            // Inactive cards shrink to a square on desktop, compact horizontal row on mobile
-            if (isOtherHovered) {
-              return (
-                <motion.div
-                  key={p.step}
-                  layout
-                  transition={{ layout: { duration: 0.75, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.35 } }}
-                  onMouseEnter={() => setHoveredStep(index)}
-                  onMouseLeave={() => setHoveredStep(null)}
-                  onClick={() => setHoveredStep(index)}
-                  className="relative rounded-2xl border border-white/10 bg-card/40 backdrop-blur-xl p-3.5 sm:p-4 cursor-pointer hover:border-foreground/30 transition-colors tis-specular-box w-full md:w-44 md:h-44 md:aspect-square md:flex-shrink-0 flex md:flex-col items-center justify-between text-left md:text-center select-none"
-                >
-                  <div className="flex items-center justify-between w-auto md:w-full gap-2">
-                    <span className="font-tech-mono font-extrabold text-xs text-muted-foreground">
-                      {p.step}
-                    </span>
-                    <span className="size-1.5 rounded-full bg-muted-foreground/40 hidden md:inline-block" />
-                  </div>
-
-                  <div className="size-8 sm:size-10 rounded-xl bg-muted/60 border border-white/10 flex items-center justify-center text-foreground shrink-0 my-0 md:my-auto">
-                    <Icon className="size-4 sm:size-5" />
-                  </div>
-
-                  <span className="text-[11px] font-tech-mono text-muted-foreground font-medium uppercase tracking-wider truncate w-auto md:w-full text-right md:text-center">
-                    {p.shortLabel}
-                  </span>
-                </motion.div>
-              );
-            }
-
-            // Normal / Enlarged active card
             return (
               <motion.div
                 key={p.step}
                 layout
-                transition={{ layout: { duration: 0.75, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.35 } }}
-                onMouseEnter={() => setHoveredStep(index)}
-                onMouseLeave={() => setHoveredStep(null)}
-                onClick={() => setHoveredStep(hoveredStep === index ? null : index)}
-                className={`group relative rounded-2xl border p-5 sm:p-7 backdrop-blur-2xl flex flex-col justify-between cursor-pointer transition-colors tis-specular-box ${
-                  isHovered
-                    ? 'border-white/20 shadow-2xl z-10 bg-card/85 w-full md:flex-1 min-h-[280px] sm:min-h-[300px]'
-                    : 'border-white/10 bg-card/65 shadow-lg w-full md:flex-1 min-h-[280px] sm:min-h-[300px]'
-                }`}
+                transition={{ layout: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.25 } }}
+                onMouseEnter={() => isDesktop && setHoveredStep(index)}
+                onMouseLeave={() => isDesktop && setHoveredStep(null)}
+                className={cn(
+                  "group relative rounded-2xl border p-5 sm:p-6 backdrop-blur-2xl flex flex-col justify-between transition-all duration-500 tis-specular-box min-h-[250px] sm:min-h-[280px]",
+                  // Mobile: clean static cards, no enlargement jumps
+                  "w-full",
+                  // Desktop: smart flex proportions (hovered expands, siblings shrink smartly with all content intact)
+                  isDesktop && (
+                    isHovered
+                      ? "md:flex-[1.4] border-white/25 shadow-2xl bg-card/90 z-10"
+                      : isOtherHovered
+                      ? "md:flex-[0.8] border-white/10 bg-card/50 opacity-80 hover:opacity-100"
+                      : "md:flex-1 border-white/10 bg-card/65 shadow-lg"
+                  )
+                )}
               >
                 {/* Top specular highlight */}
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:via-white/50 transition-colors pointer-events-none" />
@@ -1270,10 +1267,9 @@ export default function Landing() {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button
-                size="lg"
                 variant="default"
                 onClick={() => navigate('/auth')}
-                className="w-full sm:w-auto px-8 py-5 font-display text-sm sm:text-base font-semibold shadow-lg touch-target"
+                className="w-full sm:w-auto h-11 sm:h-12 px-8 font-display text-xs sm:text-sm font-semibold shadow-lg active:scale-[0.98]"
               >
                 <span>Log In</span>
                 <ArrowRight className="size-4 ml-2" />

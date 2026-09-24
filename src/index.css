@@ -128,11 +128,20 @@
 
   html {
     transition: color-scheme 300ms;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  #root {
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   ::-webkit-scrollbar { width: 6px; height: 6px; }
