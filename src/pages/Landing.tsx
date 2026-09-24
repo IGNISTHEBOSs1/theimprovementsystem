@@ -27,7 +27,7 @@ import { useThemeContext } from '@/providers/ThemeProvider';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { cn } from '@/lib/utils';
 
-// ── NOTHING OS ATMOSPHERE & LIQUID GLASS BACKGROUND (QUIET, ETHEREAL, VOLUMETRIC) ──
+// ── MONOCHROMATIC KINETIC MOTION BACKGROUND (VIVID, VISIBLE & VIEWED THROUGH GLASS) ──
 function MonochromaticMeshBackground() {
   const shouldReduceMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -65,48 +65,49 @@ function MonochromaticMeshBackground() {
 
     const isDark = resolvedMode === 'dark';
 
-    // Nothing OS Atmosphere: Ultra-delicate translucent glass wave ribbons (hairline stroke, soft alpha)
+    // 5 Full-viewport harmonic trajectory waves (vividly visible on both dark & light modes)
     const waveLines = isDark
       ? [
-          { amp: 26, freq: 0.0009, speed: 0.35, color: 'rgba(255, 255, 255, 0.12)', yOffset: height * 0.18, lineWidth: 1.1 },
-          { amp: 36, freq: 0.0007, speed: 0.28, color: 'rgba(255, 255, 255, 0.14)', yOffset: height * 0.38, lineWidth: 1.3 },
-          { amp: 22, freq: 0.0011, speed: 0.40, color: 'rgba(228, 228, 231, 0.09)', yOffset: height * 0.56, lineWidth: 1.0 },
-          { amp: 30, freq: 0.0008, speed: 0.25, color: 'rgba(212, 212, 216, 0.08)', yOffset: height * 0.72, lineWidth: 1.1 },
-          { amp: 34, freq: 0.0006, speed: 0.20, color: 'rgba(161, 161, 170, 0.07)', yOffset: height * 0.88, lineWidth: 0.9 },
+          { amp: 36, freq: 0.0011, speed: 0.65, color: 'rgba(255, 255, 255, 0.46)', yOffset: height * 0.18, lineWidth: 2.2 },
+          { amp: 48, freq: 0.0009, speed: 0.50, color: 'rgba(255, 255, 255, 0.52)', yOffset: height * 0.36, lineWidth: 2.6 },
+          { amp: 32, freq: 0.0013, speed: 0.75, color: 'rgba(228, 228, 231, 0.38)', yOffset: height * 0.54, lineWidth: 2.0 },
+          { amp: 42, freq: 0.0010, speed: 0.45, color: 'rgba(212, 212, 216, 0.34)', yOffset: height * 0.72, lineWidth: 2.0 },
+          { amp: 50, freq: 0.0007, speed: 0.35, color: 'rgba(161, 161, 170, 0.26)', yOffset: height * 0.88, lineWidth: 1.8 },
         ]
       : [
-          { amp: 26, freq: 0.0009, speed: 0.35, color: 'rgba(24, 24, 27, 0.08)', yOffset: height * 0.18, lineWidth: 1.1 },
-          { amp: 36, freq: 0.0007, speed: 0.28, color: 'rgba(24, 24, 27, 0.10)', yOffset: height * 0.38, lineWidth: 1.3 },
-          { amp: 22, freq: 0.0011, speed: 0.40, color: 'rgba(39, 39, 42, 0.07)', yOffset: height * 0.56, lineWidth: 1.0 },
-          { amp: 30, freq: 0.0008, speed: 0.25, color: 'rgba(63, 63, 70, 0.06)', yOffset: height * 0.72, lineWidth: 1.1 },
-          { amp: 34, freq: 0.0006, speed: 0.20, color: 'rgba(82, 82, 91, 0.05)', yOffset: height * 0.88, lineWidth: 0.9 },
+          { amp: 36, freq: 0.0011, speed: 0.65, color: 'rgba(24, 24, 27, 0.38)', yOffset: height * 0.18, lineWidth: 2.2 },
+          { amp: 48, freq: 0.0009, speed: 0.50, color: 'rgba(24, 24, 27, 0.44)', yOffset: height * 0.36, lineWidth: 2.6 },
+          { amp: 32, freq: 0.0013, speed: 0.75, color: 'rgba(39, 39, 42, 0.32)', yOffset: height * 0.54, lineWidth: 2.0 },
+          { amp: 42, freq: 0.0010, speed: 0.45, color: 'rgba(63, 63, 70, 0.28)', yOffset: height * 0.72, lineWidth: 2.0 },
+          { amp: 50, freq: 0.0007, speed: 0.35, color: 'rgba(82, 82, 91, 0.22)', yOffset: height * 0.88, lineWidth: 1.8 },
         ];
 
-    // Ambient floating glass micro-motes (quiet, tiny, slow-drifting dust in light)
-    const particles = Array.from({ length: 12 }, (_, i) => ({
-      x: (i / 12) * width,
+    // 24 Traveling trajectory data beacons along wave contours with comet trails
+    const particles = Array.from({ length: 24 }, (_, i) => ({
+      x: (i / 24) * width,
       waveIndex: i % 5,
-      speed: 0.18 + (i % 3) * 0.08,
-      radius: 1.1 + (i % 3) * 0.4,
+      speed: 0.35 + (i % 4) * 0.20,
+      radius: i % 3 === 0 ? 3.0 : i % 2 === 0 ? 2.4 : 1.8,
+      history: [] as { x: number; y: number }[],
     }));
 
     let time = 0;
     const render = () => {
-      time += 0.0035;
+      time += 0.005;
       ctx.clearRect(0, 0, width, height);
 
-      // Render subtle liquid glass wave curves
+      // Render flowing trajectory waves
       waveLines.forEach((wave) => {
         ctx.beginPath();
         ctx.strokeStyle = wave.color;
         ctx.lineWidth = wave.lineWidth;
-        for (let x = 0; x <= width; x += 8) {
+        for (let x = 0; x <= width; x += 6) {
           const mouseDist = Math.hypot(x / width - mousePos.x, wave.yOffset / height - mousePos.y);
-          const mouseInfluence = Math.max(0, 1 - mouseDist * 2.5) * 14;
+          const mouseInfluence = Math.max(0, 1 - mouseDist * 2.2) * 22;
           const y =
             wave.yOffset +
             Math.sin(x * wave.freq + time * wave.speed) * wave.amp +
-            Math.cos(x * wave.freq * 0.5 + time * 0.4) * 8 +
+            Math.cos(x * wave.freq * 0.5 + time * 0.5) * 10 +
             mouseInfluence;
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
@@ -114,28 +115,43 @@ function MonochromaticMeshBackground() {
         ctx.stroke();
       });
 
-      // Render quiet ambient micro-motes
+      // Render traveling trajectory data particles with comet trails
       particles.forEach((p) => {
         p.x = (p.x + p.speed) % width;
         const wave = waveLines[p.waveIndex];
         const mouseDist = Math.hypot(p.x / width - mousePos.x, wave.yOffset / height - mousePos.y);
-        const mouseInfluence = Math.max(0, 1 - mouseDist * 2.5) * 14;
+        const mouseInfluence = Math.max(0, 1 - mouseDist * 2.2) * 22;
         const y =
           wave.yOffset +
           Math.sin(p.x * wave.freq + time * wave.speed) * wave.amp +
-          Math.cos(p.x * wave.freq * 0.5 + time * 0.4) * 8 +
+          Math.cos(p.x * wave.freq * 0.5 + time * 0.5) * 10 +
           mouseInfluence;
 
-        // Ambient soft glow
+        p.history.push({ x: p.x, y });
+        if (p.history.length > 5) p.history.shift();
+
+        // Trailing comet tail
+        if (p.history.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(p.history[0].x, p.history[0].y);
+          for (let h = 1; h < p.history.length; h++) {
+            ctx.lineTo(p.history[h].x, p.history[h].y);
+          }
+          ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.28)' : 'rgba(24, 24, 27, 0.22)';
+          ctx.lineWidth = p.radius * 0.9;
+          ctx.stroke();
+        }
+
+        // Ambient glow halo
         ctx.beginPath();
-        ctx.arc(p.x, y, p.radius * 2.4, 0, Math.PI * 2);
-        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(24, 24, 27, 0.06)';
+        ctx.arc(p.x, y, p.radius * 2.8, 0, Math.PI * 2);
+        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(24, 24, 27, 0.14)';
         ctx.fill();
 
-        // Delicate micro core
+        // Solid particle core
         ctx.beginPath();
         ctx.arc(p.x, y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.45)' : 'rgba(24, 24, 27, 0.35)';
+        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.95)' : 'rgba(24, 24, 27, 0.85)';
         ctx.fill();
       });
 
@@ -151,14 +167,14 @@ function MonochromaticMeshBackground() {
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-      {/* Nothing OS Signature Dot Matrix Micro-Texture (Subtle, retro-futuristic, non-distracting) */}
+      {/* Precision Trajectory Coordinate Grid */}
       <div
-        className="absolute inset-0 opacity-[0.06] dark:opacity-[0.08] text-foreground transition-opacity"
+        className="absolute inset-0 opacity-[0.10] dark:opacity-[0.12] text-foreground transition-opacity"
         style={{
-          backgroundImage: `radial-gradient(circle, currentColor 1px, transparent 1px)`,
-          backgroundSize: '24px 24px',
-          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 35%, rgba(0,0,0,0.15) 85%)',
-          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 35%, rgba(0,0,0,0.15) 85%)',
+          backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
+          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 45%, rgba(0,0,0,0.2) 90%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 45%, rgba(0,0,0,0.2) 90%)',
         }}
       />
 
@@ -167,10 +183,10 @@ function MonochromaticMeshBackground() {
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-100" />
       )}
 
-      {/* Organic Volumetric Caustic Glows (Nothing OS Atmosphere Wallpaper Signature) */}
-      <div className="absolute top-[18%] left-1/2 -translate-x-1/2 w-[720px] h-[480px] rounded-full bg-zinc-300/[0.10] dark:bg-white/[0.04] blur-[140px] pointer-events-none" />
-      <div className="absolute top-[48%] -left-32 w-[520px] h-[520px] rounded-full bg-zinc-400/[0.07] dark:bg-zinc-700/[0.12] blur-[160px] pointer-events-none" />
-      <div className="absolute top-[64%] -right-32 w-[540px] h-[540px] rounded-full bg-zinc-400/[0.07] dark:bg-zinc-800/[0.12] blur-[160px] pointer-events-none" />
+      {/* Ambient Volumetric Diffusions */}
+      <div className="absolute -top-32 -left-24 w-[540px] h-[540px] rounded-full bg-zinc-400/[0.18] dark:bg-white/[0.06] blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/2 -right-32 w-[500px] h-[500px] rounded-full bg-zinc-500/[0.14] dark:bg-zinc-700/20 blur-[150px] pointer-events-none" />
+      <div className="absolute -bottom-32 left-1/3 w-[480px] h-[480px] rounded-full bg-zinc-400/[0.16] dark:bg-white/[0.05] blur-[140px] pointer-events-none" />
     </div>
   );
 }
@@ -602,27 +618,51 @@ export default function Landing() {
       {/* ── HIGH-CONTRAST MONOCHROMATIC KINETIC MESH BACKGROUND ── */}
       <MonochromaticMeshBackground />
 
-      {/* ── NOTHING OS ATMOSPHERE & FROSTED GLASS DIFFUSER (THE NULLIFIER) ── */}
-      {/* Actively softens and nullifies background motion behind center content so typography pops */}
+      {/* ── AUTHENTIC NOTHING OS FROSTED & REEDED GLASS OVERLAY ── */}
+      {/* Renders a physical liquid frosted glass pane over the kinetic background, diffusing sharp edges and making typography pop while keeping motion 100% visible */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        {/* Central Frosted Glass Atmosphere Veil: Diffuses background lines & particles right behind text */}
+        {/* Layer 1: Frosted Liquid Glass Pane with Saturation Boost */}
         <div
-          className="absolute inset-0 backdrop-blur-[18px] sm:backdrop-blur-[26px]"
+          className="absolute inset-0 backdrop-blur-[2.5px] sm:backdrop-blur-[3.5px] backdrop-saturate-[140%] transition-colors duration-300"
           style={{
-            maskImage: 'radial-gradient(ellipse 70% 60% at 50% 36%, black 20%, transparent 80%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 36%, black 20%, transparent 80%)',
+            backgroundColor: isDark ? 'rgba(10, 10, 14, 0.12)' : 'rgba(255, 255, 255, 0.15)',
           }}
         />
 
-        {/* Atmospheric Obsidian / Luminous Radial Vignette */}
+        {/* Layer 2: Nothing OS Signature Reeded / Fluted Glass Texture */}
         <div
-          className="absolute inset-0 transition-colors duration-300"
+          className="absolute inset-0 opacity-[0.45] dark:opacity-[0.40] transition-opacity"
           style={{
-            background: isDark
-              ? 'radial-gradient(ellipse 75% 65% at 50% 36%, rgba(10, 10, 14, 0.40) 0%, rgba(10, 10, 14, 0.80) 55%, rgba(10, 10, 14, 0.98) 100%)'
-              : 'radial-gradient(ellipse 75% 65% at 50% 36%, rgba(255, 255, 255, 0.50) 0%, rgba(248, 248, 251, 0.80) 55%, rgba(244, 244, 248, 0.98) 100%)',
+            backgroundImage: isDark
+              ? 'repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 15px)'
+              : 'repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.035) 0px, rgba(0, 0, 0, 0.035) 1px, transparent 1px, transparent 15px)',
           }}
         />
+
+        {/* Layer 3: Diagonal Specular Sheen & Glass Glare */}
+        <div
+          className="absolute inset-0 transition-opacity"
+          style={{
+            background: isDark
+              ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 35%, transparent 65%)'
+              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.40) 0%, rgba(255, 255, 255, 0.10) 35%, transparent 65%)',
+          }}
+        />
+
+        {/* Layer 4: Central Typography Focus Atmosphere Lens (Softly nullifies background lines right behind headline) */}
+        <div
+          className="absolute inset-0 backdrop-blur-[6px] sm:backdrop-blur-[8px]"
+          style={{
+            maskImage: 'radial-gradient(ellipse 55% 42% at 50% 32%, black 20%, transparent 75%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 55% 42% at 50% 32%, black 20%, transparent 75%)',
+            background: isDark
+              ? 'radial-gradient(ellipse 55% 42% at 50% 32%, rgba(10, 10, 14, 0.35) 0%, rgba(10, 10, 14, 0.15) 50%, transparent 75%)'
+              : 'radial-gradient(ellipse 55% 42% at 50% 32%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.20) 50%, transparent 75%)',
+          }}
+        />
+
+        {/* Layer 5: Subtle Glass Specular Border Bezel */}
+        <div className="absolute inset-0 border border-white/[0.04] dark:border-white/[0.03]" />
       </div>
 
       {/* Progressive Top Glass Blur Wash (Content fades smoothly under navbar) */}
@@ -688,7 +728,7 @@ export default function Landing() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.05 }}
-          className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12] mb-3 sm:mb-5 max-w-4xl mx-auto px-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_8px_48px_rgba(0,0,0,0.95)]"
+          className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12] mb-3 sm:mb-5 max-w-4xl mx-auto px-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
         >
           <span className="bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-950 dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-400 bg-clip-text text-transparent block sm:inline">
             You don't need to be perfect
