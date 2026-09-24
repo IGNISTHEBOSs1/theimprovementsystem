@@ -20,174 +20,195 @@ import {
 import { SystemLogo } from "@/components/branding/Logo";
 import { cn } from "@/lib/utils";
 
-type CellValue = boolean | string;
-
-type Feature = {
-  label: string;
-  values: [CellValue, CellValue];
+type ComparisonRow = {
+  basis: string;
+  subBasis?: string;
+  otherText: string;
+  tisText: string;
 };
 
-type FeatureGroup = {
-  section: string;
-  features: Feature[];
-};
-
-const plans = [
+// 4 high-signal, punchy comparison criteria (reduced basis for instant clarity on both mobile and PC)
+const comparisons: ComparisonRow[] = [
   {
-    name: "Other Habit Apps",
-    highlighted: false,
-    cta: "Fragile Streaks",
+    basis: "When life happens (missed day)",
+    subBasis: "Illness, late flights, emergencies",
+    otherText: "Resets streak to Day 0 (guilt & churn)",
+    tisText: "±10% buffer absorbs it (trajectory unbroken)",
   },
   {
-    name: "The Improvement System",
-    highlighted: true,
-    cta: "Log In",
-  },
-] as const;
-
-const groups: FeatureGroup[] = [
-  {
-    section: "Trajectory & Consistency",
-    features: [
-      {
-        label: "±10% Mathematical Safety Buffer",
-        values: [false, true],
-      },
-      {
-        label: "Strict 1 Focus + 2 Routines Cap",
-        values: [false, true],
-      },
-      {
-        label: "Guilt-Free Life Absorption",
-        values: [false, true],
-      },
-      {
-        label: "Deterministic 90-Day Vector",
-        values: [false, true],
-      },
-    ],
+    basis: "Daily task load",
+    subBasis: "Cognitive overhead & willpower",
+    otherText: "Endless 15–20 item checklist overwhelm",
+    tisText: "Strict 1 Focus + 2 Routines (<2 min execution)",
   },
   {
-    section: "Privacy & Architecture",
-    features: [
-      {
-        label: "100% Local Encrypted Vault",
-        values: [false, true],
-      },
-      {
-        label: "Zero Confetti / Casino Streaks",
-        values: [false, true],
-      },
-      {
-        label: "Under 2-Minute Daily Execution",
-        values: ["-", true],
-      },
-      {
-        label: "Free Forever (No Paywalls)",
-        values: [false, true],
-      },
-    ],
+    basis: "Psychological model",
+    subBasis: "Motivation vs trajectory",
+    otherText: "Binary pass/fail streaks & casino badges",
+    tisText: "Quiet 90-day mathematical momentum",
+  },
+  {
+    basis: "Privacy & cost",
+    subBasis: "Data sovereignty & paywalls",
+    otherText: "Paywalled streaks & cloud data harvesting",
+    tisText: "100% Free forever & local encrypted vault",
   },
 ];
-
-function Cell({
-  value,
-  highlighted,
-}: {
-  value: CellValue;
-  highlighted: boolean;
-}) {
-  if (typeof value === "boolean") {
-    return value ? (
-      <span
-        className={cn(
-          "mx-auto flex size-5 items-center justify-center rounded-md transition-transform",
-          highlighted ? "bg-foreground text-background shadow-xs" : "bg-muted text-muted-foreground",
-        )}
-      >
-        <RiCheckLine
-          className="size-3.5 stroke-[2.5]"
-          aria-hidden
-        />
-        <span className="sr-only">Included</span>
-      </span>
-    ) : (
-      <span className="mx-auto flex size-5 items-center justify-center rounded-md bg-muted/50 text-muted-foreground/60">
-        <RiCloseLine className="size-3.5" aria-hidden />
-        <span className="sr-only">Not included</span>
-      </span>
-    );
-  }
-
-  // Null sign: "-" or "—"
-  return (
-    <span
-      className={cn(
-        "mx-auto flex size-5 items-center justify-center text-xs font-tech-mono font-medium",
-        highlighted ? "text-foreground" : "text-muted-foreground/60",
-      )}
-      aria-hidden
-    >
-      —
-    </span>
-  );
-}
 
 interface ComparisonTableProps {
   onSelectPlan?: (planName: string) => void;
 }
 
 export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) {
+  const [mobileTab, setMobileTab] = React.useState<"tis" | "other">("tis");
+
   return (
-    <section className="flex w-full justify-center bg-background px-4 sm:px-6 py-12 sm:py-20 text-foreground relative z-10">
+    <section id="comparison-section" className="flex w-full justify-center bg-background px-3.5 sm:px-6 md:px-8 py-12 sm:py-20 text-foreground relative z-10">
       <div className="mx-auto w-full max-w-5xl">
-        <div className="mb-8 max-w-2xl mx-auto text-center sm:text-left">
-          <Badge variant="outline" className="mb-3 px-3 py-1 font-tech-mono text-[11px] tracking-wider uppercase border-border/80 bg-muted/40 backdrop-blur-sm">
+        {/* Section Header: Philosophical framing instead of aggressive attack */}
+        <div className="mb-6 sm:mb-8 max-w-2xl mx-auto text-center sm:text-left">
+          <Badge
+            variant="outline"
+            className="mb-3 px-3 py-1 font-tech-mono text-[11px] tracking-wider uppercase border-border/80 bg-muted/40 backdrop-blur-sm"
+          >
             <RiSparkling2Line className="size-3.5 mr-1.5 text-foreground" />
             Architectural Comparison
           </Badge>
           <h2 className="text-2xl sm:text-4xl font-display font-extrabold tracking-tight text-foreground">
-            Why rigid streaks fail you
+            A different way to think about consistency
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xl">
             <span className="hidden sm:inline">
-              Miss one day and conventional trackers reset you to zero. The Improvement System uses a mathematical buffer so your 90-day trajectory stays unbroken.
+              Traditional streak systems optimize for uninterrupted perfection. The Improvement System is engineered to absorb life's disruptions so your 90-day trajectory stays unbroken.
             </span>
             <span className="sm:hidden">
-              Miss one day and typical trackers reset you to zero. Our mathematical buffer absorbs life.
+              Traditional systems punish missed days. Our mathematical buffer absorbs life so your trajectory continues.
             </span>
           </p>
         </div>
 
-        <div className="relative">
+        {/* ── MOBILE VIEW: RESPONSIVE SEGMENTED CONTROL (RULE 4 OF BRAND INVARIANTS) ── */}
+        <div className="block sm:hidden">
+          {/* Segmented Pill Selector */}
+          <div className="flex items-center p-1 rounded-xl bg-card border border-white/10 dark:border-white/10 mb-4 tis-specular-box shadow-sm">
+            <button
+              type="button"
+              onClick={() => setMobileTab("tis")}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-display font-semibold transition-all duration-200",
+                mobileTab === "tis"
+                  ? "bg-foreground text-background shadow-xs font-bold"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <SystemLogo size={16} />
+              <span>The Improvement System</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileTab("other")}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-display font-medium transition-all duration-200",
+                mobileTab === "other"
+                  ? "bg-muted text-foreground shadow-xs font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Flame className="size-3.5 text-muted-foreground" />
+              <span>Conventional Apps</span>
+            </button>
+          </div>
+
+          {/* Mobile Comparison Cards */}
+          <div className="space-y-3">
+            {comparisons.map((row) => (
+              <div
+                key={row.basis}
+                className={cn(
+                  "p-4 rounded-xl border transition-all duration-200 tis-specular-box",
+                  mobileTab === "tis"
+                    ? "bg-card/90 border-white/15 dark:border-white/10"
+                    : "bg-card/50 border-border/60"
+                )}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-xs text-foreground">
+                    {row.basis}
+                  </span>
+                  {row.subBasis && (
+                    <span className="text-[10px] text-muted-foreground font-tech-mono">
+                      {row.subBasis}
+                    </span>
+                  )}
+                </div>
+
+                {mobileTab === "tis" ? (
+                  <div className="flex items-start gap-2.5 pt-1">
+                    <span className="flex size-5 items-center justify-center rounded bg-foreground text-background shrink-0 mt-0.5 shadow-xs">
+                      <RiCheckLine className="size-3.5 stroke-[2.5]" aria-hidden />
+                    </span>
+                    <span className="text-xs font-semibold text-foreground leading-relaxed">
+                      {row.tisText}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-start gap-2.5 pt-1">
+                    <span className="flex size-5 items-center justify-center rounded bg-muted text-muted-foreground shrink-0 mt-0.5">
+                      <RiCloseLine className="size-3.5" aria-hidden />
+                    </span>
+                    <span className="text-xs text-muted-foreground leading-relaxed">
+                      {row.otherText}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile CTA */}
+          <div className="mt-5">
+            <Button
+              size="sm"
+              variant="default"
+              className="w-full text-xs font-display font-semibold shadow-md h-10 active:scale-[0.98] rounded-xl"
+              onClick={() => onSelectPlan?.("The Improvement System")}
+            >
+              <span>Start My 90 Days</span>
+              <RiArrowRightLine className="size-3.5 ml-1.5" />
+            </Button>
+          </div>
+        </div>
+
+        {/* ── DESKTOP VIEW: CLEAN 3-COLUMN SIDE-BY-SIDE MATRIX ── */}
+        <div className="hidden sm:block relative">
           <div className="overflow-x-auto rounded-2xl border border-white/15 dark:border-white/10 bg-card/75 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_16px_40px_rgba(0,0,0,0.25)] tis-specular-box">
-            <Table className="table-fixed w-full text-sm">
+            <Table className="table-fixed w-full text-xs sm:text-sm">
               <TableHeader>
-                <TableRow className="hover:bg-transparent border-b border-white/10">
-                  {/* Leftmost Column Header: Basis */}
-                  <TableHead className="sticky top-0 z-20 w-[44%] sm:w-[46%] border-b border-white/10 bg-card/90 align-bottom p-4">
-                    <span className="inline-block text-xs font-tech-mono font-bold tracking-wider text-muted-foreground uppercase">
-                      Basis
+                <TableRow className="hover:bg-transparent border-b border-white/10 dark:border-white/10">
+                  {/* Left Column: Basis */}
+                  <TableHead className="w-[38%] border-b border-white/10 dark:border-white/10 bg-card/90 align-bottom p-3 sm:p-4">
+                    <span className="inline-block text-[10px] sm:text-xs font-tech-mono font-bold tracking-wider text-muted-foreground uppercase">
+                      Basis of Design
                     </span>
                   </TableHead>
 
-                  {/* Middle Column: Random Habit App Logo */}
-                  <TableHead className="sticky top-0 z-20 border-b border-white/10 text-center align-bottom p-4 bg-card/90">
+                  {/* Middle Column: Other Habit Apps */}
+                  <TableHead className="w-[31%] border-b border-white/10 dark:border-white/10 text-center align-bottom p-3 sm:p-4 bg-card/90">
                     <div className="flex flex-col items-center gap-1.5 py-1">
-                      <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center text-muted-foreground shadow-xs">
-                        <Flame className="size-4 text-muted-foreground" />
+                      <div className="size-7 sm:size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center text-muted-foreground shadow-xs">
+                        <Flame className="size-3.5 sm:size-4 text-muted-foreground" />
                       </div>
                       <span className="text-xs sm:text-sm font-display font-semibold text-muted-foreground">
                         Other Habit Apps
                       </span>
-                      <span className="text-[10px] font-tech-mono text-muted-foreground/60">
+                      <span className="text-[9px] sm:text-[10px] font-tech-mono text-muted-foreground/60">
                         Rigid Streaks
                       </span>
                     </div>
                   </TableHead>
 
-                  {/* Rightmost Column: TIS Logo */}
-                  <TableHead className="sticky top-0 z-20 border-b border-white/10 text-center align-bottom p-4 bg-white/[0.04]">
+                  {/* Right Column: The Improvement System */}
+                  <TableHead className="w-[31%] border-b border-white/10 dark:border-white/10 text-center align-bottom p-3 sm:p-4 bg-white/[0.04]">
                     <div className="flex flex-col items-center gap-1.5 py-1">
                       <div className="p-1 rounded-xl bg-card border border-white/20 shadow-xs backdrop-blur-md">
                         <SystemLogo size={24} />
@@ -204,68 +225,73 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
               </TableHeader>
 
               <TableBody>
-                {groups.map((group) => (
-                  <React.Fragment key={group.section}>
-                    <TableRow className="bg-muted/30 hover:bg-muted/30 border-b border-border/50">
-                      <TableCell
-                        colSpan={3}
-                        className="py-2.5 px-4 text-[11px] font-tech-mono font-bold tracking-widest text-foreground uppercase"
-                      >
-                        {group.section}
-                      </TableCell>
-                    </TableRow>
-                    {group.features.map((feature) => (
-                      <TableRow
-                        key={`${group.section}-${feature.label}`}
-                        className="hover:bg-muted/20 border-b border-border/40 transition-colors"
-                      >
-                        <TableCell className="py-3 px-4 font-medium text-xs sm:text-sm text-foreground">
-                          {feature.label}
-                        </TableCell>
-                        {feature.values.map((value, i) => (
-                          <TableCell
-                            key={`${feature.label}-${plans[i].name}`}
-                            className={cn(
-                              "py-3 px-3 text-center align-middle",
-                              plans[i].highlighted && "bg-white/[0.02]",
-                            )}
-                          >
-                            <Cell
-                              value={value}
-                              highlighted={plans[i].highlighted}
-                            />
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </React.Fragment>
+                {comparisons.map((row) => (
+                  <TableRow
+                    key={row.basis}
+                    className="hover:bg-muted/20 border-b border-border/40 transition-colors"
+                  >
+                    {/* Basis Column */}
+                    <TableCell className="py-3 px-3 sm:px-4 align-top sm:align-middle">
+                      <p className="font-semibold text-xs sm:text-sm text-foreground leading-snug">
+                        {row.basis}
+                      </p>
+                      {row.subBasis && (
+                        <p className="text-[11px] text-muted-foreground font-tech-mono mt-0.5">
+                          {row.subBasis}
+                        </p>
+                      )}
+                    </TableCell>
+
+                    {/* Other Habit Apps Column */}
+                    <TableCell className="py-3 px-2.5 sm:px-3 text-center sm:text-left align-top sm:align-middle">
+                      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1.5 sm:gap-2">
+                        <span className="flex size-4 sm:size-5 items-center justify-center rounded bg-muted/60 text-muted-foreground/70 shrink-0 mt-0.5">
+                          <RiCloseLine className="size-3 sm:size-3.5" aria-hidden />
+                        </span>
+                        <span className="text-[11px] sm:text-xs text-muted-foreground leading-snug">
+                          {row.otherText}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    {/* TIS Column (Highlighted) */}
+                    <TableCell className="py-3 px-2.5 sm:px-3 text-center sm:text-left align-top sm:align-middle bg-white/[0.03]">
+                      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1.5 sm:gap-2">
+                        <span className="flex size-4 sm:size-5 items-center justify-center rounded bg-foreground text-background shadow-xs shrink-0 mt-0.5">
+                          <RiCheckLine className="size-3 sm:size-3.5 stroke-[2.5]" aria-hidden />
+                        </span>
+                        <span className="text-[11px] sm:text-xs font-semibold text-foreground leading-snug">
+                          {row.tisText}
+                        </span>
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 ))}
 
+                {/* Bottom CTA Action Row (All 3 columns guaranteed to remain aligned) */}
                 <TableRow className="hover:bg-transparent">
-                  <TableCell className="py-4 px-4" />
-                  {plans.map((plan) => (
-                    <TableCell
-                      key={`cta-${plan.name}`}
-                      className={cn(
-                        "py-4 px-4 text-center align-middle",
-                        plan.highlighted && "bg-white/[0.04]",
-                      )}
+                  <TableCell className="py-4 px-3 sm:px-4" />
+                  <TableCell className="py-4 px-2.5 sm:px-4 text-center align-middle">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled
+                      className="w-full text-[11px] sm:text-xs font-display font-medium h-8 sm:h-9 opacity-40 cursor-not-allowed text-muted-foreground"
                     >
-                      <Button
-                        size="sm"
-                        variant={plan.highlighted ? "default" : "outline"}
-                        disabled={!plan.highlighted}
-                        className={cn(
-                          "w-full text-xs font-display font-medium shadow-xs h-9",
-                          !plan.highlighted && "opacity-40 cursor-not-allowed text-muted-foreground",
-                        )}
-                        onClick={() => plan.highlighted && onSelectPlan?.(plan.name)}
-                      >
-                        <span>{plan.cta}</span>
-                        {plan.highlighted && <RiArrowRightLine className="size-3.5 ml-1.5" />}
-                      </Button>
-                    </TableCell>
-                  ))}
+                      <span>Fragile Streaks</span>
+                    </Button>
+                  </TableCell>
+                  <TableCell className="py-4 px-2.5 sm:px-4 text-center align-middle bg-white/[0.04]">
+                    <Button
+                      size="sm"
+                      variant="default"
+                      className="w-full text-[11px] sm:text-xs font-display font-semibold shadow-xs h-8 sm:h-9 active:scale-[0.98]"
+                      onClick={() => onSelectPlan?.("The Improvement System")}
+                    >
+                      <span>Start My 90 Days</span>
+                      <RiArrowRightLine className="size-3.5 ml-1 hidden sm:inline" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
