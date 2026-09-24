@@ -9,8 +9,6 @@ import {
   RotateCcw,
   Sparkles,
   Lock,
-  Play,
-  Pause,
   MousePointer,
   Layers,
   Compass,
@@ -172,6 +170,7 @@ export default function Landing() {
   const todayCircleRef = useRef<SVGCircleElement | null>(null);
   const velocityBadgeRef = useRef<HTMLDivElement | null>(null);
   const resetBtnRef = useRef<HTMLButtonElement | null>(null);
+  const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Video Sneak Peek Walkthrough Engine
   const [isPlayingWalkthrough, setIsPlayingWalkthrough] = useState<boolean>(true);
@@ -180,6 +179,26 @@ export default function Landing() {
   const [isClicking, setIsClicking] = useState<boolean>(false);
   const [activePressedTarget, setActivePressedTarget] = useState<string | null>(null);
   const [cursorLabel, setCursorLabel] = useState<string>('1 Focus / Day');
+
+  // User activity tracker: immediately hides simulated cursor on touch/click, resumes tour after 4s of idle
+  const handleUserActivity = useCallback(() => {
+    setIsPlayingWalkthrough(false);
+    if (inactivityTimerRef.current) {
+      clearTimeout(inactivityTimerRef.current);
+    }
+    inactivityTimerRef.current = setTimeout(() => {
+      setIsPlayingWalkthrough(true);
+    }, 4000); // 4 seconds of inactivity
+  }, []);
+
+  // Cleanup inactivity timer on unmount
+  useEffect(() => {
+    return () => {
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
+    };
+  }, []);
 
   // ── TRAJECTORY MATHEMATICS & SEAMLESS C1 CONTINUITY ──
   const completedCount = (focusDone ? 1 : 0) + (routine1Done ? 1 : 0) + (routine2Done ? 1 : 0);
@@ -439,19 +458,19 @@ export default function Landing() {
       {/* ── MONOCHROMATIC MESH BACKGROUND ── */}
       <MonochromaticMeshBackground />
 
-      {/* ── MINIMAL TOP NAVBAR (NO SECTION TEXT LINKS) ── */}
-      <header className="sticky top-0 z-50 px-4 sm:px-6 md:px-8 py-3 liquid-glass-nav border-b border-border/40 backdrop-blur-xl">
+      {/* ── MINIMAL TOP NAVBAR (LIQUID FROSTED GLASS & SPECULAR EDGE) ── */}
+      <header className="sticky top-0 z-50 px-4 sm:px-6 md:px-8 py-3.5 backdrop-blur-2xl bg-background/70 border-b border-white/10 dark:border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_4px_24px_rgba(0,0,0,0.2)]">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
           {/* Brand Identity */}
           <div className="flex items-center gap-3 min-w-0">
-            <div className="p-1 rounded-xl bg-card border border-border shadow-xs shrink-0">
+            <div className="p-1 rounded-xl bg-card/80 border border-white/10 shadow-xs shrink-0 backdrop-blur-md">
               <SystemLogo size={26} />
             </div>
             <div className="min-w-0 flex items-center gap-2.5">
               <span className="font-display font-bold text-xs sm:text-sm tracking-tight text-foreground uppercase truncate">
                 The Improvement System
               </span>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-tech-mono font-medium tracking-wider bg-muted text-muted-foreground border border-border">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-tech-mono font-medium tracking-wider bg-muted/60 text-muted-foreground border border-border/80">
                 <span className="size-1.5 rounded-full bg-foreground" />
                 LOCAL ENCLAVE
               </span>
@@ -472,27 +491,28 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* ── HERO SECTION: CADENCE & SNEAK PEEK (<3s CLARITY, NO WALL OF TEXT) ── */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-10 pb-12 sm:pt-16 sm:pb-16 text-center">
+      {/* ── HERO SECTION: CADENCE & SNEAK PEEK (<3s CLARITY, SPACIOUS BREATHING ROOM) ── */}
+      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-8 pb-10 sm:pt-16 sm:pb-16 text-center">
         {/* Eyebrow */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/80 border border-border/80 mb-4 shadow-xs"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/70 backdrop-blur-md border border-white/10 mb-4 sm:mb-5 shadow-xs"
         >
           <Sparkles className="size-3.5 text-foreground shrink-0" />
-          <span className="text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-            Deterministic Personal Trajectory • Zero Rigid Streaks
+          <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
+            <span className="hidden sm:inline">Deterministic Personal Trajectory • Zero Rigid Streaks</span>
+            <span className="sm:hidden">Zero Rigid Streaks • 90-Day Horizon</span>
           </span>
         </motion.div>
 
-        {/* Crisp Headline with Editorial Font Contrast */}
+        {/* Crisp Headline with Editorial Font Contrast (Strictly Hero H1 Only) */}
         <motion.h1
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.05 }}
-          className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl tracking-tight leading-[1.12] mb-4 text-foreground max-w-3xl mx-auto"
+          className="font-display font-extrabold text-2xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight leading-[1.18] sm:leading-[1.12] mb-3 sm:mb-5 text-foreground max-w-3xl mx-auto px-2"
         >
           One focus a day.{' '}
           <span className="font-serif-display italic font-normal text-muted-foreground block sm:inline">
@@ -500,14 +520,19 @@ export default function Landing() {
           </span>
         </motion.h1>
 
-        {/* Strictly ≤ 3 Lines Subheading (Cadence, Clear, Concise) */}
+        {/* Strictly ≤ 3 Lines Subheading (Cadence, Clear, Concise, Airy on Mobile) */}
         <motion.p
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.1 }}
-          className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-6"
+          className="text-muted-foreground text-xs sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-6 sm:mb-8 px-2"
         >
-          Miss one day in typical habit apps, and your streak resets to zero. We give you 1 primary win, 2 routines, and a ±10% mathematical buffer so real life never kills your progress.
+          <span className="hidden sm:inline">
+            Miss one day in typical habit apps, and your streak resets to zero. We give you 1 primary win, 2 routines, and a ±10% mathematical buffer so real life never kills your progress.
+          </span>
+          <span className="sm:hidden">
+            Typical habit apps reset to zero on one missed day. We protect your momentum with 1 focus, 2 routines, and a ±10% buffer cone.
+          </span>
         </motion.p>
 
         {/* Primary CTA Row */}
@@ -515,7 +540,7 @@ export default function Landing() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.15 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10"
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 sm:mb-12 px-4"
         >
           <Button
             size="lg"
@@ -533,7 +558,7 @@ export default function Landing() {
               const el = document.getElementById('sneak-peek-frame');
               el?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="w-full sm:w-auto px-6 py-5 text-sm font-medium text-muted-foreground hover:text-foreground border-border touch-target"
+            className="w-full sm:w-auto px-6 py-5 text-sm font-medium text-muted-foreground hover:text-foreground border-border/80 backdrop-blur-md touch-target"
           >
             <span>Watch Live Sneak Peek</span>
           </Button>
@@ -547,10 +572,10 @@ export default function Landing() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="relative max-w-5xl mx-auto text-left"
         >
-          {/* Hardware Frame with Monochromatic Specular Rim */}
-          <div className="relative rounded-2xl md:rounded-3xl border border-border/80 bg-card/90 backdrop-blur-2xl shadow-2xl overflow-hidden tis-specular-box">
-            {/* Top Bar: Recorded Session HUD */}
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-border/60 bg-muted/40 text-xs font-tech-mono">
+          {/* Hardware Frame with Liquid Frosted Glass and Monochromatic Specular Rim */}
+          <div className="relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden tis-specular-box">
+            {/* Top Bar: Recorded Session HUD (Zero Play/Pause Buttons) */}
+            <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b border-white/10 dark:border-white/10 bg-muted/30 text-xs font-tech-mono backdrop-blur-md">
               <div className="flex items-center gap-2">
                 <span className="size-2.5 rounded-full bg-zinc-600/40 border border-zinc-500/50" />
                 <span className="size-2.5 rounded-full bg-zinc-600/40 border border-zinc-500/50" />
@@ -558,37 +583,27 @@ export default function Landing() {
                 <span className="ml-2 text-[11px] text-muted-foreground hidden sm:inline">
                   LIVE PRODUCT SNEAK PEEK // DAY 41 OF 90
                 </span>
+                <span className="ml-1 text-[10px] text-muted-foreground sm:hidden">
+                  DAY 41 OF 90
+                </span>
               </div>
 
-              {/* Mode Switch & Live State */}
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-background/80 border border-border/80 text-[10px] text-muted-foreground">
+              {/* Live State Badge (Auto-reappears after ~3-5s inactivity) */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/80 border border-border/80 text-[10px] text-muted-foreground backdrop-blur-sm shadow-xs">
                   <span className={`size-1.5 rounded-full ${isPlayingWalkthrough ? 'bg-foreground animate-pulse' : 'bg-muted-foreground'}`} />
-                  <span>{isPlayingWalkthrough ? 'Simulated Walkthrough' : 'Interactive Playground'}</span>
+                  <span>{isPlayingWalkthrough ? 'Guided Tour' : 'Interactive Mode'}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsPlayingWalkthrough(!isPlayingWalkthrough)}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 text-[11px] font-medium transition-colors touch-target"
-                  title={isPlayingWalkthrough ? 'Pause Walkthrough' : 'Play Walkthrough'}
-                >
-                  {isPlayingWalkthrough ? (
-                    <>
-                      <Pause className="size-3" />
-                      <span className="hidden sm:inline">Pause</span>
-                    </>
-                  ) : (
-                    <>
-                      <Play className="size-3" />
-                      <span className="hidden sm:inline">Play</span>
-                    </>
-                  )}
-                </button>
               </div>
             </div>
 
-            {/* Inner Workspace: Trajectory Left + Daily Anchor Right */}
-            <div ref={consoleRef} className="p-4 sm:p-6 md:p-8 relative">
+            {/* Inner Workspace: Trajectory Left + Daily Anchor Right (Touch or tap anywhere to take control) */}
+            <div
+              ref={consoleRef}
+              onPointerDown={handleUserActivity}
+              onTouchStart={handleUserActivity}
+              className="p-3.5 sm:p-6 md:p-8 relative"
+            >
               {/* Simulated Human Mouse Cursor (Visible on all viewports during walkthrough) */}
               <AnimatePresence>
                 {isPlayingWalkthrough && (
@@ -649,21 +664,21 @@ export default function Landing() {
               </AnimatePresence>
 
               {/* Status Header */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-border/60">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-4 sm:pb-5 border-b border-white/10 dark:border-white/10">
                 <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground shrink-0">
-                    <Activity className="size-5" />
+                  <div className="size-9 sm:size-10 rounded-xl bg-muted/80 border border-white/10 flex items-center justify-center text-foreground shrink-0 backdrop-blur-md">
+                    <Activity className="size-4 sm:size-5" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-display font-bold text-sm text-foreground uppercase tracking-tight">
+                      <span className="font-display font-bold text-xs sm:text-sm text-foreground uppercase tracking-tight">
                         Deterministic Momentum Vector
                       </span>
-                      <span className="text-[10px] font-tech-mono px-2 py-0.5 rounded bg-muted text-foreground border border-border">
+                      <span className="text-[9px] sm:text-[10px] font-tech-mono px-2 py-0.5 rounded bg-muted text-foreground border border-border">
                         DAY 41 OF 90
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground font-tech-mono mt-0.5">
+                    <p className="hidden sm:block text-xs text-muted-foreground font-tech-mono mt-0.5">
                       90-Day horizon updates smoothly as daily anchors complete
                     </p>
                   </div>
@@ -672,15 +687,15 @@ export default function Landing() {
                 {/* Velocity Readout */}
                 <div
                   ref={velocityBadgeRef}
-                  className="flex items-center gap-3 bg-muted/30 border border-border/80 rounded-xl px-3.5 py-1.5"
+                  className="flex items-center gap-3 bg-muted/40 border border-white/10 rounded-xl px-3 sm:px-3.5 py-1.5 backdrop-blur-md"
                 >
                   <div className="text-right">
-                    <div className="text-[10px] text-muted-foreground font-tech-mono uppercase tracking-wider">
+                    <div className="text-[9px] sm:text-[10px] text-muted-foreground font-tech-mono uppercase tracking-wider">
                       Velocity Index
                     </div>
-                    <div className="font-tech-mono font-bold text-sm sm:text-base text-foreground flex items-center justify-end gap-1.5">
+                    <div className="font-tech-mono font-bold text-xs sm:text-base text-foreground flex items-center justify-end gap-1.5">
                       <span>{velocity}x</span>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-foreground text-background font-bold">
+                      <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-foreground text-background font-bold">
                         {isAhead ? 'AHEAD' : isInBuffer ? 'IN BUFFER' : 'ABSORBING DRIFT'}
                       </span>
                     </div>
@@ -689,24 +704,24 @@ export default function Landing() {
               </div>
 
               {/* Main Console Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 items-center">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6 items-center">
                 {/* Left: Dynamic Trajectory Plane */}
-                <div className="lg:col-span-7 space-y-4">
-                  <div className="rounded-xl border border-border/80 bg-background/80 p-3.5 sm:p-4 shadow-inner">
-                    <div className="flex flex-wrap items-center justify-between text-[11px] font-tech-mono text-muted-foreground mb-2 gap-2">
+                <div className="lg:col-span-7 space-y-3 sm:space-y-4">
+                  <div className="rounded-xl border border-white/10 bg-background/80 dark:bg-card/40 backdrop-blur-xl p-3 sm:p-4 shadow-inner tis-specular-box">
+                    <div className="flex flex-wrap items-center justify-between text-[10px] sm:text-[11px] font-tech-mono text-muted-foreground mb-2 gap-2">
                       <span className="flex items-center gap-1.5 text-foreground font-medium">
                         <span className="size-2 rounded-full bg-foreground" />
                         Seamless Trajectory Vector
                       </span>
                       <span className="flex items-center gap-1.5">
                         <span className="size-2 rounded-sm bg-muted-foreground/30 border border-border" />
-                        ±10% Mathematical Buffer
+                        ±10% Safety Buffer
                       </span>
-                      <span className="text-foreground font-semibold">Day 1 → Day 90</span>
+                      <span className="text-foreground font-semibold">D1 → D90</span>
                     </div>
 
                     {/* SVG Trajectory Canvas */}
-                    <div ref={graphNodeRef} className="relative h-44 sm:h-52 w-full">
+                    <div ref={graphNodeRef} className="relative h-40 sm:h-52 w-full">
                       <svg
                         className="w-full h-full"
                         viewBox="0 0 500 210"
@@ -753,12 +768,12 @@ export default function Landing() {
                           D90 GOAL
                         </text>
 
-                        {/* ±10% Buffer Cone Polygon (Attached directly to Today coordinate, widening into the future) */}
+                        {/* ±10% Buffer Cone Polygon */}
                         <path d={bufferPolygon} fill="url(#monochromeBufferGrad)" className="transition-all duration-700 ease-out" />
                         <path d={bufferUpperPath} fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" strokeOpacity="0.35" className="transition-all duration-700 ease-out" />
                         <path d={bufferLowerPath} fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" strokeOpacity="0.35" className="transition-all duration-700 ease-out" />
 
-                        {/* Past Historical Curve (Attached seamlessly to Today) */}
+                        {/* Past Historical Curve */}
                         <path
                           d={historicalPath}
                           fill="none"
@@ -774,7 +789,7 @@ export default function Landing() {
                         <circle cx={90} cy={160} r="2.5" fill="currentColor" opacity="0.6" />
                         <circle cx={150} cy={142} r="2.5" fill="currentColor" opacity="0.7" />
 
-                        {/* Updatable Projected Trajectory Line (Originates EXACTLY from Today coordinate with matching tangent) */}
+                        {/* Updatable Projected Trajectory Line */}
                         <path
                           d={projectedPath}
                           fill="none"
@@ -785,7 +800,7 @@ export default function Landing() {
                           className="transition-all duration-700 ease-out"
                         />
 
-                        {/* TODAY Anchor Node (Crisp, Stationary, Zero Ping/Swiping Bug) */}
+                        {/* TODAY Anchor Node */}
                         <circle
                           ref={todayCircleRef}
                           cx={todayX}
@@ -816,30 +831,36 @@ export default function Landing() {
                       </svg>
 
                       {/* Embedded Telemetry Status Badge */}
-                      <div className="absolute right-2 top-2 px-2.5 py-1 rounded-md bg-card/90 border border-border/80 text-[10px] font-tech-mono text-foreground backdrop-blur-md shadow-sm">
+                      <div className="absolute right-2 top-2 px-2.5 py-1 rounded-md bg-card/90 border border-white/10 text-[10px] font-tech-mono text-foreground backdrop-blur-md shadow-sm">
                         {isAhead ? `+${daysMargin}d Ahead • Accelerating` : isInBuffer ? 'Inside ±10% Buffer' : 'Buffer Absorbing Drift'}
                       </div>
                     </div>
                   </div>
 
-                  {/* Telemetry Strip Under Graph */}
-                  <div className="grid grid-cols-3 gap-2.5 p-3 rounded-xl border border-border/80 bg-background/60 text-center">
+                  {/* Telemetry Strip Under Graph (Spacious on Mobile) */}
+                  <div className="grid grid-cols-3 gap-2 p-2.5 sm:p-3 rounded-xl border border-white/10 bg-background/60 dark:bg-card/30 backdrop-blur-md text-center">
                     <div>
-                      <span className="text-[10px] font-tech-mono text-muted-foreground uppercase">Trajectory Horizon</span>
+                      <span className="text-[9px] sm:text-[10px] font-tech-mono text-muted-foreground uppercase">
+                        <span className="hidden sm:inline">Trajectory </span>Horizon
+                      </span>
                       <p className="font-tech-mono font-bold text-xs sm:text-sm mt-0.5 text-foreground">
                         {isAhead ? `+${daysMargin}d Margin` : isInBuffer ? 'Protected' : '-4d Off-Pace'}
                       </p>
                     </div>
                     <div className="border-x border-border/50 px-1">
-                      <span className="text-[10px] font-tech-mono text-muted-foreground uppercase">Buffer Tolerance</span>
+                      <span className="text-[9px] sm:text-[10px] font-tech-mono text-muted-foreground uppercase">
+                        <span className="hidden sm:inline">Buffer </span>Tolerance
+                      </span>
                       <p className="font-tech-mono font-bold text-xs sm:text-sm text-foreground mt-0.5">
-                        ±10% Safety Cone
+                        ±10% Cone
                       </p>
                     </div>
                     <div>
-                      <span className="text-[10px] font-tech-mono text-muted-foreground uppercase">Daily Execution</span>
+                      <span className="text-[9px] sm:text-[10px] font-tech-mono text-muted-foreground uppercase">
+                        <span className="hidden sm:inline">Daily </span>Tasks
+                      </span>
                       <p className="font-tech-mono font-bold text-xs sm:text-sm text-foreground mt-0.5">
-                        {completedCount}/3 Checked
+                        {completedCount}/3 Done
                       </p>
                     </div>
                   </div>
@@ -847,8 +868,8 @@ export default function Landing() {
 
                 {/* Right: Tactile Daily Anchor Console */}
                 <div className="lg:col-span-5 flex flex-col justify-center space-y-3">
-                  <div className="p-4 rounded-xl border border-border/80 bg-card/80 shadow-md">
-                    <div className="flex items-center justify-between pb-3 border-b border-border/50">
+                  <div className="p-3.5 sm:p-4 rounded-xl border border-white/10 bg-card/80 backdrop-blur-xl shadow-md tis-specular-box">
+                    <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-border/50">
                       <div className="flex items-center gap-2">
                         <Target className="size-4 text-foreground" />
                         <span className="font-display font-semibold text-xs text-foreground tracking-wide uppercase">
@@ -859,7 +880,7 @@ export default function Landing() {
                         ref={resetBtnRef}
                         type="button"
                         onClick={() => {
-                          setIsPlayingWalkthrough(false);
+                          handleUserActivity();
                           setFocusDone(false);
                           setRoutine1Done(false);
                           setRoutine2Done(false);
@@ -879,22 +900,22 @@ export default function Landing() {
                       role="button"
                       tabIndex={0}
                       onClick={() => {
-                        setIsPlayingWalkthrough(false);
+                        handleUserActivity();
                         setFocusDone(!focusDone);
                       }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
-                          setIsPlayingWalkthrough(false);
+                          handleUserActivity();
                           setFocusDone(!focusDone);
                         }
                       }}
-                      className={`mt-3 p-3.5 rounded-xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
+                      className={`mt-2.5 sm:mt-3 p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
                         activePressedTarget === 'focus' ? 'scale-[0.98] ring-1 ring-foreground/30 shadow-sm' : ''
                       } ${
                         focusDone
                           ? 'border-foreground/40 bg-muted/60 shadow-xs'
-                          : 'border-border/80 bg-background hover:border-foreground/30'
+                          : 'border-border/80 bg-background/90 hover:border-foreground/30'
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -929,18 +950,18 @@ export default function Landing() {
                     </div>
 
                     {/* Routine 1 */}
-                    <div className="space-y-2 mt-2.5">
+                    <div className="space-y-2 mt-2 sm:mt-2.5">
                       <div
                         role="button"
                         tabIndex={0}
                         onClick={() => {
-                          setIsPlayingWalkthrough(false);
+                          handleUserActivity();
                           setRoutine1Done(!routine1Done);
                         }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
-                            setIsPlayingWalkthrough(false);
+                            handleUserActivity();
                             setRoutine1Done(!routine1Done);
                           }
                         }}
@@ -949,7 +970,7 @@ export default function Landing() {
                         } ${
                           routine1Done
                             ? 'border-border/80 bg-muted/40'
-                            : 'border-border/60 bg-background hover:border-border'
+                            : 'border-border/60 bg-background/90 hover:border-border'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
@@ -981,13 +1002,13 @@ export default function Landing() {
                         role="button"
                         tabIndex={0}
                         onClick={() => {
-                          setIsPlayingWalkthrough(false);
+                          handleUserActivity();
                           setRoutine2Done(!routine2Done);
                         }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
-                            setIsPlayingWalkthrough(false);
+                            handleUserActivity();
                             setRoutine2Done(!routine2Done);
                           }
                         }}
@@ -996,7 +1017,7 @@ export default function Landing() {
                         } ${
                           routine2Done
                             ? 'border-border/80 bg-muted/40'
-                            : 'border-border/60 bg-background hover:border-border'
+                            : 'border-border/60 bg-background/90 hover:border-border'
                         }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
@@ -1025,8 +1046,8 @@ export default function Landing() {
                     </div>
 
                     {/* Execution Bar */}
-                    <div className="mt-3.5 pt-3 border-t border-border/40">
-                      <div className="flex justify-between text-[11px] font-tech-mono mb-1.5">
+                    <div className="mt-3 pt-2.5 sm:pt-3 border-t border-border/40">
+                      <div className="flex justify-between text-[10px] sm:text-[11px] font-tech-mono mb-1.5">
                         <span className="text-muted-foreground">Cadence Progress</span>
                         <span className="font-bold text-foreground">
                           {completedCount === 3
@@ -1050,18 +1071,14 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Bottom Bar: Video Player Timeline & Controls */}
-            <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 border-t border-border/60 bg-muted/30 text-xs font-tech-mono">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsPlayingWalkthrough(!isPlayingWalkthrough)}
-                  className="size-7 rounded-md bg-secondary text-secondary-foreground hover:bg-secondary/80 flex items-center justify-center transition-colors touch-target"
-                  title={isPlayingWalkthrough ? 'Pause' : 'Play'}
-                >
-                  {isPlayingWalkthrough ? <Pause className="size-3.5" /> : <Play className="size-3.5 ml-0.5" />}
-                </button>
-                <span className="text-[11px] text-muted-foreground">
+            {/* Bottom Bar: Timeline Scrubber (Zero Play/Pause Buttons, Pure Inactivity Logic) */}
+            <div className="flex items-center justify-between px-3.5 sm:px-6 py-2 sm:py-2.5 border-t border-white/10 dark:border-white/10 bg-muted/30 text-xs font-tech-mono backdrop-blur-md">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="relative flex size-2">
+                  <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isPlayingWalkthrough ? 'animate-ping bg-foreground' : 'bg-muted-foreground'}`} />
+                  <span className={`relative inline-flex size-2 rounded-full ${isPlayingWalkthrough ? 'bg-foreground' : 'bg-muted-foreground'}`} />
+                </span>
+                <span className="text-[10px] sm:text-[11px] text-muted-foreground">
                   00:{videoElapsedSec.toString().padStart(2, '0')} / 00:16
                 </span>
               </div>
@@ -1076,77 +1093,73 @@ export default function Landing() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsPlayingWalkthrough(!isPlayingWalkthrough)}
-                  className="text-[11px] font-tech-mono text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1 rounded-md bg-muted/60 hover:bg-muted"
-                >
-                  {isPlayingWalkthrough ? 'Take Control' : 'Resume Walkthrough'}
-                </button>
+              <div className="flex items-center">
+                <span className="text-[10px] font-tech-mono text-muted-foreground/70 hidden sm:inline">
+                  {isPlayingWalkthrough ? 'Tap any card to interact' : 'Resumes automatically in 4s'}
+                </span>
+                <span className="text-[9px] font-tech-mono text-muted-foreground/70 sm:hidden">
+                  {isPlayingWalkthrough ? 'Tap to test' : 'Auto-resumes'}
+                </span>
               </div>
             </div>
           </div>
         </motion.div>
       </section>
 
-      {/* ── METRICS TELEMETRY STRIP (CONCRETE DATA, ZERO FLUFF) ── */}
-      <section className="relative z-10 border-y border-border/60 bg-card/40 backdrop-blur-md py-6">
+      {/* ── METRICS TELEMETRY STRIP (LIQUID GLASS & CONCRETE INVARIANTS) ── */}
+      <section className="relative z-10 border-y border-white/10 dark:border-white/10 bg-card/50 dark:bg-card/30 backdrop-blur-2xl py-8 sm:py-10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div className="p-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
+            <div className="p-2 sm:p-3 rounded-xl bg-card/30 border border-white/5 backdrop-blur-sm">
               <p className="font-tech-mono font-bold text-2xl sm:text-3xl text-foreground">1 Focus</p>
-              <p className="text-[11px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wider font-tech-mono">
-                Daily Commitment Cap
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wider font-tech-mono">
+                Daily Cap
               </p>
             </div>
-            <div className="p-2">
+            <div className="p-2 sm:p-3 rounded-xl bg-card/30 border border-white/5 backdrop-blur-sm">
               <p className="font-tech-mono font-bold text-2xl sm:text-3xl text-foreground">±10%</p>
-              <p className="text-[11px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wider font-tech-mono">
-                Mathematical Buffer
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wider font-tech-mono">
+                Safety Buffer
               </p>
             </div>
-            <div className="p-2">
+            <div className="p-2 sm:p-3 rounded-xl bg-card/30 border border-white/5 backdrop-blur-sm">
               <p className="font-tech-mono font-bold text-2xl sm:text-3xl text-foreground">90 Days</p>
-              <p className="text-[11px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wider font-tech-mono">
-                Trajectory Horizon
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wider font-tech-mono">
+                Trajectory
               </p>
             </div>
-            <div className="p-2">
+            <div className="p-2 sm:p-3 rounded-xl bg-card/30 border border-white/5 backdrop-blur-sm">
               <p className="font-tech-mono font-bold text-2xl sm:text-3xl text-foreground">100%</p>
-              <p className="text-[11px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wider font-tech-mono">
-                Offline Local-First Vault
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 uppercase tracking-wider font-tech-mono">
+                Offline Vault
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── THREE STEPS: SMOOTH, SLOWER HOVER EXPANSION (INACTIVE SHRINKS TO SQUARE) ── */}
-      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-16 sm:py-24">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+      {/* ── THREE STEPS: SMOOTH, SLOWER HOVER EXPANSION (INACTIVE SHRINKS TO SQUARE ON DESKTOP) ── */}
+      <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
             THE THREE PILLARS
           </p>
           <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
-            The Three Steps to{' '}
-            <span className="font-serif-display italic font-normal text-muted-foreground">
-              Quiet Follow-Through
-            </span>
+            The Three Steps to Quiet Follow-Through
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
             Eliminate decision fatigue and sustain lifelong momentum with three simple rules.
           </p>
         </div>
 
-        {/* Smooth, slower hover expansion: active enlarges, inactive shrinks to square */}
-        <div className="flex flex-col md:flex-row gap-5 items-center justify-center min-h-[300px]">
+        {/* Smooth, slower hover expansion: active enlarges, inactive shrinks neatly */}
+        <div className="flex flex-col md:flex-row gap-4 sm:gap-5 items-stretch md:items-center justify-center min-h-[300px]">
           {principles.map((p, index) => {
             const isHovered = hoveredStep === index;
             const isOtherHovered = hoveredStep !== null && hoveredStep !== index;
             const Icon = p.icon;
 
-            // Inactive cards shrink to a square on desktop
+            // Inactive cards shrink to a square on desktop, compact horizontal row on mobile
             if (isOtherHovered) {
               return (
                 <motion.div
@@ -1156,20 +1169,20 @@ export default function Landing() {
                   onMouseEnter={() => setHoveredStep(index)}
                   onMouseLeave={() => setHoveredStep(null)}
                   onClick={() => setHoveredStep(index)}
-                  className="relative rounded-2xl border border-border/60 bg-card/50 backdrop-blur-xl p-4 cursor-pointer hover:border-foreground/30 transition-colors tis-specular-box w-full md:w-44 md:h-44 aspect-square flex-shrink-0 flex flex-col items-center justify-between text-center select-none"
+                  className="relative rounded-2xl border border-white/10 bg-card/40 backdrop-blur-xl p-3.5 sm:p-4 cursor-pointer hover:border-foreground/30 transition-colors tis-specular-box w-full md:w-44 md:h-44 md:aspect-square md:flex-shrink-0 flex md:flex-col items-center justify-between text-left md:text-center select-none"
                 >
-                  <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center justify-between w-auto md:w-full gap-2">
                     <span className="font-tech-mono font-extrabold text-xs text-muted-foreground">
                       {p.step}
                     </span>
-                    <span className="size-1.5 rounded-full bg-muted-foreground/40" />
+                    <span className="size-1.5 rounded-full bg-muted-foreground/40 hidden md:inline-block" />
                   </div>
 
-                  <div className="size-10 rounded-xl bg-muted/60 border border-border/80 flex items-center justify-center text-foreground">
-                    <Icon className="size-5" />
+                  <div className="size-8 sm:size-10 rounded-xl bg-muted/60 border border-white/10 flex items-center justify-center text-foreground shrink-0 my-0 md:my-auto">
+                    <Icon className="size-4 sm:size-5" />
                   </div>
 
-                  <span className="text-[11px] font-tech-mono text-muted-foreground font-medium uppercase tracking-wider truncate w-full">
+                  <span className="text-[11px] font-tech-mono text-muted-foreground font-medium uppercase tracking-wider truncate w-auto md:w-full text-right md:text-center">
                     {p.shortLabel}
                   </span>
                 </motion.div>
@@ -1185,21 +1198,21 @@ export default function Landing() {
                 onMouseEnter={() => setHoveredStep(index)}
                 onMouseLeave={() => setHoveredStep(null)}
                 onClick={() => setHoveredStep(hoveredStep === index ? null : index)}
-                className={`group relative rounded-2xl border p-5 sm:p-7 backdrop-blur-xl flex flex-col justify-between cursor-pointer transition-colors tis-specular-box ${
+                className={`group relative rounded-2xl border p-5 sm:p-7 backdrop-blur-2xl flex flex-col justify-between cursor-pointer transition-colors tis-specular-box ${
                   isHovered
-                    ? 'border-foreground/50 shadow-2xl z-10 bg-card w-full md:flex-1 min-h-[300px]'
-                    : 'border-border/80 bg-card/70 shadow-lg w-full md:flex-1 min-h-[300px]'
+                    ? 'border-white/20 shadow-2xl z-10 bg-card/85 w-full md:flex-1 min-h-[280px] sm:min-h-[300px]'
+                    : 'border-white/10 bg-card/65 shadow-lg w-full md:flex-1 min-h-[280px] sm:min-h-[300px]'
                 }`}
               >
                 {/* Top specular highlight */}
                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:via-white/50 transition-colors pointer-events-none" />
 
                 <div>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <span className="font-tech-mono font-extrabold text-2xl sm:text-3xl text-foreground/80 group-hover:text-foreground transition-colors">
                       {p.step}
                     </span>
-                    <span className="text-[10px] font-tech-mono px-2.5 py-0.5 rounded-full bg-muted text-foreground border border-border">
+                    <span className="text-[10px] font-tech-mono px-2.5 py-0.5 rounded-full bg-muted/80 text-foreground border border-border">
                       {p.metric}
                     </span>
                   </div>
@@ -1217,7 +1230,7 @@ export default function Landing() {
                 </div>
 
                 {/* Operating Rule Badge */}
-                <div className="mt-5 pt-3.5 border-t border-border/50 flex items-center justify-between text-xs font-tech-mono">
+                <div className="mt-4 sm:mt-5 pt-3 sm:pt-3.5 border-t border-border/50 flex items-center justify-between text-xs font-tech-mono">
                   <span className="text-muted-foreground">Operating Rule</span>
                   <span className="font-semibold text-foreground">{p.rule}</span>
                 </div>
@@ -1231,26 +1244,28 @@ export default function Landing() {
       <ComparisonTable onSelectPlan={() => navigate('/auth')} />
 
       {/* ── FINAL CALL TO ACTION (MONOCHROMATIC LIQUID GLASS DOCK) ── */}
-      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-16 sm:py-24 text-center">
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4 }}
-          className="relative rounded-3xl p-7 sm:p-12 md:p-14 border border-border/80 bg-card/90 shadow-2xl overflow-hidden tis-specular-box"
+          className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-white/15 dark:border-white/10 bg-card/80 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden tis-specular-box"
         >
           <div className="relative z-10 max-w-2xl mx-auto">
             <span className="text-xs font-tech-mono font-semibold text-muted-foreground uppercase tracking-widest">
               INITIALIZE YOUR SYSTEM
             </span>
             <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground mt-2 mb-3 leading-tight">
-              One focus today.{' '}
-              <span className="font-serif-display italic font-normal text-muted-foreground block">
-                Compounding evidence forever.
-              </span>
+              One focus today. Compounding evidence forever.
             </h2>
-            <p className="text-xs sm:text-base text-muted-foreground mb-8 leading-relaxed max-w-xl mx-auto">
-              Step away from the endless to-do churn. Commit to 1 daily focus, protect your buffer, and build an unbreakable record of growth.
+            <p className="text-xs sm:text-base text-muted-foreground mb-6 sm:mb-8 leading-relaxed max-w-xl mx-auto">
+              <span className="hidden sm:inline">
+                Step away from the endless to-do churn. Commit to 1 daily focus, protect your buffer, and build an unbreakable record of growth.
+              </span>
+              <span className="sm:hidden">
+                Commit to 1 daily focus, protect your buffer, and build an unbreakable record of personal growth.
+              </span>
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">

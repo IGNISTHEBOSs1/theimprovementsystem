@@ -122,10 +122,10 @@ interface ComparisonTableProps {
 
 export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) {
   return (
-    <section className="flex w-full justify-center bg-background px-4 sm:px-6 py-12 sm:py-16 text-foreground relative z-10">
+    <section className="flex w-full justify-center bg-background px-4 sm:px-6 py-12 sm:py-20 text-foreground relative z-10">
       <div className="mx-auto w-full max-w-5xl">
         <div className="mb-8 max-w-2xl mx-auto text-center sm:text-left">
-          <Badge variant="outline" className="mb-3 px-3 py-1 font-tech-mono text-[11px] tracking-wider uppercase border-border/80">
+          <Badge variant="outline" className="mb-3 px-3 py-1 font-tech-mono text-[11px] tracking-wider uppercase border-border/80 bg-muted/40 backdrop-blur-sm">
             <RiSparkling2Line className="size-3.5 mr-1.5 text-foreground" />
             Architectural Comparison
           </Badge>
@@ -133,16 +133,21 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
             Why rigid streaks fail you
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xl">
-            Miss one day and conventional trackers reset you to zero. The Improvement System uses a mathematical buffer so your 90-day trajectory stays unbroken.
+            <span className="hidden sm:inline">
+              Miss one day and conventional trackers reset you to zero. The Improvement System uses a mathematical buffer so your 90-day trajectory stays unbroken.
+            </span>
+            <span className="sm:hidden">
+              Miss one day and typical trackers reset you to zero. Our mathematical buffer absorbs life.
+            </span>
           </p>
         </div>
 
         <div className="relative">
-          <div className="overflow-x-auto rounded-2xl border border-border/80 bg-card/60 backdrop-blur-xl shadow-2xl">
+          <div className="overflow-x-auto rounded-2xl border border-white/15 dark:border-white/10 bg-card/75 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),0_16px_40px_rgba(0,0,0,0.25)] tis-specular-box">
             <Table className="table-fixed w-full text-sm">
               <TableHeader>
-                <TableRow className="hover:bg-transparent border-b border-border/70">
-                  <TableHead className="sticky top-0 z-20 w-[42%] sm:w-[46%] border-b border-border/70 bg-card/90 align-bottom p-4">
+                <TableRow className="hover:bg-transparent border-b border-white/10">
+                  <TableHead className="sticky top-0 z-20 w-[42%] sm:w-[46%] border-b border-white/10 bg-card/90 align-bottom p-4">
                     <span className="inline-block text-xs font-tech-mono font-bold tracking-wider text-muted-foreground uppercase">
                       Core Dimensions
                     </span>
@@ -151,7 +156,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                     <TableHead
                       key={plan.name}
                       className={cn(
-                        "sticky top-0 z-20 border-b border-border/70 text-center align-bottom p-4",
+                        "sticky top-0 z-20 border-b border-white/10 text-center align-bottom p-4",
                         plan.highlighted ? "bg-white/[0.04]" : "bg-card/90",
                       )}
                     >

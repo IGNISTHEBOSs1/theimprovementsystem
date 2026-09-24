@@ -99,71 +99,90 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex-center p-4">
-      {/* Background */}
-      <div className="fixed inset-0 pointer-events-none opacity-20"
-        style={{ backgroundImage: `linear-gradient(hsl(var(--primary)/0.05) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary)/0.05) 1px, transparent 1px)`, backgroundSize: '60px 60px' }}
+    <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center p-4 selection:bg-white/20 selection:text-white">
+      {/* Precision Trajectory Coordinate Grid */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05]"
+        style={{
+          backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
+          backgroundSize: '48px 48px',
+          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, rgba(0,0,0,0.1) 85%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, rgba(0,0,0,0.1) 85%)',
+        }}
       />
 
+      {/* Monochromatic Diffusions */}
+      <div className="fixed -top-32 -left-24 w-[480px] h-[480px] rounded-full bg-white/[0.02] dark:bg-white/[0.03] blur-[140px] pointer-events-none" />
+      <div className="fixed top-1/2 -right-32 w-[440px] h-[440px] rounded-full bg-zinc-800/10 dark:bg-zinc-700/10 blur-[150px] pointer-events-none" />
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md"
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md relative z-10"
       >
         {/* Back to landing */}
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
+          className="flex items-center gap-2 text-xs font-tech-mono text-muted-foreground hover:text-foreground transition-colors mb-6 group touch-target"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-          Back to home
+          Back to System Home
         </button>
 
-        <div className="material-surface rounded-2xl border border-border overflow-hidden shadow-card">
+        {/* Liquid Frosted Glass Authentication Card */}
+        <div className="rounded-2xl sm:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden tis-specular-box">
           {/* Header */}
-          <div className="p-6 pb-5 text-center bg-card/60 border-b border-border/60">
+          <div className="p-6 pb-5 text-center bg-muted/30 border-b border-white/10 backdrop-blur-md">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 300 }}
-              className="flex-center mb-3"
+              transition={{ delay: 0.15, type: 'spring', stiffness: 280 }}
+              className="flex items-center justify-center mb-3"
             >
-              <SystemLogo size={44} />
+              <div className="p-2 rounded-2xl bg-card/90 border border-white/10 shadow-sm backdrop-blur-md">
+                <SystemLogo size={38} />
+              </div>
             </motion.div>
-            <h1 className="font-display font-bold text-xl text-foreground tracking-tight">The Improvement System</h1>
-            <p className="text-xs text-muted-foreground mt-0.5 font-mono tracking-wider">PERSONAL TRAJECTORY ENGINE</p>
+            <h1 className="font-display font-bold text-xl sm:text-2xl text-foreground tracking-tight">The Improvement System</h1>
+            <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-1 font-tech-mono tracking-widest uppercase">
+              PERSONAL TRAJECTORY ENGINE
+            </p>
           </div>
 
           {/* Mode tabs — pill toggle */}
           <AnimatePresence>
             {mode !== 'reset' && (
-              <div className="flex p-3 gap-1 border-b border-white/5 bg-black/20">
-                {(['signin', 'signup'] as const).map((m) => (
-                  <button
-                    key={m}
-                    onClick={() => { playClick(); setMode(m); }}
-                    className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all relative ${
-                      mode === m ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {mode === m && (
-                      <motion.div
-                        layoutId="auth-tab"
-                        className="absolute inset-0 rounded-lg bg-primary/90 shadow-[0_0_12px_hsl(var(--primary)/0.4)]"
-                      />
-                    )}
-                    <span className="relative z-10">{m === 'signin' ? 'Sign In' : 'Sign Up'}</span>
-                  </button>
-                ))}
+              <div className="p-3 border-b border-white/10 bg-muted/20">
+                <div className="flex p-1 rounded-xl bg-muted/60 border border-border/80">
+                  {(['signin', 'signup'] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => { playClick(); setMode(m); }}
+                      className={`flex-1 py-2 rounded-lg text-xs font-display font-semibold transition-all relative touch-target ${
+                        mode === m ? 'text-background' : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      {mode === m && (
+                        <motion.div
+                          layoutId="auth-tab"
+                          className="absolute inset-0 rounded-lg bg-foreground shadow-sm"
+                          transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10">{m === 'signin' ? 'Log In' : 'Create Account'}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </AnimatePresence>
 
           {/* Reset password notice */}
           {mode === 'reset' && (
-            <div className="px-6 py-3 bg-primary/5 border-b border-white/5 text-center">
-              <p className="text-body-sm text-muted-foreground">Enter your email to receive password reset instructions</p>
+            <div className="px-6 py-3.5 bg-muted/40 border-b border-white/10 text-center backdrop-blur-md">
+              <p className="text-xs font-tech-mono text-muted-foreground">Enter your email to receive password reset instructions</p>
             </div>
           )}
 
@@ -175,16 +194,16 @@ const Auth = () => {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="space-y-2"
+                  className="space-y-1.5"
                 >
-                  <Label htmlFor="username" className="text-label text-muted-foreground">Your Name</Label>
+                  <Label htmlFor="username" className="text-[11px] font-tech-mono uppercase tracking-wider text-muted-foreground font-medium">Your Name</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       id="username" type="text" value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Enter your name"
-                      className="pl-10 bg-muted/50 border-white/10 focus:border-primary/50 focus-visible:ring-primary/30"
+                      className="pl-10 bg-muted/30 border-border/80 focus:border-foreground/40 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground/50 h-11"
                       maxLength={20}
                     />
                   </div>
@@ -192,32 +211,32 @@ const Auth = () => {
               )}
             </AnimatePresence>
 
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-label text-muted-foreground">Email</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-[11px] font-tech-mono uppercase tracking-wider text-muted-foreground font-medium">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="email" type="email" value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="pl-10 bg-muted/50 border-white/10 focus:border-primary/50 focus-visible:ring-primary/30"
+                  className="pl-10 bg-muted/30 border-border/80 focus:border-foreground/40 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground/50 h-11"
                 />
               </div>
             </div>
 
             {mode !== 'reset' && (
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-label text-muted-foreground">Password</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="password" className="text-[11px] font-tech-mono uppercase tracking-wider text-muted-foreground font-medium">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     id="password" type={showPassword ? 'text' : 'password'} value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="pl-10 pr-10 bg-muted/50 border-white/10 focus:border-primary/50 focus-visible:ring-primary/30"
+                    className="pl-10 pr-10 bg-muted/30 border-border/80 focus:border-foreground/40 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground/50 h-11"
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -229,7 +248,7 @@ const Auth = () => {
             {mode === 'signin' && (
               <div className="text-right">
                 <button type="button" onClick={() => { playClick(); setMode('reset'); }}
-                  className="text-caption text-primary hover:text-primary-glow transition-colors hover:underline"
+                  className="text-[11px] font-tech-mono text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
                 >
                   Forgot password?
                 </button>
@@ -238,21 +257,21 @@ const Auth = () => {
 
             <Button
               type="submit"
-              variant="neon"
+              variant="default"
               disabled={loading}
-              className="w-full font-display"
+              className="w-full font-display font-semibold text-sm py-5 rounded-xl bg-foreground text-background hover:bg-foreground/90 active:scale-[0.98] shadow-md touch-target"
               size="lg"
             >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {!loading && (mode === 'signin' ? 'Sign In' : mode === 'reset' ? 'Send Reset Link' : 'Create Account')}
+              {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              {!loading && (mode === 'signin' ? 'Log In' : mode === 'reset' ? 'Send Reset Link' : 'Initialize Account')}
             </Button>
 
             {mode === 'reset' && (
               <button type="button" onClick={() => { playClick(); setMode('signin'); }}
-                className="text-body-sm text-muted-foreground hover:text-foreground w-full text-center transition-colors flex items-center justify-center gap-1"
+                className="text-xs font-tech-mono text-muted-foreground hover:text-foreground w-full text-center transition-colors flex items-center justify-center gap-1.5 pt-2"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                Back to Sign In
+                Back to Log In
               </button>
             )}
 
@@ -260,15 +279,16 @@ const Auth = () => {
               <>
                 <div className="relative my-5">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-white/10" />
+                    <span className="w-full border-t border-border/60" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-transparent px-3 text-label text-muted-foreground">or continue with</span>
+                    <span className="bg-card px-3 text-[10px] font-tech-mono uppercase tracking-wider text-muted-foreground">or continue with</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <Button type="button" variant="glass" disabled={googleLoading}
+                  <Button type="button" variant="outline" disabled={googleLoading}
+                    className="rounded-xl border border-white/10 dark:border-white/10 bg-muted/30 hover:bg-muted/60 backdrop-blur-md text-foreground font-tech-mono text-xs py-3 active:scale-[0.98] touch-target"
                     onClick={async () => {
                       playClick(); setGoogleLoading(true);
                       const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
@@ -285,7 +305,8 @@ const Auth = () => {
                     )}
                     Google
                   </Button>
-                  <Button type="button" variant="glass" disabled={appleLoading}
+                  <Button type="button" variant="outline" disabled={appleLoading}
+                    className="rounded-xl border border-white/10 dark:border-white/10 bg-muted/30 hover:bg-muted/60 backdrop-blur-md text-foreground font-tech-mono text-xs py-3 active:scale-[0.98] touch-target"
                     onClick={async () => {
                       playClick(); setAppleLoading(true);
                       const { error } = await supabase.auth.signInWithOAuth({ provider: 'apple', options: { redirectTo: window.location.origin } });
@@ -305,7 +326,7 @@ const Auth = () => {
           </form>
         </div>
 
-        <p className="text-center text-label text-muted-foreground/60 mt-6">
+        <p className="text-center text-[11px] font-tech-mono text-muted-foreground/60 mt-6 tracking-wide">
           A quiet operating system for deliberate growth.
         </p>
       </motion.div>
