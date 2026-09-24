@@ -169,6 +169,7 @@ export default function Landing() {
   const routine1BoxRef = useRef<HTMLDivElement | null>(null);
   const routine2BoxRef = useRef<HTMLDivElement | null>(null);
   const graphNodeRef = useRef<HTMLDivElement | null>(null);
+  const todayCircleRef = useRef<SVGCircleElement | null>(null);
   const velocityBadgeRef = useRef<HTMLDivElement | null>(null);
   const resetBtnRef = useRef<HTMLButtonElement | null>(null);
 
@@ -178,6 +179,7 @@ export default function Landing() {
   const [simCursorPos, setSimCursorPos] = useState<{ x: number; y: number }>({ x: 260, y: 140 });
   const [isClicking, setIsClicking] = useState<boolean>(false);
   const [activePressedTarget, setActivePressedTarget] = useState<string | null>(null);
+  const [cursorLabel, setCursorLabel] = useState<string>('1 Focus / Day');
 
   // ── TRAJECTORY MATHEMATICS & SEAMLESS C1 CONTINUITY ──
   const completedCount = (focusDone ? 1 : 0) + (routine1Done ? 1 : 0) + (routine2Done ? 1 : 0);
@@ -227,6 +229,12 @@ export default function Landing() {
     ? 68
     : 86;
 
+  // Keep a ref to todayY so position calculations always read the latest value without triggering effect reruns
+  const todayYRef = useRef(todayY);
+  useEffect(() => {
+    todayYRef.current = todayY;
+  }, [todayY]);
+
   // ── SEAMLESS C1 CONTINUOUS ATTACHMENT ──
   // The slope approaching Today is derived from the incoming vector from Day 28 (x=150, y=142) to (todayX, todayY).
   const inDx = todayX - 150; // 70
@@ -250,128 +258,181 @@ export default function Landing() {
   useEffect(() => {
     if (!isPlayingWalkthrough) return;
 
-    const totalCycleMs = 16000;
-    const startTime = Date.now();
+    let cancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let tickerId: ReturnType<typeof setInterval> | null = null;
 
-    // Reset initial state for fresh demonstration
-    setFocusDone(false);
-    setRoutine1Done(false);
-    setRoutine2Done(false);
+    const wait = (ms: number) =>
+      new Promise<void>((resolve) => {
+        timeoutId = setTimeout(() => {
+          if (!cancelled) resolve();
+        }, ms);
+      });
 
-    const getPos = (el: HTMLElement | null, fallback: { x: number; y: number }, isGraphNode = false) => {
-      if (!consoleRef.current) return fallback;
+    let startTime = Date.now();
+    tickerId = setInterval(() => {
+      if (cancelled) return;
+      const elapsed = Math.floor((Date.now() - startTime) / 1000) % 16;
+      setVideoElapsedSec(elapsed);
+    }, 200);
+
+    const getTargetPos = (
+      el: HTMLElement | SVGElement | null,
+      fallback: { x: number; y: number }
+    ) => {
+      if (!consoleRef.current || !el) return fallback;
       const parentRect = consoleRef.current.getBoundingClientRect();
-      if (!el) return fallback;
       const elRect = el.getBoundingClientRect();
-      if (isGraphNode) {
-        return {
-          x: elRect.left - parentRect.left + (elRect.width * 220) / 500,
-          y: elRect.top - parentRect.top + (elRect.height * todayY) / 210,
-        };
-      }
+      if (parentRect.width === 0 || elRect.width === 0) return fallback;
       return {
         x: elRect.left - parentRect.left + elRect.width / 2,
         y: elRect.top - parentRect.top + elRect.height / 2,
       };
     };
 
-    const interval = setInterval(() => {
-      const elapsedMs = (Date.now() - startTime) % totalCycleMs;
-      const sec = Math.min(16, Math.floor(elapsedMs / 1000));
-      setVideoElapsedSec(sec);
+    const runScript = async () => {
+      // Small initial delay so DOM layout completes
+      await wait(150);
+      if (cancelled) return;
 
-      // Human-like sequence with realistic pauses, glides, click-down depressions, and inspection
-      if (elapsedMs < 1200) {
-        // Initial glide into Daily Anchor section
-        const focusPos = getPos(focusBoxRef.current, { x: 340, y: 220 });
-        setSimCursorPos({ x: focusPos.x - 30, y: Math.max(20, focusPos.y - 70) });
+      while (!cancelled) {
+        startTime = Date.now();
+        setVideoElapsedSec(0);
+
+        // Reset tasks to uncompleted for fresh demonstration
+        setFocusDone(false);
+        setRoutine1Done(false);
+        setRoutine2Done(false);
         setIsClicking(false);
         setActivePressedTarget(null);
-      } else if (elapsedMs >= 1200 && elapsedMs < 2400) {
-        // Glide precisely onto Primary Focus checkbox
-        const pos = getPos(focusBoxRef.current, { x: 340, y: 220 });
-        setSimCursorPos(pos);
-        setIsClicking(false);
-        setActivePressedTarget(null);
-      } else if (elapsedMs >= 2400 && elapsedMs < 2900) {
-        // Human press: mouse down, checkbox activates, momentum thrust kicks in
-        const pos = getPos(focusBoxRef.current, { x: 340, y: 220 });
-        setSimCursorPos(pos);
+        setCursorLabel('1 Focus / Day');
+
+        // Initial cursor resting position
+        const initTarget = getTargetPos(focusBoxRef.current, { x: 300, y: 180 });
+        setSimCursorPos({ x: initTarget.x - 40, y: Math.max(30, initTarget.y - 70) });
+
+        // Phase 1: Glide into Primary Focus checkbox
+        await wait(1000);
+        if (cancelled) return;
+        const focusPos = getTargetPos(focusBoxRef.current, { x: 300, y: 180 });
+        setSimCursorPos(focusPos);
+
+        // Hover pause
+        await wait(600);
+        if (cancelled) return;
+
+        // Click down on Primary Focus
         setIsClicking(true);
         setActivePressedTarget('focus');
+        setCursorLabel('+35% Thrust');
         setFocusDone(true);
-      } else if (elapsedMs >= 2900 && elapsedMs < 4000) {
-        // Release, pause to admire the +35% thrust reaction
+        await wait(320);
+        if (cancelled) return;
+
+        // Release click
         setIsClicking(false);
         setActivePressedTarget(null);
-      } else if (elapsedMs >= 4000 && elapsedMs < 5200) {
-        // Glide smoothly to Routine 1
-        const pos = getPos(routine1BoxRef.current, { x: 340, y: 280 });
-        setSimCursorPos(pos);
-        setIsClicking(false);
-        setActivePressedTarget(null);
-      } else if (elapsedMs >= 5200 && elapsedMs < 5700) {
-        // Click Routine 1
-        const pos = getPos(routine1BoxRef.current, { x: 340, y: 280 });
-        setSimCursorPos(pos);
+
+        // Admire trajectory surge
+        await wait(1100);
+        if (cancelled) return;
+
+        // Phase 2: Glide to Routine 1
+        setCursorLabel('Routine 01 (Reading)');
+        const r1Pos = getTargetPos(routine1BoxRef.current, { x: 300, y: 240 });
+        setSimCursorPos(r1Pos);
+        await wait(750);
+        if (cancelled) return;
+
+        // Hover & click Routine 1
+        await wait(300);
+        if (cancelled) return;
         setIsClicking(true);
         setActivePressedTarget('routine1');
+        setCursorLabel('+10% Cadence');
         setRoutine1Done(true);
-      } else if (elapsedMs >= 5700 && elapsedMs < 7000) {
-        // Glide across to Today node on Trajectory graph to inspect curve
+        await wait(320);
+        if (cancelled) return;
+
+        // Release Routine 1
         setIsClicking(false);
         setActivePressedTarget(null);
-        const nodePos = getPos(graphNodeRef.current, { x: 180, y: 150 }, true);
-        setSimCursorPos(nodePos);
-      } else if (elapsedMs >= 7000 && elapsedMs < 9200) {
-        // Hover around the expanding ±10% buffer cone on the graph
-        const nodePos = getPos(graphNodeRef.current, { x: 180, y: 150 }, true);
-        setSimCursorPos({ x: nodePos.x + 35, y: nodePos.y - 12 });
-        setIsClicking(false);
-        setActivePressedTarget(null);
-      } else if (elapsedMs >= 9200 && elapsedMs < 10600) {
-        // Glide down to Routine 2
-        const pos = getPos(routine2BoxRef.current, { x: 340, y: 330 });
-        setSimCursorPos(pos);
-        setIsClicking(false);
-        setActivePressedTarget(null);
-      } else if (elapsedMs >= 10600 && elapsedMs < 11100) {
-        // Click Routine 2 to seal peak velocity
-        const pos = getPos(routine2BoxRef.current, { x: 340, y: 330 });
-        setSimCursorPos(pos);
+        await wait(700);
+        if (cancelled) return;
+
+        // Phase 3: Glide across to Trajectory Graph Today Milestone
+        setCursorLabel('Today Milestone');
+        const todayPos = getTargetPos(todayCircleRef.current, { x: 180, y: 130 });
+        setSimCursorPos(todayPos);
+        await wait(1200);
+        if (cancelled) return;
+
+        // Trace along ±10% buffer cone
+        setCursorLabel('±10% Safety Buffer');
+        setSimCursorPos({ x: todayPos.x + 45, y: todayPos.y - 12 });
+        await wait(1400);
+        if (cancelled) return;
+
+        // Phase 4: Glide down to Routine 2
+        setCursorLabel('Routine 02 (Review)');
+        const r2Pos = getTargetPos(routine2BoxRef.current, { x: 300, y: 300 });
+        setSimCursorPos(r2Pos);
+        await wait(850);
+        if (cancelled) return;
+
+        // Hover & click Routine 2
+        await wait(300);
+        if (cancelled) return;
         setIsClicking(true);
         setActivePressedTarget('routine2');
+        setCursorLabel('Peak Velocity (1.25x)');
         setRoutine2Done(true);
-      } else if (elapsedMs >= 11100 && elapsedMs < 12800) {
-        // Glide to Velocity Index badge celebrating peak compounding velocity
+        await wait(320);
+        if (cancelled) return;
+
+        // Release Routine 2
         setIsClicking(false);
         setActivePressedTarget(null);
-        const badgePos = getPos(velocityBadgeRef.current, { x: 420, y: 55 });
+        await wait(800);
+        if (cancelled) return;
+
+        // Phase 5: Glide to Velocity Index badge in HUD
+        const badgePos = getTargetPos(velocityBadgeRef.current, { x: 420, y: 55 });
         setSimCursorPos(badgePos);
-      } else if (elapsedMs >= 12800 && elapsedMs < 14200) {
-        // Glide to Reset button
-        const resetPos = getPos(resetBtnRef.current, { x: 430, y: 180 });
+        await wait(1500);
+        if (cancelled) return;
+
+        // Phase 6: Glide to Reset button
+        setCursorLabel('Reset Loop');
+        const resetPos = getTargetPos(resetBtnRef.current, { x: 420, y: 170 });
         setSimCursorPos(resetPos);
-        setIsClicking(false);
-        setActivePressedTarget(null);
-      } else if (elapsedMs >= 14200 && elapsedMs < 14800) {
+        await wait(800);
+        if (cancelled) return;
+
         // Click Reset
-        const resetPos = getPos(resetBtnRef.current, { x: 430, y: 180 });
-        setSimCursorPos(resetPos);
         setIsClicking(true);
         setActivePressedTarget('reset');
         setFocusDone(false);
         setRoutine1Done(false);
         setRoutine2Done(false);
-      } else if (elapsedMs >= 14800) {
-        // Release and prepare for next clean cycle
+        await wait(320);
+        if (cancelled) return;
+
         setIsClicking(false);
         setActivePressedTarget(null);
+        await wait(800);
+        if (cancelled) return;
       }
-    }, 80);
+    };
 
-    return () => clearInterval(interval);
-  }, [isPlayingWalkthrough, todayY]);
+    runScript();
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (tickerId) clearInterval(tickerId);
+    };
+  }, [isPlayingWalkthrough]);
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden text-foreground selection:bg-white/20 selection:text-white">
@@ -529,42 +590,63 @@ export default function Landing() {
             {/* Inner Workspace: Trajectory Left + Daily Anchor Right */}
             <div ref={consoleRef} className="p-4 sm:p-6 md:p-8 relative">
               {/* Simulated Human Mouse Cursor (Visible on all viewports during walkthrough) */}
-              {isPlayingWalkthrough && (
-                <motion.div
-                  className="absolute pointer-events-none z-30"
-                  animate={{
-                    x: simCursorPos.x,
-                    y: simCursorPos.y,
-                  }}
-                  transition={{
-                    type: 'spring',
-                    damping: 28,
-                    stiffness: 140,
-                    mass: 0.8,
-                  }}
-                  style={{ left: 0, top: 0 }}
-                >
-                  <div className="relative -top-1 -left-1">
-                    <motion.div
-                      animate={{
-                        scale: isClicking ? 0.84 : 1,
-                        rotate: isClicking ? -16 : -10,
-                      }}
-                      transition={{ duration: 0.12 }}
-                    >
-                      <MousePointer className="size-5 text-foreground drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] fill-foreground stroke-background stroke-[1.5]" />
-                    </motion.div>
-                    {isClicking && (
+              <AnimatePresence>
+                {isPlayingWalkthrough && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      x: simCursorPos.x,
+                      y: simCursorPos.y,
+                    }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{
+                      x: { type: 'spring', damping: 24, stiffness: 160, mass: 0.6 },
+                      y: { type: 'spring', damping: 24, stiffness: 160, mass: 0.6 },
+                      opacity: { duration: 0.2 },
+                    }}
+                    style={{ left: 0, top: 0 }}
+                    className="absolute pointer-events-none z-30 flex items-start"
+                  >
+                    <div className="relative -top-1 -left-1">
                       <motion.div
-                        initial={{ scale: 0.3, opacity: 0.9 }}
-                        animate={{ scale: 2.2, opacity: 0 }}
-                        transition={{ duration: 0.35, ease: 'easeOut' }}
-                        className="absolute -top-1 -left-1 size-5 rounded-full border-2 border-foreground bg-foreground/30 pointer-events-none"
-                      />
-                    )}
-                  </div>
-                </motion.div>
-              )}
+                        animate={{
+                          scale: isClicking ? 0.82 : 1,
+                          rotate: isClicking ? -16 : -10,
+                        }}
+                        transition={{ duration: 0.12 }}
+                      >
+                        <MousePointer className="size-5 text-foreground drop-shadow-[0_3px_10px_rgba(0,0,0,0.6)] fill-foreground stroke-background stroke-[1.5]" />
+                      </motion.div>
+                      {isClicking && (
+                        <motion.div
+                          initial={{ scale: 0.3, opacity: 1 }}
+                          animate={{ scale: 2.2, opacity: 0 }}
+                          transition={{ duration: 0.35, ease: 'easeOut' }}
+                          className="absolute -top-1.5 -left-1.5 size-6 rounded-full border-2 border-foreground bg-foreground/25 pointer-events-none"
+                        />
+                      )}
+                    </div>
+
+                    {/* Contextual Action Pill (Explains action in <2s clarity) */}
+                    <AnimatePresence mode="wait">
+                      {cursorLabel && (
+                        <motion.div
+                          key={cursorLabel}
+                          initial={{ opacity: 0, scale: 0.8, x: -4 }}
+                          animate={{ opacity: 1, scale: 1, x: 0 }}
+                          exit={{ opacity: 0, scale: 0.8, x: -4 }}
+                          transition={{ duration: 0.15 }}
+                          className="ml-2.5 px-2.5 py-0.5 rounded-full bg-foreground text-background text-[10px] font-tech-mono font-bold tracking-wider uppercase shadow-lg select-none whitespace-nowrap"
+                        >
+                          {cursorLabel}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Status Header */}
               <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-border/60">
@@ -705,6 +787,7 @@ export default function Landing() {
 
                         {/* TODAY Anchor Node (Crisp, Stationary, Zero Ping/Swiping Bug) */}
                         <circle
+                          ref={todayCircleRef}
                           cx={todayX}
                           cy={todayY}
                           r="5.5"
@@ -996,12 +1079,10 @@ export default function Landing() {
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsPlayingWalkthrough(false);
-                  }}
-                  className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => setIsPlayingWalkthrough(!isPlayingWalkthrough)}
+                  className="text-[11px] font-tech-mono text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1 rounded-md bg-muted/60 hover:bg-muted"
                 >
-                  Take Control
+                  {isPlayingWalkthrough ? 'Take Control' : 'Resume Walkthrough'}
                 </button>
               </div>
             </div>
