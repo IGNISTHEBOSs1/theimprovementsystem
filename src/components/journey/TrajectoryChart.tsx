@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Target, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { TrajectoryResult, TrajectoryPoint } from "@/lib/trajectory";
+import { TRAJECTORY_BUFFER_RATIO } from "@/lib/trajectory";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 
 interface TrajectoryChartProps {
@@ -30,13 +31,13 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
   const pointCount = actualSeries.length;
 
   // Founder Decision (Journey graph — Graph Idea #1): intended-range
-  // band, ±1 step around the intended reference path — an "on-track
-  // zone," not a precision target. Computed from the SAME intendedSeries
-  // used everywhere else in this file; no new data, no new derivation,
-  // no change to trajectory.ts. Included in allValues below so the y-scale
+  // band, shared ±10% ratio (TRAJECTORY_BUFFER_RATIO) around the intended
+  // reference path — an "on-track zone," not a precision target. Computed
+  // from the SAME intendedSeries used everywhere else in this file; no new
+  // data, no new derivation. Included in allValues below so the y-scale
   // expands to fit the band without clipping it.
-  const bandUpper = intendedSeries.map((v) => v + 1);
-  const bandLower = intendedSeries.map((v) => v - 1);
+  const bandUpper = intendedSeries.map((v) => v + v * TRAJECTORY_BUFFER_RATIO);
+  const bandLower = intendedSeries.map((v) => v - v * TRAJECTORY_BUFFER_RATIO);
 
   const allValues = [...actualSeries, ...intendedSeries, ...bandUpper, ...bandLower];
   const minY = Math.min(...allValues);

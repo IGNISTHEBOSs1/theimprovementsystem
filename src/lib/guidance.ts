@@ -1,5 +1,5 @@
 import type { Quest } from "@/types/quest";
-import { deriveTrajectory, deriveResolvedAt } from "@/lib/trajectory";
+import { deriveTrajectory, deriveTrajectoryTolerance, deriveResolvedAt } from "@/lib/trajectory";
 import { toServerLocalDate } from "@/lib/serverTime";
 
 // Founder Decision (Guidance chunk): "deterministic, data-grounded
@@ -81,10 +81,10 @@ const MIN_REPEAT_COUNT = 3;
 const MIN_FAILURES_FOR_WEEKDAY_RULE = 3;
 const WEEKDAY_CONCENTRATION_THRESHOLD = 0.5;
 const WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-// Higher than "any deficit" — Journey already reports the exact position
-// plainly and unconditionally. Mentor's bar is "worth pointing out," not
-// "worth reporting," so this stays quiet on small, normal fluctuation.
-const MIN_TRAJECTORY_DEFICIT = 3;
+// Sample-size floor: with very few resolved goal-linked Quests, 10% of a
+// small intendedEnd is itself tiny, so without this floor guidance would
+// fire on day 2 off a single missed Quest.
+const MIN_TRAJECTORY_EVIDENCE = 5;
 const MIN_RESOLVED_PER_PRIORITY = 3;
 const MIN_COMPLETION_RATE_GAP = 0.4;
 // Founder Decision (Mentor depth chunk, evidence expansion): same
@@ -161,16 +161,19 @@ function weekdayMissPatternGuidance(quests: Quest[], timezone: string): Guidance
 
 function trajectoryPositionGuidance(quests: Quest[]): GuidanceMessage | null {
   const trajectory = deriveTrajectory(quests);
+  if (trajectory.actual.length < MIN_TRAJECTORY_EVIDENCE) return null;
+
   const intendedEnd = trajectory.intended.length > 0
     ? trajectory.intended[trajectory.intended.length - 1].position
     : 0;
   const deficit = intendedEnd - trajectory.currentPosition;
-  if (deficit < MIN_TRAJECTORY_DEFICIT) return null;
+  const tolerance = deriveTrajectoryTolerance(trajectory);
+  if (deficit <= tolerance) return null;
 
   return {
     id: "trajectory-position",
-    text: `${deficit} steps behind your intended path — not a verdict, just useful for your next commitment.`,
-    strength: Math.min(deficit / 10, 1),
+    text: `${deficit} steps behind your intended path — outside your ±10% buffer, not a verdict, just useful for your next commitment.`,
+    strength: Math.min((deficit - tolerance) / 10, 1),
   };
 }
 

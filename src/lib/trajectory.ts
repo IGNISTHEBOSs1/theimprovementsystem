@@ -201,6 +201,28 @@ export function deriveTrajectory(quests: Quest[]): TrajectoryResult {
   };
 }
 
+// Single source of truth for the "±10% mathematical buffer" advertised on
+// the landing page. Percentage-of-intended-so-far, not a fixed step count —
+// this deliberately REPLACES two previously-inconsistent hardcoded
+// tolerances that existed independently: TrajectoryChart's fixed ±1-step
+// visual band, and guidance.ts's fixed MIN_TRAJECTORY_DEFICIT = 3. Both are
+// now derived from this single constant/function so "10%" means the same
+// thing everywhere it's checked, instead of three different silent
+// definitions of "close enough."
+//
+// Dynamic by design: 10% of intendedEnd grows as the 90-day window
+// progresses (10% of 5 early on vs. 10% of 40 later), which is also why
+// the buffer corridor drawn on the landing page is narrow near "today" and
+// widens toward Day 90 — this function is the math behind that shape.
+export const TRAJECTORY_BUFFER_RATIO = 0.1;
+
+export function deriveTrajectoryTolerance(trajectory: TrajectoryResult): number {
+  const intendedEnd = trajectory.intended.length > 0
+    ? trajectory.intended[trajectory.intended.length - 1].position
+    : 0;
+  return intendedEnd * TRAJECTORY_BUFFER_RATIO;
+}
+
 // Founder Decision (Trajectory completeness chunk, Tier 1 #2): shows what
 // the actual evidence line is actually made of, by priority. Pure
 // aggregation of trajectory.actual — does not change EVIDENCE_STEP or
