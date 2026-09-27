@@ -33,7 +33,7 @@ const comparisons: ComparisonRow[] = [
     basis: "When life happens (missed day)",
     subBasis: "Illness, late flights, emergencies",
     otherText: "Resets streak to Day 0 (guilt & churn)",
-    tisText: "±10% buffer absorbs it (trajectory unbroken)",
+    tisText: "±10% trajectory buffer absorbs it (vector unbroken)",
   },
   {
     basis: "Daily task load",
@@ -42,10 +42,10 @@ const comparisons: ComparisonRow[] = [
     tisText: "Strict 1 Focus + 2 Routines (<2 min execution)",
   },
   {
-    basis: "Psychological model",
-    subBasis: "Motivation vs trajectory",
-    otherText: "Binary pass/fail streaks & casino badges",
-    tisText: "Quiet 90-day mathematical momentum",
+    basis: "Core metric of progress",
+    subBasis: "Static count vs dynamic vector",
+    otherText: "Static binary streak counters & badges",
+    tisText: "Dynamic 90-day trajectory & velocity index",
   },
   {
     basis: "Privacy & cost",
@@ -79,10 +79,10 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xl">
             <span className="hidden sm:inline">
-              Traditional streak systems optimize for uninterrupted perfection. The Improvement System is engineered to absorb life's disruptions so your 90-day trajectory stays unbroken.
+              Streaks are static counters that shatter at the first interruption. The Improvement System prioritizes Trajectory—a dynamic, velocity-driven engine with a ±10% buffer that absorbs life's volatility.
             </span>
             <span className="sm:hidden">
-              Traditional systems punish missed days. Our mathematical buffer absorbs life so your trajectory continues.
+              Streaks are static; trajectory is dynamic. Our ±10% buffer absorbs life so your vector continues.
             </span>
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                         <RiCloseLine className="size-3" aria-hidden />
                       </span>
                       <span className="text-[10px] font-tech-mono text-muted-foreground">
-                        Streak Apps
+                        Static Streaks
                       </span>
                     </div>
                     <span className="text-[11px] text-muted-foreground leading-snug">
@@ -146,7 +146,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                         <RiCheckLine className="size-3 stroke-[2.5]" aria-hidden />
                       </span>
                       <span className="text-[10px] font-tech-mono font-bold text-foreground">
-                        Buffer Engine
+                        Trajectory Engine
                       </span>
                     </div>
                     <span className="text-[11px] font-semibold text-foreground leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
@@ -198,7 +198,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                         Other Habit Apps
                       </span>
                       <span className="text-[9px] sm:text-[10px] font-tech-mono text-muted-foreground/70">
-                        Rigid Streaks
+                        Static Streaks
                       </span>
                     </div>
                   </TableHead>
@@ -213,7 +213,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                         The Improvement System
                       </span>
                       <span className="text-[9px] sm:text-[10px] font-tech-mono font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-foreground text-background">
-                        Buffer Engine
+                        Trajectory Engine
                       </span>
                     </div>
                   </TableHead>
@@ -274,7 +274,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                       disabled
                       className="w-full text-[11px] sm:text-xs font-display font-medium h-8 sm:h-9 opacity-40 cursor-not-allowed text-muted-foreground border-white/10"
                     >
-                      <span>Fragile Streaks</span>
+                      <span>Static Streaks</span>
                     </Button>
                   </TableCell>
                   <TableCell className="py-4 px-2.5 sm:px-4 text-center align-middle bg-white/[0.06] dark:bg-white/[0.04] border-l border-white/15 dark:border-white/10">

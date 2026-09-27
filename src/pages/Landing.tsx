@@ -321,11 +321,11 @@ const principles = [
   {
     step: '03',
     eyebrow: 'RESILIENT PROGRESS',
-    title: 'The ±10% Buffer Cone',
+    title: 'The ±10% Trajectory Buffer',
     what: 'A mathematical tolerance corridor calibrated over your cumulative 90-day trajectory.',
-    why: 'Real life includes fever days, travel delays, and family emergencies. Progress is an average vector, not a flawless straight line.',
-    prevents: 'Prevents the devastating all-or-nothing guilt spiral where one missed day resets your streak to zero.',
-    rule: 'Guilt-Free Life Absorption',
+    why: 'Streaks are static counters that shatter on an off-day. Trajectory is dynamic velocity that measures cumulative achievement.',
+    prevents: 'Prevents the all-or-nothing guilt spiral. Your streak may reset, but your 90-day trajectory never restarts at zero.',
+    rule: 'Dynamic Trajectory Protection',
     icon: Compass,
   },
 ];
@@ -731,8 +731,8 @@ export default function Landing() {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-4 sm:mb-5 shadow-xs">
           <Sparkles className="size-3.5 text-foreground shrink-0" />
           <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-            <span className="hidden sm:inline">Personal Trajectory Engine • Consistency Without Perfection</span>
-            <span className="sm:hidden">Zero Broken Streaks • 90-Day Trajectory</span>
+            <span className="hidden sm:inline">Personal Trajectory Engine • Dynamic Vector, Not Static Streaks</span>
+            <span className="sm:hidden">Dynamic Trajectory • ±10% Buffer</span>
           </span>
         </div>
 
@@ -749,14 +749,14 @@ export default function Landing() {
         {/* Editorial Subline & Supporting Copy (Clear, Concise, Conversational Cadence) */}
         <div className="max-w-2xl mx-auto mb-6 sm:mb-8 px-2 space-y-2">
           <p className="text-sm sm:text-lg font-medium text-foreground font-display drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)]">
-            One focus a day. A ±10% mathematical buffer that absorbs real life.
+            Streaks are static; trajectory is dynamic. One daily focus cushioned by a ±10% mathematical buffer.
           </p>
           <p className="text-xs sm:text-base text-muted-foreground leading-relaxed">
             <span className="hidden sm:inline">
-              Traditional habit apps punish off-days by resetting your streak to zero. The Improvement System protects your 90-day trajectory with 1 primary focus, 2 supporting routines, and a buffer that absorbs disruptions so your momentum never dies.
+              Streaks are fragile binary counters—miss once and 60 days vanish into zero. The Improvement System prioritizes Trajectory: a wholesome, velocity-based measure of real progress with a ±10% buffer that absorbs life's volatility so your 90-day momentum never dies.
             </span>
             <span className="sm:hidden">
-              Miss one day in typical trackers and you reset to zero. We protect your 90-day momentum with 1 focus, 2 routines, and a ±10% buffer cone.
+              Streaks are static and shatter on day one. We protect your 90-day trajectory with 1 focus, 2 routines, and an elastic ±10% buffer cone.
             </span>
           </p>
         </div>
@@ -1039,6 +1039,8 @@ export default function Landing() {
 
                         {/* 3. ONLY THE CURVED LINE AFTER TODAY MOVES DYNAMICALLY */}
                         <motion.path
+                          d={projectedPath}
+                          initial={{ d: projectedPath }}
                           animate={{ d: projectedPath }}
                           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                           fill="none"
@@ -1068,9 +1070,11 @@ export default function Landing() {
 
                         {/* Dynamic Forward Projected Goal Node at Day 90 */}
                         <motion.circle
+                          cx={endX}
+                          cy={projectedEndY}
+                          initial={{ cy: projectedEndY }}
                           animate={{ cy: projectedEndY }}
                           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                          cx={endX}
                           r="5.5"
                           fill="currentColor"
                         />
@@ -1372,7 +1376,7 @@ export default function Landing() {
             Built for people who are tired of starting over
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-            If any of these sound familiar, you don't lack discipline — your system lacked a buffer.
+            If any of these sound familiar, you don't lack discipline — you were tracking static streaks instead of dynamic trajectory.
           </p>
         </div>
 
@@ -1386,7 +1390,7 @@ export default function Landing() {
                 You start strong, but one busy week resets you
               </h3>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                You build a 12-day streak, get sick on Tuesday, see a big red "0", and psychologically abandon the app for months.
+                You build a 12-day streak, get sick on Tuesday, see a big red "0", and psychologically abandon the app. Streaks are static; trajectory remembers your cumulative work.
               </p>
             </div>
           </div>
@@ -1442,10 +1446,10 @@ export default function Landing() {
             THE MATHEMATICAL DIFFERENCE
           </p>
           <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
-            Why traditional streaks fail (and how our buffer fixes it)
+            Streaks are static. Trajectory is dynamic.
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-            Streaks require 100% robotic perfection. Trajectories are engineered around human reality.
+            Streaks require robotic perfection and shatter at the first miss. Trajectory is a holistic, velocity-based foundation for real human growth.
           </p>
         </div>
 
@@ -1457,11 +1461,11 @@ export default function Landing() {
                 TRADITIONAL HABIT APPS
               </span>
               <span className="text-xs font-tech-mono text-muted-foreground font-semibold">
-                Rigid Streak
+                Static Streak
               </span>
             </div>
             <h3 className="font-display font-bold text-lg text-foreground mb-3">
-              One Missed Day = Complete Reset
+              Binary Counter: One Miss = Complete Reset
             </h3>
 
             {/* Visual Timeline Diagram */}
@@ -1480,7 +1484,7 @@ export default function Landing() {
             </div>
 
             <p className="text-xs text-muted-foreground leading-relaxed">
-              When an unavoidable crisis occurs, binary streak counters reset your progress to zero. The psychological penalty causes frustration, guilt, and abandonment.
+              Streaks are static: they treat Day 2 and Day 89 with the exact same binary fragility. One unavoidable disruption resets your count to zero, erasing psychological momentum and triggering churn.
             </p>
           </div>
 
@@ -1491,11 +1495,11 @@ export default function Landing() {
                 THE IMPROVEMENT SYSTEM
               </span>
               <span className="text-xs font-tech-mono text-foreground font-semibold">
-                ±10% Buffer Cone
+                ±10% Trajectory Buffer
               </span>
             </div>
             <h3 className="font-display font-bold text-lg text-foreground mb-3">
-              Missed Day = Buffer Absorbs Drift
+              Cumulative Vector: ±10% Buffer Absorbs Drift
             </h3>
 
             {/* Visual Timeline Diagram */}
@@ -1514,7 +1518,7 @@ export default function Landing() {
             </div>
 
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Our mathematical buffer safely cushions real-life interruptions. Your 90-day momentum remains unbroken, so you can resume execution without restarting from scratch.
+              Trajectory is dynamic: it maps cumulative velocity across your 90-day horizon. The ±10% mathematical buffer cushions life's interruptions so a single off-day never wipes out weeks of authentic follow-through.
             </p>
           </div>
         </div>
@@ -1680,10 +1684,10 @@ export default function Landing() {
               </div>
               <span className="text-[11px] font-tech-mono font-bold text-muted-foreground">STEP 04</span>
               <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-1 mb-2">
-                Let Buffer Protect You
+                Trajectory Absorbs the Shock
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                When life interrupts, the ±10% buffer absorbs drift. You never restart at Day Zero.
+                When life interrupts, the ±10% trajectory buffer absorbs drift. Streaks reset; your trajectory stays intact.
               </p>
             </div>
           </div>
@@ -1704,13 +1708,13 @@ export default function Landing() {
           </h2>
           <div className="max-w-2xl mx-auto text-xs sm:text-base text-muted-foreground leading-relaxed space-y-3">
             <p className="text-foreground font-semibold text-base sm:text-lg font-display">
-              Because real life isn't a streak.
+              Because human growth isn't a static streak.
             </p>
             <p>
-              Life has sick days, late flights, family emergencies, and unexpected exhaustion. An improvement system that breaks on an imperfect Tuesday isn't a discipline tool — it's a guilt machine.
+              Streaks are static, fragile, and binary. A missed day wipes out 60 days of genuine effort. But human development isn't an unbroken straight line—it's an accumulated vector.
             </p>
             <p>
-              We built The Improvement System with a mathematical buffer so your consistency can survive reality. Progress is about where your trajectory lands in 90 days, not whether every single day was flawless.
+              We built The Improvement System around Trajectory: a dynamic velocity engine protected by a ±10% mathematical buffer. Real consistency is measured by where your trajectory lands in 90 days, not whether every single day was flawless.
             </p>
           </div>
         </div>

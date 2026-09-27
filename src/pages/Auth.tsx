@@ -113,8 +113,8 @@ const Auth = () => {
         />
 
         {/* Monochromatic Diffusions */}
-        <div className="absolute -top-32 -left-24 w-[360px] h-[360px] rounded-full bg-white/[0.02] dark:bg-white/[0.03] blur-[120px]" />
-        <div className="absolute top-1/2 -right-32 w-[340px] h-[340px] rounded-full bg-zinc-800/10 dark:bg-zinc-700/10 blur-[120px]" />
+        <div className="absolute -top-32 -left-24 w-[360px] h-[360px] rounded-full bg-zinc-400/20 dark:bg-white/[0.03] blur-[120px]" />
+        <div className="absolute top-1/2 -right-32 w-[340px] h-[340px] rounded-full bg-zinc-400/15 dark:bg-zinc-700/10 blur-[120px]" />
       </div>
 
       <motion.div
@@ -134,7 +134,7 @@ const Auth = () => {
           </button>
 
           {/* Color Palette / Theme Mode Controls */}
-          <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-card/85 border border-white/10 backdrop-blur-md shadow-xs">
+          <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-card/90 dark:bg-card/85 border border-border dark:border-white/10 backdrop-blur-md shadow-xs">
             <button
               type="button"
               onClick={() => setThemeMode('light')}
@@ -175,16 +175,16 @@ const Auth = () => {
         </div>
 
         {/* Liquid Frosted Glass Authentication Card */}
-        <div className="rounded-2xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_16px_40px_rgba(0,0,0,0.35)] overflow-hidden tis-specular-box">
+        <div className="rounded-2xl border border-border/80 dark:border-white/10 bg-card/95 dark:bg-card/85 backdrop-blur-2xl shadow-xl dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_16px_40px_rgba(0,0,0,0.35)] overflow-hidden tis-specular-box">
           {/* Header */}
-          <div className="px-4 py-3 sm:py-3.5 text-center bg-muted/20 border-b border-white/10 backdrop-blur-md">
+          <div className="px-4 py-3 sm:py-3.5 text-center bg-muted/40 dark:bg-muted/20 border-b border-border/80 dark:border-white/10 backdrop-blur-md">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.1, type: 'spring', stiffness: 280 }}
               className="flex items-center justify-center mb-1.5"
             >
-              <div className="p-1.5 rounded-xl bg-card/90 border border-white/10 shadow-xs backdrop-blur-md">
+              <div className="p-1.5 rounded-xl bg-card border border-border/80 dark:border-white/10 shadow-xs backdrop-blur-md">
                 <SystemLogo size={26} />
               </div>
             </motion.div>
@@ -197,8 +197,8 @@ const Auth = () => {
           {/* Mode tabs — compact toggle */}
           <AnimatePresence>
             {mode !== 'reset' && (
-              <div className="px-3 py-1.5 border-b border-white/10 bg-muted/15">
-                <div className="flex p-0.5 rounded-lg bg-muted/60 border border-border/80">
+              <div className="px-3 py-1.5 border-b border-border/80 dark:border-white/10 bg-muted/30 dark:bg-muted/15">
+                <div className="flex p-0.5 rounded-lg bg-muted/60 dark:bg-muted/40 border border-border/80">
                   {(['signin', 'signup'] as const).map((m) => (
                     <button
                       key={m}
@@ -225,7 +225,7 @@ const Auth = () => {
 
           {/* Reset password notice */}
           {mode === 'reset' && (
-            <div className="px-4 py-2 bg-muted/40 border-b border-white/10 text-center backdrop-blur-md">
+            <div className="px-4 py-2 bg-muted/40 border-b border-border/80 dark:border-white/10 text-center backdrop-blur-md">
               <p className="text-[11px] font-tech-mono text-muted-foreground">Enter your email to receive password reset instructions</p>
             </div>
           )}
@@ -247,7 +247,7 @@ const Auth = () => {
                       id="username" type="text" value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Enter your name"
-                      className="pl-8 bg-muted/30 border-border/80 focus:border-foreground/40 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-lg text-foreground placeholder:text-muted-foreground/50 h-8 sm:h-9 text-xs"
+                      className="pl-8 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-lg text-foreground placeholder:text-muted-foreground/60 h-8 sm:h-9 text-xs shadow-2xs"
                       maxLength={20}
                     />
                   </div>
@@ -263,7 +263,7 @@ const Auth = () => {
                   id="email" type="email" value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="pl-8 bg-muted/30 border-border/80 focus:border-foreground/40 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-lg text-foreground placeholder:text-muted-foreground/50 h-8 sm:h-9 text-xs"
+                  className="pl-8 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-lg text-foreground placeholder:text-muted-foreground/60 h-8 sm:h-9 text-xs shadow-2xs"
                 />
               </div>
             </div>
@@ -277,7 +277,7 @@ const Auth = () => {
                     id="password" type={showPassword ? 'text' : 'password'} value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="pl-8 pr-8 bg-muted/30 border-border/80 focus:border-foreground/40 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-lg text-foreground placeholder:text-muted-foreground/50 h-8 sm:h-9 text-xs"
+                    className="pl-8 pr-8 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-lg text-foreground placeholder:text-muted-foreground/60 h-8 sm:h-9 text-xs shadow-2xs"
                   />
                   <button type="button" onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-0.5"
@@ -323,7 +323,7 @@ const Auth = () => {
               <>
                 <div className="relative my-2 sm:my-2.5">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border/60" />
+                    <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center">
                     <span className="bg-card px-2 text-[9px] font-tech-mono uppercase tracking-wider text-muted-foreground">or continue with</span>
@@ -332,7 +332,7 @@ const Auth = () => {
 
                 <div className="grid grid-cols-2 gap-2">
                   <Button type="button" variant="outline" disabled={googleLoading}
-                    className="rounded-lg border border-white/10 dark:border-white/10 bg-muted/30 hover:bg-muted/60 backdrop-blur-md text-foreground font-tech-mono text-xs h-8 sm:h-9 active:scale-[0.98]"
+                    className="rounded-lg border border-border dark:border-white/10 bg-card hover:bg-muted/60 dark:bg-muted/30 dark:hover:bg-muted/60 backdrop-blur-md text-foreground font-tech-mono text-xs h-8 sm:h-9 active:scale-[0.98] shadow-xs"
                     onClick={async () => {
                       playClick(); setGoogleLoading(true);
                       const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
@@ -350,7 +350,7 @@ const Auth = () => {
                     Google
                   </Button>
                   <Button type="button" variant="outline" disabled={appleLoading}
-                    className="rounded-lg border border-white/10 dark:border-white/10 bg-muted/30 hover:bg-muted/60 backdrop-blur-md text-foreground font-tech-mono text-xs h-8 sm:h-9 active:scale-[0.98]"
+                    className="rounded-lg border border-border dark:border-white/10 bg-card hover:bg-muted/60 dark:bg-muted/30 dark:hover:bg-muted/60 backdrop-blur-md text-foreground font-tech-mono text-xs h-8 sm:h-9 active:scale-[0.98] shadow-xs"
                     onClick={async () => {
                       playClick(); setAppleLoading(true);
                       const { error } = await supabase.auth.signInWithOAuth({ provider: 'apple', options: { redirectTo: window.location.origin } });
