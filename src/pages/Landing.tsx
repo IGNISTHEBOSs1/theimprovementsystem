@@ -32,15 +32,13 @@ import { cn } from '@/lib/utils';
 function MonochromaticMeshBackground() {
   const shouldReduceMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+  const mousePosRef = useRef({ x: 0.5, y: 0.5 });
   const { resolvedMode } = useThemeContext();
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-      });
+      mousePosRef.current.x = e.clientX / window.innerWidth;
+      mousePosRef.current.y = e.clientY / window.innerHeight;
     };
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
@@ -98,12 +96,15 @@ function MonochromaticMeshBackground() {
       ctx.clearRect(0, 0, width, height);
 
       // Render flowing trajectory waves
+      const mx = mousePosRef.current.x;
+      const my = mousePosRef.current.y;
+
       waveLines.forEach((wave) => {
         ctx.beginPath();
         ctx.strokeStyle = wave.color;
         ctx.lineWidth = wave.lineWidth;
         for (let x = 0; x <= width; x += 6) {
-          const mouseDist = Math.hypot(x / width - mousePos.x, wave.yOffset / height - mousePos.y);
+          const mouseDist = Math.hypot(x / width - mx, wave.yOffset / height - my);
           const mouseInfluence = Math.max(0, 1 - mouseDist * 2.2) * 22;
           const y =
             wave.yOffset +
@@ -120,7 +121,7 @@ function MonochromaticMeshBackground() {
       particles.forEach((p) => {
         p.x = (p.x + p.speed) % width;
         const wave = waveLines[p.waveIndex];
-        const mouseDist = Math.hypot(p.x / width - mousePos.x, wave.yOffset / height - mousePos.y);
+        const mouseDist = Math.hypot(p.x / width - mx, wave.yOffset / height - my);
         const mouseInfluence = Math.max(0, 1 - mouseDist * 2.2) * 22;
         const y =
           wave.yOffset +
@@ -164,7 +165,7 @@ function MonochromaticMeshBackground() {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
     };
-  }, [shouldReduceMotion, mousePos.x, mousePos.y, resolvedMode]);
+  }, [shouldReduceMotion, resolvedMode]);
 
   const { scrollYProgress } = useScroll();
   const orb1Y = useTransform(scrollYProgress, [0, 1], [-20, 80]);
@@ -330,11 +331,329 @@ const principles = [
   },
 ];
 
+// ── PIN + TRANSFORM SCROLL STORYTELLING ENGINE (IMAGE 01 & 02 CONCEPTS) ──
+function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const shouldReduceMotion = useReducedMotion();
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start start', 'end end'],
+  });
+
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    return scrollYProgress.on('change', (latest) => {
+      if (latest < 0.28) setActiveStep(0);
+      else if (latest < 0.55) setActiveStep(1);
+      else if (latest < 0.82) setActiveStep(2);
+      else setActiveStep(3);
+    });
+  }, [scrollYProgress]);
+
+  // Scrub bar translation directly linked to scroll progress (IMAGE 01: SCRUB)
+  const scrubHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+
+  const steps = [
+    {
+      num: '01',
+      title: 'Choose Direction',
+      tag: 'DAY 01 // HORIZON',
+      desc: 'Define the single meaningful objective you want to achieve over the next 90 days. We compute your nominal baseline trajectory.',
+      metric: '1.00x Baseline Velocity',
+      badge: 'Target Locked',
+      icon: Target,
+    },
+    {
+      num: '02',
+      title: "Lock Today's Focus",
+      tag: 'DAILY THRUST (+35%)',
+      desc: 'Each morning, select the one decisive needle-mover. Completing it generates +35% thrust, lifting your forward vector above baseline.',
+      metric: '+35% Daily Thrust Added',
+      badge: 'Needle-Mover Active',
+      icon: Zap,
+    },
+    {
+      num: '03',
+      title: 'Anchor 2 Routines',
+      tag: 'CADENCE STABILIZERS',
+      desc: 'Lock in two lightweight companion routines that stabilize your daily cadence. Together, they compound into peak 1.25x velocity.',
+      metric: '1.25x Peak Velocity (+16d Margin)',
+      badge: 'Dual Cadence Anchored',
+      icon: Layers,
+    },
+    {
+      num: '04',
+      title: 'Trajectory Absorbs the Shock',
+      tag: '±10% BUFFER CONE',
+      desc: "When life interrupts, you don't lose 60 days. The ±10% mathematical buffer absorbs the deviation. Streaks reset; your trajectory continues.",
+      metric: '1.08x Resilient Velocity (Protected)',
+      badge: 'Shock Absorbed',
+      icon: ShieldCheck,
+    },
+  ];
+
+  return (
+    <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20">
+      {/* Section Header with Clip Reveal & Fade+Lift (IMAGE 02: REVEAL) */}
+      <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-3 shadow-xs"
+        >
+          <span className="size-1.5 rounded-full bg-foreground" />
+          <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
+            01 // SCROLL STORYTELLING • PIN + TRANSFORM
+          </span>
+        </motion.div>
+
+        <motion.h2
+          initial={shouldReduceMotion ? false : { clipPath: 'inset(0 100% 0 0)', opacity: 0.3 }}
+          whileInView={{ clipPath: 'inset(0 0% 0 0)', opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight"
+        >
+          How The System Works In Practice
+        </motion.h2>
+
+        <motion.p
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+          className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed"
+        >
+          Scroll to watch how a single daily focus and the ±10% buffer transform chaotic intentions into compounding trajectory.
+        </motion.p>
+      </div>
+
+      {/* ── DESKTOP PIN + TRANSFORM EXPERIENCE (IMAGE 01: PIN + TRANSFORM) ── */}
+      <div ref={containerRef} className="hidden md:block relative h-[260vh]">
+        {/* Sticky Viewport Stage: Section stays pinned while content transforms */}
+        <div className="sticky top-28 h-[calc(100vh-140px)] min-h-[580px] max-h-[680px] flex items-center">
+          <div className="w-full grid grid-cols-12 gap-8 items-center">
+            
+            {/* Left Column: The Pinned Living Console (Transforms state with scroll) */}
+            <div className="col-span-7">
+              <div className="relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_20px_50px_rgba(0,0,0,0.4)] p-6 overflow-hidden tis-specular-box">
+                
+                {/* Console HUD Bar */}
+                <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10 text-xs font-tech-mono">
+                  <div className="flex items-center gap-2">
+                    <span className="size-2 rounded-full bg-foreground animate-pulse" />
+                    <span className="font-bold text-foreground">
+                      STAGE {steps[activeStep].num} // {steps[activeStep].tag}
+                    </span>
+                  </div>
+                  <div className="px-2 py-0.5 rounded-full bg-muted border border-border text-[10px] text-foreground font-semibold">
+                    {steps[activeStep].badge}
+                  </div>
+                </div>
+
+                {/* Animated Graphic Display: Transforms based on activeStep */}
+                <div className="relative h-64 w-full rounded-xl bg-background/80 border border-white/10 p-4 flex flex-col justify-between overflow-hidden shadow-inner">
+                  {/* Background grid lines */}
+                  <div
+                    className="absolute inset-0 opacity-[0.08] pointer-events-none"
+                    style={{
+                      backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
+                      backgroundSize: '24px 24px',
+                    }}
+                  />
+
+                  {/* Dynamic SVG Visuals for each Step */}
+                  <svg className="w-full h-44 relative z-10" viewBox="0 0 400 160" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="pinBufferGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.08 : 0.04} />
+                        <stop offset="100%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.22 : 0.12} />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Baseline Grid Guides */}
+                    <line x1="20" y1="130" x2="380" y2="130" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="3 3" />
+                    <line x1="20" y1="40" x2="380" y2="40" stroke="currentColor" strokeOpacity="0.2" strokeDasharray="4 4" />
+
+                    {/* Step 0: Initializing Horizon */}
+                    {activeStep === 0 && (
+                      <g>
+                        <line x1="30" y1="120" x2="370" y2="45" stroke="currentColor" strokeWidth="2.5" strokeDasharray="6 6" strokeOpacity="0.4" />
+                        <circle cx="30" cy="120" r="5" fill="currentColor" />
+                        <circle cx="370" cy="45" r="5" fill="currentColor" fillOpacity="0.5" />
+                        <text x="40" y="125" fill="currentColor" fontSize="10" fontFamily="monospace">DAY 01 (ORIGIN)</text>
+                        <text x="270" y="38" fill="currentColor" fontSize="10" fontFamily="monospace">DAY 90 HORIZON</text>
+                      </g>
+                    )}
+
+                    {/* Step 1: Focus Injection (+35% Thrust) */}
+                    {activeStep === 1 && (
+                      <g>
+                        <path d="M 30,120 Q 180,95 240,65" fill="none" stroke="currentColor" strokeWidth="3.5" />
+                        <circle cx="240" cy="65" r="6" fill="currentColor" />
+                        <line x1="240" y1="65" x2="370" y2="35" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" strokeOpacity="0.5" />
+                        <text x="170" y="55" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="monospace">+35% THRUST INJECTED</text>
+                      </g>
+                    )}
+
+                    {/* Step 2: 2 Routines Anchored (Compounding Ascent) */}
+                    {activeStep === 2 && (
+                      <g>
+                        <path d="M 30,120 C 130,110 200,60 370,22" fill="none" stroke="currentColor" strokeWidth="3.5" />
+                        <circle cx="370" cy="22" r="6" fill="currentColor" />
+                        <text x="230" y="20" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="monospace">1.25x PEAK VELOCITY</text>
+                      </g>
+                    )}
+
+                    {/* Step 3: Buffer Absorbs The Shock */}
+                    {activeStep === 3 && (
+                      <g>
+                        {/* Buffer Cone Polygon */}
+                        <path d="M 180,68 C 240,60 320,30 380,24 L 380,54 C 320,50 240,78 180,82 Z" fill="url(#pinBufferGrad)" />
+                        <path d="M 180,68 C 240,60 320,30 380,24" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" />
+                        <path d="M 180,82 C 240,78 320,50 380,54" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" />
+                        
+                        {/* Trajectory with temporary dip cushioned inside buffer */}
+                        <path d="M 30,120 C 120,110 180,72 230,76 C 280,80 320,40 375,34" fill="none" stroke="currentColor" strokeWidth="3.5" />
+                        
+                        {/* Shock absorption marker */}
+                        <circle cx="230" cy="76" r="4.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                        <text x="200" y="98" fill="currentColor" fontSize="10" fontFamily="monospace">DIP ABSORBED</text>
+                        <text x="250" y="30" fill="currentColor" fontSize="10" fontWeight="bold" fontFamily="monospace">90D TARGET PRESERVED</text>
+                      </g>
+                    )}
+                  </svg>
+
+                  {/* Bottom Console Telemetry Readout */}
+                  <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[11px] font-tech-mono">
+                    <span className="text-muted-foreground">VELOCITY ENGINE:</span>
+                    <span className="text-foreground font-bold">{steps[activeStep].metric}</span>
+                  </div>
+                </div>
+
+                {/* Subtext description below graphic */}
+                <div className="mt-4 p-3 rounded-xl bg-muted/40 border border-white/5 flex items-center justify-between text-xs font-tech-mono">
+                  <span className="text-muted-foreground">
+                    {activeStep === 3
+                      ? 'Streak Apps: Reset to 0 ❌  |  TIS: Trajectory Absorbs Drift ✓'
+                      : 'Deterministic Trajectory • 1 Primary Focus + 2 Routines'}
+                  </span>
+                  <span className="text-foreground font-semibold">
+                    STEP {activeStep + 1} OF 4
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: The 4 Steps Storytelling Stream with Scrub Track (IMAGE 01: SCRUB) */}
+            <div className="col-span-5 relative pl-6">
+              {/* Vertical Scrub Track */}
+              <div className="absolute left-0 top-3 bottom-3 w-0.5 bg-muted rounded-full overflow-hidden">
+                <motion.div
+                  style={{ height: scrubHeight }}
+                  className="w-full bg-foreground origin-top"
+                />
+              </div>
+
+              {/* Step Cards */}
+              <div className="space-y-4">
+                {steps.map((s, idx) => {
+                  const isActive = activeStep === idx;
+                  const Icon = s.icon;
+
+                  return (
+                    <div
+                      key={s.num}
+                      className={cn(
+                        "relative p-4 rounded-xl border transition-all duration-300",
+                        isActive
+                          ? "bg-card/90 border-white/30 shadow-xl scale-[1.02] opacity-100"
+                          : "bg-card/30 border-white/5 opacity-40 scale-95"
+                      )}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <div className={cn(
+                            "size-6 rounded-md flex items-center justify-center text-xs font-tech-mono font-bold transition-colors",
+                            isActive ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
+                          )}>
+                            {s.num}
+                          </div>
+                          <h3 className={cn(
+                            "font-display font-bold text-sm transition-colors",
+                            isActive ? "text-foreground" : "text-muted-foreground"
+                          )}>
+                            {s.title}
+                          </h3>
+                        </div>
+                        <Icon className={cn("size-4 transition-colors", isActive ? "text-foreground" : "text-muted-foreground")} />
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                        {s.desc}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {/* ── MOBILE RESPONSIVE CARDS (FADE + LIFT & STAGGER - IMAGE 02) ── */}
+      <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {steps.map((s, index) => {
+          const Icon = s.icon;
+          return (
+            <motion.div
+              key={s.num}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-30px' }}
+              transition={{ duration: 0.55, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="p-4 sm:p-5 rounded-xl border border-white/10 bg-card/75 backdrop-blur-md tis-specular-box flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-tech-mono font-bold px-2 py-0.5 rounded bg-muted text-foreground">
+                    STEP {s.num}
+                  </span>
+                  <Icon className="size-5 text-foreground" />
+                </div>
+                <h3 className="font-display font-bold text-base text-foreground mb-1.5">
+                  {s.title}
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                  {s.desc}
+                </p>
+              </div>
+              <div className="pt-2.5 border-t border-border/50 text-[10px] font-tech-mono text-foreground font-semibold flex items-center justify-between">
+                <span>{s.metric}</span>
+                <span className="text-muted-foreground">{s.badge}</span>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default function Landing() {
   const navigate = useNavigate();
   const { resolvedMode } = useThemeContext();
   const isDark = resolvedMode === 'dark';
+  const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
+
+  // Differential Parallax Layers (IMAGE 01: PARALLAX - Layers move at different speeds)
+  const heroParallaxFast = useTransform(scrollYProgress, [0, 0.25], [0, -50]);
+  const heroParallaxSlow = useTransform(scrollYProgress, [0, 0.25], [0, 35]);
 
   // Task Completion State for Live Trajectory Engine
   const [focusDone, setFocusDone] = useState<boolean>(true);
@@ -373,12 +692,34 @@ export default function Landing() {
   }, []);
 
   // Responsive desktop detection for Three Steps hover expansion
-  const [isDesktop, setIsDesktop] = useState<boolean>(false);
+  const [isDesktop, setIsDesktop] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 768 : false
+  );
   useEffect(() => {
     const updateSize = () => setIsDesktop(window.innerWidth >= 768);
-    updateSize();
     window.addEventListener('resize', updateSize);
     return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
+  // Viewport intersection observer: only run walkthrough when console is visible
+  const [isConsoleVisible, setIsConsoleVisible] = useState<boolean>(false);
+  useEffect(() => {
+    const el = document.getElementById('sneak-peek-frame');
+    if (!el) return;
+    if (!('IntersectionObserver' in window)) {
+      setIsConsoleVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsConsoleVisible(entry.isIntersecting);
+        });
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   // Passive user activity listener on console container
@@ -448,7 +789,7 @@ export default function Landing() {
 
   // ── SNEAK PEEK AUTO-PLAYING SIMULATED MOUSE ENGINE ──
   useEffect(() => {
-    if (!isPlayingWalkthrough) return;
+    if (!isPlayingWalkthrough || !isConsoleVisible) return;
 
     let cancelled = false;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -618,7 +959,7 @@ export default function Landing() {
       if (timeoutId) clearTimeout(timeoutId);
       if (tickerId) clearInterval(tickerId);
     };
-  }, [isPlayingWalkthrough]);
+  }, [isPlayingWalkthrough, isConsoleVisible]);
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden text-foreground selection:bg-foreground/20 selection:text-foreground">
@@ -727,27 +1068,61 @@ export default function Landing() {
 
       {/* ── HERO SECTION: HUMAN OUTCOME FIRST, THEN SYSTEM MECHANISM ── */}
       <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-32 pb-8 sm:pb-16 text-center">
-        {/* Eyebrow */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-4 sm:mb-5 shadow-xs">
+        {/* Differential Parallax Floating Telemetry Chips (IMAGE 01: PARALLAX - Layers move at different speeds) */}
+        <motion.div
+          style={{ y: heroParallaxSlow }}
+          className="hidden xl:flex absolute top-36 left-4 lg:left-8 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-xl text-[11px] font-tech-mono text-muted-foreground shadow-lg tis-specular-box pointer-events-none select-none z-20"
+        >
+          <span className="size-2 rounded-full bg-foreground animate-pulse" />
+          <span className="text-foreground font-semibold">Velocity: 1.25x</span>
+          <span className="text-muted-foreground">• +16d Margin</span>
+        </motion.div>
+
+        <motion.div
+          style={{ y: heroParallaxFast }}
+          className="hidden xl:flex absolute top-52 right-4 lg:right-8 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-xl text-[11px] font-tech-mono text-muted-foreground shadow-lg tis-specular-box pointer-events-none select-none z-20"
+        >
+          <ShieldCheck className="size-3.5 text-foreground" />
+          <span className="text-foreground font-semibold">±10% Safety Buffer</span>
+          <span className="text-muted-foreground">• Drift Absorbed</span>
+        </motion.div>
+
+        {/* Eyebrow with Fade + Lift (IMAGE 02: FADE + LIFT) */}
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-4 sm:mb-5 shadow-xs"
+        >
           <Sparkles className="size-3.5 text-foreground shrink-0" />
           <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
             <span className="hidden sm:inline">Personal Trajectory Engine • Dynamic Vector, Not Static Streaks</span>
             <span className="sm:hidden">Dynamic Trajectory • ±10% Buffer</span>
           </span>
-        </div>
+        </motion.div>
 
-        {/* Main Headline: Outcome-First with Monochromatic Gradient Contrast */}
-        <h1 className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12] mb-3 sm:mb-5 max-w-4xl mx-auto px-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
+        {/* Main Headline: Outcome-First with Monochromatic Gradient & Clip Reveal (IMAGE 02: CLIP REVEAL - Content gets uncovered) */}
+        <motion.h1
+          initial={shouldReduceMotion ? false : { clipPath: 'inset(0 100% 0 0)', opacity: 0.2 }}
+          animate={{ clipPath: 'inset(0 0% 0 0)', opacity: 1 }}
+          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
+          className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12] mb-3 sm:mb-5 max-w-4xl mx-auto px-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
+        >
           <span className="bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-950 dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-400 bg-clip-text text-transparent block sm:inline">
             You don't need to be perfect
           </span>{' '}
           <span className="bg-gradient-to-b from-black via-zinc-950 to-black dark:from-white dark:via-zinc-50 dark:to-zinc-200 bg-clip-text text-transparent font-black block sm:inline">
             to keep improving.
           </span>
-        </h1>
+        </motion.h1>
 
-        {/* Editorial Subline & Supporting Copy (Clear, Concise, Conversational Cadence) */}
-        <div className="max-w-2xl mx-auto mb-6 sm:mb-8 px-2 space-y-2">
+        {/* Editorial Subline & Supporting Copy with Fade + Lift (IMAGE 02: FADE + LIFT) */}
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: 0.22 }}
+          className="max-w-2xl mx-auto mb-6 sm:mb-8 px-2 space-y-2"
+        >
           <p className="text-sm sm:text-lg font-medium text-foreground font-display drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)]">
             Streaks are static; trajectory is dynamic. One daily focus cushioned by a ±10% mathematical buffer.
           </p>
@@ -759,10 +1134,15 @@ export default function Landing() {
               Streaks are static and shatter on day one. We protect your 90-day trajectory with 1 focus, 2 routines, and an elastic ±10% buffer cone.
             </span>
           </p>
-        </div>
+        </motion.div>
 
-        {/* Primary CTA Row & Prominent Free Forever Trust Signals */}
-        <div className="flex flex-col items-center justify-center gap-3 mb-8 sm:mb-12 px-3 max-w-md sm:max-w-none mx-auto">
+        {/* Primary CTA Row & Prominent Free Forever Trust Signals with Fade + Lift */}
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.32 }}
+          className="flex flex-col items-center justify-center gap-3 mb-8 sm:mb-12 px-3 max-w-md sm:max-w-none mx-auto"
+        >
           <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-3.5 w-full sm:w-auto">
             <Magnetic strength={0.25}>
               <Button
@@ -792,8 +1172,13 @@ export default function Landing() {
             </Button>
           </div>
 
-          {/* Prominent Trust Signal (Natural & Unobtrusive) */}
-          <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] font-tech-mono text-muted-foreground/90 mt-1">
+          {/* Prominent Trust Signal with Staggered entrance */}
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="flex flex-wrap items-center justify-center gap-3 text-[11px] font-tech-mono text-muted-foreground/90 mt-1"
+          >
             <span className="flex items-center gap-1.5 font-medium text-foreground">
               <Check className="size-3.5 text-foreground" />
               Free Forever
@@ -805,8 +1190,8 @@ export default function Landing() {
             </span>
             <span>•</span>
             <span className="hidden sm:inline">No Credit Card Required</span>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* ── PRODUCT SNEAK PEEK CONSOLE (LIVE INTERACTIVE TRAJECTORY) ── */}
@@ -1527,18 +1912,41 @@ export default function Landing() {
       {/* ── SECTION: THE THREE PILLARS (BENEFIT-ORIENTED, REDUCED BACKLOG FATIGUE) ── */}
       <section id="pillars-section" className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-          <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
-            THE THREE PILLARS
-          </p>
-          <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-3 shadow-xs"
+          >
+            <span className="size-1.5 rounded-full bg-foreground" />
+            <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
+              02 // REVEAL HIERARCHY • THE THREE PILLARS
+            </span>
+          </motion.div>
+
+          <motion.h2
+            initial={shouldReduceMotion ? false : { clipPath: 'inset(0 100% 0 0)', opacity: 0.2 }}
+            whileInView={{ clipPath: 'inset(0 0% 0 0)', opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight"
+          >
             The Three Steps to Quiet Follow-Through
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+          </motion.h2>
+
+          <motion.p
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+            className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed"
+          >
             Eliminate decision fatigue and sustain lifelong momentum with three architectural rules.
-          </p>
+          </motion.p>
         </div>
 
-        {/* The Three Steps: Smart Hover Expansion on Desktop, Clean Cards on Mobile */}
+        {/* The Three Steps: Fade + Lift & Staggered Entrance on Desktop & Mobile (IMAGE 02: ENTRANCE -> HIERARCHY) */}
         <div className="flex flex-col md:flex-row gap-4 sm:gap-5 items-stretch justify-center">
           {principles.map((p, index) => {
             const isHovered = isDesktop && hoveredStep === index;
@@ -1547,8 +1955,10 @@ export default function Landing() {
             return (
               <motion.div
                 key={p.step}
-                layout
-                transition={{ layout: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }, opacity: { duration: 0.25 } }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-40px' }}
+                transition={{ duration: 0.55, delay: index * 0.12, ease: [0.16, 1, 0.3, 1] }}
                 onMouseEnter={() => isDesktop && setHoveredStep(index)}
                 onMouseLeave={() => isDesktop && setHoveredStep(null)}
                 className={cn(
@@ -1601,105 +2011,21 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── SECTION: HOW IT WORKS (UNDER-10-SECOND COMPREHENSION) ── */}
-      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16">
-        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-          <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
-            DAILY ARCHITECTURE
-          </p>
-          <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
-            How The System Works In Practice
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-            Four simple steps that turn chaotic intentions into compounding mathematical velocity.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div
-            data-cuelume-hover="tick"
-            className="group p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between overflow-hidden cursor-default transition-colors hover:border-white/20"
-          >
-            <div>
-              {/* Image Zoom Concept (Image 03: The image moves, not the layout) */}
-              <div className="overflow-hidden rounded-lg mb-3 bg-muted/40 p-2.5 flex items-center justify-center border border-white/5">
-                <Target className="size-6 text-foreground transition-transform duration-500 ease-out group-hover:scale-125" />
-              </div>
-              <span className="text-[11px] font-tech-mono font-bold text-muted-foreground">STEP 01</span>
-              <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-1 mb-2">
-                Choose Direction
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Define the single meaningful objective you want to achieve over the next 90 days.
-              </p>
-            </div>
-          </div>
-
-          <div
-            data-cuelume-hover="tick"
-            className="group p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between overflow-hidden cursor-default transition-colors hover:border-white/20"
-          >
-            <div>
-              {/* Image Zoom Concept (Image 03: The image moves, not the layout) */}
-              <div className="overflow-hidden rounded-lg mb-3 bg-muted/40 p-2.5 flex items-center justify-center border border-white/5">
-                <Zap className="size-6 text-foreground transition-transform duration-500 ease-out group-hover:scale-125" />
-              </div>
-              <span className="text-[11px] font-tech-mono font-bold text-muted-foreground">STEP 02</span>
-              <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-1 mb-2">
-                Lock Today's Focus
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Each morning, select the one decisive needle-mover that generates +35% thrust.
-              </p>
-            </div>
-          </div>
-
-          <div
-            data-cuelume-hover="tick"
-            className="group p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between overflow-hidden cursor-default transition-colors hover:border-white/20"
-          >
-            <div>
-              {/* Image Zoom Concept (Image 03: The image moves, not the layout) */}
-              <div className="overflow-hidden rounded-lg mb-3 bg-muted/40 p-2.5 flex items-center justify-center border border-white/5">
-                <Layers className="size-6 text-foreground transition-transform duration-500 ease-out group-hover:scale-125" />
-              </div>
-              <span className="text-[11px] font-tech-mono font-bold text-muted-foreground">STEP 03</span>
-              <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-1 mb-2">
-                Anchor 2 Routines
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Complete two small companion habits that stabilize your energy and routine baseline.
-              </p>
-            </div>
-          </div>
-
-          <div
-            data-cuelume-hover="tick"
-            className="group p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between overflow-hidden cursor-default transition-colors hover:border-white/20"
-          >
-            <div>
-              {/* Image Zoom Concept (Image 03: The image moves, not the layout) */}
-              <div className="overflow-hidden rounded-lg mb-3 bg-muted/40 p-2.5 flex items-center justify-center border border-white/5">
-                <ShieldCheck className="size-6 text-foreground transition-transform duration-500 ease-out group-hover:scale-125" />
-              </div>
-              <span className="text-[11px] font-tech-mono font-bold text-muted-foreground">STEP 04</span>
-              <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-1 mb-2">
-                Trajectory Absorbs the Shock
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                When life interrupts, the ±10% trajectory buffer absorbs drift. Streaks reset; your trajectory stays intact.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ── SECTION: HOW IT WORKS (PIN + TRANSFORM SCROLL STORYTELLING ENGINE) ── */}
+      <PinAndTransformWorkflow isDark={isDark} />
 
       {/* ── SIDE-BY-SIDE ARCHITECTURAL COMPARISON (REDUCED BASIS, OPTIMAL ON MOBILE & PC) ── */}
       <ComparisonTable onSelectPlan={() => navigate('/auth')} />
 
       {/* ── DIRECT OBJECTION HANDLING: "WHY NOT JUST USE A NORMAL HABIT TRACKER?" ── */}
       <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 text-center">
-        <div className="p-6 sm:p-10 rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-2xl shadow-xl tis-specular-box">
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+          className="p-6 sm:p-10 rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-2xl shadow-xl tis-specular-box"
+        >
           <span className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase">
             THE CORE QUESTION
           </span>
@@ -1717,12 +2043,16 @@ export default function Landing() {
               We built The Improvement System around Trajectory: a dynamic velocity engine protected by a ±10% mathematical buffer. Real consistency is measured by where your trajectory lands in 90 days, not whether every single day was flawless.
             </p>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* ── FINAL CALL TO ACTION (LIQUID GLASS DOCK & FREE FOREVER TRUST SIGNALS) ── */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24 text-center">
-        <div
+        <motion.div
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-40px' }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
           className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-white/15 dark:border-white/10 bg-card/80 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden tis-specular-box"
         >
           <div className="relative z-10 max-w-2xl mx-auto">
@@ -1774,7 +2104,7 @@ export default function Landing() {
               </span>
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* ── MINIMALIST FOOTER ── */}
