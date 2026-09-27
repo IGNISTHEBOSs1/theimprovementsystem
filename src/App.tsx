@@ -29,14 +29,15 @@ const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
-// A small, centered spinner — reuses the exact same visual language as
-// ProtectedRoute's own auth-loading state below, rather than inventing a
-// second loading style. Used for standalone routes (Auth/NotFound) that
-// have no persistent shell to keep visible around them.
+import { AtomDemo } from "@/components/ui/loading-screen";
+
+// Atom-based loading indicator — sleek, responsive, and aligned with TIS precision aesthetic
 function CenteredSpinner() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3 text-foreground select-none">
+      <div className="p-4 rounded-2xl bg-card/60 border border-white/10 backdrop-blur-xl shadow-2xl tis-specular-box flex items-center justify-center">
+        <AtomDemo />
+      </div>
     </div>
   );
 }
@@ -68,8 +69,8 @@ const ProtectedLayout = () => (
     <AppLayout>
       <RouteErrorBoundary>
         <Suspense fallback={
-          <div className="flex min-h-[50vh] items-center justify-center">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <div className="flex min-h-[50vh] items-center justify-center text-foreground p-6">
+            <AtomDemo />
           </div>
         }>
           <Outlet />

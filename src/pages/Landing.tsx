@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
+import { motion, useReducedMotion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import {
   Target,
   ArrowRight,
@@ -23,6 +23,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { SystemLogo } from '@/components/branding/Logo';
 import ComparisonTable from '@/components/ui/comparison-table';
+import { Magnetic } from '@/components/ui/magnetic';
 import { useThemeContext } from '@/providers/ThemeProvider';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { cn } from '@/lib/utils';
@@ -165,6 +166,11 @@ function MonochromaticMeshBackground() {
     };
   }, [shouldReduceMotion, mousePos.x, mousePos.y, resolvedMode]);
 
+  const { scrollYProgress } = useScroll();
+  const orb1Y = useTransform(scrollYProgress, [0, 1], [-20, 80]);
+  const orb2Y = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const orb3Y = useTransform(scrollYProgress, [0, 1], [0, 60]);
+
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
       {/* Precision Trajectory Coordinate Grid */}
@@ -183,10 +189,10 @@ function MonochromaticMeshBackground() {
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-100" />
       )}
 
-      {/* Ambient Volumetric Diffusions */}
-      <div className="absolute -top-32 -left-24 w-[540px] h-[540px] rounded-full bg-zinc-400/[0.18] dark:bg-white/[0.06] blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/2 -right-32 w-[500px] h-[500px] rounded-full bg-zinc-500/[0.14] dark:bg-zinc-700/20 blur-[150px] pointer-events-none" />
-      <div className="absolute -bottom-32 left-1/3 w-[480px] h-[480px] rounded-full bg-zinc-400/[0.16] dark:bg-white/[0.05] blur-[140px] pointer-events-none" />
+      {/* Ambient Volumetric Diffusions (Image 01: Parallax layers at different speeds) */}
+      <motion.div style={{ y: orb1Y }} className="absolute -top-32 -left-24 w-[540px] h-[540px] rounded-full bg-zinc-400/[0.18] dark:bg-white/[0.06] blur-[140px] pointer-events-none" />
+      <motion.div style={{ y: orb2Y }} className="absolute top-1/2 -right-32 w-[500px] h-[500px] rounded-full bg-zinc-500/[0.14] dark:bg-zinc-700/20 blur-[150px] pointer-events-none" />
+      <motion.div style={{ y: orb3Y }} className="absolute -bottom-32 left-1/3 w-[480px] h-[480px] rounded-full bg-zinc-400/[0.16] dark:bg-white/[0.05] blur-[140px] pointer-events-none" />
     </div>
   );
 }
@@ -328,6 +334,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const { resolvedMode } = useThemeContext();
   const isDark = resolvedMode === 'dark';
+  const { scrollYProgress } = useScroll();
 
   // Task Completion State for Live Trajectory Engine
   const [focusDone, setFocusDone] = useState<boolean>(true);
@@ -615,6 +622,12 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden text-foreground selection:bg-foreground/20 selection:text-foreground">
+      {/* ── IMAGE 01: SCROLL SCRUB PROGRESS BAR (MOTION FOLLOWS SCROLL PROGRESS) ── */}
+      <motion.div
+        style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}
+        className="fixed top-0 inset-x-0 h-[2.5px] bg-foreground z-[70] pointer-events-none opacity-90 shadow-[0_0_10px_rgba(255,255,255,0.6)] dark:shadow-[0_0_10px_rgba(255,255,255,0.35)]"
+      />
+
       {/* ── HIGH-CONTRAST MONOCHROMATIC KINETIC MESH BACKGROUND ── */}
       <MonochromaticMeshBackground />
 
@@ -694,15 +707,20 @@ export default function Landing() {
             {/* Unique Tactile Dark/Light Mode Slider */}
             <TactileThemeToggle />
 
-            {/* Tactile Log In Button with Specular Edge */}
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => navigate('/auth')}
-              className="text-xs px-3.5 sm:px-4 h-8 sm:h-9 font-display font-semibold shadow-xs active:scale-[0.98] rounded-full"
-            >
-              <span>Log In</span>
-            </Button>
+            {/* Tactile Log In Button with Specular Edge & Magnetic Hover */}
+            <Magnetic strength={0.18}>
+              <Button
+                variant="default"
+                size="sm"
+                data-cuelume-press="press"
+                data-cuelume-release="release"
+                data-cuelume-hover="tick"
+                onClick={() => navigate('/auth')}
+                className="text-xs px-3.5 sm:px-4 h-8 sm:h-9 font-display font-semibold shadow-xs active:scale-[0.96] rounded-full transition-transform"
+              >
+                <span>Log In</span>
+              </Button>
+            </Magnetic>
           </div>
         </div>
       </header>
@@ -710,41 +728,26 @@ export default function Landing() {
       {/* ── HERO SECTION: HUMAN OUTCOME FIRST, THEN SYSTEM MECHANISM ── */}
       <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-32 pb-8 sm:pb-16 text-center">
         {/* Eyebrow */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-4 sm:mb-5 shadow-xs"
-        >
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-4 sm:mb-5 shadow-xs">
           <Sparkles className="size-3.5 text-foreground shrink-0" />
           <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
             <span className="hidden sm:inline">Personal Trajectory Engine • Consistency Without Perfection</span>
             <span className="sm:hidden">Zero Broken Streaks • 90-Day Trajectory</span>
           </span>
-        </motion.div>
+        </div>
 
         {/* Main Headline: Outcome-First with Monochromatic Gradient Contrast */}
-        <motion.h1
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.05 }}
-          className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12] mb-3 sm:mb-5 max-w-4xl mx-auto px-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
-        >
+        <h1 className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12] mb-3 sm:mb-5 max-w-4xl mx-auto px-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
           <span className="bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-950 dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-400 bg-clip-text text-transparent block sm:inline">
             You don't need to be perfect
           </span>{' '}
           <span className="bg-gradient-to-b from-black via-zinc-950 to-black dark:from-white dark:via-zinc-50 dark:to-zinc-200 bg-clip-text text-transparent font-black block sm:inline">
             to keep improving.
           </span>
-        </motion.h1>
+        </h1>
 
         {/* Editorial Subline & Supporting Copy (Clear, Concise, Conversational Cadence) */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.1 }}
-          className="max-w-2xl mx-auto mb-6 sm:mb-8 px-2 space-y-2"
-        >
+        <div className="max-w-2xl mx-auto mb-6 sm:mb-8 px-2 space-y-2">
           <p className="text-sm sm:text-lg font-medium text-foreground font-display drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)]">
             One focus a day. A ±10% mathematical buffer that absorbs real life.
           </p>
@@ -756,31 +759,34 @@ export default function Landing() {
               Miss one day in typical trackers and you reset to zero. We protect your 90-day momentum with 1 focus, 2 routines, and a ±10% buffer cone.
             </span>
           </p>
-        </motion.div>
+        </div>
 
         {/* Primary CTA Row & Prominent Free Forever Trust Signals */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.15 }}
-          className="flex flex-col items-center justify-center gap-3 mb-8 sm:mb-12 px-3 max-w-md sm:max-w-none mx-auto"
-        >
+        <div className="flex flex-col items-center justify-center gap-3 mb-8 sm:mb-12 px-3 max-w-md sm:max-w-none mx-auto">
           <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-3.5 w-full sm:w-auto">
-            <Button
-              variant="default"
-              onClick={() => navigate('/auth')}
-              className="w-full sm:w-auto h-11 sm:h-12 px-7 sm:px-9 font-display text-xs sm:text-sm font-semibold shadow-lg active:scale-[0.98] rounded-xl"
-            >
-              <span>Start My 90-Day Trajectory</span>
-              <ArrowRight className="size-4 ml-2" />
-            </Button>
+            <Magnetic strength={0.25}>
+              <Button
+                variant="default"
+                data-cuelume-press="press"
+                data-cuelume-release="release"
+                data-cuelume-hover="tick"
+                onClick={() => navigate('/auth')}
+                className="w-full sm:w-auto h-11 sm:h-12 px-7 sm:px-9 font-display text-xs sm:text-sm font-semibold shadow-lg active:scale-[0.96] rounded-xl group transition-transform"
+              >
+                <span>Start My 90-Day Trajectory</span>
+                <ArrowRight className="size-4 ml-2 transition-transform duration-200 group-hover:translate-x-1.5" />
+              </Button>
+            </Magnetic>
             <Button
               variant="outline"
+              data-cuelume-press="press"
+              data-cuelume-release="release"
+              data-cuelume-hover="tick"
               onClick={() => {
                 const el = document.getElementById('sneak-peek-frame');
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="w-full sm:w-auto h-11 sm:h-12 px-5 sm:px-6 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground border-border/80 bg-card/60 backdrop-blur-md active:scale-[0.98] rounded-xl"
+              className="w-full sm:w-auto h-11 sm:h-12 px-5 sm:px-6 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground border-border/80 bg-card/60 backdrop-blur-md active:scale-[0.96] rounded-xl transition-transform"
             >
               <span>Watch Live Preview</span>
             </Button>
@@ -800,14 +806,13 @@ export default function Landing() {
             <span>•</span>
             <span className="hidden sm:inline">No Credit Card Required</span>
           </div>
-        </motion.div>
+        </div>
+      </section>
 
-        {/* ── PRODUCT SNEAK PEEK CONSOLE (LIVE INTERACTIVE TRAJECTORY) ── */}
-        <motion.div
+      {/* ── PRODUCT SNEAK PEEK CONSOLE (LIVE INTERACTIVE TRAJECTORY) ── */}
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-4 sm:py-8">
+        <div
           id="sneak-peek-frame"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
           className="relative max-w-5xl mx-auto text-left"
         >
           {/* Hardware Frame with Liquid Frosted Glass and Monochromatic Specular Rim */}
@@ -1120,6 +1125,8 @@ export default function Landing() {
                       <button
                         ref={resetBtnRef}
                         type="button"
+                        data-cuelume-press="toggle"
+                        data-cuelume-hover="tick"
                         onClick={() => {
                           handleUserActivity();
                           setFocusDone(false);
@@ -1136,10 +1143,13 @@ export default function Landing() {
                       </button>
                     </div>
 
-                    {/* Primary Focus Card */}
+                    {/* Primary Focus Card (Image 04: Press + Spring feedback) */}
                     <div
                       role="button"
                       tabIndex={0}
+                      data-cuelume-press="press"
+                      data-cuelume-release="release"
+                      data-cuelume-hover="tick"
                       onClick={() => {
                         handleUserActivity();
                         setFocusDone(!focusDone);
@@ -1151,8 +1161,8 @@ export default function Landing() {
                           setFocusDone(!focusDone);
                         }
                       }}
-                      className={`mt-2.5 sm:mt-3 p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.98] ${
-                        activePressedTarget === 'focus' ? 'scale-[0.98] ring-1 ring-foreground/30 shadow-sm' : ''
+                      className={`mt-2.5 sm:mt-3 p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] ${
+                        activePressedTarget === 'focus' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
                       } ${
                         focusDone
                           ? 'border-foreground/40 bg-muted/60 shadow-xs'
@@ -1195,6 +1205,9 @@ export default function Landing() {
                       <div
                         role="button"
                         tabIndex={0}
+                        data-cuelume-press="press"
+                        data-cuelume-release="release"
+                        data-cuelume-hover="tick"
                         onClick={() => {
                           handleUserActivity();
                           setRoutine1Done(!routine1Done);
@@ -1206,8 +1219,8 @@ export default function Landing() {
                             setRoutine1Done(!routine1Done);
                           }
                         }}
-                        className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.99] flex items-center justify-between ${
-                          activePressedTarget === 'routine1' ? 'scale-[0.98] ring-1 ring-foreground/30 shadow-sm' : ''
+                        className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] flex items-center justify-between ${
+                          activePressedTarget === 'routine1' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
                         } ${
                           routine1Done
                             ? 'border-border/80 bg-muted/40'
@@ -1242,6 +1255,9 @@ export default function Landing() {
                       <div
                         role="button"
                         tabIndex={0}
+                        data-cuelume-press="press"
+                        data-cuelume-release="release"
+                        data-cuelume-hover="tick"
                         onClick={() => {
                           handleUserActivity();
                           setRoutine2Done(!routine2Done);
@@ -1253,8 +1269,8 @@ export default function Landing() {
                             setRoutine2Done(!routine2Done);
                           }
                         }}
-                        className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.99] flex items-center justify-between ${
-                          activePressedTarget === 'routine2' ? 'scale-[0.98] ring-1 ring-foreground/30 shadow-sm' : ''
+                        className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] flex items-center justify-between ${
+                          activePressedTarget === 'routine2' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
                         } ${
                           routine2Done
                             ? 'border-border/80 bg-muted/40'
@@ -1343,7 +1359,7 @@ export default function Landing() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* ── SECTION: THIS IS FOR YOU IF... (PEOPLE & EMPATHY RECOGNITION) ── */}
@@ -1596,8 +1612,15 @@ export default function Landing() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between">
+          <div
+            data-cuelume-hover="tick"
+            className="group p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between overflow-hidden cursor-default transition-colors hover:border-white/20"
+          >
             <div>
+              {/* Image Zoom Concept (Image 03: The image moves, not the layout) */}
+              <div className="overflow-hidden rounded-lg mb-3 bg-muted/40 p-2.5 flex items-center justify-center border border-white/5">
+                <Target className="size-6 text-foreground transition-transform duration-500 ease-out group-hover:scale-125" />
+              </div>
               <span className="text-[11px] font-tech-mono font-bold text-muted-foreground">STEP 01</span>
               <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-1 mb-2">
                 Choose Direction
@@ -1608,8 +1631,15 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between">
+          <div
+            data-cuelume-hover="tick"
+            className="group p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between overflow-hidden cursor-default transition-colors hover:border-white/20"
+          >
             <div>
+              {/* Image Zoom Concept (Image 03: The image moves, not the layout) */}
+              <div className="overflow-hidden rounded-lg mb-3 bg-muted/40 p-2.5 flex items-center justify-center border border-white/5">
+                <Zap className="size-6 text-foreground transition-transform duration-500 ease-out group-hover:scale-125" />
+              </div>
               <span className="text-[11px] font-tech-mono font-bold text-muted-foreground">STEP 02</span>
               <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-1 mb-2">
                 Lock Today's Focus
@@ -1620,8 +1650,15 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between">
+          <div
+            data-cuelume-hover="tick"
+            className="group p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between overflow-hidden cursor-default transition-colors hover:border-white/20"
+          >
             <div>
+              {/* Image Zoom Concept (Image 03: The image moves, not the layout) */}
+              <div className="overflow-hidden rounded-lg mb-3 bg-muted/40 p-2.5 flex items-center justify-center border border-white/5">
+                <Layers className="size-6 text-foreground transition-transform duration-500 ease-out group-hover:scale-125" />
+              </div>
               <span className="text-[11px] font-tech-mono font-bold text-muted-foreground">STEP 03</span>
               <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-1 mb-2">
                 Anchor 2 Routines
@@ -1632,8 +1669,15 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between">
+          <div
+            data-cuelume-hover="tick"
+            className="group p-4 sm:p-5 rounded-xl border border-white/10 bg-card/60 backdrop-blur-md tis-specular-box flex flex-col justify-between overflow-hidden cursor-default transition-colors hover:border-white/20"
+          >
             <div>
+              {/* Image Zoom Concept (Image 03: The image moves, not the layout) */}
+              <div className="overflow-hidden rounded-lg mb-3 bg-muted/40 p-2.5 flex items-center justify-center border border-white/5">
+                <ShieldCheck className="size-6 text-foreground transition-transform duration-500 ease-out group-hover:scale-125" />
+              </div>
               <span className="text-[11px] font-tech-mono font-bold text-muted-foreground">STEP 04</span>
               <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-1 mb-2">
                 Let Buffer Protect You
@@ -1674,11 +1718,7 @@ export default function Landing() {
 
       {/* ── FINAL CALL TO ACTION (LIQUID GLASS DOCK & FREE FOREVER TRUST SIGNALS) ── */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24 text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
+        <div
           className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-white/15 dark:border-white/10 bg-card/80 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden tis-specular-box"
         >
           <div className="relative z-10 max-w-2xl mx-auto">
@@ -1698,14 +1738,19 @@ export default function Landing() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button
-                variant="default"
-                onClick={() => navigate('/auth')}
-                className="w-full sm:w-auto h-11 sm:h-12 px-8 font-display text-xs sm:text-sm font-semibold shadow-lg active:scale-[0.98] rounded-xl"
-              >
-                <span>Start My 90-Day Trajectory</span>
-                <ArrowRight className="size-4 ml-2" />
-              </Button>
+              <Magnetic>
+                <Button
+                  variant="default"
+                  data-cuelume-press="press"
+                  data-cuelume-release="release"
+                  data-cuelume-hover="tick"
+                  onClick={() => navigate('/auth')}
+                  className="w-full sm:w-auto h-11 sm:h-12 px-8 font-display text-xs sm:text-sm font-semibold shadow-lg active:scale-[0.96] rounded-xl group transition-transform"
+                >
+                  <span>Start My 90-Day Trajectory</span>
+                  <ArrowRight className="size-4 ml-2 transition-transform duration-200 group-hover:translate-x-1.5" />
+                </Button>
+              </Magnetic>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-tech-mono text-muted-foreground mt-6 pt-4 border-t border-border/40">
@@ -1725,7 +1770,7 @@ export default function Landing() {
               </span>
             </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* ── MINIMALIST FOOTER ── */}

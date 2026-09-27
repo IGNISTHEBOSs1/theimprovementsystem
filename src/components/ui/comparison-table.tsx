@@ -87,80 +87,73 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
           </p>
         </div>
 
-        {/* ── MOBILE VIEW: RESPONSIVE SEGMENTED CONTROL (RULE 4 OF BRAND INVARIANTS) ── */}
+        {/* ── MOBILE VIEW: SIDE-BY-SIDE TICK & CROSS COMPARISON ── */}
         <div className="block sm:hidden">
-          {/* Segmented Pill Selector (Liquid Frosted Glass) */}
-          <div className="flex items-center p-1 rounded-2xl bg-white/[0.05] dark:bg-zinc-950/40 backdrop-blur-xl border border-white/20 dark:border-white/15 mb-4 tis-specular-box shadow-lg">
-            <button
-              type="button"
-              onClick={() => setMobileTab("tis")}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-display font-semibold transition-all duration-200",
-                mobileTab === "tis"
-                  ? "bg-foreground text-background shadow-xs font-bold"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <SystemLogo size={16} />
-              <span>The Improvement System</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setMobileTab("other")}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-display font-medium transition-all duration-200",
-                mobileTab === "other"
-                  ? "bg-muted text-foreground shadow-xs font-semibold"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <Flame className="size-3.5 text-muted-foreground" />
+          {/* Header Legend */}
+          <div className="grid grid-cols-2 gap-2 mb-3 px-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-display text-muted-foreground">
+              <span className="flex size-4 items-center justify-center rounded bg-muted/80 text-muted-foreground shrink-0 shadow-xs">
+                <RiCloseLine className="size-3" aria-hidden />
+              </span>
               <span>Conventional Apps</span>
-            </button>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] font-display font-semibold text-foreground">
+              <span className="flex size-4 items-center justify-center rounded bg-foreground text-background shrink-0 shadow-xs">
+                <RiCheckLine className="size-3 stroke-[2.5]" aria-hidden />
+              </span>
+              <span>The Improvement System</span>
+            </div>
           </div>
 
-          {/* Mobile Comparison Cards (Liquid Frosted Glass Tiles) */}
+          {/* Mobile Comparison Cards with Side-by-Side Tick & Cross */}
           <div className="space-y-3">
             {comparisons.map((row) => (
               <div
                 key={row.basis}
-                className={cn(
-                  "p-4 rounded-2xl border transition-all duration-200 backdrop-blur-xl shadow-lg tis-specular-box",
-                  mobileTab === "tis"
-                    ? "bg-white/[0.06] dark:bg-zinc-900/40 border-white/25 dark:border-white/15 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
-                    : "bg-white/[0.02] dark:bg-zinc-950/30 border-white/10 dark:border-white/[0.08]"
-                )}
+                className="p-3.5 rounded-2xl border border-white/20 dark:border-white/10 bg-white/[0.04] dark:bg-zinc-900/40 backdrop-blur-xl shadow-lg tis-specular-box"
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-white/10 dark:border-white/5">
                   <span className="font-semibold text-xs text-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
                     {row.basis}
                   </span>
                   {row.subBasis && (
-                    <span className="text-[10px] text-muted-foreground font-tech-mono">
+                    <span className="text-[9px] text-muted-foreground font-tech-mono">
                       {row.subBasis}
                     </span>
                   )}
                 </div>
 
-                {mobileTab === "tis" ? (
-                  <div className="flex items-start gap-2.5 pt-1">
-                    <span className="flex size-5 items-center justify-center rounded bg-foreground text-background shrink-0 mt-0.5 shadow-xs">
-                      <RiCheckLine className="size-3.5 stroke-[2.5]" aria-hidden />
-                    </span>
-                    <span className="text-xs font-semibold text-foreground leading-relaxed drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
-                      {row.tisText}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-start gap-2.5 pt-1">
-                    <span className="flex size-5 items-center justify-center rounded bg-muted text-muted-foreground shrink-0 mt-0.5">
-                      <RiCloseLine className="size-3.5" aria-hidden />
-                    </span>
-                    <span className="text-xs text-muted-foreground leading-relaxed">
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  {/* Conventional Apps: Cross ✗ */}
+                  <div className="p-2.5 rounded-xl border border-white/10 dark:border-white/5 bg-black/[0.03] dark:bg-zinc-950/40 flex flex-col gap-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex size-4 items-center justify-center rounded bg-muted text-muted-foreground shrink-0 shadow-xs">
+                        <RiCloseLine className="size-3" aria-hidden />
+                      </span>
+                      <span className="text-[10px] font-tech-mono text-muted-foreground">
+                        Streak Apps
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground leading-snug">
                       {row.otherText}
                     </span>
                   </div>
-                )}
+
+                  {/* The Improvement System: Tick ✓ */}
+                  <div className="p-2.5 rounded-xl border border-white/25 dark:border-white/15 bg-white/[0.08] dark:bg-white/[0.04] shadow-[inset_0_1px_1px_rgba(255,255,255,0.18)] flex flex-col gap-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex size-4 items-center justify-center rounded bg-foreground text-background shrink-0 shadow-xs">
+                        <RiCheckLine className="size-3 stroke-[2.5]" aria-hidden />
+                      </span>
+                      <span className="text-[10px] font-tech-mono font-bold text-foreground">
+                        Buffer Engine
+                      </span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-foreground leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                      {row.tisText}
+                    </span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -170,11 +163,14 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
             <Button
               size="sm"
               variant="default"
-              className="w-full text-xs font-display font-semibold shadow-md h-10 active:scale-[0.98] rounded-xl"
+              data-cuelume-press="press"
+              data-cuelume-release="release"
+              data-cuelume-hover="tick"
+              className="w-full text-xs font-display font-semibold shadow-md h-10 active:scale-[0.98] rounded-xl group"
               onClick={() => onSelectPlan?.("The Improvement System")}
             >
               <span>Start My 90 Days</span>
-              <RiArrowRightLine className="size-3.5 ml-1.5" />
+              <RiArrowRightLine className="size-3.5 ml-1.5 transition-transform duration-200 group-hover:translate-x-1" />
             </Button>
           </div>
         </div>
@@ -285,11 +281,14 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                     <Button
                       size="sm"
                       variant="default"
-                      className="w-full text-[11px] sm:text-xs font-display font-semibold shadow-xs h-8 sm:h-9 active:scale-[0.98]"
+                      data-cuelume-press="press"
+                      data-cuelume-release="release"
+                      data-cuelume-hover="tick"
+                      className="w-full text-[11px] sm:text-xs font-display font-semibold shadow-xs h-8 sm:h-9 active:scale-[0.98] group"
                       onClick={() => onSelectPlan?.("The Improvement System")}
                     >
                       <span>Start My 90 Days</span>
-                      <RiArrowRightLine className="size-3.5 ml-1 hidden sm:inline" />
+                      <RiArrowRightLine className="size-3.5 ml-1 hidden sm:inline transition-transform duration-200 group-hover:translate-x-1" />
                     </Button>
                   </TableCell>
                 </TableRow>
