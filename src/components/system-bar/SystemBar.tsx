@@ -265,8 +265,7 @@ export default function SystemBar({
                       absolute
                       inset-0
                       m-auto
-                      w-[50px]
-                      h-[42px]
+                      size-[44px]
                       rounded-full
                       glass-nav-pill
                       pointer-events-none

@@ -253,6 +253,7 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
             fill="none"
             stroke="hsl(var(--primary))"
             strokeWidth={2}
+            vectorEffect="non-scaling-stroke"
           />
         )}
 

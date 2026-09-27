@@ -284,11 +284,11 @@ export function TrajectoryVisualizer({
               <animate attributeName="r" values="8;24;8" dur="2.6s" repeatCount="indefinite" />
               <animate attributeName="opacity" values="0.7;0;0.7" dur="2.6s" repeatCount="indefinite" />
             </circle>
-            <circle r={8} fill="none" stroke="hsl(var(--primary) / 0.5)" strokeWidth={1.5}>
+            <circle r={8} fill="none" stroke="hsl(var(--primary) / 0.5)" strokeWidth={1.5} vectorEffect="non-scaling-stroke">
               <animate attributeName="r" values="8;30;8" dur="2.6s" repeatCount="indefinite" />
               <animate attributeName="opacity" values="0.6;0;0.6" dur="2.6s" repeatCount="indefinite" />
             </circle>
-            <circle r={8} fill="hsl(var(--foreground))" stroke="hsl(var(--background))" strokeWidth={2.5} />
+            <circle r={8} fill="hsl(var(--foreground))" stroke="hsl(var(--background))" strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
             <circle r={3.5} fill="hsl(var(--background))" />
 
             {/* Pill Backdrop for "Today" label */}

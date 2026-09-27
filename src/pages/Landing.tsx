@@ -52,13 +52,20 @@ function MonochromaticMeshBackground() {
     if (!ctx) return;
 
     let animationFrameId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
 
     const handleResize = () => {
       if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
     };
     window.addEventListener('resize', handleResize);
 
@@ -466,8 +473,8 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                     }}
                   />
 
-                  {/* Dynamic SVG Visuals for each Step */}
-                  <svg className="w-full h-44 relative z-10" viewBox="0 0 400 160" preserveAspectRatio="none">
+                  {/* Dynamic SVG Visuals for each Step (Preserve 1:1 true aspect ratio & non-scaling strokes) */}
+                  <svg className="w-full h-44 relative z-10" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid meet">
                     <defs>
                       <linearGradient id="pinBufferGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                         <stop offset="0%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.08 : 0.04} />
@@ -476,13 +483,13 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                     </defs>
 
                     {/* Baseline Grid Guides */}
-                    <line x1="20" y1="130" x2="380" y2="130" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="3 3" />
-                    <line x1="20" y1="40" x2="380" y2="40" stroke="currentColor" strokeOpacity="0.2" strokeDasharray="4 4" />
+                    <line x1="20" y1="130" x2="380" y2="130" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+                    <line x1="20" y1="40" x2="380" y2="40" stroke="currentColor" strokeOpacity="0.2" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
 
                     {/* Step 0: Initializing Horizon */}
                     {activeStep === 0 && (
                       <g>
-                        <line x1="30" y1="120" x2="370" y2="45" stroke="currentColor" strokeWidth="2.5" strokeDasharray="6 6" strokeOpacity="0.4" />
+                        <line x1="30" y1="120" x2="370" y2="45" stroke="currentColor" strokeWidth="2.5" strokeDasharray="6 6" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
                         <circle cx="30" cy="120" r="5" fill="currentColor" />
                         <circle cx="370" cy="45" r="5" fill="currentColor" fillOpacity="0.5" />
                         <text x="40" y="125" fill="currentColor" fontSize="10" fontFamily="monospace">DAY 01 (ORIGIN)</text>
@@ -493,9 +500,9 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                     {/* Step 1: Focus Injection (+35% Thrust) */}
                     {activeStep === 1 && (
                       <g>
-                        <path d="M 30,120 Q 180,95 240,65" fill="none" stroke="currentColor" strokeWidth="3.5" />
+                        <path d="M 30,120 Q 180,95 240,65" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
                         <circle cx="240" cy="65" r="6" fill="currentColor" />
-                        <line x1="240" y1="65" x2="370" y2="35" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" strokeOpacity="0.5" />
+                        <line x1="240" y1="65" x2="370" y2="35" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" strokeOpacity="0.5" vectorEffect="non-scaling-stroke" />
                         <text x="170" y="55" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="monospace">+35% THRUST INJECTED</text>
                       </g>
                     )}
@@ -503,7 +510,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                     {/* Step 2: 2 Routines Anchored (Compounding Ascent) */}
                     {activeStep === 2 && (
                       <g>
-                        <path d="M 30,120 C 130,110 200,60 370,22" fill="none" stroke="currentColor" strokeWidth="3.5" />
+                        <path d="M 30,120 C 130,110 200,60 370,22" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
                         <circle cx="370" cy="22" r="6" fill="currentColor" />
                         <text x="230" y="20" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="monospace">1.25x PEAK VELOCITY</text>
                       </g>
@@ -514,14 +521,14 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                       <g>
                         {/* Buffer Cone Polygon */}
                         <path d="M 180,68 C 240,60 320,30 380,24 L 380,54 C 320,50 240,78 180,82 Z" fill="url(#pinBufferGrad)" />
-                        <path d="M 180,68 C 240,60 320,30 380,24" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" />
-                        <path d="M 180,82 C 240,78 320,50 380,54" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" />
+                        <path d="M 180,68 C 240,60 320,30 380,24" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
+                        <path d="M 180,82 C 240,78 320,50 380,54" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
                         
                         {/* Trajectory with temporary dip cushioned inside buffer */}
-                        <path d="M 30,120 C 120,110 180,72 230,76 C 280,80 320,40 375,34" fill="none" stroke="currentColor" strokeWidth="3.5" />
+                        <path d="M 30,120 C 120,110 180,72 230,76 C 280,80 320,40 375,34" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
                         
-                        {/* Shock absorption marker */}
-                        <circle cx="230" cy="76" r="4.5" fill="none" stroke="currentColor" strokeWidth="2" />
+                        {/* Shock absorption marker (clean true circle, non-scaling stroke) */}
+                        <circle cx="230" cy="76" r="4.5" fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
                         <text x="200" y="98" fill="currentColor" fontSize="10" fontFamily="monospace">DIP ABSORBED</text>
                         <text x="250" y="30" fill="currentColor" fontSize="10" fontWeight="bold" fontFamily="monospace">90D TARGET PRESERVED</text>
                       </g>
@@ -1451,6 +1458,7 @@ export default function Landing() {
                           stroke="currentColor"
                           strokeWidth="1.2"
                           strokeOpacity="0.4"
+                          vectorEffect="non-scaling-stroke"
                         />
 
                         {/* Dynamic Forward Projected Goal Node at Day 90 */}

@@ -375,7 +375,7 @@
       0 2px 4px 0 rgba(0, 0, 0, 0.08),
       inset 0 1.5px 1px 0 rgba(255, 255, 255, 1),
       inset 0 -1px 1px 0 rgba(0, 0, 0, 0.08);
-    filter: brightness(1.06) url(#liquid-glass-lens);
+    filter: brightness(1.06);
     color: hsl(var(--foreground));
   }
   .dark .glass-slider-handle {
@@ -386,7 +386,7 @@
       0 2px 4px 0 rgba(0, 0, 0, 0.3),
       inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.55),
       inset 0 -1px 1px 0 rgba(0, 0, 0, 0.25);
-    filter: brightness(1.08) url(#liquid-glass-lens);
+    filter: brightness(1.08);
     color: #ffffff;
   }
 
@@ -400,7 +400,7 @@
       0 2px 6px 0 rgba(16, 185, 129, 0.3),
       inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.75),
       inset 0 -1px 1px 0 rgba(0, 0, 0, 0.15);
-    filter: brightness(1.08) url(#liquid-glass-lens);
+    filter: brightness(1.08);
     color: #ffffff;
   }
 
