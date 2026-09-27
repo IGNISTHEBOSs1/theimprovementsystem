@@ -1,6 +1,8 @@
 import { useId } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Compass, Radio, Target, Sparkles, Navigation } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TIS_SPRINGS, TIS_EASINGS } from "@/lib/motion-tokens";
 
 interface TrajectoryVisualizerProps {
   completedQuests: number;
@@ -25,6 +27,7 @@ export function TrajectoryVisualizer({
   const gradientId = useId();
   const coneGradId = useId();
   const glowFilterId = useId();
+  const shouldReduceMotion = useReducedMotion();
 
   const progressRatio = Math.min(Math.max(completedQuests / (targetQuests || 1), 0), 1);
 
@@ -176,26 +179,34 @@ export function TrajectoryVisualizer({
           ))}
 
           {/* 1. THE CONE OF POSSIBILITY (Buffer +/- 10% variance) */}
-          <path
+          <motion.path
             d={conePath}
             fill={`url(#${coneGradId})`}
-            className="transition-all duration-500"
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, ease: TIS_EASINGS.subtleEntrance }}
           />
 
           {/* Cone Boundary Hairlines */}
-          <path
+          <motion.path
             d={`M ${xCurrent} ${yCurrent} C ${c1x} ${c1yUpper}, ${c2x} ${c2yUpper}, ${xGoal} ${yGoalUpper}`}
             fill="none"
             stroke="hsl(var(--primary) / 0.4)"
             strokeWidth={1.5}
             strokeDasharray="4 5"
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
           />
-          <path
+          <motion.path
             d={`M ${xCurrent} ${yCurrent} C ${c1x} ${c1yLower}, ${c2x} ${c2yLower}, ${xGoal} ${yGoalLower}`}
             fill="none"
             stroke="hsl(var(--primary) / 0.4)"
             strokeWidth={1.5}
             strokeDasharray="4 5"
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
           />
 
           {/* Cone Tolerance Bracket at Goal */}
@@ -221,23 +232,29 @@ export function TrajectoryVisualizer({
           </text>
 
           {/* 2. RECENT PROGRESS TRAIL */}
-          <path
+          <motion.path
             d={historicTrailPath}
             fill="none"
             stroke="hsl(var(--foreground))"
             strokeOpacity={0.3}
             strokeWidth={2.5}
             strokeDasharray="5 4"
+            initial={shouldReduceMotion ? false : { pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 0.8, ease: TIS_EASINGS.subtleEntrance }}
           />
 
           {/* 3. PROJECTED PATH (Prominent, High-Contrast) */}
-          <path
+          <motion.path
             d={predictiveCurvePath}
             fill="none"
             stroke={`url(#${gradientId})`}
             strokeWidth={4}
             strokeLinecap="round"
             filter={`url(#${glowFilterId})`}
+            initial={shouldReduceMotion ? false : { pathLength: 0, opacity: 0.2 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
           />
 
           {/* Origin Start Point */}
@@ -256,7 +273,12 @@ export function TrajectoryVisualizer({
           </g>
 
           {/* Current Progress Node */}
-          <g transform={`translate(${xCurrent}, ${yCurrent})`}>
+          <motion.g
+            transform={`translate(${xCurrent}, ${yCurrent})`}
+            initial={shouldReduceMotion ? false : { scale: 0.85, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={TIS_SPRINGS.settle}
+          >
             {/* Outer radar pulse circles */}
             <circle r={8} fill="hsl(var(--primary) / 0.25)">
               <animate attributeName="r" values="8;24;8" dur="2.6s" repeatCount="indefinite" />
@@ -312,7 +334,7 @@ export function TrajectoryVisualizer({
             >
               {completedQuests} of {targetQuests} Quests
             </text>
-          </g>
+          </motion.g>
 
           {/* Destination Milestone Star */}
           <g transform={`translate(${xGoal}, ${yGoal})`}>

@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SystemLogo } from "@/components/branding/Logo";
+import { triggerHaptic } from "@/lib/haptics";
+import { TIS_SPRINGS } from "@/lib/motion-tokens";
 
 const NAV_ITEMS = [
   {
@@ -45,10 +47,9 @@ const NAV_ITEMS = [
   },
 ] as const;
 
-// Smooth route-change animation.
+// Critically-damped Apple-grade route indicator transition
 const INDICATOR_TRANSITION = {
-  duration: 0.35,
-  ease: [0.16, 1, 0.3, 1] as const,
+  ...TIS_SPRINGS.settle,
 };
 
 interface SystemBarProps {
@@ -243,6 +244,7 @@ export default function SystemBar({
                 to={to}
                 end={to === "/"}
                 aria-current={active ? "page" : undefined}
+                onClick={() => triggerHaptic("selection")}
                 className="
                   relative
                   flex-1

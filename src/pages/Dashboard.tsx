@@ -19,6 +19,7 @@ import { deriveGoalStats, deriveTrajectory, deriveCurrentStreak, deriveWeeklyCad
 import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
 import { triggerHaptic } from "@/lib/haptics";
+import { TIS_SPRINGS, TIS_EASINGS } from "@/lib/motion-tokens";
 import type { Quest } from "@/types/quest";
 
 interface SecondaryQuestItemProps {
@@ -28,24 +29,21 @@ interface SecondaryQuestItemProps {
 }
 
 function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestItemProps) {
-  const [completionStage, setCompletionStage] = useState<"idle" | "shrink" | "slide">("idle");
+  const [completionStage, setCompletionStage] = useState<"idle" | "complete">("idle");
   const shouldReduceMotion = useReducedMotion();
   const isCompleted = completionStage !== "idle";
 
   const handleMarkComplete = () => {
     if (completing || completionStage !== "idle") return;
-    setCompletionStage("shrink");
     triggerHaptic("success");
     if (shouldReduceMotion) {
       onComplete(quest.id);
-    } else {
-      setTimeout(() => {
-        setCompletionStage("slide");
-      }, 220);
-      setTimeout(() => {
-        onComplete(quest.id);
-      }, 540);
+      return;
     }
+    setCompletionStage("complete");
+    setTimeout(() => {
+      onComplete(quest.id);
+    }, 280);
   };
 
   return (
@@ -53,37 +51,32 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
       layout
       initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
       animate={
-        shouldReduceMotion
-          ? { opacity: 1 }
-          : completionStage === "slide"
+        completionStage === "complete" && !shouldReduceMotion
           ? {
-              scale: 0.92,
-              x: 340,
+              scale: 0.94,
+              x: 280,
               opacity: 0,
-              height: 0,
-              marginBottom: 0,
-              paddingTop: 0,
-              paddingBottom: 0,
+              filter: "blur(4px)",
+              transition: {
+                duration: 0.28,
+                ease: TIS_EASINGS.exitDecel,
+              },
             }
-          : completionStage === "shrink"
-          ? {
-              scale: 0.93,
-              x: 0,
-              opacity: 1,
-              y: 2,
-              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.22), 0 8px 10px -6px rgba(0, 0, 0, 0.18)",
-            }
-          : { scale: 1, x: 0, opacity: 1, y: 0 }
+          : { scale: 1, x: 0, opacity: 1, y: 0, filter: "blur(0px)" }
       }
       exit={
         shouldReduceMotion
           ? { opacity: 0 }
-          : { scale: 0.92, x: 340, opacity: 0, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }
+          : {
+              scale: 0.94,
+              x: 280,
+              opacity: 0,
+              filter: "blur(4px)",
+              transition: { duration: 0.28, ease: TIS_EASINGS.exitDecel },
+            }
       }
       transition={{
-        duration: completionStage === "shrink" ? 0.22 : 0.34,
-        ease: [0.32, 0.72, 0, 1],
-        layout: { type: "spring", stiffness: 360, damping: 28 },
+        layout: TIS_SPRINGS.settle,
       }}
       className={cn(
         "flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/80 bg-card/80 px-4 py-3.5 text-body-sm shadow-sm transition-colors duration-250 overflow-hidden",

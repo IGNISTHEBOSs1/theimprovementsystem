@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MessageSquare, Sprout, Compass, RotateCcw, Sparkles, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
 import { deriveTrajectory } from "@/lib/trajectory";
 import { computeRebalanceProposal } from "@/lib/rebalance";
+import { TIS_SPRINGS } from "@/lib/motion-tokens";
 
 const GUIDANCE_CATEGORY_LABELS: Record<string, string> = {
   "repeated-commitment": "Repeating habit",
@@ -21,6 +23,27 @@ const GUIDANCE_CATEGORY_LABELS: Record<string, string> = {
   "recovery-after-miss": "Bouncing back",
   "trajectory-position": "Direction",
   "priority-completion-pattern": "Priority",
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.07,
+      delayChildren: 0.04,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 12, filter: "blur(4px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: TIS_SPRINGS.settle,
+  },
 };
 
 interface RankedItem {
@@ -39,6 +62,7 @@ export default function Mentor() {
   const { profile } = useAuth();
   const { state, loading, error, reload } = useDashboardDataContext();
   const [rebalanceOpen, setRebalanceOpen] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   if (loading) {
     return (
@@ -136,7 +160,12 @@ export default function Mentor() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-8 sm:px-8 sm:py-10 sm:pb-12">
+    <motion.div
+      variants={shouldReduceMotion ? undefined : containerVariants}
+      initial={shouldReduceMotion ? false : "hidden"}
+      animate="visible"
+      className="mx-auto w-full max-w-4xl px-4 py-6 pb-8 sm:px-8 sm:py-10 sm:pb-12"
+    >
       <PageHeader
         eyebrow="Mentor"
         title="Your patterns."
@@ -145,7 +174,7 @@ export default function Mentor() {
 
       {/* ── 1. Executive Advisory Briefing (Zero Nested Cards) ── */}
       {hasHero && (
-        <div className="mt-6">
+        <motion.div variants={shouldReduceMotion ? undefined : itemVariants} className="mt-6">
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
@@ -366,12 +395,15 @@ export default function Mentor() {
               </div>
             </section>
           )}
-        </div>
+        </motion.div>
       )}
 
       {/* ── 2. Unified Telemetry Band (Zero Stacked Cards) ── */}
       {signalCardsCount > 0 && (
-        <div className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm">
+        <motion.div
+          variants={shouldReduceMotion ? undefined : itemVariants}
+          className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm"
+        >
           <div className={cn(
             "grid divide-y md:divide-y-0 divide-border/60",
             signalCardsCount === 1 ? "grid-cols-1" :
@@ -533,12 +565,15 @@ export default function Mentor() {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* ── 3. Open Behavioral Pattern Ledger (Zero Nested Cards) ── */}
       {surfaced.length > 0 && (
-        <div className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm">
+        <motion.div
+          variants={shouldReduceMotion ? undefined : itemVariants}
+          className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm"
+        >
           <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
             <span className="text-xs font-mono uppercase font-semibold text-muted-foreground tracking-wider">
               Observed Behavioral Dynamics
@@ -584,7 +619,7 @@ export default function Mentor() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Safety spacer ensuring clean scroll buffer above mobile SystemBar */}
@@ -597,6 +632,6 @@ export default function Mentor() {
           proposal={rebalanceProposal}
         />
       )}
-    </div>
+    </motion.div>
   );
 }

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { ArrowRight, Check, ChevronRight, CircleDot, Target, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { triggerHaptic } from "@/lib/haptics";
+import { TIS_SPRINGS, TIS_EASINGS } from "@/lib/motion-tokens";
 import { cn } from "@/lib/utils";
 
 interface PrimaryActionPanelProps {
@@ -49,18 +50,20 @@ function useSpotlight() {
 
 export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQuest }: PrimaryActionPanelProps) {
   const spotlight = useSpotlight();
-  const [completionStage, setCompletionStage] = useState<"idle" | "shrink" | "slide">("idle");
+  const shouldReduceMotion = useReducedMotion();
+  const [completionStage, setCompletionStage] = useState<"idle" | "complete">("idle");
 
   const handleActionComplete = () => {
     if (completing || completionStage !== "idle") return;
-    setCompletionStage("shrink");
     triggerHaptic("success");
-    setTimeout(() => {
-      setCompletionStage("slide");
-    }, 220);
+    if (shouldReduceMotion) {
+      onComplete();
+      return;
+    }
+    setCompletionStage("complete");
     setTimeout(() => {
       onComplete();
-    }, 540);
+    }, 280);
   };
 
   if (!quest) {
@@ -84,33 +87,34 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
     <motion.section
       ref={spotlight.bind}
       layout
-      initial={{ opacity: 0, y: 12 }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
       animate={
-        completionStage === "slide"
-          ? {
-              scale: 0.92,
-              x: 340,
-              opacity: 0,
-              height: 0,
-              marginBottom: 0,
-              paddingTop: 0,
-              paddingBottom: 0,
-            }
-          : completionStage === "shrink"
+        completionStage === "complete" && !shouldReduceMotion
           ? {
               scale: 0.94,
-              x: 0,
-              opacity: 1,
-              y: 3,
-              boxShadow: "0 24px 32px -6px rgba(0, 0, 0, 0.25), 0 10px 12px -6px rgba(0, 0, 0, 0.2)",
+              x: 280,
+              opacity: 0,
+              filter: "blur(4px)",
+              transition: {
+                duration: 0.28,
+                ease: TIS_EASINGS.exitDecel,
+              },
             }
-          : { scale: 1, x: 0, opacity: 1, y: 0 }
+          : { scale: 1, x: 0, opacity: 1, y: 0, filter: "blur(0px)" }
       }
-      exit={{ scale: 0.92, x: 340, opacity: 0, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }}
+      exit={
+        shouldReduceMotion
+          ? { opacity: 0 }
+          : {
+              scale: 0.94,
+              x: 280,
+              opacity: 0,
+              filter: "blur(4px)",
+              transition: { duration: 0.28, ease: TIS_EASINGS.exitDecel },
+            }
+      }
       transition={{
-        duration: completionStage === "shrink" ? 0.22 : 0.34,
-        ease: [0.32, 0.72, 0, 1],
-        layout: { type: "spring", stiffness: 360, damping: 28 },
+        layout: TIS_SPRINGS.settle,
       }}
       className={cn(
         "relative overflow-hidden rounded-2xl glass-hero p-5 sm:p-7 transition-colors duration-250",
@@ -332,7 +336,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       triggerHaptic("success");
       completeTimerRef.current = setTimeout(() => {
         onComplete();
-      }, 500);
+      }, 280);
     } else {
       setTrackFill(0, true);
       setHandleX(0, "snap");
@@ -356,7 +360,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       triggerHaptic("success");
       completeTimerRef.current = setTimeout(() => {
         onComplete();
-      }, 500);
+      }, 280);
     }
   };
 
