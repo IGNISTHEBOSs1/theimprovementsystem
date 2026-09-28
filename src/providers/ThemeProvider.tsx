@@ -121,8 +121,8 @@ export function useThemeContext(): ThemeContextValue {
 
 // ── Storage helpers ───────────────────────────────────────────────────────────
 
-const STORAGE_KEY_THEME = "tis-theme";
-const STORAGE_KEY_MODE  = "tis-mode";
+const STORAGE_KEY_THEME = "kinetic-theme";
+const STORAGE_KEY_MODE  = "kinetic-mode";
 
 function readStored<T>(key: string, fallback: T, valid: T[]): T {
   try {

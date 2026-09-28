@@ -24,7 +24,7 @@ class InnerRouteErrorBoundary extends Component<InnerProps, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     // Unconditionally log to console so issues can be inspected in production
-    console.error("[TIS Route Error]:", error, info?.componentStack);
+    console.error("[Kinetic Route Error]:", error, info?.componentStack);
 
     logError(error, {
       component: "RouteErrorBoundary",

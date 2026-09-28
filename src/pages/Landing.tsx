@@ -28,7 +28,7 @@ import { useThemeContext } from '@/providers/ThemeProvider';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { cn } from '@/lib/utils';
 
-// ── MONOCHROMATIC KINETIC MOTION BACKGROUND (VIVID, VISIBLE & VIEWED THROUGH GLASS) ──
+// â”€â”€ MONOCHROMATIC KINETIC MOTION BACKGROUND (VIVID, VISIBLE & VIEWED THROUGH GLASS) â”€â”€
 function MonochromaticMeshBackground() {
   const shouldReduceMotion = useReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -205,7 +205,7 @@ function MonochromaticMeshBackground() {
   );
 }
 
-// ── UNIQUE FUN TACTILE THEME TOGGLE (NEOSKEUOMORPHIC ANALOG INSTRUMENT SWITCH) ──
+// â”€â”€ UNIQUE FUN TACTILE THEME TOGGLE (NEOSKEUOMORPHIC ANALOG INSTRUMENT SWITCH) â”€â”€
 function TactileThemeToggle() {
   const { resolvedMode, setMode } = useThemeContext();
   const { playTap } = useSoundEffects();
@@ -278,7 +278,7 @@ function TactileThemeToggle() {
                 transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute -top-1 -right-1 text-[7px] text-zinc-200 select-none pointer-events-none"
               >
-                ✦
+                âœ¦
               </motion.span>
             </motion.div>
           ) : (
@@ -304,7 +304,7 @@ function TactileThemeToggle() {
   );
 }
 
-// ── THE THREE PILLARS (BENEFIT-ORIENTED, EXPLAINING WHAT, WHY, AND WHAT PROBLEM IT PREVENTS) ──
+// â”€â”€ THE THREE PILLARS (BENEFIT-ORIENTED, EXPLAINING WHAT, WHY, AND WHAT PROBLEM IT PREVENTS) â”€â”€
 const principles = [
   {
     step: '01',
@@ -329,7 +329,7 @@ const principles = [
   {
     step: '03',
     eyebrow: 'RESILIENT PROGRESS',
-    title: 'The ±10% Trajectory Buffer',
+    title: 'The Â±10% Trajectory Buffer',
     what: 'A mathematical tolerance corridor calibrated over your cumulative 90-day trajectory.',
     why: 'Streaks are static counters that shatter on an off-day. Trajectory is dynamic velocity that measures cumulative achievement.',
     prevents: 'Prevents the all-or-nothing guilt spiral. Your streak may reset, but your 90-day trajectory never restarts at zero.',
@@ -338,7 +338,7 @@ const principles = [
   },
 ];
 
-// ── PIN + TRANSFORM SCROLL STORYTELLING ENGINE (IMAGE 01 & 02 CONCEPTS) ──
+// â”€â”€ PIN + TRANSFORM SCROLL STORYTELLING ENGINE (IMAGE 01 & 02 CONCEPTS) â”€â”€
 function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const shouldReduceMotion = useReducedMotion();
@@ -393,8 +393,8 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     {
       num: '04',
       title: 'Trajectory Absorbs the Shock',
-      tag: '±10% BUFFER CONE',
-      desc: "When life interrupts, you don't lose 60 days. The ±10% mathematical buffer absorbs the deviation. Streaks reset; your trajectory continues.",
+      tag: 'Â±10% BUFFER CONE',
+      desc: "When life interrupts, you don't lose 60 days. The Â±10% mathematical buffer absorbs the deviation. Streaks reset; your trajectory continues.",
       metric: '1.08x Resilient Velocity (Protected)',
       badge: 'Shock Absorbed',
       icon: ShieldCheck,
@@ -414,7 +414,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
         >
           <span className="size-1.5 rounded-full bg-foreground" />
           <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-            01 // SCROLL STORYTELLING • PIN + TRANSFORM
+            01 // SCROLL STORYTELLING â€¢ PIN + TRANSFORM
           </span>
         </motion.div>
 
@@ -435,11 +435,11 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
           transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
           className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed"
         >
-          Scroll to watch how a single daily focus and the ±10% buffer transform chaotic intentions into compounding trajectory.
+          Scroll to watch how a single daily focus and the Â±10% buffer transform chaotic intentions into compounding trajectory.
         </motion.p>
       </div>
 
-      {/* ── DESKTOP PIN + TRANSFORM EXPERIENCE (IMAGE 01: PIN + TRANSFORM) ── */}
+      {/* â”€â”€ DESKTOP PIN + TRANSFORM EXPERIENCE (IMAGE 01: PIN + TRANSFORM) â”€â”€ */}
       <div ref={containerRef} className="hidden md:block relative h-[260vh]">
         {/* Sticky Viewport Stage: Section stays pinned while content transforms */}
         <div className="sticky top-28 h-[calc(100vh-140px)] min-h-[580px] max-h-[680px] flex items-center">
@@ -447,7 +447,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
             
             {/* Left Column: The Pinned Living Console (Transforms state with scroll) */}
             <div className="col-span-7">
-              <div className="relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_20px_50px_rgba(0,0,0,0.4)] p-6 overflow-hidden tis-specular-box">
+              <div className="relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_20px_50px_rgba(0,0,0,0.4)] p-6 overflow-hidden kinetic-specular-box">
                 
                 {/* Console HUD Bar */}
                 <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10 text-xs font-tech-mono">
@@ -546,8 +546,8 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 <div className="mt-4 p-3 rounded-xl bg-muted/40 border border-white/5 flex items-center justify-between text-xs font-tech-mono">
                   <span className="text-muted-foreground">
                     {activeStep === 3
-                      ? 'Streak Apps: Reset to 0 ❌  |  TIS: Trajectory Absorbs Drift ✓'
-                      : 'Deterministic Trajectory • 1 Primary Focus + 2 Routines'}
+                      ? 'Streak Apps: Reset to 0 âŒ  |  Kinetic: Trajectory Absorbs Drift âœ“'
+                      : 'Deterministic Trajectory â€¢ 1 Primary Focus + 2 Routines'}
                   </span>
                   <span className="text-foreground font-semibold">
                     STEP {activeStep + 1} OF 4
@@ -612,7 +612,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
         </div>
       </div>
 
-      {/* ── MOBILE RESPONSIVE CARDS (FADE + LIFT & STAGGER - IMAGE 02) ── */}
+      {/* â”€â”€ MOBILE RESPONSIVE CARDS (FADE + LIFT & STAGGER - IMAGE 02) â”€â”€ */}
       <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
         {steps.map((s, index) => {
           const Icon = s.icon;
@@ -623,7 +623,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-30px' }}
               transition={{ duration: 0.55, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="p-4 sm:p-5 rounded-xl border border-white/10 bg-card/75 backdrop-blur-md tis-specular-box flex flex-col justify-between"
+              className="p-4 sm:p-5 rounded-xl border border-white/10 bg-card/75 backdrop-blur-md kinetic-specular-box flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -738,7 +738,7 @@ export default function Landing() {
     return () => el.removeEventListener('click', onUserInteract);
   }, [handleUserActivity]);
 
-  // ── TRAJECTORY MATHEMATICS & FIXED PAST CONTINUITY ──
+  // â”€â”€ TRAJECTORY MATHEMATICS & FIXED PAST CONTINUITY â”€â”€
   const completedCount = (focusDone ? 1 : 0) + (routine1Done ? 1 : 0) + (routine2Done ? 1 : 0);
 
   // Dynamic velocity index based on task thrust
@@ -765,17 +765,17 @@ export default function Landing() {
   const endX = 465;
   const targetHorizonY = 54;
 
-  // ── 1. PAST HISTORICAL LINE: COMPLETELY FIXED (NEVER MOVES ON TASK INTERACTION) ──
+  // â”€â”€ 1. PAST HISTORICAL LINE: COMPLETELY FIXED (NEVER MOVES ON TASK INTERACTION) â”€â”€
   // The past has already happened; history does not retroactively change when you toggle today's checkboxes.
   const historicalPath = `M ${startX},${startY} C ${startX + 50},${startY - 6} 174,129 ${fixedTodayX},${fixedTodayY}`;
 
-  // ── 2. FIXED NOMINAL ±10% BUFFER CORRIDOR (STATIONARY MATHEMATICAL CORRIDOR) ──
+  // â”€â”€ 2. FIXED NOMINAL Â±10% BUFFER CORRIDOR (STATIONARY MATHEMATICAL CORRIDOR) â”€â”€
   // The tolerance corridor stays fixed so the dynamic forward projection line moves relative to it.
   const bufferUpperPath = `M ${fixedTodayX},96 C ${fixedTodayX + 60},84 ${endX - 60},40 ${endX},36`;
   const bufferLowerPath = `M ${fixedTodayX},112 C ${fixedTodayX + 60},104 ${endX - 60},68 ${endX},72`;
   const bufferPolygon = `M ${fixedTodayX},96 C ${fixedTodayX + 60},84 ${endX - 60},40 ${endX},36 L ${endX},72 C ${endX - 60},68 ${fixedTodayX + 60},104 ${fixedTodayX},112 Z`;
 
-  // ── 3. ONLY THE CURVED LINE AFTER TODAY MOVES DYNAMICALLY ──
+  // â”€â”€ 3. ONLY THE CURVED LINE AFTER TODAY MOVES DYNAMICALLY â”€â”€
   // Projected Day 90 endpoint based on completed thrust
   const projectedEndY = focusDone
     ? routine1Done && routine2Done
@@ -794,7 +794,7 @@ export default function Landing() {
   const ctrl2Y = projectedEndY + 8;
   const projectedPath = `M ${fixedTodayX},${fixedTodayY} C ${ctrl1X},${ctrl1Y} ${ctrl2X},${ctrl2Y} ${endX},${projectedEndY}`;
 
-  // ── SNEAK PEEK AUTO-PLAYING SIMULATED MOUSE ENGINE ──
+  // â”€â”€ SNEAK PEEK AUTO-PLAYING SIMULATED MOUSE ENGINE â”€â”€
   useEffect(() => {
     if (!isPlayingWalkthrough || !isConsoleVisible) return;
 
@@ -904,8 +904,8 @@ export default function Landing() {
         await wait(1200);
         if (cancelled) return;
 
-        // Trace along ±10% buffer cone
-        setCursorLabel('±10% Safety Buffer');
+        // Trace along Â±10% buffer cone
+        setCursorLabel('Â±10% Safety Buffer');
         setSimCursorPos({ x: todayPos.x + 45, y: todayPos.y - 12 });
         await wait(1400);
         if (cancelled) return;
@@ -970,16 +970,16 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-hidden text-foreground selection:bg-foreground/20 selection:text-foreground">
-      {/* ── IMAGE 01: SCROLL SCRUB PROGRESS BAR (MOTION FOLLOWS SCROLL PROGRESS) ── */}
+      {/* â”€â”€ IMAGE 01: SCROLL SCRUB PROGRESS BAR (MOTION FOLLOWS SCROLL PROGRESS) â”€â”€ */}
       <motion.div
         style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}
         className="fixed top-0 inset-x-0 h-[2.5px] bg-foreground z-[70] pointer-events-none opacity-90 shadow-[0_0_10px_rgba(255,255,255,0.6)] dark:shadow-[0_0_10px_rgba(255,255,255,0.35)]"
       />
 
-      {/* ── HIGH-CONTRAST MONOCHROMATIC KINETIC MESH BACKGROUND ── */}
+      {/* â”€â”€ HIGH-CONTRAST MONOCHROMATIC KINETIC MESH BACKGROUND â”€â”€ */}
       <MonochromaticMeshBackground />
 
-      {/* ── AUTHENTIC NOTHING OS FROSTED & REEDED GLASS OVERLAY ── */}
+      {/* â”€â”€ AUTHENTIC NOTHING OS FROSTED & REEDED GLASS OVERLAY â”€â”€ */}
       {/* Renders a physical liquid frosted glass pane over the kinetic background, diffusing sharp edges and making typography pop while keeping motion 100% visible */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
         {/* Layer 1: Frosted Liquid Glass Pane with Saturation Boost */}
@@ -1029,8 +1029,8 @@ export default function Landing() {
       {/* Progressive Top Glass Blur Wash (Content fades smoothly under navbar) */}
       <div className="fixed top-0 inset-x-0 h-20 pointer-events-none z-40 bg-gradient-to-b from-background/85 via-background/40 to-transparent backdrop-blur-[3px]" />
 
-      {/* ── HIGH-END LIQUID FROSTED GLASS FLOATING NAVBAR (ISLAND DOCK) ── */}
-      <header className="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-6 md:inset-x-8 max-w-5xl mx-auto z-50 tis-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300">
+      {/* â”€â”€ HIGH-END LIQUID FROSTED GLASS FLOATING NAVBAR (ISLAND DOCK) â”€â”€ */}
+      <header className="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-6 md:inset-x-8 max-w-5xl mx-auto z-50 kinetic-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300">
         <div className="flex items-center justify-between gap-3 sm:gap-4">
           {/* Brand Identity */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -1040,7 +1040,7 @@ export default function Landing() {
             </div>
             <div className="min-w-0 flex items-center gap-2">
               <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight text-foreground uppercase truncate">
-                The Improvement System
+                Kinetic
               </span>
               <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-tech-mono font-medium tracking-wider bg-muted/80 text-muted-foreground border border-border/80">
                 <span className="size-1.5 rounded-full bg-foreground" />
@@ -1073,25 +1073,25 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* ── HERO SECTION: HUMAN OUTCOME FIRST, THEN SYSTEM MECHANISM ── */}
+      {/* â”€â”€ HERO SECTION: HUMAN OUTCOME FIRST, THEN SYSTEM MECHANISM â”€â”€ */}
       <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-32 pb-8 sm:pb-16 text-center">
         {/* Differential Parallax Floating Telemetry Chips (IMAGE 01: PARALLAX - Layers move at different speeds) */}
         <motion.div
           style={{ y: heroParallaxSlow }}
-          className="hidden xl:flex absolute top-36 left-4 lg:left-8 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-xl text-[11px] font-tech-mono text-muted-foreground shadow-lg tis-specular-box pointer-events-none select-none z-20"
+          className="hidden xl:flex absolute top-36 left-4 lg:left-8 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-xl text-[11px] font-tech-mono text-muted-foreground shadow-lg kinetic-specular-box pointer-events-none select-none z-20"
         >
           <span className="size-2 rounded-full bg-foreground animate-pulse" />
           <span className="text-foreground font-semibold">Velocity: 1.25x</span>
-          <span className="text-muted-foreground">• +16d Margin</span>
+          <span className="text-muted-foreground">â€¢ +16d Margin</span>
         </motion.div>
 
         <motion.div
           style={{ y: heroParallaxFast }}
-          className="hidden xl:flex absolute top-52 right-4 lg:right-8 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-xl text-[11px] font-tech-mono text-muted-foreground shadow-lg tis-specular-box pointer-events-none select-none z-20"
+          className="hidden xl:flex absolute top-52 right-4 lg:right-8 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-xl text-[11px] font-tech-mono text-muted-foreground shadow-lg kinetic-specular-box pointer-events-none select-none z-20"
         >
           <ShieldCheck className="size-3.5 text-foreground" />
-          <span className="text-foreground font-semibold">±10% Safety Buffer</span>
-          <span className="text-muted-foreground">• Drift Absorbed</span>
+          <span className="text-foreground font-semibold">Â±10% Safety Buffer</span>
+          <span className="text-muted-foreground">â€¢ Drift Absorbed</span>
         </motion.div>
 
         {/* Eyebrow with Fade + Lift (IMAGE 02: FADE + LIFT) */}
@@ -1103,8 +1103,8 @@ export default function Landing() {
         >
           <Sparkles className="size-3.5 text-foreground shrink-0" />
           <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-            <span className="hidden sm:inline">Personal Trajectory Engine • Dynamic Vector, Not Static Streaks</span>
-            <span className="sm:hidden">Dynamic Trajectory • ±10% Buffer</span>
+            <span className="hidden sm:inline">Personal Trajectory Engine â€¢ Dynamic Vector, Not Static Streaks</span>
+            <span className="sm:hidden">Dynamic Trajectory â€¢ Â±10% Buffer</span>
           </span>
         </motion.div>
 
@@ -1131,14 +1131,14 @@ export default function Landing() {
           className="max-w-2xl mx-auto mb-6 sm:mb-8 px-2 space-y-2"
         >
           <p className="text-sm sm:text-lg font-medium text-foreground font-display drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)]">
-            Streaks are static; trajectory is dynamic. One daily focus cushioned by a ±10% mathematical buffer.
+            Streaks are static; trajectory is dynamic. One daily focus cushioned by a Â±10% mathematical buffer.
           </p>
           <p className="text-xs sm:text-base text-muted-foreground leading-relaxed">
             <span className="hidden sm:inline">
-              Streaks are fragile binary counters—miss once and 60 days vanish into zero. The Improvement System prioritizes Trajectory: a wholesome, velocity-based measure of real progress with a ±10% buffer that absorbs life's volatility so your 90-day momentum never dies.
+              Streaks are fragile binary countersâ€”miss once and 60 days vanish into zero. Kinetic prioritizes Trajectory: a wholesome, velocity-based measure of real progress with a Â±10% buffer that absorbs life's volatility so your 90-day momentum never dies.
             </span>
             <span className="sm:hidden">
-              Streaks are static and shatter on day one. We protect your 90-day trajectory with 1 focus, 2 routines, and an elastic ±10% buffer cone.
+              Streaks are static and shatter on day one. We protect your 90-day trajectory with 1 focus, 2 routines, and an elastic Â±10% buffer cone.
             </span>
           </p>
         </motion.div>
@@ -1190,25 +1190,25 @@ export default function Landing() {
               <Check className="size-3.5 text-foreground" />
               Free Forever
             </span>
-            <span>•</span>
+            <span>â€¢</span>
             <span className="flex items-center gap-1.5">
               <Lock className="size-3 text-muted-foreground" />
               100% Private Offline Vault
             </span>
-            <span>•</span>
+            <span>â€¢</span>
             <span className="hidden sm:inline">No Credit Card Required</span>
           </motion.div>
         </motion.div>
       </section>
 
-      {/* ── PRODUCT SNEAK PEEK CONSOLE (LIVE INTERACTIVE TRAJECTORY) ── */}
+      {/* â”€â”€ PRODUCT SNEAK PEEK CONSOLE (LIVE INTERACTIVE TRAJECTORY) â”€â”€ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-4 sm:py-8">
         <div
           id="sneak-peek-frame"
           className="relative max-w-5xl mx-auto text-left"
         >
           {/* Hardware Frame with Liquid Frosted Glass and Monochromatic Specular Rim */}
-          <div className="relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden tis-specular-box">
+          <div className="relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden kinetic-specular-box">
             {/* Top Bar HUD */}
             <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b border-white/10 dark:border-white/10 bg-muted/30 text-xs font-tech-mono backdrop-blur-md">
               <div className="flex items-center gap-2">
@@ -1320,7 +1320,7 @@ export default function Landing() {
                       </span>
                     </div>
                     <p className="hidden sm:block text-xs text-muted-foreground font-tech-mono mt-0.5">
-                      Fixed history • Dynamic forward trajectory updates with daily execution
+                      Fixed history â€¢ Dynamic forward trajectory updates with daily execution
                     </p>
                   </div>
                 </div>
@@ -1348,17 +1348,17 @@ export default function Landing() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6 items-center">
                 {/* Left: Dynamic Trajectory Plane */}
                 <div className="lg:col-span-7 space-y-3 sm:space-y-4">
-                  <div className="rounded-xl border border-white/10 bg-background/80 dark:bg-card/40 backdrop-blur-xl p-3 sm:p-4 shadow-inner tis-specular-box">
+                  <div className="rounded-xl border border-white/10 bg-background/80 dark:bg-card/40 backdrop-blur-xl p-3 sm:p-4 shadow-inner kinetic-specular-box">
                     <div className="flex flex-wrap items-center justify-between text-[10px] sm:text-[11px] font-tech-mono text-muted-foreground mb-2 gap-2">
                       <span className="flex items-center gap-1.5 text-foreground font-medium">
                         <span className="size-2 rounded-full bg-foreground" />
-                        Fixed History → Projected Trajectory
+                        Fixed History â†’ Projected Trajectory
                       </span>
                       <span className="flex items-center gap-1.5">
                         <span className="size-2 rounded-sm bg-muted-foreground/30 border border-border" />
-                        Stationary ±10% Buffer
+                        Stationary Â±10% Buffer
                       </span>
-                      <span className="text-foreground font-semibold">D1 → D90</span>
+                      <span className="text-foreground font-semibold">D1 â†’ D90</span>
                     </div>
 
                     {/* SVG Trajectory Canvas: Past Line is Fixed, Buffer is Fixed, Only Forward Curve Moves */}
@@ -1409,7 +1409,7 @@ export default function Landing() {
                           D90 GOAL
                         </text>
 
-                        {/* 1. FIXED ±10% Buffer Cone (Does Not Move) */}
+                        {/* 1. FIXED Â±10% Buffer Cone (Does Not Move) */}
                         <path d={bufferPolygon} fill="url(#monochromeBufferGrad)" />
                         <path d={bufferUpperPath} fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" strokeOpacity={isDark ? 0.45 : 0.35} />
                         <path d={bufferLowerPath} fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" strokeOpacity={isDark ? 0.45 : 0.35} />
@@ -1475,7 +1475,7 @@ export default function Landing() {
 
                       {/* Embedded Telemetry Status Badge */}
                       <div className="absolute right-2 top-2 px-2.5 py-1 rounded-md bg-card/90 border border-white/10 text-[10px] font-tech-mono text-foreground backdrop-blur-md shadow-sm">
-                        {isAhead ? `+${daysMargin}d Ahead • Accelerating` : isInBuffer ? 'Inside ±10% Buffer' : 'Buffer Absorbing Drift'}
+                        {isAhead ? `+${daysMargin}d Ahead â€¢ Accelerating` : isInBuffer ? 'Inside Â±10% Buffer' : 'Buffer Absorbing Drift'}
                       </div>
                     </div>
                   </div>
@@ -1495,7 +1495,7 @@ export default function Landing() {
                         <span className="hidden sm:inline">Buffer </span>Tolerance
                       </span>
                       <p className="font-tech-mono font-bold text-xs sm:text-sm text-foreground mt-0.5">
-                        ±10% Cone
+                        Â±10% Cone
                       </p>
                     </div>
                     <div>
@@ -1511,7 +1511,7 @@ export default function Landing() {
 
                 {/* Right: Tactile Daily Anchor Console */}
                 <div className="lg:col-span-5 flex flex-col justify-center space-y-3">
-                  <div className="p-3.5 sm:p-4 rounded-xl border border-white/10 bg-card/80 backdrop-blur-xl shadow-md tis-specular-box">
+                  <div className="p-3.5 sm:p-4 rounded-xl border border-white/10 bg-card/80 backdrop-blur-xl shadow-md kinetic-specular-box">
                     <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-border/50">
                       <div className="flex items-center gap-2">
                         <Target className="size-4 text-foreground" />
@@ -1759,7 +1759,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── SECTION: THIS IS FOR YOU IF... (PEOPLE & EMPATHY RECOGNITION) ── */}
+      {/* â”€â”€ SECTION: THIS IS FOR YOU IF... (PEOPLE & EMPATHY RECOGNITION) â”€â”€ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
@@ -1769,12 +1769,12 @@ export default function Landing() {
             Built for people who are tired of starting over
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-            If any of these sound familiar, you don't lack discipline — you were tracking static streaks instead of dynamic trajectory.
+            If any of these sound familiar, you don't lack discipline â€” you were tracking static streaks instead of dynamic trajectory.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl tis-specular-box flex items-start gap-3">
+          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3">
             <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
               <RotateCcw className="size-4" />
             </div>
@@ -1788,7 +1788,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl tis-specular-box flex items-start gap-3">
+          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3">
             <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
               <Layers className="size-4" />
             </div>
@@ -1802,7 +1802,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl tis-specular-box flex items-start gap-3">
+          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3">
             <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
               <TrendingUp className="size-4" />
             </div>
@@ -1816,7 +1816,7 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl tis-specular-box flex items-start gap-3">
+          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3">
             <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
               <ShieldCheck className="size-4" />
             </div>
@@ -1832,7 +1832,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── SECTION: VISUAL CORE CONCEPT (FRAGILE STREAK VS. PROTECTED TRAJECTORY) ── */}
+      {/* â”€â”€ SECTION: VISUAL CORE CONCEPT (FRAGILE STREAK VS. PROTECTED TRAJECTORY) â”€â”€ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
@@ -1848,7 +1848,7 @@ export default function Landing() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Fragile Streak Card */}
-          <div className="rounded-2xl border border-border/80 bg-card/50 dark:bg-card/30 p-5 sm:p-6 backdrop-blur-xl tis-specular-box relative">
+          <div className="rounded-2xl border border-border/80 bg-card/50 dark:bg-card/30 p-5 sm:p-6 backdrop-blur-xl kinetic-specular-box relative">
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-tech-mono px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
                 TRADITIONAL HABIT APPS
@@ -1865,13 +1865,13 @@ export default function Landing() {
             <div className="p-3 rounded-xl bg-background/80 border border-border/60 font-tech-mono text-[11px] mb-4 space-y-2">
               <div className="flex items-center justify-between text-muted-foreground">
                 <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D1</span>
-                <span>→</span>
+                <span>â†’</span>
                 <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D2</span>
-                <span>→</span>
+                <span>â†’</span>
                 <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D3</span>
-                <span>→</span>
+                <span>â†’</span>
                 <span className="flex items-center gap-1 text-foreground font-bold underline"><XCircle className="size-3 text-foreground" /> MISS</span>
-                <span>→</span>
+                <span>â†’</span>
                 <span className="text-foreground font-bold">RESET (0)</span>
               </div>
             </div>
@@ -1881,43 +1881,43 @@ export default function Landing() {
             </p>
           </div>
 
-          {/* Protected Trajectory Card (TIS) */}
-          <div className="rounded-2xl border border-white/20 dark:border-white/10 bg-card/85 dark:bg-card/60 p-5 sm:p-6 backdrop-blur-xl tis-specular-box relative">
+          {/* Protected Trajectory Card (Kinetic) */}
+          <div className="rounded-2xl border border-white/20 dark:border-white/10 bg-card/85 dark:bg-card/60 p-5 sm:p-6 backdrop-blur-xl kinetic-specular-box relative">
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-tech-mono px-2 py-0.5 rounded bg-foreground text-background font-bold">
-                THE IMPROVEMENT SYSTEM
+                KINETIC
               </span>
               <span className="text-xs font-tech-mono text-foreground font-semibold">
-                ±10% Trajectory Buffer
+                Â±10% Trajectory Buffer
               </span>
             </div>
             <h3 className="font-display font-bold text-lg text-foreground mb-3">
-              Cumulative Vector: ±10% Buffer Absorbs Drift
+              Cumulative Vector: Â±10% Buffer Absorbs Drift
             </h3>
 
             {/* Visual Timeline Diagram */}
             <div className="p-3 rounded-xl bg-background/90 border border-foreground/30 font-tech-mono text-[11px] mb-4 space-y-2">
               <div className="flex items-center justify-between text-foreground">
                 <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D1</span>
-                <span>→</span>
+                <span>â†’</span>
                 <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D2</span>
-                <span>→</span>
+                <span>â†’</span>
                 <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D3</span>
-                <span>→</span>
+                <span>â†’</span>
                 <span className="flex items-center gap-1 font-bold"><Zap className="size-3 text-foreground" /> BUFFER</span>
-                <span>→</span>
+                <span>â†’</span>
                 <span className="text-foreground font-bold">D90 CONTINUES</span>
               </div>
             </div>
 
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Trajectory is dynamic: it maps cumulative velocity across your 90-day horizon. The ±10% mathematical buffer cushions life's interruptions so a single off-day never wipes out weeks of authentic follow-through.
+              Trajectory is dynamic: it maps cumulative velocity across your 90-day horizon. The Â±10% mathematical buffer cushions life's interruptions so a single off-day never wipes out weeks of authentic follow-through.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ── SECTION: THE THREE PILLARS (BENEFIT-ORIENTED, REDUCED BACKLOG FATIGUE) ── */}
+      {/* â”€â”€ SECTION: THE THREE PILLARS (BENEFIT-ORIENTED, REDUCED BACKLOG FATIGUE) â”€â”€ */}
       <section id="pillars-section" className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <motion.div
@@ -1929,7 +1929,7 @@ export default function Landing() {
           >
             <span className="size-1.5 rounded-full bg-foreground" />
             <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-              02 // REVEAL HIERARCHY • THE THREE PILLARS
+              02 // REVEAL HIERARCHY â€¢ THE THREE PILLARS
             </span>
           </motion.div>
 
@@ -1970,7 +1970,7 @@ export default function Landing() {
                 onMouseEnter={() => isDesktop && setHoveredStep(index)}
                 onMouseLeave={() => isDesktop && setHoveredStep(null)}
                 className={cn(
-                  "group relative rounded-2xl border p-5 sm:p-6 backdrop-blur-2xl flex flex-col justify-between transition-all duration-500 tis-specular-box min-h-[300px] sm:min-h-[340px]",
+                  "group relative rounded-2xl border p-5 sm:p-6 backdrop-blur-2xl flex flex-col justify-between transition-all duration-500 kinetic-specular-box min-h-[300px] sm:min-h-[340px]",
                   "w-full",
                   isDesktop && (
                     isHovered
@@ -2019,20 +2019,20 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── SECTION: HOW IT WORKS (PIN + TRANSFORM SCROLL STORYTELLING ENGINE) ── */}
+      {/* â”€â”€ SECTION: HOW IT WORKS (PIN + TRANSFORM SCROLL STORYTELLING ENGINE) â”€â”€ */}
       <PinAndTransformWorkflow isDark={isDark} />
 
-      {/* ── SIDE-BY-SIDE ARCHITECTURAL COMPARISON (REDUCED BASIS, OPTIMAL ON MOBILE & PC) ── */}
+      {/* â”€â”€ SIDE-BY-SIDE ARCHITECTURAL COMPARISON (REDUCED BASIS, OPTIMAL ON MOBILE & PC) â”€â”€ */}
       <ComparisonTable onSelectPlan={() => navigate('/auth')} />
 
-      {/* ── DIRECT OBJECTION HANDLING: "WHY NOT JUST USE A NORMAL HABIT TRACKER?" ── */}
+      {/* â”€â”€ DIRECT OBJECTION HANDLING: "WHY NOT JUST USE A NORMAL HABIT TRACKER?" â”€â”€ */}
       <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 text-center">
         <motion.div
           initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-          className="p-6 sm:p-10 rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-2xl shadow-xl tis-specular-box"
+          className="p-6 sm:p-10 rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-2xl shadow-xl kinetic-specular-box"
         >
           <span className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase">
             THE CORE QUESTION
@@ -2045,23 +2045,23 @@ export default function Landing() {
               Because human growth isn't a static streak.
             </p>
             <p>
-              Streaks are static, fragile, and binary. A missed day wipes out 60 days of genuine effort. But human development isn't an unbroken straight line—it's an accumulated vector.
+              Streaks are static, fragile, and binary. A missed day wipes out 60 days of genuine effort. But human development isn't an unbroken straight lineâ€”it's an accumulated vector.
             </p>
             <p>
-              We built The Improvement System around Trajectory: a dynamic velocity engine protected by a ±10% mathematical buffer. Real consistency is measured by where your trajectory lands in 90 days, not whether every single day was flawless.
+              We built Kinetic around Trajectory: a dynamic velocity engine protected by a Â±10% mathematical buffer. Real consistency is measured by where your trajectory lands in 90 days, not whether every single day was flawless.
             </p>
           </div>
         </motion.div>
       </section>
 
-      {/* ── FINAL CALL TO ACTION (LIQUID GLASS DOCK & FREE FOREVER TRUST SIGNALS) ── */}
+      {/* â”€â”€ FINAL CALL TO ACTION (LIQUID GLASS DOCK & FREE FOREVER TRUST SIGNALS) â”€â”€ */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24 text-center">
         <motion.div
           initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-40px' }}
           transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-          className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-white/15 dark:border-white/10 bg-card/80 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden tis-specular-box"
+          className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-white/15 dark:border-white/10 bg-card/80 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden kinetic-specular-box"
         >
           <div className="relative z-10 max-w-2xl mx-auto">
             <span className="text-xs font-tech-mono font-semibold text-muted-foreground uppercase tracking-widest">
@@ -2100,12 +2100,12 @@ export default function Landing() {
                 <Check className="size-3 text-foreground" />
                 Free Forever (Zero Paywalls)
               </span>
-              <span>•</span>
+              <span>â€¢</span>
               <span className="flex items-center gap-1">
                 <Check className="size-3 text-foreground" />
                 No Credit Card Required
               </span>
-              <span>•</span>
+              <span>â€¢</span>
               <span className="flex items-center gap-1">
                 <Lock className="size-3 text-foreground" />
                 100% Private Offline Vault
@@ -2115,17 +2115,17 @@ export default function Landing() {
         </motion.div>
       </section>
 
-      {/* ── MINIMALIST FOOTER ── */}
+      {/* â”€â”€ MINIMALIST FOOTER â”€â”€ */}
       <footer className="relative z-10 border-t border-border/50 py-10 bg-background/80 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <SystemLogo size={26} />
             <div>
               <span className="font-display font-semibold text-sm text-foreground">
-                The Improvement System
+                Kinetic
               </span>
               <p className="text-[10px] text-muted-foreground font-tech-mono">
-                Personal Trajectory Engine • Consistency Without Perfection
+                Personal Trajectory Engine â€¢ Consistency Without Perfection
               </p>
             </div>
           </div>
@@ -2139,7 +2139,7 @@ export default function Landing() {
               Log In
             </button>
             <span className="hidden sm:inline text-border">|</span>
-            <span className="text-muted-foreground/60">© 2026 The Improvement System</span>
+            <span className="text-muted-foreground/60">Â© 2026 Kinetic</span>
           </div>
         </div>
       </footer>

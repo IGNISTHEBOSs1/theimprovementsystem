@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 // smallest reliable implementation of "small floating cards telling the
 // info." Never blocks interaction — the rest of the page stays fully
 // usable underneath, and Skip is available on every step.
-const TOUR_STORAGE_KEY = "tis-tour-seen";
+const TOUR_STORAGE_KEY = "kinetic-tour-seen";
 
 const STEPS = [
   { title: "Dashboard", body: "This is where you see what matters today — nothing more." },

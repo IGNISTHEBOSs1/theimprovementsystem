@@ -16,7 +16,7 @@ interface PrimaryActionPanelProps {
   onChooseQuest: () => void;
 }
 
-// Founder Decision (TIS visual toolkit chunk — USE: Spotlight Card,
+// Founder Decision (Kinetic visual toolkit chunk — USE: Spotlight Card,
 // adapted): the principle borrowed here is "draw the eye toward what
 // matters right now" — not the reference component's literal
 // implementation. Applied only to today's single active Quest (the one

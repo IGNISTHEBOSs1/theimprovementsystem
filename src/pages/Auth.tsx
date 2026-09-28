@@ -175,7 +175,7 @@ const Auth = () => {
         </div>
 
         {/* Liquid Frosted Glass Authentication Card */}
-        <div className="rounded-2xl border border-border/80 dark:border-white/10 bg-card/95 dark:bg-card/85 backdrop-blur-2xl shadow-xl dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_16px_40px_rgba(0,0,0,0.35)] overflow-hidden tis-specular-box">
+        <div className="rounded-2xl border border-border/80 dark:border-white/10 bg-card/95 dark:bg-card/85 backdrop-blur-2xl shadow-xl dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_16px_40px_rgba(0,0,0,0.35)] overflow-hidden kinetic-specular-box">
           {/* Header */}
           <div className="px-4 py-3 sm:py-3.5 text-center bg-muted/40 dark:bg-muted/20 border-b border-border/80 dark:border-white/10 backdrop-blur-md">
             <motion.div
@@ -188,7 +188,7 @@ const Auth = () => {
                 <SystemLogo size={26} />
               </div>
             </motion.div>
-            <h1 className="font-display font-bold text-base sm:text-lg text-foreground tracking-tight">The Improvement System</h1>
+            <h1 className="font-display font-bold text-base sm:text-lg text-foreground tracking-tight">Kinetic</h1>
             <p className="text-[9px] sm:text-[10px] text-muted-foreground mt-0.5 font-tech-mono tracking-widest uppercase">
               PERSONAL TRAJECTORY ENGINE
             </p>

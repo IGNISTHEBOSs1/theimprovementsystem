@@ -24,7 +24,7 @@ type ComparisonRow = {
   basis: string;
   subBasis?: string;
   otherText: string;
-  tisText: string;
+  kineticText: string;
 };
 
 // 4 high-signal, punchy comparison criteria (reduced basis for instant clarity on both mobile and PC)
@@ -33,25 +33,25 @@ const comparisons: ComparisonRow[] = [
     basis: "When life happens (missed day)",
     subBasis: "Illness, late flights, emergencies",
     otherText: "Resets streak to Day 0 (guilt & churn)",
-    tisText: "±10% trajectory buffer absorbs it (vector unbroken)",
+    kineticText: "±10% trajectory buffer absorbs it (vector unbroken)",
   },
   {
     basis: "Daily task load",
     subBasis: "Cognitive overhead & willpower",
     otherText: "Endless 15–20 item checklist overwhelm",
-    tisText: "Strict 1 Focus + 2 Routines (<2 min execution)",
+    kineticText: "Strict 1 Focus + 2 Routines (<2 min execution)",
   },
   {
     basis: "Core metric of progress",
     subBasis: "Static count vs dynamic vector",
     otherText: "Static binary streak counters & badges",
-    tisText: "Dynamic 90-day trajectory & velocity index",
+    kineticText: "Dynamic 90-day trajectory & velocity index",
   },
   {
     basis: "Privacy & cost",
     subBasis: "Data sovereignty & paywalls",
     otherText: "Paywalled streaks & cloud data harvesting",
-    tisText: "100% Free forever & local encrypted vault",
+    kineticText: "100% Free forever & local encrypted vault",
   },
 ];
 
@@ -60,7 +60,7 @@ interface ComparisonTableProps {
 }
 
 export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) {
-  const [mobileTab, setMobileTab] = React.useState<"tis" | "other">("tis");
+  const [mobileTab, setMobileTab] = React.useState<"kinetic" | "other">("kinetic");
 
   return (
     <section id="comparison-section" className="flex w-full justify-center bg-transparent px-3.5 sm:px-6 md:px-8 py-12 sm:py-20 text-foreground relative z-10">
@@ -79,7 +79,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xl">
             <span className="hidden sm:inline">
-              Streaks are static counters that shatter at the first interruption. The Improvement System prioritizes Trajectory—a dynamic, velocity-driven engine with a ±10% buffer that absorbs life's volatility.
+              Streaks are static counters that shatter at the first interruption. Kinetic prioritizes Trajectory—a dynamic, velocity-driven engine with a ±10% buffer that absorbs life's volatility.
             </span>
             <span className="sm:hidden">
               Streaks are static; trajectory is dynamic. Our ±10% buffer absorbs life so your vector continues.
@@ -101,7 +101,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
               <span className="flex size-4 items-center justify-center rounded bg-foreground text-background shrink-0 shadow-xs">
                 <RiCheckLine className="size-3 stroke-[2.5]" aria-hidden />
               </span>
-              <span>The Improvement System</span>
+              <span>Kinetic</span>
             </div>
           </div>
 
@@ -110,7 +110,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
             {comparisons.map((row) => (
               <div
                 key={row.basis}
-                className="p-3.5 rounded-2xl border border-white/20 dark:border-white/10 bg-white/[0.04] dark:bg-zinc-900/40 backdrop-blur-xl shadow-lg tis-specular-box"
+                className="p-3.5 rounded-2xl border border-white/20 dark:border-white/10 bg-white/[0.04] dark:bg-zinc-900/40 backdrop-blur-xl shadow-lg kinetic-specular-box"
               >
                 <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-white/10 dark:border-white/5">
                   <span className="font-semibold text-xs text-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
@@ -139,7 +139,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                     </span>
                   </div>
 
-                  {/* The Improvement System: Tick ✓ */}
+                  {/* Kinetic: Tick ✓ */}
                   <div className="p-2.5 rounded-xl border border-white/25 dark:border-white/15 bg-white/[0.08] dark:bg-white/[0.04] shadow-[inset_0_1px_1px_rgba(255,255,255,0.18)] flex flex-col gap-1.5">
                     <div className="flex items-center gap-1.5">
                       <span className="flex size-4 items-center justify-center rounded bg-foreground text-background shrink-0 shadow-xs">
@@ -150,7 +150,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                       </span>
                     </div>
                     <span className="text-[11px] font-semibold text-foreground leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
-                      {row.tisText}
+                      {row.kineticText}
                     </span>
                   </div>
                 </div>
@@ -167,7 +167,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
               data-cuelume-release="release"
               data-cuelume-hover="tick"
               className="w-full text-xs font-display font-semibold shadow-md h-10 active:scale-[0.98] rounded-xl group"
-              onClick={() => onSelectPlan?.("The Improvement System")}
+              onClick={() => onSelectPlan?.("Kinetic")}
             >
               <span>Start My 90 Days</span>
               <RiArrowRightLine className="size-3.5 ml-1.5 transition-transform duration-200 group-hover:translate-x-1" />
@@ -177,7 +177,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
 
         {/* ── DESKTOP VIEW: CLEAN 3-COLUMN SIDE-BY-SIDE MATRIX (LIQUID FROSTED GLASS) ── */}
         <div className="hidden sm:block relative">
-          <div className="overflow-x-auto rounded-2xl md:rounded-3xl border border-white/20 dark:border-white/15 bg-white/[0.03] dark:bg-zinc-950/35 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.18),0_20px_50px_rgba(0,0,0,0.35)] tis-specular-box transition-all duration-300">
+          <div className="overflow-x-auto rounded-2xl md:rounded-3xl border border-white/20 dark:border-white/15 bg-white/[0.03] dark:bg-zinc-950/35 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.18),0_20px_50px_rgba(0,0,0,0.35)] kinetic-specular-box transition-all duration-300">
             <Table className="table-fixed w-full text-xs sm:text-sm">
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-b border-white/15 dark:border-white/10 bg-white/[0.04] dark:bg-white/[0.02]">
@@ -203,14 +203,14 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                     </div>
                   </TableHead>
 
-                  {/* Right Column: The Improvement System */}
+                  {/* Right Column: Kinetic */}
                   <TableHead className="w-[31%] border-b border-white/15 dark:border-white/10 text-center align-bottom p-3.5 sm:p-4 bg-white/[0.06] dark:bg-white/[0.04] border-l border-white/15 dark:border-white/10">
                     <div className="flex flex-col items-center gap-1.5 py-1">
                       <div className="p-1 rounded-xl bg-card/80 border border-white/20 shadow-xs backdrop-blur-md">
                         <SystemLogo size={24} />
                       </div>
                       <span className="text-xs sm:text-sm font-display font-bold text-foreground">
-                        The Improvement System
+                        Kinetic
                       </span>
                       <span className="text-[9px] sm:text-[10px] font-tech-mono font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-foreground text-background">
                         Trajectory Engine
@@ -250,14 +250,14 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                       </div>
                     </TableCell>
 
-                    {/* TIS Column (Highlighted Glass Column) */}
+                    {/* Kinetic Column (Highlighted Glass Column) */}
                     <TableCell className="py-3 px-2.5 sm:px-3 text-center sm:text-left align-top sm:align-middle bg-white/[0.05] dark:bg-white/[0.03] border-l border-white/15 dark:border-white/10">
                       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1.5 sm:gap-2">
                         <span className="flex size-4 sm:size-5 items-center justify-center rounded bg-foreground text-background shadow-xs shrink-0 mt-0.5">
                           <RiCheckLine className="size-3 sm:size-3.5 stroke-[2.5]" aria-hidden />
                         </span>
                         <span className="text-[11px] sm:text-xs font-semibold text-foreground leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
-                          {row.tisText}
+                          {row.kineticText}
                         </span>
                       </div>
                     </TableCell>
@@ -285,7 +285,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                       data-cuelume-release="release"
                       data-cuelume-hover="tick"
                       className="w-full text-[11px] sm:text-xs font-display font-semibold shadow-xs h-8 sm:h-9 active:scale-[0.98] group"
-                      onClick={() => onSelectPlan?.("The Improvement System")}
+                      onClick={() => onSelectPlan?.("Kinetic")}
                     >
                       <span>Start My 90 Days</span>
                       <RiArrowRightLine className="size-3.5 ml-1 hidden sm:inline transition-transform duration-200 group-hover:translate-x-1" />

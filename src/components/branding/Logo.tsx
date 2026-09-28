@@ -2,19 +2,20 @@ import { useThemeContext } from '@/providers/ThemeProvider';
 import logoMicro from '@/assets/branding/logo-micro.svg';
 import logoMicroDark from '@/assets/branding/logo-micro-dark-mode.svg';
 
+
 /**
- * Canonical brand mark (TIS-BRAND-001).
+ * Kinetic Canonical brand mark.
  * Uses theme-aware micro vector marks for crisp, high-contrast display
- * in both Light and Dark modes without bundling oversized tracing assets.
+ * in both Light and Dark modes.
  */
-export const SystemLogo = ({ size = 40, className = '' }: { size?: number; className?: string }) => {
+export const KineticLogo = ({ size = 40, className = '' }: { size?: number; className?: string }) => {
   const { resolvedMode } = useThemeContext();
   const src = resolvedMode === 'dark' ? logoMicroDark : logoMicro;
 
   return (
     <img
       src={src}
-      alt="The Improvement System"
+      alt="Kinetic"
       width={size}
       height={size}
       className={className}
@@ -22,3 +23,6 @@ export const SystemLogo = ({ size = 40, className = '' }: { size?: number; class
     />
   );
 };
+
+export const SystemLogo = KineticLogo;
+

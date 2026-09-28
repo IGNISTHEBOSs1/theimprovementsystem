@@ -82,7 +82,7 @@ export function logError(error: unknown, context: ErrorLogContext = {}) {
   const { component = 'Unknown', ...rest } = context;
   const err = error instanceof Error ? error : new Error(safeStringify(error));
 
-  printBox('❌', 'TIS ERROR', [
+  printBox('❌', 'KINETIC ERROR', [
     ['Component', component],
     ['Message', err.message],
     ['Stack', err.stack ?? '(no stack available)'],
@@ -93,7 +93,7 @@ export function logError(error: unknown, context: ErrorLogContext = {}) {
 
 export function logWarning(message: string, context: Record<string, unknown> = {}) {
   if (!DEV) return;
-  printBox('⚠️', 'TIS WARNING', [
+  printBox('⚠️', 'KINETIC WARNING', [
     ['Message', message],
     ...(Object.keys(context).length ? ([['Context', safeStringify(context)]] as Array<[string, string]>) : []),
     ['Time', timestamp()],
@@ -198,5 +198,5 @@ export function initGlobalErrorCapture() {
     logError(event.reason, { component: 'unhandledrejection (uncaught async/Promise failure)' });
   });
 
-  console.log('%c[TIS Diagnostics] Dev diagnostics active', 'color: #8b5cf6; font-weight: bold;');
+  console.log('%c[Kinetic Diagnostics] Dev diagnostics active', 'color: #8b5cf6; font-weight: bold;');
 }

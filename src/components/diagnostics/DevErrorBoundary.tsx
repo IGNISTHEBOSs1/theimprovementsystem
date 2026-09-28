@@ -107,7 +107,7 @@ export class DevErrorBoundary extends Component<Props, State> {
 
           <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
             {isChunk
-              ? "A fresh deployment of The Improvement System is ready. Reloading will sync the latest assets."
+              ? "A fresh deployment of Kinetic is ready. Reloading will sync the latest assets."
               : "An unexpected condition occurred. Reloading the system will restore your session."}
           </p>
 

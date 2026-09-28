@@ -26,7 +26,7 @@ interface IdentityAvatarProps {
   active?: boolean;
 }
 
-// The avatar as persistent identity artifact (TIS-NAV-001, Refinement 1,
+// The avatar as persistent identity artifact (Kinetic-NAV-001, Refinement 1,
 // Option B). Reuses the existing bottom-dock Profile slot rather than
 // claiming any new permanent layout space — the ring is the only addition,
 // and it draws exclusively from the existing --primary token rather than

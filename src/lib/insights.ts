@@ -73,7 +73,7 @@ function rate(completed: number, total: number): number {
 }
 
 // Founder Decision (Personal Insight System — Momentum): the one
-// genuinely NEW derivation in this file — TIS did not previously compare
+// genuinely NEW derivation in this file — Kinetic did not previously compare
 // any two time periods against each other anywhere. Scoped to
 // goal-linked resolved Quests specifically (matching the brief's own
 // worked example: "completed 8 of your last 10 goal-linked Quests").

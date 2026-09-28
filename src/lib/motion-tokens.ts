@@ -1,12 +1,12 @@
 /**
- * The Improvement System (TIS) Kinetic Motion Standard
+ * Kinetic Motion Standard
  * Standardized spring physics, easing curves, and transition presets.
  * Based on Apple WWDC 2018 Fluid Interfaces & Compositor-Only 120fps Rendering.
  */
 
 import type { Transition } from "framer-motion";
 
-export const TIS_SPRINGS = {
+export const KINETIC_SPRINGS = {
   /**
    * Critically Damped (ζ = 1.0)
    * Decisive, instantaneous, zero oscillation or overshoot.
@@ -55,6 +55,8 @@ export const TIS_SPRINGS = {
     mass: 1.2,
   },
 } as const;
+
+export const TIS_SPRINGS = KINETIC_SPRINGS;
 
 export const TIS_EASINGS = {
   /**

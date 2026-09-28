@@ -6,11 +6,11 @@ import { useDashboardData } from '@/hooks/useDashboardData';
 // useDashboardData independently — two separate Supabase reads on load and
 // two separate write paths on quest completion, including two independent
 // useAchievements instances persisting to the same DB row. See
-// TIS-INFRA-006.
+// KINETIC-INFRA-006.
 //
 // This does not change useDashboardData itself, or any progression,
 // attribute, achievement, or persistence logic inside it (see
-// TIS-INFRA-003/004/005) — it only ensures the hook runs once and its
+// KINETIC-INFRA-003/004/005) — it only ensures the hook runs once and its
 // result is shared.
 
 type DashboardDataContextValue = ReturnType<typeof useDashboardData>;

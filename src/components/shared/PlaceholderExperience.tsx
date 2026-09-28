@@ -9,7 +9,7 @@ interface PlaceholderExperienceProps {
 // Deliberate placeholder for a nav destination that stays visible in the
 // architecture (Journey, Mentor) but isn't built yet. Communicates
 // intentional unavailability rather than reading as broken or forgotten —
-// per Founder decision on TIS-NAV-001's Refinement 2. Not a new product
+// per Founder decision on Kinetic-NAV-001's Refinement 2. Not a new product
 // feature: no interaction, no state, just an honest, calm holding screen
 // reusing existing design tokens.
 export function PlaceholderExperience({ icon: Icon, title, message }: PlaceholderExperienceProps) {

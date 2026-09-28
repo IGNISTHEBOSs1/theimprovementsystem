@@ -109,7 +109,7 @@ export function initPreloadRecovery(): void {
       triggerGuardedReload();
     } else {
       console.warn(
-        "[TIS Preload Recovery] Suppressed automatic reload to prevent loop. Chunk preload failure:",
+        "[Kinetic Preload Recovery] Suppressed automatic reload to prevent loop. Chunk preload failure:",
         (event as CustomEvent)?.detail || event
       );
     }
