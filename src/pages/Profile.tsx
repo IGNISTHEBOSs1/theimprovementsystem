@@ -17,11 +17,13 @@ import { Input } from "@/components/ui/input";
 import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { deriveFollowThroughStats, deriveCurrentStreak } from "@/lib/trajectory";
 
 export default function Profile() {
   const { profile, updateProfile } = useAuth();
   const { state, todayStr } = useDashboardDataContext();
+  const { playTap, playSuccess, playError } = useSoundEffects();
   const [editingGoal, setEditingGoal] = useState(false);
   const [goal, setGoal] = useState(profile?.primary_goal ?? "");
   const [targetDate, setTargetDate] = useState(profile?.primary_goal_target_date ?? "");
@@ -35,6 +37,7 @@ export default function Profile() {
   }, [profile?.primary_goal, profile?.primary_goal_target_date]);
 
   const startEditing = () => {
+    playTap();
     setGoal(profile?.primary_goal ?? "");
     setTargetDate(profile?.primary_goal_target_date ?? "");
     setSaveError(false);
@@ -43,6 +46,7 @@ export default function Profile() {
   };
 
   const cancelEditing = () => {
+    playTap();
     setGoal(profile?.primary_goal ?? "");
     setTargetDate(profile?.primary_goal_target_date ?? "");
     setSaveError(false);
@@ -65,11 +69,13 @@ export default function Profile() {
       setGoal(profile?.primary_goal ?? "");
       setTargetDate(profile?.primary_goal_target_date ?? "");
       setSaveError(true);
+      playError();
       return;
     }
     setGoal(saved.primary_goal ?? "");
     setTargetDate(saved.primary_goal_target_date ?? "");
     setSaveSuccess(true);
+    playSuccess();
     setEditingGoal(false);
   };
 

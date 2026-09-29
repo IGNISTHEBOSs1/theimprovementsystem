@@ -15,10 +15,13 @@ import {
   Lock,
   RefreshCw,
   Sliders,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import {
@@ -34,6 +37,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { useThemeContext, type ThemeMode } from "@/providers/ThemeProvider";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 import { detectDeviceTimezone } from "@/lib/serverTime";
 
 // Founder Decision (Profile/Settings separation chunk): timezone,
@@ -64,6 +68,16 @@ export default function Settings() {
   const { user, profile, updateProfile, signOut, resetGameProgress, deleteAccount } = useAuth();
   const { mode, setMode } = useThemeContext();
   const { reload } = useDashboardDataContext();
+  const {
+    soundEnabled,
+    setSoundEnabled,
+    playSuccess,
+    playButtonPress,
+    playToggle,
+    playConfirmation,
+    playDestructive,
+    playError,
+  } = useSoundEffects();
 
   const [timezone, setTimezone] = useState(profile?.timezone ?? "");
   const [tzSaving, setTzSaving] = useState(false);
@@ -97,11 +111,13 @@ export default function Settings() {
 
     if (!trimmed) {
       setTzError("A timezone is needed for your daily tasks and trajectory to reset on the right day.");
+      playError();
       return;
     }
     const known = getKnownTimezones();
     if (known && !known.includes(trimmed)) {
       setTzError(`"${trimmed}" isn't a recognized timezone (e.g. "Asia/Kolkata", "America/New_York").`);
+      playError();
       return;
     }
 
@@ -111,10 +127,12 @@ export default function Settings() {
     if (error || !saved) {
       setTimezone(profile?.timezone ?? "");
       setTzError("That didn't go through. You can try again.");
+      playError();
       return;
     }
     setTimezone(saved.timezone ?? "");
     setTzSuccess(true);
+    playSuccess();
   };
 
   const handleSyncDetectedTimezone = async () => {
@@ -128,10 +146,12 @@ export default function Settings() {
     if (error || !saved) {
       setTimezone(profile?.timezone ?? "");
       setTzError("Could not save device timezone. Please try again.");
+      playError();
       return;
     }
     setTimezone(saved.timezone ?? "");
     setTzSuccess(true);
+    playSuccess();
   };
 
   const handleSignOut = async () => {
@@ -148,8 +168,10 @@ export default function Settings() {
       await resetGameProgress();
       await reload();
       setResetSuccess(true);
+      playSuccess();
     } catch {
       setResetError(true);
+      playError();
     } finally {
       setResetting(false);
     }
@@ -160,10 +182,12 @@ export default function Settings() {
     setDeleteError(false);
     setDeleting(true);
     try {
+      playDestructive();
       await deleteAccount();
       navigate("/auth");
     } catch {
       setDeleteError(true);
+      playError();
       setDeleting(false);
     }
   };
@@ -242,7 +266,10 @@ export default function Settings() {
           <div className="mt-5">
             <Tabs
               value={mode}
-              onValueChange={(val) => setMode(val as ThemeMode)}
+              onValueChange={(val) => {
+                playToggle();
+                setMode(val as ThemeMode);
+              }}
               className="w-full"
             >
               <TabsList className="grid grid-cols-3 w-full max-w-md h-12 p-1.5 rounded-xl bg-muted/50 border border-border/80">
@@ -280,6 +307,86 @@ export default function Settings() {
                   ? "Obsidian Dark (Deep Matte Contrast)"
                   : "Auto Synchronized (Matches Device OS)"}
               </span>
+            </div>
+          </div>
+        </section>
+
+        {/* -- SECTION: TACTILE SOUND & ACOUSTIC FEEDBACK -- */}
+        <section
+          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          aria-labelledby="audio-heading"
+        >
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground">
+                {soundEnabled ? (
+                  <Volume2 className="size-4" aria-hidden="true" />
+                ) : (
+                  <VolumeX className="size-4 text-muted-foreground" aria-hidden="true" />
+                )}
+              </div>
+              <div>
+                <h2 id="audio-heading" className="text-sm font-semibold tracking-tight text-foreground">
+                  Acoustic Feedback & Sound Design
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Satisfying mechanical micro-clicks, confirmation toggles, and harmonic completion blooms.
+                </p>
+              </div>
+            </div>
+            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+              Audio Engine
+            </Badge>
+          </div>
+
+          <div className="mt-4 p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Switch
+                id="sound-toggle"
+                checked={soundEnabled}
+                onCheckedChange={(val) => {
+                  setSoundEnabled(val);
+                }}
+              />
+              <label htmlFor="sound-toggle" className="cursor-pointer">
+                <p className="text-xs sm:text-sm font-semibold text-foreground">
+                  {soundEnabled ? "Sound Feedback Active" : "Sound Feedback Muted"}
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  {soundEnabled
+                    ? "Interactive audio enabled for buttons, switches, and trajectory completions."
+                    : "All interface sounds are muted. Silent visual mode active."}
+                </p>
+              </label>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  playSuccess();
+                }}
+                disabled={!soundEnabled}
+                className="h-9 px-3 text-xs gap-1.5 active:scale-[0.98]"
+              >
+                <Sparkles className="size-3.5 text-foreground" />
+                <span>Test Success Bloom</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  playButtonPress();
+                }}
+                disabled={!soundEnabled}
+                className="h-9 px-3 text-xs gap-1.5 active:scale-[0.98]"
+              >
+                <Sliders className="size-3.5 text-foreground" />
+                <span>Test Click</span>
+              </Button>
             </div>
           </div>
         </section>

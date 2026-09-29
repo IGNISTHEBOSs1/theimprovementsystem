@@ -24,6 +24,7 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { deriveGoalPace, deriveGoalStats, deriveResolvedAt } from "@/lib/trajectory";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { triggerHaptic } from "@/lib/haptics";
+import { soundEngine } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
 
 export default function Journey() {
@@ -100,13 +101,16 @@ export default function Journey() {
   const handleOneTapBump = async () => {
     setIsRecalibrating(true);
     triggerHaptic("medium");
+    soundEngine.playTap();
 
     try {
       const { shiftedCount, error: recalibrateError } = await recalibrateSchedule();
       if (recalibrateError) {
+        soundEngine.playError();
         toast.error("Reschedule failed. Please try again.");
       } else if (shiftedCount > 0) {
         triggerHaptic("success");
+        soundEngine.playConfirmation();
         toast.success(
           `Moved ${shiftedCount} secondary commitment${
             shiftedCount > 1 ? "s" : ""
@@ -116,6 +120,7 @@ export default function Journey() {
         toast.info("Nothing to reschedule — only your main commitments remain for today.");
       }
     } catch {
+      soundEngine.playError();
       toast.error("Could not reschedule commitments.");
     } finally {
       setIsRecalibrating(false);
@@ -125,6 +130,7 @@ export default function Journey() {
   const handleActionComplete = async (questId: string) => {
     setCompletingId(questId);
     triggerHaptic("success");
+    soundEngine.playSuccess();
     await completeQuest(questId);
     setCompletingId(null);
     toast.success("Action recorded. Keep going!");

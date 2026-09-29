@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Quest } from "@/types/quest";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { triggerHaptic } from "@/lib/haptics";
+import { soundEngine } from "@/hooks/useSoundEffects";
 import { TIS_SPRINGS, TIS_EASINGS } from "@/lib/motion-tokens";
 import { cn } from "@/lib/utils";
 
@@ -56,6 +57,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
   const handleActionComplete = () => {
     if (completing || completionStage !== "idle") return;
     triggerHaptic("success");
+    soundEngine.playSuccess();
     if (shouldReduceMotion) {
       onComplete();
       return;

@@ -19,6 +19,7 @@ import { deriveGoalStats, deriveTrajectory, deriveCurrentStreak, deriveWeeklyCad
 import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
 import { triggerHaptic } from "@/lib/haptics";
+import { soundEngine } from "@/hooks/useSoundEffects";
 import { TIS_SPRINGS, TIS_EASINGS } from "@/lib/motion-tokens";
 import type { Quest } from "@/types/quest";
 
@@ -36,6 +37,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
   const handleMarkComplete = () => {
     if (completing || completionStage !== "idle") return;
     triggerHaptic("success");
+    soundEngine.playSuccess();
     if (shouldReduceMotion) {
       onComplete(quest.id);
       return;
@@ -137,7 +139,10 @@ export default function Dashboard() {
   const { user, profile, profileLoading, profileError, fetchProfile } = useAuth();
   const { state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, reload, todayStr } = useDashboardDataContext();
   const name = profile?.username || "there";
-  const chooseQuest = () => navigate("/quests");
+  const chooseQuest = () => {
+    soundEngine.playTap();
+    navigate("/quests");
+  };
   const [completeError, setCompleteError] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
@@ -148,6 +153,7 @@ export default function Dashboard() {
   // and clears it after consuming it (see that file) so navigating back
   // doesn't silently re-prefill.
   const handleRecommit = (quest: Quest) => {
+    soundEngine.playTap();
     navigate("/quests", {
       state: {
         prefill: {

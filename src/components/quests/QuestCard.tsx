@@ -3,6 +3,7 @@ import { Check, Target, Loader2, Repeat, Zap, X } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Quest } from "@/types/quest";
 import { triggerHaptic } from "@/lib/haptics";
+import { soundEngine } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
 
 interface QuestCardProps {
@@ -24,6 +25,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
     if (completing || completionStage !== "idle" || isDone) return;
     setCompletionStage("shrink");
     triggerHaptic("success");
+    soundEngine.playSuccess();
     if (shouldReduceMotion) {
       onComplete(quest.id);
     } else {
@@ -229,7 +231,10 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
           canCancel && (
             <button
               type="button"
-              onClick={() => onCancel!(quest.id)}
+              onClick={() => {
+                soundEngine.playTap();
+                onCancel!(quest.id);
+              }}
               disabled={cancelling || completing || isCompleted}
               className="p-1 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
               title="Cancel commitment"

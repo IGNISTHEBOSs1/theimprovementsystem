@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { nextEligibleDayLabel, MAX_ACTIVE_QUESTS, type CadencePreset } from "@/hooks/useDashboardData";
 import { getServerLocalDate, toServerLocalDate, type ServerLocalDate } from "@/lib/serverTime";
+import { soundEngine } from "@/hooks/useSoundEffects";
 import { cn } from "@/lib/utils";
 import type { Quest, QuestPriority } from "@/types/quest";
 
@@ -89,7 +90,9 @@ export default function Quests() {
     );
     if (commitErr) {
       setCommitError(true);
+      soundEngine.playError();
     } else {
+      soundEngine.playConfirmation();
       setShowCommitForm(false);
     }
   };
@@ -97,10 +100,14 @@ export default function Quests() {
   const handleComplete = async (questId: string) => {
     setCompleteError(false);
     const { error: completeErr } = await completeQuest(questId);
-    if (completeErr) setCompleteError(true);
+    if (completeErr) {
+      setCompleteError(true);
+      soundEngine.playError();
+    }
   };
 
   const handleCancel = (questId: string) => {
+    soundEngine.playTap();
     setCancelTargetId(questId);
   };
 
@@ -110,9 +117,13 @@ export default function Quests() {
     setCancelTargetId(null);
     setCancelError(false);
     setCancelling(true);
+    soundEngine.playTap();
     const { error: cancelErr } = await cancelQuest(id);
     setCancelling(false);
-    if (cancelErr) setCancelError(true);
+    if (cancelErr) {
+      setCancelError(true);
+      soundEngine.playError();
+    }
   };
 
   return (

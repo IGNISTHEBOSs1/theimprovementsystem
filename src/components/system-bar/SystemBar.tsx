@@ -12,6 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 import { SystemLogo } from "@/components/branding/Logo";
 import { triggerHaptic } from "@/lib/haptics";
+import { soundEngine } from "@/hooks/useSoundEffects";
 import { TIS_SPRINGS } from "@/lib/motion-tokens";
 
 const NAV_ITEMS = [
@@ -115,6 +116,9 @@ export default function SystemBar({
                 to={to}
                 end={to === "/"}
                 aria-current={active ? "page" : undefined}
+                onClick={() => {
+                  if (!active) soundEngine.playNavigation();
+                }}
                 className="relative flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-md text-sm transition-colors duration-150"
               >
                 {/* Active indicator */}
@@ -174,6 +178,7 @@ export default function SystemBar({
         <div className="mt-auto px-4 pb-6 space-y-2">
           <NavLink
             to="/profile/settings"
+            onClick={() => soundEngine.playNavigation()}
             className={({ isActive: active }) =>
               cn(
                 "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors",
@@ -190,6 +195,7 @@ export default function SystemBar({
           <button
             type="button"
             onClick={() => {
+              soundEngine.playTap();
               window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
             }}
             className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border/70 bg-card/60 hover:bg-accent hover:text-accent-foreground text-xs text-muted-foreground transition-colors group cursor-pointer"
@@ -244,7 +250,10 @@ export default function SystemBar({
                 to={to}
                 end={to === "/"}
                 aria-current={active ? "page" : undefined}
-                onClick={() => triggerHaptic("selection")}
+                onClick={() => {
+                  if (!active) soundEngine.playNavigation();
+                  triggerHaptic("selection");
+                }}
                 className="
                   relative
                   flex-1

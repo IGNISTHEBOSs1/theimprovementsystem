@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/lib/haptics";
+import { soundEngine } from "@/hooks/useSoundEffects";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-[color,background-color,border-color,box-shadow,transform] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -59,8 +60,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // haptic on actual completion; this covers every OTHER primary button
     // (Save, Choose today's focus, Try again, etc.) with a lighter tap.
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-      if (!asChild && variant !== "destructive" && (variant === undefined || variant === "default") && !disabled && !loading) {
-        triggerHaptic("light");
+      if (!asChild && !disabled && !loading) {
+        if (variant === "destructive") {
+          soundEngine.playDestructive();
+        } else {
+          soundEngine.playButtonPress();
+        }
+        if (variant === undefined || variant === "default") {
+          triggerHaptic("light");
+        }
       }
       onClick?.(event);
     };
