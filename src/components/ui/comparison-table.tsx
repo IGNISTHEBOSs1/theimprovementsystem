@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SystemLogo } from "@/components/branding/Logo";
+import { AtmosphericLift, MysteriousClipReveal } from "@/components/motion";
 import { cn } from "@/lib/utils";
 
 type ComparisonRow = {
@@ -67,24 +68,32 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
       <div className="mx-auto w-full max-w-5xl">
         {/* Section Header: Philosophical framing instead of aggressive attack */}
         <div className="mb-6 sm:mb-8 max-w-2xl mx-auto text-center sm:text-left">
-          <Badge
-            variant="outline"
-            className="mb-3 px-3 py-1 font-tech-mono text-[11px] tracking-wider uppercase border-white/20 dark:border-white/10 bg-white/[0.04] dark:bg-zinc-900/40 backdrop-blur-md shadow-xs"
-          >
-            <RiSparkling2Line className="size-3.5 mr-1.5 text-foreground" />
-            Architectural Comparison
-          </Badge>
-          <h2 className="text-2xl sm:text-4xl font-display font-extrabold tracking-tight text-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
-            A different way to think about consistency
-          </h2>
-          <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xl">
-            <span className="hidden sm:inline">
-              Streaks are static counters that shatter at the first interruption. Kinetic prioritizes Trajectory—a dynamic, velocity-driven engine with a ±10% buffer that absorbs life's volatility.
-            </span>
-            <span className="sm:hidden">
-              Streaks are static; trajectory is dynamic. Our ±10% buffer absorbs life so your vector continues.
-            </span>
-          </p>
+          <AtmosphericLift yOffset={14} blurAmount={4}>
+            <Badge
+              variant="outline"
+              className="mb-3 px-3 py-1 font-tech-mono text-[11px] tracking-wider uppercase border-white/20 dark:border-white/10 bg-white/[0.04] dark:bg-zinc-900/40 backdrop-blur-md shadow-xs"
+            >
+              <RiSparkling2Line className="size-3.5 mr-1.5 text-foreground" />
+              Architectural Comparison
+            </Badge>
+          </AtmosphericLift>
+
+          <MysteriousClipReveal direction="horizontal" duration={0.8} showLaserGlint={true}>
+            <h2 className="text-2xl sm:text-4xl font-display font-extrabold tracking-tight text-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)]">
+              A different way to think about consistency
+            </h2>
+          </MysteriousClipReveal>
+
+          <AtmosphericLift yOffset={14} blurAmount={6} delay={0.15}>
+            <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xl">
+              <span className="hidden sm:inline">
+                Streaks are static counters that shatter at the first interruption. Kinetic prioritizes Trajectory—a dynamic, velocity-driven engine with a ±10% buffer that absorbs life's volatility.
+              </span>
+              <span className="sm:hidden">
+                Streaks are static; trajectory is dynamic. Our ±10% buffer absorbs life so your vector continues.
+              </span>
+            </p>
+          </AtmosphericLift>
         </div>
 
         {/* ── MOBILE VIEW: SIDE-BY-SIDE TICK & CROSS COMPARISON ── */}

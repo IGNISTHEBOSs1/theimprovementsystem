@@ -26,6 +26,12 @@ import ComparisonTable from '@/components/ui/comparison-table';
 import { Magnetic } from '@/components/ui/magnetic';
 import { useThemeContext } from '@/providers/ThemeProvider';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import {
+  MysteriousClipReveal,
+  AtmosphericLift,
+  TelemetryStaggerContainer,
+  TelemetryStaggerItem,
+} from '@/components/motion';
 import { cn } from '@/lib/utils';
 
 // -- MONOCHROMATIC KINETIC MOTION BACKGROUND (VIVID, VISIBLE & VIEWED THROUGH GLASS) --
@@ -397,40 +403,28 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
 
   return (
     <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20">
-      {/* Section Header with Clip Reveal & Fade+Lift (IMAGE 02: REVEAL) */}
+      {/* Section Header with Clip Reveal & Fade+Lift */}
       <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-3 shadow-xs"
-        >
-          <span className="size-1.5 rounded-full bg-foreground" />
-          <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-            01 // SCROLL STORYTELLING • PIN + TRANSFORM
-          </span>
-        </motion.div>
+        <AtmosphericLift yOffset={14} blurAmount={4}>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-3 shadow-xs">
+            <span className="size-1.5 rounded-full bg-foreground" />
+            <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
+              01 // SCROLL STORYTELLING • PIN + TRANSFORM
+            </span>
+          </div>
+        </AtmosphericLift>
 
-        <motion.h2
-          initial={shouldReduceMotion ? false : { clipPath: 'inset(0 100% 0 0)', opacity: 0.3 }}
-          whileInView={{ clipPath: 'inset(0 0% 0 0)', opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight"
-        >
-          How The System Works In Practice
-        </motion.h2>
+        <MysteriousClipReveal direction="horizontal" duration={0.8} showLaserGlint={true}>
+          <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
+            How The System Works In Practice
+          </h2>
+        </MysteriousClipReveal>
 
-        <motion.p
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-          className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed"
-        >
-          Scroll to watch how a single daily focus and the ±10% buffer transform chaotic intentions into compounding trajectory.
-        </motion.p>
+        <AtmosphericLift yOffset={14} blurAmount={6} delay={0.15}>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+            Scroll to watch how a single daily focus and the ±10% buffer transform chaotic intentions into compounding trajectory.
+          </p>
+        </AtmosphericLift>
       </div>
 
       {/* -- DESKTOP PIN + TRANSFORM EXPERIENCE (IMAGE 01: PIN + TRANSFORM) -- */}
@@ -1024,52 +1018,55 @@ export default function Landing() {
       <div className="fixed top-0 inset-x-0 h-20 pointer-events-none z-40 bg-gradient-to-b from-background/85 via-background/40 to-transparent backdrop-blur-[3px]" />
 
       {/* -- HIGH-END LIQUID FROSTED GLASS FLOATING NAVBAR (ISLAND DOCK) -- */}
-      <header className="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-6 md:inset-x-8 max-w-5xl mx-auto z-50 kinetic-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300">
-        <div className="flex items-center justify-between gap-3 sm:gap-4">
-          {/* Brand Identity */}
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="p-1 rounded-xl bg-card/90 border border-white/20 dark:border-white/10 shadow-xs shrink-0 backdrop-blur-md">
-              <SystemLogo size={22} className="sm:hidden" />
-              <SystemLogo size={26} className="hidden sm:block" />
+      <AtmosphericLift yOffset={-16} duration={0.8} blurAmount={6} className="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-6 md:inset-x-8 max-w-5xl mx-auto z-50">
+        <header className="w-full kinetic-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300">
+          <div className="flex items-center justify-between gap-3 sm:gap-4">
+            {/* Brand Identity */}
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <div className="p-1 rounded-xl bg-card/90 border border-white/20 dark:border-white/10 shadow-xs shrink-0 backdrop-blur-md">
+                <SystemLogo size={22} className="sm:hidden" />
+                <SystemLogo size={26} className="hidden sm:block" />
+              </div>
+              <div className="min-w-0 flex items-center gap-2">
+                <MysteriousClipReveal direction="horizontal" duration={0.7} showLaserGlint={true}>
+                  <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight text-foreground uppercase truncate">
+                    Kinetic
+                  </span>
+                </MysteriousClipReveal>
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-tech-mono font-medium tracking-wider bg-muted/80 text-muted-foreground border border-border/80">
+                  <span className="size-1.5 rounded-full bg-foreground" />
+                  LOCAL ENCLAVE
+                </span>
+              </div>
             </div>
-            <div className="min-w-0 flex items-center gap-2">
-              <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight text-foreground uppercase truncate">
-                Kinetic
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-tech-mono font-medium tracking-wider bg-muted/80 text-muted-foreground border border-border/80">
-                <span className="size-1.5 rounded-full bg-foreground" />
-                LOCAL ENCLAVE
-              </span>
+
+            {/* Right Action Island: Tactile Theme Switcher + Tactile Log In Button */}
+            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+              {/* Unique Tactile Dark/Light Mode Slider */}
+              <TactileThemeToggle />
+
+              {/* Tactile Log In Button with Specular Edge & Magnetic Hover */}
+              <Magnetic strength={0.18}>
+                <Button
+                  variant="default"
+                  size="sm"
+                  data-cuelume-press="press"
+                  data-cuelume-release="release"
+                  data-cuelume-hover="tick"
+                  onClick={() => navigate('/auth')}
+                  className="text-xs px-3.5 sm:px-4 h-8 sm:h-9 font-display font-semibold shadow-xs active:scale-[0.96] rounded-full transition-transform"
+                >
+                  <span>Log In</span>
+                </Button>
+              </Magnetic>
             </div>
           </div>
-
-
-          {/* Right Action Island: Tactile Theme Switcher + Tactile Log In Button */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            {/* Unique Tactile Dark/Light Mode Slider */}
-            <TactileThemeToggle />
-
-            {/* Tactile Log In Button with Specular Edge & Magnetic Hover */}
-            <Magnetic strength={0.18}>
-              <Button
-                variant="default"
-                size="sm"
-                data-cuelume-press="press"
-                data-cuelume-release="release"
-                data-cuelume-hover="tick"
-                onClick={() => navigate('/auth')}
-                className="text-xs px-3.5 sm:px-4 h-8 sm:h-9 font-display font-semibold shadow-xs active:scale-[0.96] rounded-full transition-transform"
-              >
-                <span>Log In</span>
-              </Button>
-            </Magnetic>
-          </div>
-        </div>
-      </header>
+        </header>
+      </AtmosphericLift>
 
       {/* -- HERO SECTION: HUMAN OUTCOME FIRST, THEN SYSTEM MECHANISM -- */}
       <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-32 pb-8 sm:pb-16 text-center">
-        {/* Differential Parallax Floating Telemetry Chips (IMAGE 01: PARALLAX - Layers move at different speeds) */}
+        {/* Differential Parallax Floating Telemetry Chips */}
         <motion.div
           style={{ y: heroParallaxSlow }}
           className="hidden xl:flex absolute top-36 left-4 lg:left-8 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-xl text-[11px] font-tech-mono text-muted-foreground shadow-lg kinetic-specular-box pointer-events-none select-none z-20"
@@ -1088,42 +1085,31 @@ export default function Landing() {
           <span className="text-muted-foreground">• Drift Absorbed</span>
         </motion.div>
 
-        {/* Eyebrow with Fade + Lift (IMAGE 02: FADE + LIFT) */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-4 sm:mb-5 shadow-xs"
-        >
-          <Sparkles className="size-3.5 text-foreground shrink-0" />
-          <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-            <span className="hidden sm:inline">Personal Trajectory Engine • Dynamic Vector, Not Static Streaks</span>
-            <span className="sm:hidden">Dynamic Trajectory • ±10% Buffer</span>
-          </span>
-        </motion.div>
+        {/* Eyebrow with Atmospheric Lift */}
+        <AtmosphericLift yOffset={16} blurAmount={6} duration={0.65} className="inline-block mb-4 sm:mb-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xs">
+            <Sparkles className="size-3.5 text-foreground shrink-0" />
+            <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
+              <span className="hidden sm:inline">Personal Trajectory Engine • Dynamic Vector, Not Static Streaks</span>
+              <span className="sm:hidden">Dynamic Trajectory • ±10% Buffer</span>
+            </span>
+          </div>
+        </AtmosphericLift>
 
-        {/* Main Headline: Outcome-First with Monochromatic Gradient & Clip Reveal (IMAGE 02: CLIP REVEAL - Content gets uncovered) */}
-        <motion.h1
-          initial={shouldReduceMotion ? false : { clipPath: 'inset(0 100% 0 0)', opacity: 0.2 }}
-          animate={{ clipPath: 'inset(0 0% 0 0)', opacity: 1 }}
-          transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
-          className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12] mb-3 sm:mb-5 max-w-4xl mx-auto px-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
-        >
-          <span className="bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-950 dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-400 bg-clip-text text-transparent block sm:inline">
-            You don't need to be perfect
-          </span>{' '}
-          <span className="bg-gradient-to-b from-black via-zinc-950 to-black dark:from-white dark:via-zinc-50 dark:to-zinc-200 bg-clip-text text-transparent font-black block sm:inline">
-            to keep improving.
-          </span>
-        </motion.h1>
+        {/* Main Headline: Outcome-First with Monochromatic Gradient & Mysterious Clip Reveal */}
+        <MysteriousClipReveal direction="horizontal" duration={0.9} delay={0.08} showLaserGlint={true} className="max-w-4xl mx-auto mb-3 sm:mb-5 px-2">
+          <h1 className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12] drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
+            <span className="bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-950 dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-400 bg-clip-text text-transparent block sm:inline">
+              You don't need to be perfect
+            </span>{' '}
+            <span className="bg-gradient-to-b from-black via-zinc-950 to-black dark:from-white dark:via-zinc-50 dark:to-zinc-200 bg-clip-text text-transparent font-black block sm:inline">
+              to keep improving.
+            </span>
+          </h1>
+        </MysteriousClipReveal>
 
-        {/* Editorial Subline & Supporting Copy with Fade + Lift (IMAGE 02: FADE + LIFT) */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: 0.22 }}
-          className="max-w-2xl mx-auto mb-6 sm:mb-8 px-2 space-y-2"
-        >
+        {/* Editorial Subline & Supporting Copy with Atmospheric Lift */}
+        <AtmosphericLift yOffset={20} blurAmount={8} duration={0.7} delay={0.2} className="max-w-2xl mx-auto mb-6 sm:mb-8 px-2 space-y-2">
           <p className="text-sm sm:text-lg font-medium text-foreground font-display drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)]">
             Streaks are static; trajectory is dynamic. One daily focus cushioned by a ±10% mathematical buffer.
           </p>
@@ -1135,15 +1121,10 @@ export default function Landing() {
               Streaks are static and shatter on day one. We protect your 90-day trajectory with 1 focus, 2 routines, and an elastic ±10% buffer cone.
             </span>
           </p>
-        </motion.div>
+        </AtmosphericLift>
 
-        {/* Primary CTA Row & Prominent Free Forever Trust Signals with Fade + Lift */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.32 }}
-          className="flex flex-col items-center justify-center gap-3 mb-8 sm:mb-12 px-3 max-w-md sm:max-w-none mx-auto"
-        >
+        {/* Primary CTA Row & Prominent Free Forever Trust Signals with Atmospheric Lift */}
+        <AtmosphericLift yOffset={18} blurAmount={6} duration={0.65} delay={0.3} className="flex flex-col items-center justify-center gap-3 mb-8 sm:mb-12 px-3 max-w-md sm:max-w-none mx-auto">
           <div className="flex flex-col sm:flex-row items-center gap-2.5 sm:gap-3.5 w-full sm:w-auto">
             <Magnetic strength={0.25}>
               <Button
@@ -1174,12 +1155,7 @@ export default function Landing() {
           </div>
 
           {/* Prominent Trust Signal with Staggered entrance */}
-          <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.45 }}
-            className="flex flex-wrap items-center justify-center gap-3 text-[11px] font-tech-mono text-muted-foreground/90 mt-1"
-          >
+          <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] font-tech-mono text-muted-foreground/90 mt-1">
             <span className="flex items-center gap-1.5 font-medium text-foreground">
               <Check className="size-3.5 text-foreground" />
               Free Forever
@@ -1191,8 +1167,8 @@ export default function Landing() {
             </span>
             <span>•</span>
             <span className="hidden sm:inline">No Credit Card Required</span>
-          </motion.div>
-        </motion.div>
+          </div>
+        </AtmosphericLift>
       </section>
 
       {/* -- PRODUCT SNEAK PEEK CONSOLE (LIVE INTERACTIVE TRAJECTORY) -- */}
@@ -1202,7 +1178,8 @@ export default function Landing() {
           className="relative max-w-5xl mx-auto text-left"
         >
           {/* Hardware Frame with Liquid Frosted Glass and Monochromatic Specular Rim */}
-          <div className="relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden kinetic-specular-box">
+          <MysteriousClipReveal direction="center-out" duration={0.9} delay={0.08} showLaserGlint={true} className="rounded-2xl md:rounded-3xl">
+            <div className="relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden kinetic-specular-box">
             {/* Top Bar HUD */}
             <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b border-white/10 dark:border-white/10 bg-muted/30 text-xs font-tech-mono backdrop-blur-md">
               <div className="flex items-center gap-2">
@@ -1534,164 +1511,171 @@ export default function Landing() {
                       </button>
                     </div>
 
-                    {/* Primary Focus Card (Image 04: Press + Spring feedback) */}
-                    <div
-                      role="button"
-                      tabIndex={0}
-                      data-cuelume-press="press"
-                      data-cuelume-release="release"
-                      data-cuelume-hover="tick"
-                      onClick={() => {
-                        handleUserActivity();
-                        setFocusDone(!focusDone);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleUserActivity();
-                          setFocusDone(!focusDone);
-                        }
-                      }}
-                      className={`mt-2.5 sm:mt-3 p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] ${
-                        activePressedTarget === 'focus' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
-                      } ${
-                        focusDone
-                          ? 'border-foreground/40 bg-muted/60 shadow-xs'
-                          : 'border-border/80 bg-background/90 hover:border-foreground/30'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
+                    {/* Primary Focus Card & Routines in Telemetry Stagger */}
+                    <TelemetryStaggerContainer staggerDelay={0.08} className="space-y-2 mt-2.5 sm:mt-3">
+                      <TelemetryStaggerItem>
+                        {/* Primary Focus Card (Image 04: Press + Spring feedback) */}
                         <div
-                          ref={focusBoxRef}
-                          className={`size-6 rounded-lg border flex items-center justify-center transition-colors mt-0.5 shrink-0 ${
+                          role="button"
+                          tabIndex={0}
+                          data-cuelume-press="press"
+                          data-cuelume-release="release"
+                          data-cuelume-hover="tick"
+                          onClick={() => {
+                            handleUserActivity();
+                            setFocusDone(!focusDone);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleUserActivity();
+                              setFocusDone(!focusDone);
+                            }
+                          }}
+                          className={`p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] ${
+                            activePressedTarget === 'focus' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
+                          } ${
                             focusDone
-                              ? 'bg-foreground border-foreground text-background'
-                              : 'border-border bg-background/80 text-transparent'
+                              ? 'border-foreground/40 bg-muted/60 shadow-xs'
+                              : 'border-border/80 bg-background/90 hover:border-foreground/30'
                           }`}
                         >
-                          <Check className="size-3.5 stroke-[3]" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-tech-mono font-semibold uppercase tracking-wider text-foreground">
-                              PRIMARY FOCUS
-                            </span>
-                            <span className="text-[9px] font-tech-mono px-1.5 py-0.5 rounded bg-muted text-foreground border border-border">
-                              +35% THRUST
-                            </span>
+                          <div className="flex items-start gap-3">
+                            <div
+                              ref={focusBoxRef}
+                              className={`size-6 rounded-lg border flex items-center justify-center transition-colors mt-0.5 shrink-0 ${
+                                focusDone
+                                  ? 'bg-foreground border-foreground text-background'
+                                  : 'border-border bg-background/80 text-transparent'
+                              }`}
+                            >
+                              <Check className="size-3.5 stroke-[3]" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-tech-mono font-semibold uppercase tracking-wider text-foreground">
+                                  PRIMARY FOCUS
+                                </span>
+                                <span className="text-[9px] font-tech-mono px-1.5 py-0.5 rounded bg-muted text-foreground border border-border">
+                                  +35% THRUST
+                                </span>
+                              </div>
+                              <p
+                                className={`text-xs sm:text-sm font-medium mt-1 leading-snug transition-colors ${
+                                  focusDone ? 'line-through text-muted-foreground' : 'text-foreground font-semibold'
+                                }`}
+                              >
+                                Finalize core mathematical buffer specification
+                              </p>
+                            </div>
                           </div>
-                          <p
-                            className={`text-xs sm:text-sm font-medium mt-1 leading-snug transition-colors ${
-                              focusDone ? 'line-through text-muted-foreground' : 'text-foreground font-semibold'
-                            }`}
-                          >
-                            Finalize core mathematical buffer specification
-                          </p>
                         </div>
-                      </div>
-                    </div>
+                      </TelemetryStaggerItem>
 
-                    {/* Routine 1 */}
-                    <div className="space-y-2 mt-2 sm:mt-2.5">
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        data-cuelume-press="press"
-                        data-cuelume-release="release"
-                        data-cuelume-hover="tick"
-                        onClick={() => {
-                          handleUserActivity();
-                          setRoutine1Done(!routine1Done);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
+                      <TelemetryStaggerItem>
+                        {/* Routine 1 */}
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          data-cuelume-press="press"
+                          data-cuelume-release="release"
+                          data-cuelume-hover="tick"
+                          onClick={() => {
                             handleUserActivity();
                             setRoutine1Done(!routine1Done);
-                          }
-                        }}
-                        className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] flex items-center justify-between ${
-                          activePressedTarget === 'routine1' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
-                        } ${
-                          routine1Done
-                            ? 'border-border/80 bg-muted/40'
-                            : 'border-border/60 bg-background/90 hover:border-border'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div
-                            ref={routine1BoxRef}
-                            className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                              routine1Done
-                                ? 'border-foreground bg-foreground text-background'
-                                : 'border-border bg-background'
-                            }`}
-                          >
-                            {routine1Done && <Check className="size-2.5 stroke-[3]" />}
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleUserActivity();
+                              setRoutine1Done(!routine1Done);
+                            }
+                          }}
+                          className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] flex items-center justify-between ${
+                            activePressedTarget === 'routine1' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
+                          } ${
+                            routine1Done
+                              ? 'border-border/80 bg-muted/40'
+                              : 'border-border/60 bg-background/90 hover:border-border'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div
+                              ref={routine1BoxRef}
+                              className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                                routine1Done
+                                  ? 'border-foreground bg-foreground text-background'
+                                  : 'border-border bg-background'
+                              }`}
+                            >
+                              {routine1Done && <Check className="size-2.5 stroke-[3]" />}
+                            </div>
+                            <span
+                              className={`text-xs truncate transition-colors ${
+                                routine1Done ? 'text-muted-foreground line-through' : 'text-foreground'
+                              }`}
+                            >
+                              Morning Deep Reading (45m)
+                            </span>
                           </div>
-                          <span
-                            className={`text-xs truncate transition-colors ${
-                              routine1Done ? 'text-muted-foreground line-through' : 'text-foreground'
-                            }`}
-                          >
-                            Morning Deep Reading (45m)
+                          <span className="text-[9px] font-tech-mono text-muted-foreground shrink-0 ml-2">
+                            +10% CADENCE
                           </span>
                         </div>
-                        <span className="text-[9px] font-tech-mono text-muted-foreground shrink-0 ml-2">
-                          +10% CADENCE
-                        </span>
-                      </div>
+                      </TelemetryStaggerItem>
 
-                      {/* Routine 2 */}
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        data-cuelume-press="press"
-                        data-cuelume-release="release"
-                        data-cuelume-hover="tick"
-                        onClick={() => {
-                          handleUserActivity();
-                          setRoutine2Done(!routine2Done);
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
+                      <TelemetryStaggerItem>
+                        {/* Routine 2 */}
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          data-cuelume-press="press"
+                          data-cuelume-release="release"
+                          data-cuelume-hover="tick"
+                          onClick={() => {
                             handleUserActivity();
                             setRoutine2Done(!routine2Done);
-                          }
-                        }}
-                        className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] flex items-center justify-between ${
-                          activePressedTarget === 'routine2' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
-                        } ${
-                          routine2Done
-                            ? 'border-border/80 bg-muted/40'
-                            : 'border-border/60 bg-background/90 hover:border-border'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div
-                            ref={routine2BoxRef}
-                            className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                              routine2Done
-                                ? 'border-foreground bg-foreground text-background'
-                                : 'border-border bg-background'
-                            }`}
-                          >
-                            {routine2Done && <Check className="size-2.5 stroke-[3]" />}
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              handleUserActivity();
+                              setRoutine2Done(!routine2Done);
+                            }
+                          }}
+                          className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] flex items-center justify-between ${
+                            activePressedTarget === 'routine2' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
+                          } ${
+                            routine2Done
+                              ? 'border-border/80 bg-muted/40'
+                              : 'border-border/60 bg-background/90 hover:border-border'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div
+                              ref={routine2BoxRef}
+                              className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
+                                routine2Done
+                                  ? 'border-foreground bg-foreground text-background'
+                                  : 'border-border bg-background'
+                              }`}
+                            >
+                              {routine2Done && <Check className="size-2.5 stroke-[3]" />}
+                            </div>
+                            <span
+                              className={`text-xs truncate transition-colors ${
+                                routine2Done ? 'text-muted-foreground line-through' : 'text-foreground'
+                              }`}
+                            >
+                              Evening Trajectory Review
+                            </span>
                           </div>
-                          <span
-                            className={`text-xs truncate transition-colors ${
-                              routine2Done ? 'text-muted-foreground line-through' : 'text-foreground'
-                            }`}
-                          >
-                            Evening Trajectory Review
+                          <span className="text-[9px] font-tech-mono text-muted-foreground shrink-0 ml-2">
+                            +10% HABIT SEAL
                           </span>
                         </div>
-                        <span className="text-[9px] font-tech-mono text-muted-foreground shrink-0 ml-2">
-                          +10% HABIT SEAL
-                        </span>
-                      </div>
-                    </div>
+                      </TelemetryStaggerItem>
+                    </TelemetryStaggerContainer>
 
                     {/* Execution Bar */}
                     <div className="mt-3 pt-2.5 sm:pt-3 border-t border-border/40">
@@ -1750,206 +1734,227 @@ export default function Landing() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </MysteriousClipReveal>
+      </div>
+    </section>
 
       {/* -- SECTION: THIS IS FOR YOU IF... (PEOPLE & EMPATHY RECOGNITION) -- */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-          <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
-            WHO THIS IS FOR
-          </p>
-          <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
-            Built for people who are tired of starting over
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-            If any of these sound familiar, you don't lack discipline — you were tracking static streaks instead of dynamic trajectory.
-          </p>
+          <AtmosphericLift yOffset={14} blurAmount={4}>
+            <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
+              WHO THIS IS FOR
+            </p>
+          </AtmosphericLift>
+
+          <MysteriousClipReveal direction="horizontal" duration={0.8} showLaserGlint={true}>
+            <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
+              Built for people who are tired of starting over
+            </h2>
+          </MysteriousClipReveal>
+
+          <AtmosphericLift yOffset={14} blurAmount={6} delay={0.15}>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+              If any of these sound familiar, you don't lack discipline — you were tracking static streaks instead of dynamic trajectory.
+            </p>
+          </AtmosphericLift>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3">
-            <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
-              <RotateCcw className="size-4" />
+        <TelemetryStaggerContainer staggerDelay={0.08} className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+          <TelemetryStaggerItem>
+            <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3 h-full">
+              <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
+                <RotateCcw className="size-4" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-sm sm:text-base text-foreground">
+                  You start strong, but one busy week resets you
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  You build a 12-day streak, get sick on Tuesday, see a big red "0", and psychologically abandon the app. Streaks are static; trajectory remembers your cumulative work.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-display font-semibold text-sm sm:text-base text-foreground">
-                You start strong, but one busy week resets you
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                You build a 12-day streak, get sick on Tuesday, see a big red "0", and psychologically abandon the app. Streaks are static; trajectory remembers your cumulative work.
-              </p>
-            </div>
-          </div>
+          </TelemetryStaggerItem>
 
-          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3">
-            <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
-              <Layers className="size-4" />
+          <TelemetryStaggerItem>
+            <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3 h-full">
+              <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
+                <Layers className="size-4" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-sm sm:text-base text-foreground">
+                  Your to-do list became a graveyard of guilt
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  25 tasks rollover every midnight. You spend more time managing productivity systems than doing real work.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-display font-semibold text-sm sm:text-base text-foreground">
-                Your to-do list became a graveyard of guilt
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                25 tasks rollover every midnight. You spend more time managing productivity systems than doing real work.
-              </p>
-            </div>
-          </div>
+          </TelemetryStaggerItem>
 
-          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3">
-            <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
-              <TrendingUp className="size-4" />
+          <TelemetryStaggerItem>
+            <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3 h-full">
+              <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
+                <TrendingUp className="size-4" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-sm sm:text-base text-foreground">
+                  You want momentum without app slavery
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  You don't want childish cartoon gamification or casino sounds. You want quiet mathematical proof that you are advancing.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-display font-semibold text-sm sm:text-base text-foreground">
-                You want momentum without app slavery
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                You don't want childish cartoon gamification or casino sounds. You want quiet mathematical proof that you are advancing.
-              </p>
-            </div>
-          </div>
+          </TelemetryStaggerItem>
 
-          <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3">
-            <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
-              <ShieldCheck className="size-4" />
+          <TelemetryStaggerItem>
+            <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3 h-full">
+              <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
+                <ShieldCheck className="size-4" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-sm sm:text-base text-foreground">
+                  You want an execution system you can finish in 90 seconds
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  1 primary focus. 2 routines. Zero backlog. Open it, mark your anchor, and shut the screen to live your life.
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-display font-semibold text-sm sm:text-base text-foreground">
-                You want an execution system you can finish in 90 seconds
-              </h3>
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                1 primary focus. 2 routines. Zero backlog. Open it, mark your anchor, and shut the screen to live your life.
-              </p>
-            </div>
-          </div>
-        </div>
+          </TelemetryStaggerItem>
+        </TelemetryStaggerContainer>
       </section>
 
       {/* -- SECTION: VISUAL CORE CONCEPT (FRAGILE STREAK VS. PROTECTED TRAJECTORY) -- */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-          <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
-            THE MATHEMATICAL DIFFERENCE
-          </p>
-          <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
-            Streaks are static. Trajectory is dynamic.
-          </h2>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-            Streaks require robotic perfection and shatter at the first miss. Trajectory is a holistic, velocity-based foundation for real human growth.
-          </p>
+          <AtmosphericLift yOffset={14} blurAmount={4}>
+            <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
+              THE MATHEMATICAL DIFFERENCE
+            </p>
+          </AtmosphericLift>
+
+          <MysteriousClipReveal direction="horizontal" duration={0.8} showLaserGlint={true}>
+            <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
+              Streaks are static. Trajectory is dynamic.
+            </h2>
+          </MysteriousClipReveal>
+
+          <AtmosphericLift yOffset={14} blurAmount={6} delay={0.15}>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+              Streaks require robotic perfection and shatter at the first miss. Trajectory is a holistic, velocity-based foundation for real human growth.
+            </p>
+          </AtmosphericLift>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        <TelemetryStaggerContainer staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Fragile Streak Card */}
-          <div className="rounded-2xl border border-border/80 bg-card/50 dark:bg-card/30 p-5 sm:p-6 backdrop-blur-xl kinetic-specular-box relative">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-tech-mono px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
-                TRADITIONAL HABIT APPS
-              </span>
-              <span className="text-xs font-tech-mono text-muted-foreground font-semibold">
-                Static Streak
-              </span>
-            </div>
-            <h3 className="font-display font-bold text-lg text-foreground mb-3">
-              Binary Counter: One Miss = Complete Reset
-            </h3>
+          <TelemetryStaggerItem>
+            <div className="rounded-2xl border border-border/80 bg-card/50 dark:bg-card/30 p-5 sm:p-6 backdrop-blur-xl kinetic-specular-box relative h-full flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-tech-mono px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                    TRADITIONAL HABIT APPS
+                  </span>
+                  <span className="text-xs font-tech-mono text-muted-foreground font-semibold">
+                    Static Streak
+                  </span>
+                </div>
+                <h3 className="font-display font-bold text-lg text-foreground mb-3">
+                  Binary Counter: One Miss = Complete Reset
+                </h3>
 
-            {/* Visual Timeline Diagram */}
-            <div className="p-3 rounded-xl bg-background/80 border border-border/60 font-tech-mono text-[11px] mb-4 space-y-2">
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D1</span>
-                <span>→</span>
-                <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D2</span>
-                <span>→</span>
-                <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D3</span>
-                <span>→</span>
-                <span className="flex items-center gap-1 text-foreground font-bold underline"><XCircle className="size-3 text-foreground" /> MISS</span>
-                <span>→</span>
-                <span className="text-foreground font-bold">RESET (0)</span>
+                {/* Visual Timeline Diagram */}
+                <div className="p-3 rounded-xl bg-background/80 border border-border/60 font-tech-mono text-[11px] mb-4 space-y-2">
+                  <div className="flex items-center justify-between text-muted-foreground">
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D1</span>
+                    <span>→</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D2</span>
+                    <span>→</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D3</span>
+                    <span>→</span>
+                    <span className="flex items-center gap-1 text-foreground font-bold underline"><XCircle className="size-3 text-foreground" /> MISS</span>
+                    <span>→</span>
+                    <span className="text-foreground font-bold">RESET (0)</span>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Streaks are static: they treat Day 2 and Day 89 with the exact same binary fragility. One unavoidable disruption resets your count to zero, erasing psychological momentum and triggering churn.
-            </p>
-          </div>
+              <p className="text-xs text-muted-foreground leading-relaxed mt-2">
+                Streaks are static: they treat Day 2 and Day 89 with the exact same binary fragility. One unavoidable disruption resets your count to zero, erasing psychological momentum and triggering churn.
+              </p>
+            </div>
+          </TelemetryStaggerItem>
 
           {/* Protected Trajectory Card (Kinetic) */}
-          <div className="rounded-2xl border border-white/20 dark:border-white/10 bg-card/85 dark:bg-card/60 p-5 sm:p-6 backdrop-blur-xl kinetic-specular-box relative">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-[10px] font-tech-mono px-2 py-0.5 rounded bg-foreground text-background font-bold">
-                KINETIC
-              </span>
-              <span className="text-xs font-tech-mono text-foreground font-semibold">
-                ±10% Trajectory Buffer
-              </span>
-            </div>
-            <h3 className="font-display font-bold text-lg text-foreground mb-3">
-              Cumulative Vector: ±10% Buffer Absorbs Drift
-            </h3>
+          <TelemetryStaggerItem>
+            <div className="rounded-2xl border border-white/20 dark:border-white/10 bg-card/85 dark:bg-card/60 p-5 sm:p-6 backdrop-blur-xl kinetic-specular-box relative h-full flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[10px] font-tech-mono px-2 py-0.5 rounded bg-foreground text-background font-bold">
+                    KINETIC
+                  </span>
+                  <span className="text-xs font-tech-mono text-foreground font-semibold">
+                    ±10% Trajectory Buffer
+                  </span>
+                </div>
+                <h3 className="font-display font-bold text-lg text-foreground mb-3">
+                  Cumulative Vector: ±10% Buffer Absorbs Drift
+                </h3>
 
-            {/* Visual Timeline Diagram */}
-            <div className="p-3 rounded-xl bg-background/90 border border-foreground/30 font-tech-mono text-[11px] mb-4 space-y-2">
-              <div className="flex items-center justify-between text-foreground">
-                <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D1</span>
-                <span>→</span>
-                <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D2</span>
-                <span>→</span>
-                <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D3</span>
-                <span>→</span>
-                <span className="flex items-center gap-1 font-bold"><Zap className="size-3 text-foreground" /> BUFFER</span>
-                <span>→</span>
-                <span className="text-foreground font-bold">D90 CONTINUES</span>
+                {/* Visual Timeline Diagram */}
+                <div className="p-3 rounded-xl bg-background/90 border border-foreground/30 font-tech-mono text-[11px] mb-4 space-y-2">
+                  <div className="flex items-center justify-between text-foreground">
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D1</span>
+                    <span>→</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D2</span>
+                    <span>→</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D3</span>
+                    <span>→</span>
+                    <span className="flex items-center gap-1 font-bold"><Zap className="size-3 text-foreground" /> BUFFER</span>
+                    <span>→</span>
+                    <span className="text-foreground font-bold">D90 CONTINUES</span>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Trajectory is dynamic: it maps cumulative velocity across your 90-day horizon. The ±10% mathematical buffer cushions life's interruptions so a single off-day never wipes out weeks of authentic follow-through.
-            </p>
-          </div>
-        </div>
+              <p className="text-xs text-muted-foreground leading-relaxed mt-2">
+                Trajectory is dynamic: it maps cumulative velocity across your 90-day horizon. The ±10% mathematical buffer cushions life's interruptions so a single off-day never wipes out weeks of authentic follow-through.
+              </p>
+            </div>
+          </TelemetryStaggerItem>
+        </TelemetryStaggerContainer>
       </section>
 
       {/* -- SECTION: THE THREE PILLARS (BENEFIT-ORIENTED, REDUCED BACKLOG FATIGUE) -- */}
       <section id="pillars-section" className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-          <motion.div
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-3 shadow-xs"
-          >
-            <span className="size-1.5 rounded-full bg-foreground" />
-            <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-              02 // REVEAL HIERARCHY • THE THREE PILLARS
-            </span>
-          </motion.div>
+          <AtmosphericLift yOffset={14} blurAmount={4}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-3 shadow-xs">
+              <span className="size-1.5 rounded-full bg-foreground" />
+              <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
+                02 // REVEAL HIERARCHY • THE THREE PILLARS
+              </span>
+            </div>
+          </AtmosphericLift>
 
-          <motion.h2
-            initial={shouldReduceMotion ? false : { clipPath: 'inset(0 100% 0 0)', opacity: 0.2 }}
-            whileInView={{ clipPath: 'inset(0 0% 0 0)', opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight"
-          >
-            The Three Steps to Quiet Follow-Through
-          </motion.h2>
+          <MysteriousClipReveal direction="horizontal" duration={0.8} showLaserGlint={true}>
+            <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
+              The Three Steps to Quiet Follow-Through
+            </h2>
+          </MysteriousClipReveal>
 
-          <motion.p
-            initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-            className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed"
-          >
-            Eliminate decision fatigue and sustain lifelong momentum with three architectural rules.
-          </motion.p>
+          <AtmosphericLift yOffset={14} blurAmount={6} delay={0.15}>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+              Eliminate decision fatigue and sustain lifelong momentum with three architectural rules.
+            </p>
+          </AtmosphericLift>
         </div>
 
-        {/* The Three Steps: Fade + Lift & Staggered Entrance on Desktop & Mobile (IMAGE 02: ENTRANCE -> HIERARCHY) */}
-        <div className="flex flex-col md:flex-row gap-4 sm:gap-5 items-stretch justify-center">
+        {/* The Three Steps: Fade + Lift & Staggered Entrance on Desktop & Mobile */}
+        <TelemetryStaggerContainer staggerDelay={0.09} className="flex flex-col md:flex-row gap-4 sm:gap-5 items-stretch justify-center">
           {principles.map((p, index) => {
             const isHovered = isDesktop && hoveredStep === index;
             const isOtherHovered = isDesktop && hoveredStep !== null && hoveredStep !== index;
@@ -1957,10 +1962,10 @@ export default function Landing() {
             return (
               <motion.div
                 key={p.step}
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 28, filter: 'blur(6px)' }}
+                whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.55, delay: index * 0.12, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.65, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 onMouseEnter={() => isDesktop && setHoveredStep(index)}
                 onMouseLeave={() => isDesktop && setHoveredStep(null)}
                 className={cn(
@@ -1970,7 +1975,7 @@ export default function Landing() {
                     isHovered
                       ? "md:flex-[1.4] border-white/25 shadow-2xl bg-card/90 z-10"
                       : isOtherHovered
-                      ? "md:flex-[0.8] border-white/10 bg-card/50 opacity-80 hover:opacity-100"
+                      ? "md:flex-[0.8] border-white/10 bg-card/50 opacity-75 hover:opacity-100"
                       : "md:flex-1 border-white/10 bg-card/65 shadow-lg"
                   )
                 )}
@@ -2010,7 +2015,7 @@ export default function Landing() {
               </motion.div>
             );
           })}
-        </div>
+        </TelemetryStaggerContainer>
       </section>
 
       {/* -- SECTION: HOW IT WORKS (PIN + TRANSFORM SCROLL STORYTELLING ENGINE) -- */}
@@ -2021,92 +2026,88 @@ export default function Landing() {
 
       {/* -- DIRECT OBJECTION HANDLING: "WHY NOT JUST USE A NORMAL HABIT TRACKER?" -- */}
       <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 text-center">
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-          className="p-6 sm:p-10 rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-2xl shadow-xl kinetic-specular-box"
-        >
-          <span className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase">
-            THE CORE QUESTION
-          </span>
-          <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground mt-2 mb-4">
-            "Why not just use a normal habit tracker?"
-          </h2>
-          <div className="max-w-2xl mx-auto text-xs sm:text-base text-muted-foreground leading-relaxed space-y-3">
-            <p className="text-foreground font-semibold text-base sm:text-lg font-display">
-              Because human growth isn't a static streak.
-            </p>
-            <p>
-              Streaks are static, fragile, and binary. A missed day wipes out 60 days of genuine effort. But human development isn't an unbroken straight line—it's an accumulated vector.
-            </p>
-            <p>
-              We built Kinetic around Trajectory: a dynamic velocity engine protected by a ±10% mathematical buffer. Real consistency is measured by where your trajectory lands in 90 days, not whether every single day was flawless.
-            </p>
+        <AtmosphericLift yOffset={24} blurAmount={8} duration={0.7}>
+          <div className="p-6 sm:p-10 rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-2xl shadow-xl kinetic-specular-box">
+            <span className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase">
+              THE CORE QUESTION
+            </span>
+            <MysteriousClipReveal direction="horizontal" duration={0.8} showLaserGlint={true} className="my-2">
+              <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground">
+                "Why not just use a normal habit tracker?"
+              </h2>
+            </MysteriousClipReveal>
+            <div className="max-w-2xl mx-auto text-xs sm:text-base text-muted-foreground leading-relaxed space-y-3 mt-4">
+              <p className="text-foreground font-semibold text-base sm:text-lg font-display">
+                Because human growth isn't a static streak.
+              </p>
+              <p>
+                Streaks are static, fragile, and binary. A missed day wipes out 60 days of genuine effort. But human development isn't an unbroken straight line—it's an accumulated vector.
+              </p>
+              <p>
+                We built Kinetic around Trajectory: a dynamic velocity engine protected by a ±10% mathematical buffer. Real consistency is measured by where your trajectory lands in 90 days, not whether every single day was flawless.
+              </p>
+            </div>
           </div>
-        </motion.div>
+        </AtmosphericLift>
       </section>
 
       {/* -- FINAL CALL TO ACTION (LIQUID GLASS DOCK & FREE FOREVER TRUST SIGNALS) -- */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24 text-center">
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-40px' }}
-          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-          className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-white/15 dark:border-white/10 bg-card/80 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden kinetic-specular-box"
-        >
-          <div className="relative z-10 max-w-2xl mx-auto">
-            <span className="text-xs font-tech-mono font-semibold text-muted-foreground uppercase tracking-widest">
-              INITIALIZE YOUR SYSTEM
-            </span>
-            <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground mt-2 mb-3 leading-tight">
-              One focus today. Compounding evidence forever.
-            </h2>
-            <p className="text-xs sm:text-base text-muted-foreground mb-6 sm:mb-8 leading-relaxed max-w-xl mx-auto">
-              <span className="hidden sm:inline">
-                Step away from the endless to-do churn. Commit to 1 daily focus, protect your buffer, and build an unbreakable record of growth.
-              </span>
-              <span className="sm:hidden">
-                Commit to 1 daily focus, protect your buffer, and build an unbreakable record of personal growth.
-              </span>
-            </p>
+        <MysteriousClipReveal direction="center-out" duration={0.9} showLaserGlint={true} className="rounded-2xl sm:rounded-3xl">
+          <div className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-white/15 dark:border-white/10 bg-card/80 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden kinetic-specular-box">
+            <AtmosphericLift yOffset={20} blurAmount={6} delay={0.15}>
+              <div className="relative z-10 max-w-2xl mx-auto">
+                <span className="text-xs font-tech-mono font-semibold text-muted-foreground uppercase tracking-widest">
+                  INITIALIZE YOUR SYSTEM
+                </span>
+                <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground mt-2 mb-3 leading-tight">
+                  One focus today. Compounding evidence forever.
+                </h2>
+                <p className="text-xs sm:text-base text-muted-foreground mb-6 sm:mb-8 leading-relaxed max-w-xl mx-auto">
+                  <span className="hidden sm:inline">
+                    Step away from the endless to-do churn. Commit to 1 daily focus, protect your buffer, and build an unbreakable record of growth.
+                  </span>
+                  <span className="sm:hidden">
+                    Commit to 1 daily focus, protect your buffer, and build an unbreakable record of personal growth.
+                  </span>
+                </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Magnetic>
-                <Button
-                  variant="default"
-                  data-cuelume-press="press"
-                  data-cuelume-release="release"
-                  data-cuelume-hover="tick"
-                  onClick={() => navigate('/auth')}
-                  className="w-full sm:w-auto h-11 sm:h-12 px-8 font-display text-xs sm:text-sm font-semibold shadow-lg active:scale-[0.96] rounded-xl group transition-transform"
-                >
-                  <span>Start My 90-Day Trajectory</span>
-                  <ArrowRight className="size-4 ml-2 transition-transform duration-200 group-hover:translate-x-1.5" />
-                </Button>
-              </Magnetic>
-            </div>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Magnetic>
+                    <Button
+                      variant="default"
+                      data-cuelume-press="press"
+                      data-cuelume-release="release"
+                      data-cuelume-hover="tick"
+                      onClick={() => navigate('/auth')}
+                      className="w-full sm:w-auto h-11 sm:h-12 px-8 font-display text-xs sm:text-sm font-semibold shadow-lg active:scale-[0.96] rounded-xl group transition-transform"
+                    >
+                      <span>Start My 90-Day Trajectory</span>
+                      <ArrowRight className="size-4 ml-2 transition-transform duration-200 group-hover:translate-x-1.5" />
+                    </Button>
+                  </Magnetic>
+                </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-tech-mono text-muted-foreground mt-6 pt-4 border-t border-border/40">
-              <span className="flex items-center gap-1 text-foreground font-medium">
-                <Check className="size-3 text-foreground" />
-                Free Forever (Zero Paywalls)
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                <Check className="size-3 text-foreground" />
-                No Credit Card Required
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                <Lock className="size-3 text-foreground" />
-                100% Private Offline Vault
-              </span>
-            </div>
+                <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-tech-mono text-muted-foreground mt-6 pt-4 border-t border-border/40">
+                  <span className="flex items-center gap-1 text-foreground font-medium">
+                    <Check className="size-3 text-foreground" />
+                    Free Forever (Zero Paywalls)
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <Check className="size-3 text-foreground" />
+                    No Credit Card Required
+                  </span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <Lock className="size-3 text-foreground" />
+                    100% Private Offline Vault
+                  </span>
+                </div>
+              </div>
+            </AtmosphericLift>
           </div>
-        </motion.div>
+        </MysteriousClipReveal>
       </section>
 
       {/* -- MINIMALIST FOOTER -- */}
