@@ -19,6 +19,10 @@ import {
   TrendingUp,
   XCircle,
   CheckCircle2,
+  Play,
+  Pause,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SystemLogo } from '@/components/branding/Logo';
@@ -338,29 +342,16 @@ const principles = [
   },
 ];
 
-// -- PIN + TRANSFORM SCROLL STORYTELLING ENGINE (IMAGE 01 & 02 CONCEPTS) --
+// -- 4-STAGE TRAJECTORY ENGINE CONSOLE (INTERACTIVE & LIVING CADENCE) --
 function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const shouldReduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement | null>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  });
-
-  const [activeStep, setActiveStep] = useState(0);
-
-  useEffect(() => {
-    return scrollYProgress.on('change', (latest) => {
-      if (latest < 0.28) setActiveStep(0);
-      else if (latest < 0.55) setActiveStep(1);
-      else if (latest < 0.82) setActiveStep(2);
-      else setActiveStep(3);
-    });
-  }, [scrollYProgress]);
-
-  // Scrub bar translation directly linked to scroll progress (IMAGE 01: SCRUB)
-  const scrubHeight = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+  const [activeStep, setActiveStep] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [isInView, setIsInView] = useState<boolean>(false);
+  const [stepProgress, setStepProgress] = useState<number>(0);
 
   const steps = [
     {
@@ -401,15 +392,68 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     },
   ];
 
+  // InView Observer: only run cadence playback when visible
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || !('IntersectionObserver' in window)) {
+      setIsInView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => setIsInView(e.isIntersecting));
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // Cadence progress ticker: auto-advances every 4.5s with a smooth progress bar
+  useEffect(() => {
+    if (!isPlaying || isHovered || !isInView || shouldReduceMotion) return;
+
+    const duration = 4500;
+    const tick = 60;
+    const increment = (tick / duration) * 100;
+
+    const interval = setInterval(() => {
+      setStepProgress((prev) => {
+        if (prev >= 100) {
+          setActiveStep((curr) => (curr + 1) % steps.length);
+          return 0;
+        }
+        return prev + increment;
+      });
+    }, tick);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, isHovered, isInView, shouldReduceMotion, steps.length]);
+
+  const selectStep = (idx: number) => {
+    setActiveStep(idx);
+    setStepProgress(0);
+  };
+
+  const handlePrev = () => {
+    setActiveStep((curr) => (curr - 1 + steps.length) % steps.length);
+    setStepProgress(0);
+  };
+
+  const handleNext = () => {
+    setActiveStep((curr) => (curr + 1) % steps.length);
+    setStepProgress(0);
+  };
+
   return (
-    <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20">
-      {/* Section Header with Clip Reveal & Fade+Lift */}
+    <section ref={sectionRef} id="system-in-practice" className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24">
+      {/* Section Header with Clip Reveal & Atmospheric Lift */}
       <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
         <AtmosphericLift yOffset={14} blurAmount={4}>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-3 shadow-xs">
-            <span className="size-1.5 rounded-full bg-foreground" />
+            <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
             <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-              01 // SCROLL STORYTELLING • PIN + TRANSFORM
+              01 // SYSTEM MECHANICS • 4-STAGE TRAJECTORY ENGINE
             </span>
           </div>
         </AtmosphericLift>
@@ -422,218 +466,248 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
 
         <AtmosphericLift yOffset={14} blurAmount={6} delay={0.15}>
           <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-            Scroll to watch how a single daily focus and the ±10% buffer transform chaotic intentions into compounding trajectory.
+            Watch how a single daily focus and the ±10% buffer transform chaotic intentions into compounding trajectory. Click any stage or let the cadence play.
           </p>
         </AtmosphericLift>
       </div>
 
-      {/* -- DESKTOP PIN + TRANSFORM EXPERIENCE (IMAGE 01: PIN + TRANSFORM) -- */}
-      <div ref={containerRef} className="hidden md:block relative h-[260vh]">
-        {/* Sticky Viewport Stage: Section stays pinned while content transforms */}
-        <div className="sticky top-28 h-[calc(100vh-140px)] min-h-[580px] max-h-[680px] flex items-center">
-          <div className="w-full grid grid-cols-12 gap-8 items-center">
-            
-            {/* Left Column: The Pinned Living Console (Transforms state with scroll) */}
-            <div className="col-span-7">
-              <div className="relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_20px_50px_rgba(0,0,0,0.4)] p-6 overflow-hidden kinetic-specular-box">
-                
-                {/* Console HUD Bar */}
-                <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10 text-xs font-tech-mono">
-                  <div className="flex items-center gap-2">
-                    <span className="size-2 rounded-full bg-foreground animate-pulse" />
-                    <span className="font-bold text-foreground">
-                      STAGE {steps[activeStep].num} // {steps[activeStep].tag}
-                    </span>
-                  </div>
-                  <div className="px-2 py-0.5 rounded-full bg-muted border border-border text-[10px] text-foreground font-semibold">
-                    {steps[activeStep].badge}
-                  </div>
-                </div>
-
-                {/* Animated Graphic Display: Transforms based on activeStep */}
-                <div className="relative h-64 w-full rounded-xl bg-background/80 border border-white/10 p-4 flex flex-col justify-between overflow-hidden shadow-inner">
-                  {/* Background grid lines */}
-                  <div
-                    className="absolute inset-0 opacity-[0.08] pointer-events-none"
-                    style={{
-                      backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
-                      backgroundSize: '24px 24px',
-                    }}
-                  />
-
-                  {/* Dynamic SVG Visuals for each Step (Preserve 1:1 true aspect ratio & non-scaling strokes) */}
-                  <svg className="w-full h-44 relative z-10" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid meet">
-                    <defs>
-                      <linearGradient id="pinBufferGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.08 : 0.04} />
-                        <stop offset="100%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.22 : 0.12} />
-                      </linearGradient>
-                    </defs>
-
-                    {/* Baseline Grid Guides */}
-                    <line x1="20" y1="130" x2="380" y2="130" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
-                    <line x1="20" y1="40" x2="380" y2="40" stroke="currentColor" strokeOpacity="0.2" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
-
-                    {/* Step 0: Initializing Horizon */}
-                    {activeStep === 0 && (
-                      <g>
-                        <line x1="30" y1="120" x2="370" y2="45" stroke="currentColor" strokeWidth="2.5" strokeDasharray="6 6" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
-                        <circle cx="30" cy="120" r="5" fill="currentColor" />
-                        <circle cx="370" cy="45" r="5" fill="currentColor" fillOpacity="0.5" />
-                        <text x="40" y="125" fill="currentColor" fontSize="10" fontFamily="monospace">DAY 01 (ORIGIN)</text>
-                        <text x="270" y="38" fill="currentColor" fontSize="10" fontFamily="monospace">DAY 90 HORIZON</text>
-                      </g>
-                    )}
-
-                    {/* Step 1: Focus Injection (+35% Thrust) */}
-                    {activeStep === 1 && (
-                      <g>
-                        <path d="M 30,120 Q 180,95 240,65" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
-                        <circle cx="240" cy="65" r="6" fill="currentColor" />
-                        <line x1="240" y1="65" x2="370" y2="35" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" strokeOpacity="0.5" vectorEffect="non-scaling-stroke" />
-                        <text x="170" y="55" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="monospace">+35% THRUST INJECTED</text>
-                      </g>
-                    )}
-
-                    {/* Step 2: 2 Routines Anchored (Compounding Ascent) */}
-                    {activeStep === 2 && (
-                      <g>
-                        <path d="M 30,120 C 130,110 200,60 370,22" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
-                        <circle cx="370" cy="22" r="6" fill="currentColor" />
-                        <text x="230" y="20" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="monospace">1.25x PEAK VELOCITY</text>
-                      </g>
-                    )}
-
-                    {/* Step 3: Buffer Absorbs The Shock */}
-                    {activeStep === 3 && (
-                      <g>
-                        {/* Buffer Cone Polygon */}
-                        <path d="M 180,68 C 240,60 320,30 380,24 L 380,54 C 320,50 240,78 180,82 Z" fill="url(#pinBufferGrad)" />
-                        <path d="M 180,68 C 240,60 320,30 380,24" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
-                        <path d="M 180,82 C 240,78 320,50 380,54" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
-                        
-                        {/* Trajectory with temporary dip cushioned inside buffer */}
-                        <path d="M 30,120 C 120,110 180,72 230,76 C 280,80 320,40 375,34" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
-                        
-                        {/* Shock absorption marker (clean true circle, non-scaling stroke) */}
-                        <circle cx="230" cy="76" r="4.5" fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-                        <text x="200" y="98" fill="currentColor" fontSize="10" fontFamily="monospace">DIP ABSORBED</text>
-                        <text x="250" y="30" fill="currentColor" fontSize="10" fontWeight="bold" fontFamily="monospace">90D TARGET PRESERVED</text>
-                      </g>
-                    )}
-                  </svg>
-
-                  {/* Bottom Console Telemetry Readout */}
-                  <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[11px] font-tech-mono">
-                    <span className="text-muted-foreground">VELOCITY ENGINE:</span>
-                    <span className="text-foreground font-bold">{steps[activeStep].metric}</span>
-                  </div>
-                </div>
-
-                {/* Subtext description below graphic */}
-                <div className="mt-4 p-3 rounded-xl bg-muted/40 border border-white/5 flex items-center justify-between text-xs font-tech-mono">
-                  <span className="text-muted-foreground">
-                    {activeStep === 3
-                      ? 'Streak Apps: Reset to 0   |  Kinetic: Trajectory Absorbs Drift ✓'
-                      : 'Deterministic Trajectory • 1 Primary Focus + 2 Routines'}
+      {/* Main Interactive Stage Console (Zero Empty Void, True Flow Layout) */}
+      <div
+        className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-stretch"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Left Column: Pinned Living HUD Console Display */}
+        <div className="md:col-span-7 flex flex-col">
+          <div className="h-full relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_20px_50px_rgba(0,0,0,0.4)] p-5 sm:p-6 overflow-hidden kinetic-specular-box flex flex-col justify-between">
+            <div>
+              {/* Console HUD Bar */}
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10 text-xs font-tech-mono">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-foreground animate-pulse" />
+                  <span className="font-bold text-foreground tracking-wide">
+                    STAGE {steps[activeStep].num} // {steps[activeStep].tag}
                   </span>
-                  <span className="text-foreground font-semibold">
-                    STEP {activeStep + 1} OF 4
-                  </span>
+                </div>
+                <div className="px-2.5 py-0.5 rounded-full bg-muted border border-border text-[10px] text-foreground font-semibold">
+                  {steps[activeStep].badge}
                 </div>
               </div>
-            </div>
 
-            {/* Right Column: The 4 Steps Storytelling Stream with Scrub Track (IMAGE 01: SCRUB) */}
-            <div className="col-span-5 relative pl-6">
-              {/* Vertical Scrub Track */}
-              <div className="absolute left-0 top-3 bottom-3 w-0.5 bg-muted rounded-full overflow-hidden">
-                <motion.div
-                  style={{ height: scrubHeight }}
-                  className="w-full bg-foreground origin-top"
+              {/* Animated Graphic Display: Dynamically updates with activeStep */}
+              <div className="relative h-64 sm:h-72 w-full rounded-xl bg-background/80 border border-white/10 p-4 flex flex-col justify-between overflow-hidden shadow-inner">
+                {/* Background grid lines */}
+                <div
+                  className="absolute inset-0 opacity-[0.08] pointer-events-none"
+                  style={{
+                    backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
+                    backgroundSize: '24px 24px',
+                  }}
                 />
+
+                {/* Dynamic SVG Visuals for each Step */}
+                <svg className="w-full h-44 sm:h-48 relative z-10" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid meet">
+                  <defs>
+                    <linearGradient id="pinBufferGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.08 : 0.04} />
+                      <stop offset="100%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.24 : 0.14} />
+                    </linearGradient>
+                  </defs>
+
+                  {/* Baseline Grid Guides */}
+                  <line x1="20" y1="130" x2="380" y2="130" stroke="currentColor" strokeOpacity="0.1" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
+                  <line x1="20" y1="40" x2="380" y2="40" stroke="currentColor" strokeOpacity="0.15" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
+
+                  {/* Step 0: Initializing Horizon */}
+                  {activeStep === 0 && (
+                    <g className="transition-all duration-500">
+                      <line x1="30" y1="120" x2="370" y2="45" stroke="currentColor" strokeWidth="2.5" strokeDasharray="6 6" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
+                      <circle cx="30" cy="120" r="5" fill="currentColor" />
+                      <circle cx="370" cy="45" r="5" fill="currentColor" fillOpacity="0.5" />
+                      <text x="40" y="125" fill="currentColor" fontSize="10" fontFamily="monospace">DAY 01 (ORIGIN)</text>
+                      <text x="270" y="38" fill="currentColor" fontSize="10" fontFamily="monospace">DAY 90 HORIZON</text>
+                    </g>
+                  )}
+
+                  {/* Step 1: Focus Injection (+35% Thrust) */}
+                  {activeStep === 1 && (
+                    <g className="transition-all duration-500">
+                      <path d="M 30,120 Q 180,95 240,65" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
+                      <circle cx="240" cy="65" r="6" fill="currentColor" />
+                      <line x1="240" y1="65" x2="370" y2="35" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" strokeOpacity="0.5" vectorEffect="non-scaling-stroke" />
+                      <text x="170" y="55" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="monospace">+35% THRUST INJECTED</text>
+                    </g>
+                  )}
+
+                  {/* Step 2: 2 Routines Anchored (Compounding Ascent) */}
+                  {activeStep === 2 && (
+                    <g className="transition-all duration-500">
+                      <path d="M 30,120 C 130,110 200,60 370,22" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
+                      <circle cx="370" cy="22" r="6" fill="currentColor" />
+                      <text x="220" y="20" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="monospace">1.25x PEAK VELOCITY</text>
+                    </g>
+                  )}
+
+                  {/* Step 3: Buffer Absorbs The Shock */}
+                  {activeStep === 3 && (
+                    <g className="transition-all duration-500">
+                      {/* Buffer Cone Polygon */}
+                      <path d="M 180,68 C 240,60 320,30 380,24 L 380,54 C 320,50 240,78 180,82 Z" fill="url(#pinBufferGrad)" />
+                      <path d="M 180,68 C 240,60 320,30 380,24" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
+                      <path d="M 180,82 C 240,78 320,50 380,54" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
+                      
+                      {/* Trajectory with temporary dip cushioned inside buffer */}
+                      <path d="M 30,120 C 120,110 180,72 230,76 C 280,80 320,40 375,34" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
+                      
+                      {/* Shock absorption marker */}
+                      <circle cx="230" cy="76" r="4.5" fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                      <text x="200" y="98" fill="currentColor" fontSize="10" fontFamily="monospace">DIP ABSORBED</text>
+                      <text x="240" y="30" fill="currentColor" fontSize="10" fontWeight="bold" fontFamily="monospace">90D TARGET PRESERVED</text>
+                    </g>
+                  )}
+                </svg>
+
+                {/* Bottom Console Telemetry Readout */}
+                <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[11px] font-tech-mono">
+                  <span className="text-muted-foreground">VELOCITY ENGINE:</span>
+                  <span className="text-foreground font-bold">{steps[activeStep].metric}</span>
+                </div>
               </div>
 
-              {/* Step Cards */}
-              <div className="space-y-4">
-                {steps.map((s, idx) => {
-                  const isActive = activeStep === idx;
-                  const Icon = s.icon;
-
-                  return (
-                    <div
-                      key={s.num}
-                      className={cn(
-                        "relative p-4 rounded-xl border transition-all duration-300",
-                        isActive
-                          ? "bg-card/90 border-white/30 shadow-xl scale-[1.02] opacity-100"
-                          : "bg-card/30 border-white/5 opacity-40 scale-95"
-                      )}
-                    >
-                      <div className="flex items-center justify-between mb-1.5">
-                        <div className="flex items-center gap-2">
-                          <div className={cn(
-                            "size-6 rounded-md flex items-center justify-center text-xs font-tech-mono font-bold transition-colors",
-                            isActive ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
-                          )}>
-                            {s.num}
-                          </div>
-                          <h3 className={cn(
-                            "font-display font-bold text-sm transition-colors",
-                            isActive ? "text-foreground" : "text-muted-foreground"
-                          )}>
-                            {s.title}
-                          </h3>
-                        </div>
-                        <Icon className={cn("size-4 transition-colors", isActive ? "text-foreground" : "text-muted-foreground")} />
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                        {s.desc}
-                      </p>
-                    </div>
-                  );
-                })}
+              {/* Subtext description below graphic */}
+              <div className="mt-3 p-3 rounded-xl bg-muted/40 border border-white/5 flex items-center justify-between text-xs font-tech-mono">
+                <span className="text-muted-foreground truncate mr-2">
+                  {activeStep === 3
+                    ? 'Streak Apps: Reset to 0 | Kinetic: Trajectory Absorbs Drift ✓'
+                    : 'Deterministic Trajectory • 1 Primary Focus + 2 Routines'}
+                </span>
+                <span className="text-foreground font-semibold shrink-0">
+                  STEP {activeStep + 1} OF 4
+                </span>
               </div>
             </div>
 
+            {/* Interactive Cadence Controls & Progress Line */}
+            <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePrev}
+                  aria-label="Previous Stage"
+                  data-cuelume-press="press"
+                  className="p-1.5 rounded-lg border border-border bg-card/60 hover:bg-card text-foreground transition-colors active:scale-95"
+                >
+                  <ChevronLeft className="size-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  aria-label={isPlaying ? 'Pause Cadence' : 'Play Cadence'}
+                  data-cuelume-press="press"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-card/60 hover:bg-card text-xs font-tech-mono text-foreground transition-colors active:scale-95"
+                >
+                  {isPlaying ? (
+                    <>
+                      <Pause className="size-3" />
+                      <span>PAUSE</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play className="size-3" />
+                      <span>PLAY</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  aria-label="Next Stage"
+                  data-cuelume-press="press"
+                  className="p-1.5 rounded-lg border border-border bg-card/60 hover:bg-card text-foreground transition-colors active:scale-95"
+                >
+                  <ChevronRight className="size-3.5" />
+                </button>
+              </div>
+
+              {/* Step dots & active progress indicator */}
+              <div className="flex items-center gap-1.5">
+                {steps.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => selectStep(i)}
+                    aria-label={`Jump to stage ${i + 1}`}
+                    className={cn(
+                      "h-1.5 rounded-full transition-all duration-300",
+                      i === activeStep ? "w-6 bg-foreground" : "w-2 bg-muted hover:bg-muted-foreground/50"
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* -- MOBILE RESPONSIVE CARDS (FADE + LIFT & STAGGER - IMAGE 02) -- */}
-      <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {steps.map((s, index) => {
-          const Icon = s.icon;
-          return (
-            <motion.div
-              key={s.num}
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-30px' }}
-              transition={{ duration: 0.55, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="p-4 sm:p-5 rounded-xl border border-white/10 bg-card/75 backdrop-blur-md kinetic-specular-box flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] font-tech-mono font-bold px-2 py-0.5 rounded bg-muted text-foreground">
-                    STEP {s.num}
-                  </span>
-                  <Icon className="size-5 text-foreground" />
+        {/* Right Column: Interactive 4-Stage Selection Stream */}
+        <div className="md:col-span-5 flex flex-col justify-between space-y-3 sm:space-y-3.5">
+          {steps.map((s, idx) => {
+            const isActive = activeStep === idx;
+            const Icon = s.icon;
+
+            return (
+              <div
+                key={s.num}
+                onClick={() => selectStep(idx)}
+                data-cuelume-press="press"
+                data-cuelume-hover="tick"
+                className={cn(
+                  "relative p-4 sm:p-4.5 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden kinetic-specular-box",
+                  isActive
+                    ? "bg-card/95 border-white/35 dark:border-white/25 shadow-xl scale-[1.01] opacity-100 ring-1 ring-foreground/20"
+                    : "bg-card/35 border-white/5 opacity-55 hover:opacity-90 hover:bg-card/55 hover:border-white/15 scale-[0.99]"
+                )}
+              >
+                {/* Active Step Cadence Progress Bar */}
+                {isActive && isPlaying && !isHovered && (
+                  <div
+                    className="absolute bottom-0 inset-x-0 h-0.5 bg-foreground origin-left transition-all"
+                    style={{ width: `${stepProgress}%` }}
+                  />
+                )}
+
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={cn(
+                        "size-6 sm:size-7 rounded-md flex items-center justify-center text-xs font-tech-mono font-bold transition-colors",
+                        isActive ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {s.num}
+                    </div>
+                    <h3
+                      className={cn(
+                        "font-display font-bold text-sm sm:text-base transition-colors",
+                        isActive ? "text-foreground" : "text-muted-foreground"
+                      )}
+                    >
+                      {s.title}
+                    </h3>
+                  </div>
+                  <Icon
+                    className={cn(
+                      "size-4 sm:size-4.5 transition-colors",
+                      isActive ? "text-foreground" : "text-muted-foreground"
+                    )}
+                  />
                 </div>
-                <h3 className="font-display font-bold text-base text-foreground mb-1.5">
-                  {s.title}
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 pl-8 sm:pl-9.5">
                   {s.desc}
                 </p>
               </div>
-              <div className="pt-2.5 border-t border-border/50 text-[10px] font-tech-mono text-foreground font-semibold flex items-center justify-between">
-                <span>{s.metric}</span>
-                <span className="text-muted-foreground">{s.badge}</span>
-              </div>
-            </motion.div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </section>
   );
@@ -957,7 +1031,7 @@ export default function Landing() {
   }, [isPlayingWalkthrough, isConsoleVisible]);
 
   return (
-    <div className="min-h-screen bg-background relative overflow-x-hidden text-foreground selection:bg-foreground/20 selection:text-foreground">
+    <div className="min-h-screen bg-background relative overflow-x-clip text-foreground selection:bg-foreground/20 selection:text-foreground">
       {/* -- IMAGE 01: SCROLL SCRUB PROGRESS BAR (MOTION FOLLOWS SCROLL PROGRESS) -- */}
       <motion.div
         style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}
@@ -1962,21 +2036,28 @@ export default function Landing() {
             return (
               <motion.div
                 key={p.step}
+                layout="position"
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 28, filter: 'blur(6px)' }}
                 whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.65, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                transition={{
+                  duration: 0.65,
+                  delay: index * 0.1,
+                  ease: [0.16, 1, 0.3, 1],
+                  layout: { type: 'spring', stiffness: 240, damping: 28 },
+                }}
                 onMouseEnter={() => isDesktop && setHoveredStep(index)}
                 onMouseLeave={() => isDesktop && setHoveredStep(null)}
                 className={cn(
-                  "group relative rounded-2xl border p-5 sm:p-6 backdrop-blur-2xl flex flex-col justify-between transition-all duration-500 kinetic-specular-box min-h-[300px] sm:min-h-[340px]",
-                  "w-full",
+                  "group relative rounded-2xl border p-5 sm:p-6 backdrop-blur-2xl flex flex-col justify-between kinetic-specular-box overflow-hidden",
+                  "transition-[flex,transform,background-color,border-color,box-shadow,opacity] duration-700 ease-out",
+                  "w-full min-h-[380px] sm:min-h-[400px] md:min-h-[420px]",
                   isDesktop && (
                     isHovered
-                      ? "md:flex-[1.4] border-white/25 shadow-2xl bg-card/90 z-10"
+                      ? "md:flex-[1.45] border-white/30 dark:border-white/20 shadow-2xl bg-card/95 z-10 scale-[1.01]"
                       : isOtherHovered
-                      ? "md:flex-[0.8] border-white/10 bg-card/50 opacity-75 hover:opacity-100"
-                      : "md:flex-1 border-white/10 bg-card/65 shadow-lg"
+                      ? "md:flex-[0.78] border-white/10 bg-card/45 opacity-65 hover:opacity-95 scale-[0.985]"
+                      : "md:flex-1 border-white/10 bg-card/65 shadow-lg scale-100"
                   )
                 )}
               >
@@ -1984,33 +2065,52 @@ export default function Landing() {
 
                 <div>
                   <div className="flex items-center justify-between mb-3 sm:mb-4">
-                    <span className="font-tech-mono font-extrabold text-2xl sm:text-3xl text-foreground/80 group-hover:text-foreground transition-colors">
+                    <span
+                      className={cn(
+                        "font-tech-mono font-extrabold text-2xl sm:text-3xl transition-all duration-500 ease-out origin-left",
+                        isHovered ? "scale-105 text-foreground" : isOtherHovered ? "scale-95 text-foreground/60" : "scale-100 text-foreground/80"
+                      )}
+                    >
                       {p.step}
                     </span>
-                    <span className="text-[10px] font-tech-mono px-2.5 py-0.5 rounded-full bg-muted/80 text-foreground border border-border">
+                    <span className="text-[10px] font-tech-mono px-2.5 py-0.5 rounded-full bg-muted/80 text-foreground border border-border whitespace-nowrap transition-colors duration-300">
                       {p.rule}
                     </span>
                   </div>
 
-                  <div className="text-[10px] font-tech-mono text-muted-foreground uppercase tracking-wider mb-1">
+                  <div className="text-[10px] font-tech-mono text-muted-foreground uppercase tracking-wider mb-1 transition-colors duration-500">
                     {p.eyebrow}
                   </div>
-                  <h3 className="font-display font-bold text-base sm:text-lg text-foreground mb-3 leading-snug">
+                  <h3
+                    className={cn(
+                      "font-display font-bold text-base sm:text-lg text-foreground mb-3 leading-snug transition-transform duration-500 ease-out origin-left",
+                      isHovered ? "scale-[1.015]" : "scale-100"
+                    )}
+                  >
                     {p.title}
                   </h3>
 
-                  <div className="space-y-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                    <p><strong className="text-foreground font-semibold">What you do:</strong> {p.what}</p>
-                    <p><strong className="text-foreground font-semibold">Why it works:</strong> {p.why}</p>
-                    <p className="text-[11px] sm:text-xs text-muted-foreground/80 pt-1 border-t border-border/40">
+                  <div className="space-y-2.5 text-xs sm:text-sm text-muted-foreground leading-relaxed transition-all duration-500 ease-out">
+                    <p className="transition-opacity duration-500">
+                      <strong className="text-foreground font-semibold">What you do:</strong> {p.what}
+                    </p>
+                    <p className="transition-opacity duration-500">
+                      <strong className="text-foreground font-semibold">Why it works:</strong> {p.why}
+                    </p>
+                    <p
+                      className={cn(
+                        "text-[11px] sm:text-xs pt-1.5 border-t border-border/40 transition-all duration-500",
+                        isOtherHovered ? "opacity-50" : "opacity-90"
+                      )}
+                    >
                       <strong className="text-foreground/90 font-medium">Prevents:</strong> {p.prevents}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 sm:mt-5 pt-3 sm:pt-3.5 border-t border-border/50 flex items-center justify-between text-xs font-tech-mono">
-                  <span className="text-muted-foreground">Architectural Rule</span>
-                  <span className="font-semibold text-foreground">{p.rule}</span>
+                <div className="mt-4 sm:mt-5 pt-3 sm:pt-3.5 border-t border-border/50 flex items-center justify-between text-xs font-tech-mono transition-opacity duration-500">
+                  <span className="text-muted-foreground truncate">Architectural Rule</span>
+                  <span className="font-semibold text-foreground truncate ml-2">{p.rule}</span>
                 </div>
               </motion.div>
             );
