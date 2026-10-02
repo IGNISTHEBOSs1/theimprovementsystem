@@ -839,21 +839,22 @@ export default function Landing() {
 
   // -- 3. ONLY THE CURVED LINE AFTER TODAY MOVES DYNAMICALLY --
   // Projected Day 90 endpoint based on completed thrust
+  // Upper buffer boundary ends at Y=36. Peak velocity stays strictly inside the buffer, 3.5-4px below the boundary line.
   const projectedEndY = focusDone
     ? routine1Done && routine2Done
-      ? 28 // Peak Velocity (well ahead of upper corridor 36)
+      ? 39.5 // Peak Velocity: accelerated near upper buffer ceiling (3.5px below Y=36), mathematically preserved
       : routine1Done || routine2Done
-      ? 40 // Ahead (inside top corridor)
-      : 52 // On Target (near nominal horizon 54)
+      ? 46.5 // Ahead (upper buffer corridor)
+      : 53 // On Target (near nominal horizon 54)
     : routine1Done || routine2Done
-    ? 68 // Inside lower buffer
-    : 86; // Buffer absorbing drift
+    ? 66 // Sub-nominal (inside lower buffer)
+    : 74; // Buffer absorbing drift (cushioned near lower boundary 72)
 
   // Dynamic cubic bezier starts from (fixedTodayX, fixedTodayY) and branches forward to (endX, projectedEndY)
   const ctrl1X = fixedTodayX + 55; // 275
   const ctrl1Y = fixedTodayY - (fixedTodayY - projectedEndY) * 0.42;
   const ctrl2X = endX - 55; // 410
-  const ctrl2Y = projectedEndY + 8;
+  const ctrl2Y = projectedEndY + 5.5;
   const projectedPath = `M ${fixedTodayX},${fixedTodayY} C ${ctrl1X},${ctrl1Y} ${ctrl2X},${ctrl2Y} ${endX},${projectedEndY}`;
 
   // -- SNEAK PEEK AUTO-PLAYING SIMULATED MOUSE ENGINE --
