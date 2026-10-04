@@ -108,16 +108,16 @@ export default function Profile() {
       {/* ── 1. Operator Identity & Command Header ── */}
       <header
         aria-label="Operator Profile Header"
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-[28px] border border-white/10 bg-[#12141A] shadow-xl specular-top"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-3xl border border-border/80 bg-card/60 shadow-sm glass-specular"
       >
         <div className="flex items-center gap-4">
           <div className="relative">
             <IdentityAvatar
               username={profile?.username ?? ""}
-              className="size-14 text-base font-bold border-2 border-white/10 shadow-sm"
+              className="size-14 text-base font-bold border-2 border-border shadow-xs"
             />
             <span
-              className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full bg-white border-2 border-[#12141A] shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+              className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full bg-emerald-500 border-2 border-background"
               title="Operator Active"
               aria-label="Operator Active"
             />
@@ -125,17 +125,17 @@ export default function Profile() {
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-xl sm:text-2xl font-bold tracking-tight text-foreground font-sans">
+              <h1 className="truncate text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 {profile?.username || "Operator"}
               </h1>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider border border-white/10 bg-[#181B24] text-foreground">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider border border-border bg-muted/70 text-foreground">
                 Operator Cockpit
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-2">
               <span>Timezone: {profile?.timezone || "UTC"}</span>
               <span>•</span>
-              <span className="text-white font-medium">Trajectory Active</span>
+              <span className="text-emerald-500 font-medium">Trajectory Active</span>
             </p>
           </div>
         </div>
@@ -145,7 +145,7 @@ export default function Profile() {
             variant="outline"
             size="sm"
             asChild
-            className="min-h-10 rounded-[14px] gap-2 border-white/10 bg-[#181B24] hover:bg-white/5 px-4 text-xs font-medium active:scale-[0.98]"
+            className="min-h-10 rounded-xl gap-2 border-border/80 hover:bg-muted/50 px-4 text-xs font-medium"
           >
             <Link to="/profile/settings">
               <SettingsIcon className="size-3.5 text-muted-foreground" aria-hidden="true" />
@@ -157,13 +157,13 @@ export default function Profile() {
 
       {/* ── 2. The North Star Mission Spotlight ── */}
       <section
-        className="rounded-[28px] border border-white/10 bg-[#12141A] p-6 sm:p-7 shadow-xl specular-top relative overflow-hidden"
+        className="rounded-3xl border border-border/80 bg-card/80 p-6 sm:p-7 shadow-sm relative overflow-hidden glass-specular"
         aria-labelledby="primary-goal-heading"
       >
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="size-8 rounded-xl border border-white/10 bg-[#181B24] flex items-center justify-center text-white shadow-xs">
-              <Target className="size-4" aria-hidden="true" />
+          <div className="flex items-center gap-2">
+            <div className="size-7 rounded-lg border border-border/80 bg-background flex items-center justify-center text-primary shadow-xs">
+              <Target className="size-3.5" aria-hidden="true" />
             </div>
             <span
               id="primary-goal-heading"
@@ -177,7 +177,7 @@ export default function Profile() {
             <div className="flex items-center gap-2">
               <Link
                 to="/journey"
-                className="text-xs font-semibold text-white hover:text-zinc-300 hover:underline flex items-center gap-1 transition-colors"
+                className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 transition-colors"
               >
                 <span>Track on Path</span>
                 <ArrowRight className="size-3.5" aria-hidden="true" />
@@ -195,8 +195,8 @@ export default function Profile() {
 
               <div className="flex flex-wrap items-center gap-2.5 pt-1">
                 {profile.primary_goal_target_date && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono tnum font-medium border border-white/10 bg-[#181B24] text-foreground">
-                    <Calendar className="size-3 text-zinc-400" aria-hidden="true" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium border border-border/80 bg-background/80 text-foreground">
+                    <Calendar className="size-3 text-muted-foreground" aria-hidden="true" />
                     <span>
                       Target:{" "}
                       {new Date(
@@ -221,7 +221,7 @@ export default function Profile() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-8 rounded-full border border-white/10 bg-[#181B24] text-xs text-muted-foreground hover:text-foreground gap-1.5 px-3 active:scale-[0.98]"
+                  className="h-8 rounded-full text-xs text-muted-foreground hover:text-foreground gap-1.5 px-3"
                   onClick={startEditing}
                 >
                   <Pencil className="size-3" aria-hidden="true" />
@@ -238,10 +238,10 @@ export default function Profile() {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="rounded-[16px] border-white/10 bg-[#181B24] hover:bg-white/5 min-h-11 text-xs font-medium gap-1.5 active:scale-[0.98]"
+                className="rounded-xl min-h-10 text-xs font-medium gap-1.5"
                 onClick={startEditing}
               >
-                <Target className="size-3.5 text-zinc-400" aria-hidden="true" />
+                <Target className="size-3.5 text-primary" aria-hidden="true" />
                 <span>Set Your Primary Goal</span>
               </Button>
             </div>
@@ -264,7 +264,7 @@ export default function Profile() {
                   aria-label="Primary goal"
                   disabled={saving}
                   autoFocus
-                  className="min-h-11 rounded-[16px] bg-[#181B24] border-white/10 text-foreground"
+                  className="min-h-11 rounded-xl"
                 />
               </div>
               <div>
@@ -281,18 +281,18 @@ export default function Profile() {
                   onChange={(event) => setTargetDate(event.target.value)}
                   aria-label="Goal target date"
                   disabled={saving}
-                  className="min-h-11 rounded-[16px] bg-[#181B24] border-white/10 text-foreground w-full sm:w-64 font-mono tnum"
+                  className="min-h-11 rounded-xl w-full sm:w-64"
                 />
               </div>
             </div>
             <div className="flex gap-2.5 pt-1">
-              <Button type="submit" className="min-h-11 rounded-[16px] px-6 text-xs font-semibold bg-white text-black hover:bg-zinc-200 shadow-[0_0_14px_rgba(255,255,255,0.15)] active:scale-[0.98]" disabled={saving}>
+              <Button type="submit" className="min-h-10 rounded-xl px-5 text-xs font-semibold" disabled={saving}>
                 {saving ? "Saving…" : "Save Goal"}
               </Button>
               <Button
                 type="button"
                 variant="ghost"
-                className="min-h-11 rounded-[16px] text-xs text-muted-foreground hover:bg-white/5 active:scale-[0.98]"
+                className="min-h-10 rounded-xl text-xs text-muted-foreground"
                 onClick={cancelEditing}
                 disabled={saving}
               >
@@ -308,7 +308,7 @@ export default function Profile() {
           </p>
         )}
         {saveSuccess && !saveError && !editingGoal && (
-          <p className="mt-3 text-xs text-white font-medium" role="status">
+          <p className="mt-3 text-xs text-emerald-500 font-medium" role="status">
             ✓ Goal updated successfully.
           </p>
         )}
@@ -317,7 +317,7 @@ export default function Profile() {
       {/* ── 3. Unified Performance Telemetry Console ── */}
       <section
         aria-label="Standing and Momentum Telemetry"
-        className="rounded-[28px] border border-white/10 bg-[#12141A] p-5 sm:p-6 shadow-xl specular-top"
+        className="rounded-3xl border border-border/80 bg-card/60 p-5 sm:p-6 shadow-sm glass-specular"
       >
         <div className="flex items-center justify-between mb-4">
           <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -328,18 +328,18 @@ export default function Profile() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/10">
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border/60">
           {/* Pillar 1: Reliability */}
           <div className="py-3 sm:py-0 sm:px-4 first:sm:pl-0">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
                 Completion Rate
               </span>
-              <CheckCircle2 className="size-4 text-white" aria-hidden="true" />
+              <CheckCircle2 className="size-4 text-emerald-500" aria-hidden="true" />
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-3xl font-bold font-mono tnum text-foreground">{completionRate}%</span>
-              <span className="text-xs font-mono tnum text-muted-foreground">
+              <span className="text-3xl font-bold font-mono text-foreground">{completionRate}%</span>
+              <span className="text-xs font-mono text-muted-foreground">
                 ({followThrough.completed}/{followThrough.total})
               </span>
             </div>
@@ -352,10 +352,10 @@ export default function Profile() {
               <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
                 Active Streak
               </span>
-              <Flame className="size-4 text-white" aria-hidden="true" />
+              <Flame className="size-4 text-primary" aria-hidden="true" />
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-3xl font-bold font-mono tnum text-foreground">{currentStreak}</span>
+              <span className="text-3xl font-bold font-mono text-foreground">{currentStreak}</span>
               <span className="text-xs font-mono text-muted-foreground">
                 {currentStreak === 1 ? "day" : "days"}
               </span>
@@ -369,10 +369,10 @@ export default function Profile() {
               <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
                 Quests Honored
               </span>
-              <Compass className="size-4 text-white" aria-hidden="true" />
+              <Compass className="size-4 text-foreground" aria-hidden="true" />
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-3xl font-bold font-mono tnum text-foreground">{followThrough.completed}</span>
+              <span className="text-3xl font-bold font-mono text-foreground">{followThrough.completed}</span>
               <span className="text-xs font-mono text-muted-foreground">honored</span>
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">Verified execution proof</p>
@@ -390,12 +390,12 @@ export default function Profile() {
           {/* Quest History Entry */}
           <Link
             to="/profile/history"
-            className="group flex items-center justify-between p-4 rounded-[20px] border border-white/10 bg-[#12141A] hover:bg-[#181B24] hover:border-white/20 transition-all shadow-md active:scale-[0.98]"
+            className="group flex items-center justify-between p-4 rounded-2xl border border-border/80 bg-card/60 hover:bg-muted/40 hover:border-border transition-all shadow-xs"
           >
             <div className="flex items-start gap-3.5 min-w-0">
-              <div className="size-10 rounded-xl border border-white/10 bg-[#181B24] flex items-center justify-center shrink-0 group-hover:border-white/20 transition-colors">
+              <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">
                 <History
-                  className="size-4 text-white transition-colors"
+                  className="size-4 text-muted-foreground group-hover:text-foreground transition-colors"
                   aria-hidden="true"
                 />
               </div>
@@ -404,7 +404,7 @@ export default function Profile() {
                   <span className="font-semibold text-sm text-foreground group-hover:underline">
                     Quest History
                   </span>
-                  <span className="text-[10px] font-mono tnum px-2 py-0.5 rounded-full border border-white/20 bg-white/10 text-white font-semibold">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-semibold">
                     {followThrough.completed} Done
                   </span>
                 </div>
@@ -422,12 +422,12 @@ export default function Profile() {
           {/* System Settings Entry */}
           <Link
             to="/profile/settings"
-            className="group flex items-center justify-between p-4 rounded-[20px] border border-white/10 bg-[#12141A] hover:bg-[#181B24] hover:border-white/20 transition-all shadow-md active:scale-[0.98]"
+            className="group flex items-center justify-between p-4 rounded-2xl border border-border/80 bg-card/60 hover:bg-muted/40 hover:border-border transition-all shadow-xs"
           >
             <div className="flex items-start gap-3.5 min-w-0">
-              <div className="size-10 rounded-xl border border-white/10 bg-[#181B24] flex items-center justify-center shrink-0 group-hover:border-white/20 transition-colors">
+              <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">
                 <SettingsIcon
-                  className="size-4 text-white transition-colors"
+                  className="size-4 text-muted-foreground group-hover:text-foreground transition-colors"
                   aria-hidden="true"
                 />
               </div>

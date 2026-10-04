@@ -14,25 +14,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
-        display: ['Orbitron', '"Plus Jakarta Sans"', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        sans: ['Inter', 'sans-serif'],
+        display: ['Orbitron', 'sans-serif'],
       },
       colors: {
-        obsidian: {
-          canvas: "#090A0F",
-          surface1: "#12141A",
-          surface2: "#181B24",
-          surface3: "#202430",
-          border: "rgba(148, 163, 184, 0.12)",
-        },
-        kinetic: {
-          emerald: "#10B981",
-          "emerald-light": "#34D399",
-          "emerald-dark": "#059669",
-          indigo: "#6366F1",
-          lavender: "#818CF8",
-        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

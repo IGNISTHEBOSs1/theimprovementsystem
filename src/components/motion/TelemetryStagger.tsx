@@ -34,7 +34,7 @@ export function TelemetryStaggerContainer({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: triggerOnce, margin: '0px 0px -10% 0px' }}
+      viewport={{ once: triggerOnce, margin: '-8% 0px' }}
       variants={containerVariants}
       className={className}
     >

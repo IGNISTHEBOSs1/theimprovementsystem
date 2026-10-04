@@ -83,17 +83,17 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
         layout: { type: "spring", stiffness: 360, damping: 28 },
       }}
       className={cn(
-        "group relative flex flex-col justify-between gap-2.5 rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-4 transition-all duration-200 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12),0_4px_16px_rgba(0,0,0,0.4)] overflow-hidden",
+        "group relative flex flex-col justify-between gap-2.5 rounded-2xl border border-border/80 bg-card/80 p-4 transition-colors duration-250 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4 shadow-sm overflow-hidden",
         completionStage !== "idle"
-          ? "bg-white/10 border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+          ? "bg-emerald-500/[0.12] border-emerald-500/50 shadow-emerald-500/10"
           : isDone
-          ? "bg-[#181B24]/40 opacity-60 border-[rgba(148,163,184,0.08)]"
-          : "hover:bg-[#181B24] hover:border-[rgba(148,163,184,0.2)]"
+          ? "bg-muted/20 opacity-65 border-border/40"
+          : "hover:bg-muted/30 hover:border-border"
       )}
     >
       {/* LEFT AXIS: Tactile check-target & task title (The Receipt Left Edge) */}
       <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-        {/* Dedicated 48x48dp Touch Target for Tactile Squircle Checkbox (Apple HIG / Material 3) */}
+        {/* Tactile Check Target (Show, Don't Tell: Stop-Sign Signifier) */}
         <button
           type="button"
           onClick={handleMarkComplete}
@@ -103,26 +103,22 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
               ? `Quest "${quest.title}" completed`
               : `Mark "${quest.title}" as complete`
           }
-          className="relative size-11 shrink-0 rounded-xl flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 touch-manipulation cursor-pointer group active:scale-[0.92] transition-transform"
+          className={cn(
+            "relative mt-0.5 sm:mt-0 size-6 shrink-0 rounded-lg border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer",
+            isCompleted
+              ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105"
+              : quest.failed
+              ? "border-muted-foreground/30 bg-muted/40 text-muted-foreground cursor-not-allowed"
+              : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30 shadow-xs"
+          )}
         >
-          <div
-            className={cn(
-              "size-6 rounded-lg border transition-all duration-200 flex items-center justify-center shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)]",
-              isCompleted
-                ? "border-white bg-white text-black shadow-white/20 shadow-sm"
-                : quest.failed
-                ? "border-muted-foreground/30 bg-muted/40 text-muted-foreground cursor-not-allowed"
-                : "border-[rgba(148,163,184,0.2)] bg-[#181B24] text-transparent hover:border-white/60 hover:text-white/40"
-            )}
-          >
-            {completing && !isCompleted ? (
-              <Loader2 className="size-3 animate-spin text-muted-foreground" aria-hidden="true" />
-            ) : isCompleted ? (
-              <Check className="size-3.5 stroke-[3] animate-in zoom-in-75 duration-200" aria-hidden="true" />
-            ) : (
-              <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
-            )}
-          </div>
+          {completing && !isCompleted ? (
+            <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
+          ) : isCompleted ? (
+            <Check className="size-3.5 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
+          ) : (
+            <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
+          )}
         </button>
 
         {/* Manufactured Text Edge */}
@@ -130,7 +126,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
           <div className="flex items-center gap-2">
             <h3
               className={cn(
-                "text-sm sm:text-base font-semibold tracking-tight text-foreground font-sans transition-all line-clamp-2 sm:line-clamp-1",
+                "text-sm sm:text-base font-semibold tracking-tight text-foreground transition-all line-clamp-2 sm:line-clamp-1",
                 isCompleted && "line-through text-muted-foreground font-normal",
                 quest.failed && "text-muted-foreground line-through"
               )}
@@ -142,20 +138,20 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
           {/* Mobile Manufactured Secondary Baseline */}
           <div className="mt-1 flex flex-wrap items-center gap-2 sm:hidden text-xs text-muted-foreground">
             {quest.linkedToGoal && quest.goalName && (
-              <span className="inline-flex items-center gap-1 font-medium text-foreground/85 max-w-[190px] truncate bg-[#181B24] px-2 py-0.5 rounded-full border border-[rgba(148,163,184,0.12)]">
-                <Target className="size-3 text-zinc-400 shrink-0" aria-hidden="true" />
+              <span className="inline-flex items-center gap-1 font-medium text-foreground/85 max-w-[190px] truncate">
+                <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
                 <span className="truncate">{quest.goalName}</span>
               </span>
             )}
             {quest.linkedToGoal && quest.goalName && <span>·</span>}
-            <span className="inline-flex items-center gap-1 font-mono text-[11px] bg-[#181B24] px-2 py-0.5 rounded-md border border-[rgba(148,163,184,0.12)]">
-              {quest.seriesId ? <Repeat className="size-3 text-zinc-400" /> : <Zap className="size-3 text-muted-foreground" />}
+            <span className="inline-flex items-center gap-1 font-mono text-[11px]">
+              {quest.seriesId ? <Repeat className="size-3 text-primary/70" /> : <Zap className="size-3 text-muted-foreground" />}
               {quest.seriesId ? "Daily" : "Today"}
             </span>
             {quest.priority !== "Essential" && (
               <>
                 <span>·</span>
-                <span className={cn("font-medium text-[11px]", quest.priority === "Important" ? "text-foreground" : "text-muted-foreground")}>
+                <span className={cn("font-medium", quest.priority === "Important" ? "text-foreground" : "text-muted-foreground")}>
                   {quest.priority}
                 </span>
               </>
@@ -179,22 +175,22 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
 
       {/* RIGHT AXIS (Tablet/Desktop): Pinned hard-right metadata & actions (The Receipt Right Edge) */}
       <div className="hidden sm:flex items-center gap-3 shrink-0 text-xs">
-        {/* Goal Indicator */}
+        {/* Goal Indicator (Show, Don't Tell: No redundant "Supports:" word) */}
         {quest.linkedToGoal && quest.goalName && (
           <div
-            className="flex items-center gap-1.5 rounded-full bg-[#181B24] px-2.5 py-1 text-muted-foreground border border-[rgba(148,163,184,0.14)] max-w-[180px] truncate shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.06)]"
+            className="flex items-center gap-1.5 rounded-full bg-muted/50 px-2.5 py-1 text-muted-foreground border border-border/60 max-w-[180px] truncate"
             title={`Goal: ${quest.goalName}`}
           >
-            <Target className="size-3 text-zinc-400 shrink-0" aria-hidden="true" />
-            <span className="truncate font-medium text-foreground">{quest.goalName}</span>
+            <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
+            <span className="truncate font-medium">{quest.goalName}</span>
           </div>
         )}
 
         {/* Cadence Tag */}
-        <div className="flex items-center gap-1 text-muted-foreground font-mono text-[11px] px-2 py-0.5 rounded-md bg-[#181B24] border border-[rgba(148,163,184,0.14)]">
+        <div className="flex items-center gap-1 text-muted-foreground font-mono text-[11px] px-2 py-0.5 rounded-md bg-muted/40 border border-border/40">
           {quest.seriesId ? (
             <>
-              <Repeat className="size-3 text-zinc-400" aria-hidden="true" />
+              <Repeat className="size-3 text-primary/70" aria-hidden="true" />
               <span>Daily</span>
             </>
           ) : (
@@ -225,7 +221,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
 
         {/* Status or Secondary Actions */}
         {isCompleted ? (
-          <div className="flex items-center gap-1.5 font-semibold text-white text-xs pl-1">
+          <div className="flex items-center gap-1.5 font-semibold text-emerald-500 text-xs pl-1">
             <Check className="size-3.5 stroke-[2.5]" aria-hidden="true" />
             <span>Done</span>
           </div>

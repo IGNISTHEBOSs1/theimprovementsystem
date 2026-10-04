@@ -47,30 +47,30 @@ export function AppTour() {
     <div
       role="dialog"
       aria-label="Quick tour"
-      className="fixed inset-x-4 bottom-[calc(88px+env(safe-area-inset-bottom))] z-50 mx-auto max-w-sm rounded-2xl border border-[rgba(148,163,184,0.18)] bg-[#12141A] p-4 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15),0_16px_36px_-4px_rgba(0,0,0,0.65)] backdrop-blur-xl sm:bottom-6"
+      className="fixed inset-x-4 bottom-[calc(88px+env(safe-area-inset-bottom))] z-50 mx-auto max-w-sm rounded-2xl border border-border bg-card p-4 shadow-[0_14px_28px_-4px_rgba(0,0,0,0.45)] sm:bottom-6"
     >
       <button
         type="button"
         onClick={dismiss}
         aria-label="Skip tour"
-        className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-white/5 active:scale-[0.96] transition-all"
+        className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
       >
         <X className="size-4" aria-hidden="true" />
       </button>
-      <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-zinc-400">{current.title}</p>
-      <p className="mt-1.5 max-w-[88%] text-sm text-foreground/90 font-sans">{current.body}</p>
-      <div className="mt-3.5 flex items-center justify-between">
+      <p className="text-label text-primary">{current.title}</p>
+      <p className="mt-1.5 max-w-[85%] text-body-sm text-foreground">{current.body}</p>
+      <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-1.5" aria-hidden="true">
           {STEPS.map((_, i) => (
             <span
               key={i}
-              className={`h-1.5 rounded-full transition-all ${i === step ? "w-4 bg-white" : "w-1.5 bg-white/20"}`}
+              className={`h-1.5 w-1.5 rounded-full ${i === step ? "bg-primary" : "bg-muted"}`}
             />
           ))}
         </div>
         <Button
           size="sm"
-          className="min-h-9 rounded-xl px-4 bg-white text-black hover:bg-zinc-200 font-bold active:scale-[0.98] transition-all shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+          className="min-h-9"
           onClick={() => (isLast ? dismiss() : setStep((s) => (s ?? 0) + 1))}
         >
           {isLast ? "Got it" : "Next"}

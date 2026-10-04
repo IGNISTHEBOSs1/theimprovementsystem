@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { ArrowRight, Check, ChevronRight, CircleDot, Target, Loader2, Zap, Timer, Sliders } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, CircleDot, Target, Loader2 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,26 +70,16 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
 
   if (!quest) {
     return (
-      <section
-        className="rounded-3xl border border-[rgba(148,163,184,0.18)] bg-[#12141A] p-5 sm:p-7 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15),0_12px_32px_-4px_rgba(0,0,0,0.6)] backdrop-blur-xl relative overflow-hidden"
-        aria-labelledby="focus-heading"
-      >
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-80" />
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/20 bg-white/10 text-[10px] font-mono font-bold tracking-wider text-white uppercase">
-          <span className="size-1.5 rounded-full bg-white" />
-          <span>PRIMARY FOCUS · ANCHOR</span>
-        </div>
-        <h2 id="focus-heading" className="mt-3 text-2xl font-bold tracking-tight text-foreground font-sans">
+      <section className="rounded-2xl border border-border bg-card p-5 sm:p-7" aria-labelledby="focus-heading">
+        <p className="text-label text-primary">Today&apos;s focus</p>
+        <h2 id="focus-heading" className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
           Begin with one meaningful action.
         </h2>
         <p className="mt-2 max-w-xl text-body-md text-muted-foreground">
-          Your primary focus anchor sets the trajectory for today.
+          Your next commitment starts here.
         </p>
-        <Button
-          className="mt-6 min-h-11 rounded-xl bg-foreground text-background hover:bg-foreground/90 font-semibold shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.4)] active:scale-[0.98]"
-          onClick={onChooseQuest}
-        >
-          Choose today&apos;s primary focus <ChevronRight className="size-4 ml-1" aria-hidden="true" />
+        <Button className="mt-6 min-h-11" onClick={onChooseQuest}>
+          Choose today&apos;s focus <ChevronRight className="size-4" aria-hidden="true" />
         </Button>
       </section>
     );
@@ -129,86 +119,55 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
         layout: TIS_SPRINGS.settle,
       }}
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-[rgba(148,163,184,0.18)] bg-[#12141A]/95 p-5 sm:p-6 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15),0_12px_36px_-4px_rgba(0,0,0,0.65)] transition-all duration-250 backdrop-blur-xl",
-        completionStage !== "idle" && "bg-white/[0.12] border-white/50 shadow-[0_0_24px_rgba(255,255,255,0.2)]"
+        "relative overflow-hidden rounded-2xl glass-hero p-5 sm:p-7 transition-colors duration-250",
+        completionStage !== "idle" && "bg-emerald-500/[0.08] border-emerald-500/40"
       )}
       aria-labelledby="focus-heading"
     >
-      {/* Subtle top decorative glowing bar (1:1 Stitch Spec) */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-80" />
-
       {spotlight.enabled && (
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
           style={{
-            background: "radial-gradient(240px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), rgba(255, 255, 255, 0.08), transparent 70%)",
+            background: "radial-gradient(240px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), hsl(var(--primary) / 0.07), transparent 70%)",
           }}
         />
       )}
-      
-      {/* Card Header (1:1 Stitch Spec) */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="px-2 py-0.5 rounded-md bg-[#181B24] border border-white/20 text-white font-mono text-[10px] font-bold tracking-wider uppercase">
-              DEEP WORK FOCUS
-            </span>
-            <span className="flex items-center gap-1 text-white font-mono text-[10px] font-bold">
-              <Zap className="size-3 text-white" aria-hidden="true" />
-              +35% THRUST
-            </span>
-          </div>
-          <h2 id="focus-heading" className={cn("text-xl sm:text-2xl font-bold tracking-tight text-foreground font-sans transition-all", completionStage !== "idle" && "line-through text-muted-foreground")}>
-            {quest.title}
-          </h2>
-        </div>
-        <div className="size-10 shrink-0 rounded-2xl bg-[#181B24] border border-[rgba(148,163,184,0.18)] flex items-center justify-center text-white shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)]">
-          <Target className="size-5" aria-hidden="true" />
-        </div>
-      </div>
-
-      {/* Telemetry Sparkline & Progress Bar (1:1 Stitch Spec) */}
-      <div className="mt-4 space-y-2">
-        <div className="flex items-center justify-between text-[10px] font-mono">
-          <span className="text-muted-foreground flex items-center gap-1">
-            <Timer className="size-3 text-muted-foreground" aria-hidden="true" />
-            ELAPSED / TARGET
-          </span>
-          <span className="text-foreground font-semibold tracking-wider tnum">
-            {quest.timeFrame || "1h 45m"} <span className="text-muted-foreground">/ 2h 30m</span>
-          </span>
-        </div>
-        {/* Dual Linear Capacity Meter Bar */}
-        <div className="h-2 w-full bg-[#0C0E14] rounded-full p-0.5 border border-[rgba(148,163,184,0.16)] flex items-center">
-          <div className="h-full bg-gradient-to-r from-zinc-500 to-white rounded-full relative" style={{ width: "70%" }}>
-            <span className="absolute right-0 top-1/2 -translate-y-1/2 size-3 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.9)] border border-[#090A0F]" />
+      <p className="text-label text-primary">Today&apos;s focus</p>
+      <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3.5 min-w-0 flex-1">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <CircleDot className="size-4 text-primary" aria-hidden="true" />
+              <span>{quest.timeFrame}</span>
+              <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>{quest.priority}</Badge>
+              {quest.linkedToGoal && quest.goalName && (
+                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 text-[11px] font-medium text-foreground">
+                  <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
+                  <span className="truncate max-w-[200px]">Goal: {quest.goalName}</span>
+                </span>
+              )}
+            </div>
+            <h2 id="focus-heading" className={cn("mt-2 text-2xl font-semibold tracking-tight text-foreground transition-all", completionStage !== "idle" && "line-through text-muted-foreground")}>
+              {quest.title}
+            </h2>
+            {quest.linkedToGoal && quest.goalName ? (
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-muted-foreground">
+                  Direct step toward <strong className="text-foreground font-medium">{quest.goalName}</strong>
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full border border-foreground/20 bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-foreground">
+                  <Check className="size-3 text-foreground shrink-0" aria-hidden="true" />
+                  <span>Advances today&apos;s goal velocity</span>
+                </span>
+              </div>
+            ) : (
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                One clear step is enough. Start here.
+              </p>
+            )}
           </div>
         </div>
-        {/* Micro Trajectory Markers */}
-        <div className="flex justify-between items-center px-1 text-[10px] font-mono text-muted-foreground">
-          <span>0m</span>
-          <span>Sprint Peak: 1h 30m</span>
-          <span className="text-white font-bold">70% Reached</span>
-        </div>
-      </div>
-
-      {/* Interactive Focus Controls & Swipe/Complete Action (1:1 Stitch Spec) */}
-      <div className="mt-5 pt-4 border-t border-[rgba(148,163,184,0.14)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-2.5">
-          <div className="size-8 rounded-xl bg-[#181B24] flex items-center justify-center text-white border border-[rgba(148,163,184,0.16)] shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.08)]">
-            <Sliders className="size-4" aria-hidden="true" />
-          </div>
-          <div>
-            <p className="text-xs font-semibold text-foreground leading-tight">
-              Sprint Mode: Intense
-            </p>
-            <p className="text-[10px] text-muted-foreground font-mono">
-              Audio shield: Active
-            </p>
-          </div>
-        </div>
-
         <div className="w-full sm:w-auto sm:shrink-0">
           <SwipeToComplete key={quest.id} completing={Boolean(completing)} onComplete={handleActionComplete} />
         </div>
@@ -418,9 +377,9 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
       className={cn(
-        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none transition-all duration-300 border border-[rgba(148,163,184,0.18)] bg-[#181B24] shadow-[inset_0_2px_5px_rgba(0,0,0,0.6),inset_0_1px_1px_0_rgba(255,255,255,0.08)] active:scale-[0.99]",
+        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none transition-colors duration-300 border glass-slider-track",
         isDone
-          ? "border-white/60 bg-white/10 shadow-[inset_0_1px_2px_rgba(0,0,0,0.2),0_0_20px_rgba(255,255,255,0.2)]"
+          ? "border-emerald-500/50 bg-emerald-500/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
           : ""
       )}
       aria-label={isDone ? "Quest completed" : completing ? "Marking Quest complete" : "Mark this Quest complete"}
@@ -430,8 +389,8 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
         className={cn(
           "pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300",
           isDone
-            ? "bg-white text-black shadow-[0_4px_16px_rgba(255,255,255,0.4),inset_0_1px_1px_0_rgba(255,255,255,0.7)] border border-white"
-            : "bg-gradient-to-b from-white to-slate-200 text-slate-950 border border-white/80 shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1.5px_1px_0_rgba(255,255,255,1)]"
+            ? "glass-slider-handle-done"
+            : "glass-slider-handle"
         )}
         style={{ transform: "translate3d(0px, -50%, 0)" }}
       >
@@ -444,7 +403,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       <span
         className={cn(
           "w-full text-center text-sm font-medium select-none pl-8 pr-3 transition-colors duration-300",
-          isDone ? "text-white font-semibold" : "text-foreground"
+          isDone ? "text-emerald-500 font-semibold" : "text-foreground"
         )}
       >
         {isDone ? "Done!" : completing ? "Saving…" : "Swipe to complete"}

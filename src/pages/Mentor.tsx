@@ -67,7 +67,7 @@ export default function Mentor() {
   if (loading) {
     return (
       <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
-        <div className="h-40 animate-pulse rounded-2xl bg-[#12141A] border border-[rgba(148,163,184,0.14)]" aria-label="Loading your mentor" />
+        <div className="h-40 animate-pulse rounded-2xl bg-muted" aria-label="Loading your mentor" />
       </div>
     );
   }
@@ -75,14 +75,14 @@ export default function Mentor() {
   if (error) {
     return (
       <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
-        <section className="rounded-3xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-7 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12),0_12px_32px_-4px_rgba(0,0,0,0.55)] backdrop-blur-xl" aria-label="Mentor unavailable">
-          <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-zinc-400">Mentor</p>
+        <section className="rounded-3xl border border-border bg-card p-7" aria-label="Mentor unavailable">
+          <p className="text-label text-muted-foreground">Mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
-          <p className="mt-2 text-sm text-muted-foreground">This is usually temporary. You can try again now.</p>
+          <p className="mt-2 text-body-md text-muted-foreground">This is usually temporary. You can try again now.</p>
           <Button
             size="lg"
             onClick={() => void reload()}
-            className="mt-4 min-h-11 rounded-xl px-6 bg-white text-black hover:bg-zinc-200 font-bold active:scale-[0.98] transition-all shadow-[0_0_16px_rgba(255,255,255,0.15)]"
+            className="mt-4 min-h-11"
           >
             Try again
           </Button>
@@ -172,16 +172,16 @@ export default function Mentor() {
         description="What works and where you get stuck, based on what you actually do."
       />
 
-      {/* ── 1. Executive Advisory Briefing (Obsidian Substrate) ── */}
+      {/* ── 1. Executive Advisory Briefing (Zero Nested Cards) ── */}
       {hasHero && (
         <motion.div variants={shouldReduceMotion ? undefined : itemVariants} className="mt-6">
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-[28px] border border-white/10 bg-[#12141A] p-6 sm:p-8 shadow-xl specular-top space-y-4"
+              className="rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
                   Executive Briefing • Primary Pattern
                 </span>
                 <span className="text-xs font-mono text-muted-foreground">
@@ -207,14 +207,14 @@ export default function Mentor() {
 
                   return (
                     <div className="pt-2 space-y-2.5">
-                      <div className="flex items-center justify-between text-xs font-mono tnum">
+                      <div className="flex items-center justify-between text-xs font-mono">
                         <span className="font-medium text-foreground">Where misses happen</span>
                         <span className="text-muted-foreground">{totalMissed} total misses</span>
                       </div>
 
                       {/* 2-Tone Segmented Ratio Bar */}
                       <div
-                        className="h-2.5 w-full overflow-hidden rounded-full bg-white/5 border border-white/[0.06] flex"
+                        className="h-2.5 w-full overflow-hidden rounded-full bg-muted flex"
                         role="progressbar"
                         aria-valuenow={recurringPct}
                         aria-valuemin={0}
@@ -222,26 +222,26 @@ export default function Mentor() {
                         aria-label={`Miss breakdown: ${recurringPct}% repeating, ${oneOffPct}% one-time`}
                       >
                         <div
-                          className="bg-white shadow-[0_0_8px_rgba(255,255,255,0.4)] transition-[width] duration-500 rounded-l-full"
+                          className="bg-primary transition-[width] duration-500 rounded-l-full"
                           style={{ width: `${recurringPct}%` }}
                           title={`Repeating: ${recurringPct}%`}
                         />
                         <div
-                          className="bg-white/20 transition-[width] duration-500 rounded-r-full"
+                          className="bg-muted-foreground/30 transition-[width] duration-500 rounded-r-full"
                           style={{ width: `${oneOffPct}%` }}
                           title={`One-time: ${oneOffPct}%`}
                         />
                       </div>
 
                       {/* Legend */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono tnum">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
                         <div className="flex items-center gap-1.5">
-                          <span className="size-2 rounded-full bg-white shrink-0" aria-hidden="true" />
+                          <span className="size-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
                           <span className="font-semibold text-foreground">Repeating series</span>
                           <span className="text-muted-foreground">({recurringMissed} • {recurringPct}%)</span>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <span className="size-2 rounded-full bg-white/30 shrink-0" aria-hidden="true" />
+                          <span className="size-2 rounded-full bg-muted-foreground/40 shrink-0" aria-hidden="true" />
                           <span className="text-muted-foreground">One-time quests</span>
                           <span className="text-muted-foreground">({oneOffMissed} • {oneOffPct}%)</span>
                         </div>
@@ -255,10 +255,10 @@ export default function Mentor() {
                 </div>
               )}
 
-              {/* Seamless Recommendation Accent */}
+              {/* Seamless Recommendation Accent (No Nested Card Box) */}
               {recurring.adjustment && (
-                <div className="flex items-start gap-3 rounded-[18px] bg-[#181B24] p-4 border border-white/[0.08] border-l-2 border-l-white/60 text-xs sm:text-sm">
-                  <Sparkles className="size-4 text-white shrink-0 mt-0.5" aria-hidden="true" />
+                <div className="flex items-start gap-3 rounded-2xl bg-muted/40 p-4 border-l-2 border-primary text-xs sm:text-sm">
+                  <Sparkles className="size-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
                   <div>
                     <span className="font-semibold text-foreground">Recommended adjustment: </span>
                     <span className="text-muted-foreground">{recurring.adjustment}</span>
@@ -272,18 +272,18 @@ export default function Mentor() {
                   <>
                     <Button
                       size="sm"
-                      className="w-full sm:w-auto min-h-11 rounded-[16px] bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_14px_rgba(255,255,255,0.15)] active:scale-[0.98]"
+                      className="w-full sm:w-auto min-h-11"
                       onClick={() => setRebalanceOpen(true)}
                     >
                       <RotateCcw className="mr-1.5 size-3.5" aria-hidden="true" />
                       Change days
                     </Button>
-                    <Button asChild size="sm" variant="outline" className="w-full sm:w-auto min-h-11 rounded-[16px] border-white/10 bg-[#181B24] hover:bg-white/5 active:scale-[0.98]">
+                    <Button asChild size="sm" variant="outline" className="w-full sm:w-auto min-h-11">
                       <Link to="/quests">Manage quests</Link>
                     </Button>
                   </>
                 ) : (
-                  <Button asChild size="sm" className="w-full sm:w-auto min-h-11 rounded-[16px] bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_14px_rgba(255,255,255,0.15)] active:scale-[0.98]">
+                  <Button asChild size="sm" className="w-full sm:w-auto min-h-11">
                     <Link to="/quests">See repeating quests</Link>
                   </Button>
                 )}
@@ -294,10 +294,10 @@ export default function Mentor() {
           {isRecoveryHero && recovery && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-[28px] border border-white/10 bg-[#12141A] p-6 sm:p-8 shadow-xl specular-top space-y-4"
+              className="rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
                   Your focus right now • Bouncing back
                 </span>
               </div>
@@ -308,7 +308,7 @@ export default function Mentor() {
                 {recovery.text}
               </h2>
               <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                <Button asChild size="sm" className="w-full sm:w-auto min-h-11 rounded-[16px] bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_14px_rgba(255,255,255,0.15)] active:scale-[0.98]">
+                <Button asChild size="sm" className="w-full sm:w-auto min-h-11">
                   <Link to="/quests">Commit to today's focus →</Link>
                 </Button>
               </div>
@@ -318,18 +318,18 @@ export default function Mentor() {
           {isMomentumHero && momentum && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-[28px] border border-white/10 bg-[#12141A] p-6 sm:p-8 shadow-xl specular-top space-y-4"
+              className="rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
                   Executive Briefing • Momentum
                 </span>
                 {momentum.comparison && (
                   <span className={cn(
-                    "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-mono tnum font-medium",
+                    "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-mono font-medium",
                     momentum.comparison.delta >= 0
-                      ? "bg-white/10 text-white border border-white/20"
-                      : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                      ? "bg-success/15 text-success border border-success/30"
+                      : "bg-warning/15 text-warning border border-warning/30"
                   )}>
                     {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}% shift
                   </span>
@@ -343,36 +343,36 @@ export default function Mentor() {
               </h2>
               {momentum.comparison && (
                 <div className="pt-2 space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-mono tnum">
+                  <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-medium text-foreground">Goal quest finish rate</span>
                     <span className="text-muted-foreground">
                       {momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal} recent
                     </span>
                   </div>
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-mono tnum">
+                    <div className="flex items-center justify-between text-xs font-mono">
                       <span className="font-medium text-foreground">Recent</span>
                       <span className="text-foreground font-semibold">
                         {Math.round(momentum.comparison.recentRate * 100)}%
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/5 border border-white/[0.06]">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                       <div
-                        className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.4)] rounded-full transition-[width] duration-500"
+                        className="h-full bg-primary rounded-full transition-[width] duration-500"
                         style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
                       />
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-mono tnum">
+                    <div className="flex items-center justify-between text-xs font-mono">
                       <span className="text-muted-foreground">Earlier</span>
                       <span className="text-muted-foreground">
                         {Math.round(momentum.comparison.previousRate * 100)}%
                       </span>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/5 border border-white/[0.06]">
+                    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                       <div
-                        className="h-full bg-white/20 rounded-full transition-[width] duration-500"
+                        className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
                         style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
                       />
                     </div>
@@ -380,8 +380,8 @@ export default function Mentor() {
                 </div>
               )}
               {momentum.adjustment && (
-                <div className="flex items-start gap-3 rounded-[18px] bg-[#181B24] p-4 border border-white/[0.08] border-l-2 border-l-white/60 text-xs sm:text-sm">
-                  <Sparkles className="size-4 text-white shrink-0 mt-0.5" aria-hidden="true" />
+                <div className="flex items-start gap-3 rounded-2xl bg-muted/40 p-4 border-l-2 border-primary text-xs sm:text-sm">
+                  <Sparkles className="size-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
                   <div>
                     <span className="font-semibold text-foreground">Recommended adjustment: </span>
                     <span className="text-muted-foreground">{momentum.adjustment}</span>
@@ -389,7 +389,7 @@ export default function Mentor() {
                 </div>
               )}
               <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                <Button asChild size="sm" className="w-full sm:w-auto min-h-11 rounded-[16px] bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_14px_rgba(255,255,255,0.15)] active:scale-[0.98]">
+                <Button asChild size="sm" className="w-full sm:w-auto min-h-11">
                   <Link to="/journey">View trajectory →</Link>
                 </Button>
               </div>
@@ -398,34 +398,34 @@ export default function Mentor() {
         </motion.div>
       )}
 
-      {/* ── 2. Unified Telemetry Band (Obsidian Substrate) ── */}
+      {/* ── 2. Unified Telemetry Band (Zero Stacked Cards) ── */}
       {signalCardsCount > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-[28px] border border-white/10 bg-[#12141A] overflow-hidden shadow-xl specular-top"
+          className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm"
         >
           <div className={cn(
-            "grid divide-y md:divide-y-0 divide-white/10",
+            "grid divide-y md:divide-y-0 divide-border/60",
             signalCardsCount === 1 ? "grid-cols-1" :
             signalCardsCount === 2 ? "grid-cols-1 md:grid-cols-2 md:divide-x" :
             "grid-cols-1 md:grid-cols-3 md:divide-x"
           )}>
             {/* Tile A: Trajectory Direction & Score */}
             {showTrajectoryCard && (
-              <div className="p-5 sm:p-6 bg-[#12141A] flex flex-col justify-between hover:bg-[#181B24]/40 transition-colors">
+              <div className="p-5 sm:p-6 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
-                      <Compass className="size-4 text-zinc-400" aria-hidden="true" />
+                      <Compass className="size-4 text-primary" aria-hidden="true" />
                       <span>Momentum Score</span>
                     </div>
-                    <span className="text-xs font-mono tnum text-muted-foreground">
+                    <span className="text-xs font-mono text-muted-foreground">
                       {trajectory.actual.length} events
                     </span>
                   </div>
 
                   <div className="mt-3 flex items-baseline gap-2">
-                    <span className="text-3xl font-bold font-mono tnum tracking-tight text-foreground">
+                    <span className="text-3xl font-bold font-mono tracking-tight text-foreground">
                       {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
                     </span>
                     <span className="text-xs font-mono text-muted-foreground">net direction</span>
@@ -439,10 +439,10 @@ export default function Mentor() {
                         <span
                           key={pt.quest.id || idx}
                           className={cn(
-                            "inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-mono tnum font-semibold transition-transform active:scale-95",
+                            "inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-mono font-semibold transition-transform active:scale-95",
                             pt.outcome === "completed"
-                              ? "bg-white/10 text-white border border-white/20"
-                              : "bg-white/5 text-muted-foreground border border-white/[0.08]"
+                              ? "bg-primary/10 text-primary border border-primary/25"
+                              : "bg-muted text-muted-foreground border border-border/60"
                           )}
                           title={`${pt.quest.title}: ${pt.outcome}`}
                         >
@@ -453,10 +453,10 @@ export default function Mentor() {
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-white/[0.06]">
+                <div className="mt-5 pt-3 border-t border-border/50">
                   <Link
                     to="/journey"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white hover:text-zinc-300 hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
                   >
                     <span>Explore trajectory</span>
                     <ArrowRight className="size-3" />
@@ -467,20 +467,20 @@ export default function Mentor() {
 
             {/* Tile B: Resilience / Recovery */}
             {showRecoveryCard && recovery && (
-              <div className="p-5 sm:p-6 bg-[#12141A] flex flex-col justify-between hover:bg-[#181B24]/40 transition-colors">
+              <div className="p-5 sm:p-6 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
-                    <Sprout className="size-4 text-zinc-400" aria-hidden="true" />
+                    <Sprout className="size-4 text-primary" aria-hidden="true" />
                     <span>Bouncing Back</span>
                   </div>
                   <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-foreground">
                     {recovery.text}
                   </p>
                 </div>
-                <div className="mt-5 pt-3 border-t border-white/[0.06]">
+                <div className="mt-5 pt-3 border-t border-border/50">
                   <Link
                     to="/quests"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white hover:text-zinc-300 hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
                   >
                     <span>Commit to today's focus</span>
                     <ArrowRight className="size-3" />
@@ -491,18 +491,18 @@ export default function Mentor() {
 
             {/* Tile C: Goal Momentum Shift */}
             {showMomentumCard && momentum && (
-              <div className="p-5 sm:p-6 bg-[#12141A] flex flex-col justify-between hover:bg-[#181B24]/40 transition-colors">
+              <div className="p-5 sm:p-6 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
-                      <RotateCcw className="size-4 text-zinc-400" aria-hidden="true" />
+                      <RotateCcw className="size-4 text-primary" aria-hidden="true" />
                       <span>Velocity Momentum</span>
                     </div>
                     {momentum.comparison && (
                       <span className={cn(
-                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-mono tnum font-medium",
+                        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium",
                         momentum.comparison.delta >= 0
-                          ? "bg-white/10 text-white border border-white/20"
+                          ? "bg-primary/10 text-primary border border-primary/20"
                           : "bg-destructive/10 text-destructive border border-destructive/20"
                       )}>
                         {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}% shift
@@ -514,7 +514,7 @@ export default function Mentor() {
                     <div className="mt-3 space-y-2">
                       <p className="text-xs text-muted-foreground font-mono">Goal quest finish rate</p>
                       <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs font-mono tnum">
+                        <div className="flex items-center justify-between text-xs font-mono">
                           <span className="text-foreground font-medium">Recent</span>
                           <span className="text-foreground font-semibold">
                             {Math.round(momentum.comparison.recentRate * 100)}%{" "}
@@ -523,16 +523,16 @@ export default function Mentor() {
                             </span>
                           </span>
                         </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5 border border-white/[0.06]">
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.4)] rounded-full transition-[width] duration-500"
+                            className="h-full bg-primary rounded-full transition-[width] duration-500"
                             style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs font-mono tnum">
+                        <div className="flex items-center justify-between text-xs font-mono">
                           <span className="text-muted-foreground">Earlier</span>
                           <span className="text-muted-foreground">
                             {Math.round(momentum.comparison.previousRate * 100)}%{" "}
@@ -541,9 +541,9 @@ export default function Mentor() {
                             </span>
                           </span>
                         </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/5 border border-white/[0.06]">
+                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                           <div
-                            className="h-full bg-white/20 rounded-full transition-[width] duration-500"
+                            className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
                             style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
                           />
                         </div>
@@ -553,10 +553,10 @@ export default function Mentor() {
                     <p className="mt-3 text-sm text-foreground">{momentum.observation}</p>
                   )}
                 </div>
-                <div className="mt-5 pt-3 border-t border-white/[0.06]">
+                <div className="mt-5 pt-3 border-t border-border/50">
                   <Link
                     to="/journey"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white hover:text-zinc-300 hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
                   >
                     <span>View trajectory telemetry</span>
                     <ArrowRight className="size-3" />
@@ -568,30 +568,30 @@ export default function Mentor() {
         </motion.div>
       )}
 
-      {/* ── 3. Open Behavioral Pattern Ledger (Obsidian Substrate) ── */}
+      {/* ── 3. Open Behavioral Pattern Ledger (Zero Nested Cards) ── */}
       {surfaced.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-[28px] border border-white/10 bg-[#12141A] overflow-hidden shadow-xl specular-top"
+          className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm"
         >
-          <div className="px-5 sm:px-6 py-4 bg-[#181B24]/80 border-b border-white/10 flex items-center justify-between">
+          <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
             <span className="text-xs font-mono uppercase font-semibold text-muted-foreground tracking-wider">
               Observed Behavioral Dynamics
             </span>
-            <span className="text-xs font-mono tnum text-muted-foreground">
+            <span className="text-xs font-mono text-muted-foreground">
               {surfaced.length} signals tracked
             </span>
           </div>
 
-          <div className="divide-y divide-white/[0.06]">
+          <div className="divide-y divide-border/40">
             {surfaced.map((item) => (
-              <div key={item.key} className="p-5 sm:p-6 space-y-2.5 hover:bg-[#181B24]/30 transition-colors">
+              <div key={item.key} className="p-5 sm:p-6 space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-zinc-400">
+                  <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-primary">
                     {item.categoryLabel}
                   </span>
                   {item.evidence && (
-                    <span className="inline-flex items-center rounded-md bg-[#181B24] px-2.5 py-0.5 text-[11px] font-mono tnum text-muted-foreground border border-white/10">
+                    <span className="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-mono text-muted-foreground border border-border/50">
                       {item.evidence}
                     </span>
                   )}
@@ -604,12 +604,12 @@ export default function Mentor() {
                 {item.adjustment && (
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm text-muted-foreground pt-1">
                     <div className="flex items-start sm:items-center gap-2">
-                      <span className="font-semibold text-zinc-300 shrink-0">Recommendation:</span>
+                      <span className="font-semibold text-primary shrink-0">Recommendation:</span>
                       <span className="text-foreground/90">{item.adjustment}</span>
                     </div>
                     <Link
                       to="/quests"
-                      className="inline-flex items-center gap-1 font-semibold text-white hover:text-zinc-300 hover:underline text-xs shrink-0 self-start sm:self-auto"
+                      className="inline-flex items-center gap-1 font-semibold text-primary hover:underline text-xs shrink-0 self-start sm:self-auto"
                     >
                       <span>Apply adjustment</span>
                       <ArrowRight className="size-3" />

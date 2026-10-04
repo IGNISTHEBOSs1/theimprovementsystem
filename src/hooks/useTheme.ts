@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export type AccentTheme = 'purple' | 'blue' | 'monochrome' | 'red';
+export type AccentTheme = 'purple' | 'blue' | 'green' | 'red';
 
 interface ThemeState {
   accent: AccentTheme;
@@ -9,7 +9,7 @@ interface ThemeState {
 const THEME_KEY = 'system-theme';
 
 const defaultTheme: ThemeState = {
-  accent: 'monochrome',
+  accent: 'purple',
 };
 
 export const useTheme = () => {
@@ -38,6 +38,6 @@ export const useTheme = () => {
 export const accentThemes: { id: AccentTheme; name: string; color: string }[] = [
   { id: 'purple', name: 'Solo Purple', color: '#9333ea' },
   { id: 'blue', name: 'Cyberpunk Blue', color: '#06b6d4' },
-  { id: 'monochrome', name: 'Kinetic Monochrome', color: '#ffffff' },
+  { id: 'green', name: 'Matrix Green', color: '#22c55e' },
   { id: 'red', name: 'Blood Red', color: '#ef4444' },
 ];

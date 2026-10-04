@@ -21,15 +21,15 @@ function HistoryItem({ quest }: { quest: Quest }) {
     : "";
 
   return (
-    <li className="flex flex-col gap-2.5 px-4 py-3.5 transition-colors hover:bg-[#181B24]/40 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5 sm:py-3.5">
+    <li className="flex flex-col gap-2.5 px-4 py-3.5 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5 sm:py-3.5">
       {/* LEFT AXIS: Hard-aligned status icon & task title (Receipt Left Edge) */}
       <div className="flex min-w-0 items-start gap-3 sm:items-center flex-1">
         <div
           className={cn(
             "flex size-6 shrink-0 items-center justify-center rounded-lg mt-0.5 sm:mt-0 border transition-colors",
             isCompleted
-              ? "bg-white/10 text-white border-white/20 shadow-[0_0_8px_rgba(255,255,255,0.15)]"
-              : "bg-[#181B24] text-muted-foreground border-[rgba(148,163,184,0.14)]"
+              ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+              : "bg-muted/50 text-muted-foreground border-border/70"
           )}
           aria-hidden="true"
         >
@@ -40,18 +40,18 @@ function HistoryItem({ quest }: { quest: Quest }) {
           <div className="flex items-center gap-2">
             <span
               className={cn(
-                "text-sm font-semibold text-foreground font-sans truncate",
-                !isCompleted && "text-muted-foreground font-normal line-through"
+                "text-sm font-medium text-foreground truncate",
+                !isCompleted && "text-muted-foreground"
               )}
             >
               {quest.title}
             </span>
           </div>
 
-          {/* Goal pill on mobile */}
+          {/* Goal pill on mobile (Show, Don't Tell: no redundant 'Supports:' text) */}
           {quest.linkedToGoal && quest.goalName && (
             <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground sm:hidden truncate">
-              <Target className="size-3 text-zinc-400 shrink-0" aria-hidden="true" />
+              <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
               <span className="truncate">{quest.goalName}</span>
             </div>
           )}
@@ -62,34 +62,34 @@ function HistoryItem({ quest }: { quest: Quest }) {
       <div className="flex items-center justify-between sm:justify-end gap-2.5 pl-9 sm:pl-0 shrink-0 text-xs">
         {/* Desktop Goal Pill */}
         {quest.linkedToGoal && quest.goalName && (
-          <div className="hidden sm:flex items-center gap-1.5 rounded-full bg-[#181B24] px-2.5 py-0.5 text-[11px] text-muted-foreground border border-[rgba(148,163,184,0.14)] max-w-[170px] truncate shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.06)]">
-            <Target className="size-3 text-zinc-400 shrink-0" aria-hidden="true" />
-            <span className="truncate text-foreground font-medium">{quest.goalName}</span>
+          <div className="hidden sm:flex items-center gap-1 rounded-full bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground border border-border/50 max-w-[150px] truncate">
+            <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
+            <span className="truncate">{quest.goalName}</span>
           </div>
         )}
 
-        {/* Priority */}
+        {/* Priority (Relational emphasis: only Important/elevated gets badge) */}
         {quest.priority !== "Essential" ? (
           <span
             className={cn(
-              "font-mono text-[11px] px-2 py-0.5 rounded-md border",
+              "font-medium text-[11px] px-1.5 py-0.5 rounded border",
               quest.priority === "Important"
-                ? "text-foreground bg-[#181B24] border-[rgba(148,163,184,0.18)]"
-                : "text-muted-foreground bg-[#181B24]/60 border-[rgba(148,163,184,0.12)]"
+                ? "text-foreground bg-muted/70 border-border"
+                : "text-muted-foreground bg-muted/30 border-border/60"
             )}
           >
             {quest.priority}
           </span>
         ) : null}
 
-        <span className="font-mono text-xs text-muted-foreground tnum">{resolvedDate}</span>
+        <span className="font-mono text-xs text-muted-foreground/80">{resolvedDate}</span>
 
         <span
           className={cn(
-            "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-mono tnum font-semibold border",
+            "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium border",
             isCompleted
-              ? "bg-white/10 text-white border-white/20"
-              : "bg-[#181B24] text-muted-foreground border-[rgba(148,163,184,0.14)]"
+              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/25"
+              : "bg-muted/40 text-muted-foreground border-border/60 font-mono"
           )}
         >
           {isCompleted ? "Completed" : "Missed"}
@@ -154,45 +154,45 @@ export default function QuestHistory() {
       <div className="mt-8">
         {loading ? (
           <div className="space-y-3" aria-label="Loading quest history">
-            <div className="h-16 animate-pulse rounded-2xl bg-[#12141A] border border-[rgba(148,163,184,0.14)]" />
-            <div className="h-16 animate-pulse rounded-2xl bg-[#12141A] border border-[rgba(148,163,184,0.14)]" />
-            <div className="h-16 animate-pulse rounded-2xl bg-[#12141A] border border-[rgba(148,163,184,0.14)]" />
+            <div className="h-16 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-16 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-16 animate-pulse rounded-2xl bg-muted" />
           </div>
         ) : error ? (
           <section
-            className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-7 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12),0_12px_32px_-4px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+            className="rounded-2xl border border-border bg-card p-7"
             aria-label="Quest history unavailable"
           >
-            <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-zinc-400">Your history</p>
+            <p className="text-label text-muted-foreground">Your history</p>
             <h2 className="mt-2 text-lg font-semibold text-foreground">
               We couldn't load your quest history.
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-body-md text-muted-foreground">
               This is usually temporary. You can try again now.
             </p>
-            <Button size="lg" className="mt-4 rounded-xl px-6 bg-white text-black hover:bg-zinc-200 font-bold active:scale-[0.98] transition-all shadow-[0_0_16px_rgba(255,255,255,0.15)]" onClick={() => void reload()}>
+            <Button variant="neon" size="lg" className="mt-4" onClick={() => void reload()}>
               Try again
             </Button>
           </section>
         ) : resolved.length === 0 ? (
-          <section className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-7 text-center shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12),0_4px_16px_rgba(0,0,0,0.4)]" aria-label="No quest history yet">
-            <p className="text-sm text-muted-foreground">
+          <section className="rounded-2xl border border-border bg-card p-7 text-center" aria-label="No quest history yet">
+            <p className="text-body-md text-muted-foreground">
               Nothing here yet. Completed and missed quests will appear here as you resolve them.
             </p>
           </section>
         ) : (
           <div className="space-y-4">
-            {/* Momentum & All-Time Completion Rate Anchor */}
-            <div className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15),0_12px_32px_-4px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+            {/* Momentum & All-Time Completion Rate Anchor (Direct Cognitive Ratio) */}
+            <div className="rounded-2xl border border-border/80 bg-card/60 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 shadow-xs">
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="size-11 shrink-0 flex items-center justify-center rounded-xl bg-[#181B24] border border-white/20 text-white font-mono font-bold text-xs tnum shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)]">
+                <div className="size-11 shrink-0 flex items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary font-mono font-bold text-xs">
                   {completionRate}%
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-foreground font-sans">
+                  <h3 className="text-sm font-semibold text-foreground">
                     {completionRate}% All-Time Completion Rate
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5 tnum font-mono">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {completedCount} of {resolved.length} commitments honored to date
                   </p>
                 </div>
@@ -202,12 +202,12 @@ export default function QuestHistory() {
                 <Badge
                   variant="outline"
                   className={cn(
-                    "text-xs font-mono tnum px-2.5 py-1 rounded-full",
+                    "text-xs font-mono px-2.5 py-1",
                     completionRate >= 80
-                      ? "border-white/20 bg-white/10 text-white font-semibold shadow-[0_0_8px_rgba(255,255,255,0.15)]"
+                      ? "border-foreground/30 bg-foreground/10 text-foreground font-semibold"
                       : completionRate >= 60
-                      ? "border-[rgba(148,163,184,0.2)] bg-[#181B24] text-foreground/90 font-medium"
-                      : "border-[rgba(148,163,184,0.14)] bg-[#181B24] text-muted-foreground"
+                      ? "border-border bg-muted/70 text-foreground/90 font-medium"
+                      : "border-border/60 bg-muted/40 text-muted-foreground"
                   )}
                 >
                   {completionRate >= 80 ? "✓ Strong Momentum" : completionRate >= 60 ? "Steady Rhythm" : "Rebuilding Flow"}
@@ -222,14 +222,14 @@ export default function QuestHistory() {
                 onValueChange={(val) => setActiveTab(val as "all" | "completed" | "failed")}
                 className="w-full sm:w-auto"
               >
-                <TabsList className="grid w-full grid-cols-3 sm:w-auto h-10 p-1 rounded-xl bg-[#181B24] border border-[rgba(148,163,184,0.14)]">
-                  <TabsTrigger value="all" className="text-xs font-mono tnum rounded-lg data-[state=active]:bg-[#12141A] data-[state=active]:text-foreground data-[state=active]:border data-[state=active]:border-[rgba(148,163,184,0.14)] active:scale-[0.98]">
+                <TabsList className="grid w-full grid-cols-3 sm:w-auto">
+                  <TabsTrigger value="all" className="text-xs">
                     All ({resolved.length})
                   </TabsTrigger>
-                  <TabsTrigger value="completed" className="text-xs font-mono tnum rounded-lg data-[state=active]:bg-[#12141A] data-[state=active]:text-foreground data-[state=active]:border data-[state=active]:border-[rgba(148,163,184,0.14)] active:scale-[0.98]">
+                  <TabsTrigger value="completed" className="text-xs">
                     Completed ({completedCount})
                   </TabsTrigger>
-                  <TabsTrigger value="failed" className="text-xs font-mono tnum rounded-lg data-[state=active]:bg-[#12141A] data-[state=active]:text-foreground data-[state=active]:border data-[state=active]:border-[rgba(148,163,184,0.14)] active:scale-[0.98]">
+                  <TabsTrigger value="failed" className="text-xs">
                     Missed ({failedCount})
                   </TabsTrigger>
                 </TabsList>
@@ -242,7 +242,7 @@ export default function QuestHistory() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Filter by title or goal..."
-                  className="pl-8 text-xs h-10 rounded-xl bg-[#181B24] border-[rgba(148,163,184,0.14)] text-foreground placeholder:text-muted-foreground/60 shadow-[inset_0_1px_1px_0_rgba(0,0,0,0.3)] focus-visible:ring-white/40"
+                  className="pl-8 text-xs h-9 bg-background"
                   aria-label="Filter quests"
                 />
               </div>
@@ -250,23 +250,23 @@ export default function QuestHistory() {
 
             {/* UNIFIED RECEIPT LEDGER CONTAINER */}
             {filteredQuests.length > 0 ? (
-              <div className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12),0_8px_24px_rgba(0,0,0,0.45)] overflow-hidden">
-                <ul className="divide-y divide-[rgba(148,163,184,0.1)]" aria-label="Filtered quest history list">
+              <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)] overflow-hidden">
+                <ul className="divide-y divide-border/60" aria-label="Filtered quest history list">
                   {filteredQuests.map((quest) => (
                     <HistoryItem key={quest.id} quest={quest} />
                   ))}
                 </ul>
               </div>
             ) : (
-              <div className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A]/50 p-8 text-center">
-                <p className="text-sm text-muted-foreground">
+              <div className="rounded-2xl border border-border/70 bg-card/40 p-8 text-center">
+                <p className="text-body-sm text-muted-foreground">
                   No quests match {search ? `"${search}"` : "this filter"}.
                 </p>
                 {search && (
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="mt-2 text-xs text-white hover:text-zinc-300 hover:bg-[#181B24] rounded-xl active:scale-[0.98]"
+                    className="mt-2 text-xs text-primary"
                     onClick={() => setSearch("")}
                   >
                     Clear search

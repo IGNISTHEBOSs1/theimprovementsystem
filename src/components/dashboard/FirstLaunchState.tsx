@@ -39,20 +39,20 @@ export function FirstLaunchState({ name }: FirstLaunchStateProps) {
       />
       <div className="mt-9">
         <section
-          className="rounded-[28px] border border-[rgba(148,163,184,0.16)] bg-[#12141A] p-7 sm:p-9 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15),0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl specular-top"
+          className="rounded-2xl border border-border bg-card p-7"
           aria-labelledby="first-launch-heading"
         >
-          <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-white">Begin</p>
-          <h2 id="first-launch-heading" className="mt-2 text-xl font-bold text-foreground">
+          <p className="text-label text-muted-foreground">Begin</p>
+          <h2 id="first-launch-heading" className="mt-2 text-lg font-semibold text-foreground">
             Ready to start.
           </h2>
-          <Button size="lg" disabled={entering} onClick={handleEnter} className="mt-6 min-h-12 rounded-xl px-7 bg-white text-black hover:bg-zinc-200 font-bold active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] text-sm flex items-center gap-2">
-            {entering ? <Loader2 className="size-4 animate-spin text-black" /> : null}
-            <span>Begin Your Journey</span>
-            {!entering && <ArrowRight className="size-4 text-black" aria-hidden="true" />}
+          <Button variant="neon" size="lg" disabled={entering} onClick={handleEnter} className="mt-4">
+            {entering ? <Loader2 className="size-4 animate-spin" /> : null}
+            Begin Your Journey
+            {!entering && <ArrowRight className="size-4" aria-hidden="true" />}
           </Button>
           {error && (
-            <p className="mt-3 text-sm text-rose-400" role="alert">
+            <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
               That didn't go through. You can try again.
             </p>
           )}

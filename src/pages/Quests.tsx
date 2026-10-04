@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { TodaysCommitment } from "@/components/quests/TodaysCommitment";
 import { QuestCard } from "@/components/quests/QuestCard";
-import { CapacityMeter } from "@/components/quests/CapacityMeter";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -138,35 +137,28 @@ export default function Quests() {
       <div className="mt-8 space-y-6">
         {loading ? (
           <div className="space-y-3" aria-label="Loading quests">
-            <div className="h-20 animate-pulse rounded-2xl bg-[#12141A] border border-[rgba(148,163,184,0.14)]" />
-            <div className="h-20 animate-pulse rounded-2xl bg-[#12141A] border border-[rgba(148,163,184,0.14)]" />
-            <div className="h-20 animate-pulse rounded-2xl bg-[#12141A] border border-[rgba(148,163,184,0.14)]" />
+            <div className="h-20 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-20 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-20 animate-pulse rounded-2xl bg-muted" />
           </div>
         ) : error ? (
           <section
-            className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-7 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12),0_12px_32px_-4px_rgba(0,0,0,0.55)] backdrop-blur-xl"
+            className="rounded-2xl border border-border bg-card p-7"
             aria-label="Quests unavailable"
           >
-            <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-zinc-400">Your quests</p>
+            <p className="text-label text-muted-foreground">Your quests</p>
             <h2 className="mt-2 text-lg font-semibold text-foreground">
               We couldn't load your quests.
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-body-md text-muted-foreground">
               This is usually temporary. You can try again now.
             </p>
-            <Button size="lg" className="mt-4 rounded-xl px-6 bg-white text-black hover:bg-zinc-200 font-bold active:scale-[0.98] transition-all shadow-[0_0_16px_rgba(255,255,255,0.15)]" onClick={() => void reload()}>
+            <Button variant="neon" size="lg" className="mt-4" onClick={() => void reload()}>
               Try again
             </Button>
           </section>
         ) : (
           <>
-            {/* CAPACITY STATUS METER (Google Stitch Obsidian Kinetic Spec) */}
-            <CapacityMeter
-              committedCount={activeQuests.length}
-              maxSlots={MAX_ACTIVE_QUESTS}
-              onAddPressed={!showCommitForm && activeQuests.length < MAX_ACTIVE_QUESTS ? () => setShowCommitForm(true) : undefined}
-            />
-
             {/* NEW COMMITMENT FORM (When toggled open) */}
             {showCommitForm && (
               <div>
@@ -185,15 +177,36 @@ export default function Quests() {
               </div>
             )}
 
-            {/* ACTIVE COMMITMENTS: GROUPED BY 1 PRIMARY FOCUS + 2 COMPANION ROUTINES */}
+            {/* ACTIVE COMMITMENTS: GROUPED BY GESTALT PROXIMITY RULE */}
             {activeQuests.length > 0 ? (
               <div className="space-y-6">
                 {/* Ledger Header & Capacity Summary */}
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2.5">
                     <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                      Today&apos;s Ledger
+                      Active Commitments
                     </h2>
+                    {/* Visual Capacity Meter */}
+                    <div
+                      className="flex items-center gap-1.5 ml-1"
+                      title={`${activeQuests.length} of ${MAX_ACTIVE_QUESTS} slots committed`}
+                      aria-label={`${activeQuests.length} of ${MAX_ACTIVE_QUESTS} slots committed`}
+                    >
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: MAX_ACTIVE_QUESTS }).map((_, i) => (
+                          <span
+                            key={i}
+                            className={cn(
+                              "size-2 rounded-full transition-colors",
+                              i < activeQuests.length ? "bg-primary" : "bg-muted-foreground/25"
+                            )}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[11px] font-mono text-muted-foreground">
+                        {activeQuests.length}/{MAX_ACTIVE_QUESTS}
+                      </span>
+                    </div>
                   </div>
 
                   {!showCommitForm && (
@@ -201,7 +214,7 @@ export default function Quests() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-8 gap-1.5 text-xs text-white hover:text-zinc-300 hover:bg-[#181B24] rounded-xl px-3 font-semibold transition-all active:scale-[0.98]"
+                        className="h-7 gap-1.5 text-xs text-primary hover:text-primary hover:bg-primary/10 rounded-lg px-2.5 font-medium"
                         onClick={() => setShowCommitForm(true)}
                         title={`${MAX_ACTIVE_QUESTS - activeQuests.length} slot${MAX_ACTIVE_QUESTS - activeQuests.length > 1 ? "s" : ""} available`}
                       >
@@ -209,46 +222,46 @@ export default function Quests() {
                         <span>Add ({MAX_ACTIVE_QUESTS - activeQuests.length} open)</span>
                       </Button>
                     ) : (
-                      <span className="text-[11px] font-mono text-muted-foreground bg-[#181B24] px-2.5 py-0.5 rounded-full border border-[rgba(148,163,184,0.14)] tnum">
+                      <span className="text-[11px] font-mono text-muted-foreground bg-muted/60 px-2.5 py-0.5 rounded-full border border-border/70">
                         Focus cap (3/3)
                       </span>
                     )
                   )}
                 </div>
 
-                {/* Priority Clusters */}
+                {/* Proximity Clusters: Grouped by Priority with Tight Internal Row Proximity */}
                 {(
                   [
                     {
-                      label: "Primary Focus (Core Anchor)",
-                      caption: "Essential Slot 1",
+                      label: "Essential Commitments",
+                      caption: "Core Anchor",
                       quests: activeQuests.filter((q) => q.priority === "Essential"),
                     },
                     {
-                      label: "Companion Routines (High Leverage)",
-                      caption: "Important Slot 2",
+                      label: "Important Objectives",
+                      caption: "High Leverage",
                       quests: activeQuests.filter((q) => q.priority === "Important"),
                     },
                     {
-                      label: "Tactical / Maintenance",
-                      caption: "Slot 3",
+                      label: "Optional / Tactical",
+                      caption: "Bonus",
                       quests: activeQuests.filter((q) => q.priority === "Optional"),
                     },
                   ] as const
                 )
                   .filter((group) => group.quests.length > 0)
                   .map((group) => (
-                    <section key={group.label} className="space-y-2.5" aria-label={group.label}>
+                    <section key={group.label} className="space-y-2" aria-label={group.label}>
                       <div className="flex items-center justify-between px-1 text-xs">
-                        <span className="font-mono font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
+                        <span className="font-mono font-semibold uppercase tracking-wider text-muted-foreground text-[11px]">
                           {group.label}
                         </span>
-                        <span className="font-mono text-[11px] text-muted-foreground/75 tnum">
-                          {group.quests.length} active
+                        <span className="font-mono text-[11px] text-muted-foreground/75">
+                          {group.caption} · {group.quests.length}
                         </span>
                       </div>
 
-                      <ul className="space-y-3">
+                      <ul className="space-y-2.5">
                         <AnimatePresence mode="popLayout" initial={false}>
                           {group.quests.map((quest) => (
                             <QuestCard
@@ -267,19 +280,19 @@ export default function Quests() {
               </div>
             ) : !showCommitForm ? (
               /* Inviting Empty State when 0 quests */
-              <div className="rounded-2xl sm:rounded-3xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-6 sm:p-10 text-center flex flex-col items-center justify-center shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15),0_12px_32px_-4px_rgba(0,0,0,0.55)] backdrop-blur-xl">
-                <div className="size-14 rounded-2xl bg-[#181B24] text-white border border-[rgba(148,163,184,0.14)] flex items-center justify-center mb-4 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)]">
-                  <CheckSquare className="size-7" aria-hidden="true" />
+              <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 text-center flex flex-col items-center justify-center shadow-[var(--shadow-card)]">
+                <div className="size-12 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center mb-4">
+                  <CheckSquare className="size-6" aria-hidden="true" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-foreground font-sans">
+                <h3 className="text-lg sm:text-xl font-semibold text-foreground">
                   No active commitments
                 </h3>
                 <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-                  Focus comes from quiet mathematical clarity. Commit to 1 Primary Focus + 2 Companion Routines for today.
+                  Focus comes from clarity. Commit to one meaningful action for today.
                 </p>
                 <Button
                   size="lg"
-                  className="mt-6 min-h-11 rounded-xl px-6 bg-foreground text-background hover:bg-foreground/90 font-semibold shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.4)] active:scale-[0.98] transition-all"
+                  className="mt-6 min-h-11 rounded-full px-6 shadow-[0_4px_16px_hsl(var(--primary)/0.25)] hover:shadow-[0_4px_20px_hsl(var(--primary)/0.35)] active:scale-[0.98] transition-all"
                   onClick={() => setShowCommitForm(true)}
                 >
                   <Plus className="size-4 mr-1.5" aria-hidden="true" />
@@ -312,8 +325,8 @@ export default function Quests() {
                   </span>
                 </div>
 
-                <div className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12),0_4px_16px_rgba(0,0,0,0.4)] overflow-hidden">
-                  <ul className="divide-y divide-[rgba(148,163,184,0.1)]">
+                <div className="rounded-2xl border border-border/70 bg-card/70 shadow-xs overflow-hidden">
+                  <ul className="divide-y divide-border/50">
                     {upcoming.map((quest) => {
                       const day = nextEligibleDayLabel(quest.recurrenceDays ?? [], serverLocal.weekday);
                       const dayLabel = day === "tomorrow" ? "Tomorrow" : day === "soon" ? "Soon" : `Next: ${day}`;
@@ -321,19 +334,19 @@ export default function Quests() {
                       return (
                         <li
                           key={quest.seriesId}
-                          className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5 hover:bg-white/[0.02] transition-colors text-xs"
+                          className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5 hover:bg-muted/20 transition-colors text-xs"
                         >
                           {/* Left Edge: Repeat Icon, Title, Goal */}
                           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                            <div className="size-6 rounded-md bg-white/10 text-white border border-white/20 flex items-center justify-center shrink-0">
+                            <div className="size-6 rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
                               <Repeat className="size-3.5" aria-hidden="true" />
                             </div>
                             <span className="font-medium text-foreground truncate text-sm">
                               {quest.title}
                             </span>
                             {quest.linkedToGoal && quest.goalName && (
-                              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#181B24] px-2 py-0.5 text-[11px] text-muted-foreground border border-[rgba(148,163,184,0.12)] truncate max-w-[170px]">
-                                <Target className="size-2.5 text-zinc-400 shrink-0" aria-hidden="true" />
+                              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-muted/50 px-2 py-0.5 text-[11px] text-muted-foreground border border-border/50 truncate max-w-[170px]">
+                                <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
                                 <span className="truncate">{quest.goalName}</span>
                               </span>
                             )}
@@ -341,10 +354,10 @@ export default function Quests() {
 
                           {/* Right Edge: Next Day & Priority */}
                           <div className="flex items-center gap-2.5 shrink-0 text-muted-foreground">
-                            <span className="font-mono text-[11px] bg-[#181B24] px-2 py-0.5 rounded border border-[rgba(148,163,184,0.14)] text-foreground/80 tnum">
+                            <span className="font-mono text-[11px] bg-muted/40 px-2 py-0.5 rounded border border-border/40 text-foreground/80">
                               {dayLabel}
                             </span>
-                            <span className="font-mono text-[11px] text-muted-foreground/70 uppercase">
+                            <span className="font-mono text-[11px] text-muted-foreground/70">
                               {quest.priority}
                             </span>
                           </div>
@@ -361,19 +374,17 @@ export default function Quests() {
 
       {/* Confirmation Dialog */}
       <AlertDialog open={Boolean(cancelTargetId)} onOpenChange={(open) => { if (!open) setCancelTargetId(null); }}>
-        <AlertDialogContent className="rounded-[28px] bg-[#12141A] border border-[rgba(148,163,184,0.16)] text-foreground specular-top shadow-[0_24px_64px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-base sm:text-lg font-bold text-foreground">Cancel commitment?</AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-muted-foreground">
+            <AlertDialogTitle>Cancel commitment?</AlertDialogTitle>
+            <AlertDialogDescription>
               Are you sure you want to withdraw this commitment? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2 sm:gap-3 mt-4">
-            <AlertDialogCancel className="min-h-11 rounded-[16px] border-white/10 bg-[#181B24] hover:bg-white/5 text-xs sm:text-sm text-foreground active:scale-[0.98]">
-              Keep commitment
-            </AlertDialogCancel>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep commitment</AlertDialogCancel>
             <AlertDialogAction
-              className="min-h-11 rounded-[16px] bg-rose-600 text-white hover:bg-rose-500 text-xs sm:text-sm active:scale-[0.98]"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => void handleConfirmCancel()}
             >
               Cancel commitment

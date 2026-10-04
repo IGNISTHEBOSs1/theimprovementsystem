@@ -81,29 +81,25 @@ export function TrajectoryVisualizer({
   const historicTrailPath = `M ${xOrigin} ${yOrigin} C ${trailC1x} ${trailC1y}, ${trailC2x} ${trailC2y}, ${xCurrent} ${yCurrent}`;
 
   return (
-    <div className={cn("relative overflow-hidden rounded-[28px] p-6 sm:p-8 bg-[#12141A] border border-white/10 shadow-2xl specular-top", className)}>
+    <div className={cn("relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-card/80 border border-border/80 shadow-md", className)}>
       {/* Ambient background illumination */}
       <div
         className="pointer-events-none absolute inset-0 opacity-40"
         style={{
-          background: "radial-gradient(ellipse 700px 380px at 70% 20%, rgba(16, 185, 129, 0.15), transparent 70%)",
+          background: "radial-gradient(ellipse 700px 380px at 70% 20%, hsl(var(--primary) / 0.12), transparent 70%)",
         }}
         aria-hidden="true"
       />
 
       {/* Progress Status Bar */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 text-xs">
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-border/50 pb-4 text-xs">
         <div className="flex items-center gap-2.5">
-          <div className="size-8 rounded-xl border border-white/10 bg-[#181B24] flex items-center justify-center text-white shadow-sm">
-            <Navigation className="size-4" aria-hidden="true" />
-          </div>
-          <div>
-            <span className="font-mono text-xs font-bold tracking-wider uppercase text-foreground">
-              Goal Trajectory Visualizer
-            </span>
-          </div>
+          <Navigation className="size-4 text-primary" aria-hidden="true" />
+          <span className="font-mono text-xs font-bold tracking-wider uppercase text-foreground">
+            Goal Trajectory Visualizer
+          </span>
           {goalLabel && (
-            <span className="hidden sm:inline-block rounded-full border border-white/20 bg-white/10 px-3 py-1 font-mono font-medium text-white text-xs">
+            <span className="hidden sm:inline-block rounded-full bg-primary/10 px-3 py-1 font-medium text-primary text-xs">
               {goalLabel}
             </span>
           )}
@@ -113,23 +109,23 @@ export function TrajectoryVisualizer({
         <div className="flex items-center gap-2">
           <div
             className={cn(
-              "inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 font-mono text-xs font-semibold uppercase tracking-wider transition-all",
+              "inline-flex items-center gap-2 rounded-full px-3 py-1 font-mono text-xs font-semibold uppercase tracking-wider transition-all",
               isOnTrack
-                ? "border border-white/20 bg-white/10 text-white shadow-[0_0_12px_rgba(255,255,255,0.15)]"
-                : "border border-amber-500/30 bg-amber-500/10 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.25)]"
+                ? "border border-success/40 bg-success/15 text-success shadow-[0_0_12px_rgba(16,185,129,0.2)]"
+                : "border border-warning/40 bg-warning/15 text-warning shadow-[0_0_12px_rgba(245,158,11,0.2)]"
             )}
           >
             <span className="relative flex size-2.5">
               <span
                 className={cn(
                   "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
-                  isOnTrack ? "bg-white" : "bg-amber-400"
+                  isOnTrack ? "bg-success" : "bg-warning"
                 )}
               />
               <span
                 className={cn(
                   "relative inline-flex size-2.5 rounded-full",
-                  isOnTrack ? "bg-white" : "bg-amber-400"
+                  isOnTrack ? "bg-success" : "bg-warning"
                 )}
               />
             </span>
@@ -149,21 +145,21 @@ export function TrajectoryVisualizer({
           <defs>
             {/* Cone Frosted Glass Gradient */}
             <linearGradient id={coneGradId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity={0.15} />
-              <stop offset="50%" stopColor="#FFFFFF" stopOpacity={0.06} />
-              <stop offset="100%" stopColor="#FFFFFF" stopOpacity={0.01} />
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.22} />
+              <stop offset="50%" stopColor="hsl(var(--primary))" stopOpacity={0.12} />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.04} />
             </linearGradient>
 
             {/* Glowing Trajectory Stroke Gradient */}
             <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#A1A1AA" stopOpacity={0.8} />
-              <stop offset="60%" stopColor="#FFFFFF" stopOpacity={1} />
-              <stop offset="100%" stopColor="#FFFFFF" stopOpacity={1} />
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.75} />
+              <stop offset="60%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+              <stop offset="100%" stopColor="hsl(var(--foreground))" stopOpacity={1} />
             </linearGradient>
 
-            {/* Specular White Flight Filter */}
+            {/* Neon Flight Filter */}
             <filter id={glowFilterId} x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#FFFFFF" floodOpacity={0.4} />
+              <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor="hsl(var(--primary))" floodOpacity="0.4" />
             </filter>
           </defs>
 
@@ -175,7 +171,8 @@ export function TrajectoryVisualizer({
               y1={y}
               x2={WIDTH - 30}
               y2={y}
-              stroke="rgba(255, 255, 255, 0.08)"
+              stroke="hsl(var(--border))"
+              strokeOpacity={0.25}
               strokeDasharray="4 8"
               strokeWidth={1}
             />
@@ -194,7 +191,7 @@ export function TrajectoryVisualizer({
           <motion.path
             d={`M ${xCurrent} ${yCurrent} C ${c1x} ${c1yUpper}, ${c2x} ${c2yUpper}, ${xGoal} ${yGoalUpper}`}
             fill="none"
-            stroke="rgba(255, 255, 255, 0.4)"
+            stroke="hsl(var(--primary) / 0.4)"
             strokeWidth={1.5}
             strokeDasharray="4 5"
             initial={shouldReduceMotion ? false : { opacity: 0 }}
@@ -204,7 +201,7 @@ export function TrajectoryVisualizer({
           <motion.path
             d={`M ${xCurrent} ${yCurrent} C ${c1x} ${c1yLower}, ${c2x} ${c2yLower}, ${xGoal} ${yGoalLower}`}
             fill="none"
-            stroke="rgba(255, 255, 255, 0.4)"
+            stroke="hsl(var(--primary) / 0.4)"
             strokeWidth={1.5}
             strokeDasharray="4 5"
             initial={shouldReduceMotion ? false : { opacity: 0 }}
@@ -218,27 +215,28 @@ export function TrajectoryVisualizer({
             y1={yGoalUpper}
             x2={xGoal}
             y2={yGoalLower}
-            stroke="#FFFFFF"
+            stroke="hsl(var(--primary) / 0.5)"
             strokeWidth={2}
             strokeLinecap="round"
           />
           <text
             x={xGoal + 8}
             y={yGoal + 4}
-            fill="#F8FAFC"
+            fill="hsl(var(--foreground))"
             fontSize="12"
             fontWeight="600"
-            className="tnum font-mono"
-            opacity={0.9}
+            fontFamily="monospace"
+            opacity={0.85}
           >
-            ±{variancePct}% buffer cone
+            ±{variancePct}% buffer
           </text>
 
           {/* 2. RECENT PROGRESS TRAIL */}
           <motion.path
             d={historicTrailPath}
             fill="none"
-            stroke="rgba(255, 255, 255, 0.35)"
+            stroke="hsl(var(--foreground))"
+            strokeOpacity={0.3}
             strokeWidth={2.5}
             strokeDasharray="5 4"
             initial={shouldReduceMotion ? false : { pathLength: 0, opacity: 0 }}
@@ -246,7 +244,7 @@ export function TrajectoryVisualizer({
             transition={{ duration: 0.8, ease: TIS_EASINGS.subtleEntrance }}
           />
 
-          {/* 3. PROJECTED PATH (Prominent White Kinetic Contrast) */}
+          {/* 3. PROJECTED PATH (Prominent, High-Contrast) */}
           <motion.path
             d={predictiveCurvePath}
             fill="none"
@@ -261,11 +259,11 @@ export function TrajectoryVisualizer({
 
           {/* Origin Start Point */}
           <g transform={`translate(${xOrigin}, ${yOrigin})`}>
-            <circle r={4.5} fill="#64748B" opacity={0.7} />
+            <circle r={4.5} fill="hsl(var(--muted-foreground))" opacity={0.6} />
             <text
               y={20}
               textAnchor="middle"
-              fill="#94A3B8"
+              fill="hsl(var(--muted-foreground))"
               fontSize="12"
               fontWeight="500"
               fontFamily="monospace"
@@ -282,16 +280,16 @@ export function TrajectoryVisualizer({
             transition={TIS_SPRINGS.settle}
           >
             {/* Outer radar pulse circles */}
-            <circle r={8} fill="rgba(255, 255, 255, 0.2)">
+            <circle r={8} fill="hsl(var(--primary) / 0.25)">
               <animate attributeName="r" values="8;24;8" dur="2.6s" repeatCount="indefinite" />
               <animate attributeName="opacity" values="0.7;0;0.7" dur="2.6s" repeatCount="indefinite" />
             </circle>
-            <circle r={8} fill="none" stroke="rgba(255, 255, 255, 0.4)" strokeWidth={1.5} vectorEffect="non-scaling-stroke">
+            <circle r={8} fill="none" stroke="hsl(var(--primary) / 0.5)" strokeWidth={1.5} vectorEffect="non-scaling-stroke">
               <animate attributeName="r" values="8;30;8" dur="2.6s" repeatCount="indefinite" />
               <animate attributeName="opacity" values="0.6;0;0.6" dur="2.6s" repeatCount="indefinite" />
             </circle>
-            <circle r={8} fill="#FFFFFF" stroke="#090A0F" strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
-            <circle r={3.5} fill="#090A0F" />
+            <circle r={8} fill="hsl(var(--foreground))" stroke="hsl(var(--background))" strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
+            <circle r={3.5} fill="hsl(var(--background))" />
 
             {/* Pill Backdrop for "Today" label */}
             <rect
@@ -300,38 +298,39 @@ export function TrajectoryVisualizer({
               width={68}
               height={24}
               rx={12}
-              fill="#181B24"
-              stroke="rgba(255, 255, 255, 0.15)"
+              fill="hsl(var(--card))"
+              stroke="hsl(var(--border))"
               strokeWidth={1}
             />
             <text
               y={-22}
               textAnchor="middle"
-              fill="#F8FAFC"
-              fontSize="13"
+              fill="hsl(var(--foreground))"
+              fontSize="14"
               fontWeight="700"
+              fontFamily="sans-serif"
             >
               Today
             </text>
 
             {/* Sub-label for Progress Count */}
             <rect
-              x={-72}
+              x={-68}
               y={16}
-              width={144}
+              width={136}
               height={24}
-              rx={8}
-              fill="#181B24"
-              stroke="rgba(255, 255, 255, 0.15)"
+              rx={6}
+              fill="hsl(var(--card))"
+              stroke="hsl(var(--border) / 0.6)"
               strokeWidth={1}
             />
             <text
               y={32}
               textAnchor="middle"
-              fill="#F8FAFC"
+              fill="hsl(var(--foreground))"
               fontSize="12"
               fontWeight="600"
-              className="tnum font-mono"
+              fontFamily="monospace"
             >
               {completedQuests} of {targetQuests} Quests
             </text>
@@ -340,12 +339,12 @@ export function TrajectoryVisualizer({
           {/* Destination Milestone Star */}
           <g transform={`translate(${xGoal}, ${yGoal})`}>
             <circle
-              r={10}
-              fill="rgba(255, 255, 255, 0.15)"
-              stroke="#FFFFFF"
+              r={9}
+              fill="hsl(var(--primary) / 0.2)"
+              stroke="hsl(var(--primary))"
               strokeWidth={2}
             />
-            <circle r={4.5} fill="#FFFFFF" />
+            <circle r={4} fill="hsl(var(--primary))" />
 
             {/* Pill Backdrop for "Goal Target" label */}
             <rect
@@ -354,17 +353,18 @@ export function TrajectoryVisualizer({
               width={92}
               height={24}
               rx={12}
-              fill="#181B24"
-              stroke="rgba(255, 255, 255, 0.15)"
+              fill="hsl(var(--card))"
+              stroke="hsl(var(--border))"
               strokeWidth={1}
             />
             <text
               x={-56}
               y={-22}
               textAnchor="middle"
-              fill="#F8FAFC"
-              fontSize="13"
+              fill="hsl(var(--foreground))"
+              fontSize="14"
               fontWeight="700"
+              fontFamily="sans-serif"
             >
               Target
             </text>
@@ -373,18 +373,18 @@ export function TrajectoryVisualizer({
       </div>
 
       {/* Legend & Status */}
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 text-[11px] text-muted-foreground border-t border-white/10 pt-3">
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 text-[11px] text-muted-foreground border-t border-white/[0.06] dark:border-white/[0.04] pt-3">
         <div className="flex flex-wrap items-center gap-4">
           <span className="flex items-center gap-1.5">
-            <span className="inline-block h-1.5 w-4 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.6)]" />
-            <span className="font-medium text-foreground/90">Projected trajectory</span>
+            <span className="inline-block h-1 w-3.5 rounded-full bg-primary" />
+            <span>Projected path</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block h-2.5 w-3.5 rounded-sm bg-white/20 border border-white/40" />
-            <span className="font-medium text-foreground/90">Buffer cone (±10%)</span>
+            <span className="inline-block h-2 w-3 rounded-sm bg-primary/20 border border-primary/40" />
+            <span>Target range (±10%)</span>
           </span>
         </div>
-        <span className="font-mono tnum text-[11px] text-foreground/80">
+        <span className="font-mono text-[10px] text-foreground/80">
           Status: {isOnTrack ? "On track" : "Pace adjusted"}
         </span>
       </div>

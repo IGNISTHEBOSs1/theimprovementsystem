@@ -81,27 +81,24 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
 
   return (
     <section
-      className="rounded-2xl sm:rounded-3xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-5 sm:p-7 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15),0_12px_36px_-4px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all"
+      className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[var(--shadow-card)]"
       aria-labelledby="todays-commitment-heading"
     >
       <div className="flex items-center justify-between">
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/20 bg-white/10 text-[10px] font-mono font-bold tracking-wider text-white uppercase">
-          <span className="size-1.5 rounded-full bg-white" />
-          <span>New commitment</span>
-        </div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-primary">New commitment</p>
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             disabled={committing}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors active:scale-[0.98]"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             Cancel
           </button>
         )}
       </div>
 
-      <h2 id="todays-commitment-heading" className="mt-3 text-lg sm:text-xl font-bold tracking-tight text-foreground font-sans">
+      <h2 id="todays-commitment-heading" className="mt-1.5 text-base sm:text-lg font-semibold tracking-tight text-foreground">
         What are you committing to today?
       </h2>
 
@@ -114,17 +111,17 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
             placeholder="Name your commitment..."
             aria-label="Your commitment"
             disabled={committing}
-            className="min-h-11 flex-1 rounded-xl bg-[#181B24] border border-[rgba(148,163,184,0.16)] text-foreground placeholder:text-muted-foreground/60 shadow-[inset_0_1px_1px_0_rgba(0,0,0,0.4)] focus-visible:ring-white/40"
+            className="min-h-11 flex-1 bg-background"
             autoFocus
           />
           <div className="flex items-center gap-2 shrink-0">
             <Button
               type="submit"
-              className="min-h-11 shrink-0 px-5 rounded-xl bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_14px_rgba(255,255,255,0.15)] active:scale-[0.98] transition-all"
+              className="min-h-11 shrink-0 px-5"
               disabled={committing || !commitment.trim() || cadenceInvalid}
             >
               {committing ? "Committing…" : "Commit"}
-              {!committing && <ArrowRight className="size-4 ml-1" aria-hidden="true" />}
+              {!committing && <ArrowRight className="size-4" aria-hidden="true" />}
             </Button>
           </div>
         </div>
@@ -138,13 +135,13 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
                 checked={linkedToGoal}
                 onCheckedChange={(checked) => setLinkedToGoal(checked === true)}
                 disabled={committing}
-                className="size-4 rounded border-[rgba(148,163,184,0.3)] data-[state=checked]:bg-white data-[state=checked]:text-black data-[state=checked]:border-white"
+                className="size-4"
               />
               <Label
                 htmlFor="linked-to-goal"
                 className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer select-none font-medium"
               >
-                <Target className="size-3.5 text-zinc-400 shrink-0" aria-hidden="true" />
+                <Target className="size-3.5 text-primary shrink-0" aria-hidden="true" />
                 <span className="truncate max-w-[220px] sm:max-w-[340px]">{goalLabel}</span>
               </Label>
             </div>
@@ -156,7 +153,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
             type="button"
             onClick={() => setShowOptions((v) => !v)}
             disabled={committing}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground shrink-0 active:scale-[0.98]"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground shrink-0"
             aria-expanded={showOptions}
           >
             <Settings2 className="size-3.5" aria-hidden="true" />
@@ -166,9 +163,9 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
 
         {/* EXPANDABLE OPTIONS: Clean Structured Grid */}
         {showOptions && (
-          <div className="mt-2 flex flex-col gap-3.5 rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#181B24] p-3.5 sm:p-4 text-xs shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.06)]">
+          <div className="mt-2 flex flex-col gap-3.5 rounded-xl border border-border/70 bg-muted/20 p-3.5 sm:p-4 text-xs">
             <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-              <span className="w-16 font-mono font-medium text-muted-foreground uppercase text-[11px] shrink-0">Priority</span>
+              <span className="w-16 font-medium text-muted-foreground shrink-0">Priority</span>
               <ToggleGroup
                 type="single"
                 value={priority}
@@ -184,7 +181,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
                     key={level}
                     value={level}
                     size="sm"
-                    className="h-7 px-2.5 rounded-lg text-xs font-mono font-medium border border-transparent data-[state=on]:bg-white/15 data-[state=on]:text-white data-[state=on]:border-white/30 text-muted-foreground hover:text-foreground active:scale-[0.96]"
+                    className="h-7 px-2.5 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
                   >
                     {level}
                   </ToggleGroupItem>
@@ -193,7 +190,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
             </div>
 
             <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-              <span className="w-16 font-mono font-medium text-muted-foreground uppercase text-[11px] shrink-0">Repeats</span>
+              <span className="w-16 font-medium text-muted-foreground shrink-0">Repeats</span>
               <ToggleGroup
                 type="single"
                 value={cadence}
@@ -209,7 +206,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
                     key={preset}
                     value={preset}
                     size="sm"
-                    className="h-7 px-2.5 rounded-lg text-xs font-mono font-medium border border-transparent data-[state=on]:bg-white/15 data-[state=on]:text-white data-[state=on]:border-white/30 text-muted-foreground hover:text-foreground active:scale-[0.96]"
+                    className="h-7 px-2.5 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
                   >
                     {preset}
                   </ToggleGroupItem>
@@ -219,7 +216,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
 
             {cadence === "Custom" && (
               <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-                <span className="w-16 font-mono font-medium text-muted-foreground uppercase text-[11px] shrink-0">Days</span>
+                <span className="w-16 font-medium text-muted-foreground shrink-0">Days</span>
                 <ToggleGroup
                   type="multiple"
                   value={customDays.map(String)}
@@ -233,7 +230,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
                       key={i}
                       value={String(i)}
                       size="sm"
-                      className="h-7 w-9 px-0 rounded-lg text-xs font-mono font-medium border border-transparent data-[state=on]:bg-white/15 data-[state=on]:text-white data-[state=on]:border-white/30 text-muted-foreground hover:text-foreground active:scale-[0.96]"
+                      className="h-7 w-9 px-0 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
                     >
                       {label}
                     </ToggleGroupItem>

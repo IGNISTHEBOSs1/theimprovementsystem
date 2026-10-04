@@ -79,18 +79,18 @@ export default function SystemBar({
           Desktop rail
       ───────────────────────────────────────────────────────── */}
       <aside
-        className="hidden md:flex md:flex-col md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40 bg-[#090A0F]/95 backdrop-blur-[24px] border-r border-[rgba(148,163,184,0.12)] shadow-[inset_-1px_0_0_0_rgba(255,255,255,0.06)]"
+        className="glass-rail hidden md:flex md:flex-col md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 z-40"
         aria-label="Primary navigation"
       >
         {/* Identity */}
         <div className="px-6 pt-8 pb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 border border-[rgba(148,163,184,0.14)] bg-[#12141A] shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12)] flex items-center justify-center">
-              <SystemLogo size={36} className="w-full h-full" />
+            <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
+              <SystemLogo size={40} className="w-full h-full" />
             </div>
 
             <div className="min-w-0">
-              <div className="text-body-md font-sans font-bold text-foreground leading-tight truncate">
+              <div className="text-body-md font-display font-bold text-foreground leading-tight truncate">
                 {username}
               </div>
             </div>
@@ -99,7 +99,7 @@ export default function SystemBar({
 
         {/* Navigation */}
         <nav
-          className="relative flex flex-col gap-1.5 px-4"
+          className="relative flex flex-col gap-1 px-4"
           aria-label="Primary navigation"
         >
           <div
@@ -119,51 +119,55 @@ export default function SystemBar({
                 onClick={() => {
                   if (!active) soundEngine.playNavigation();
                 }}
-                className={cn(
-                  "relative flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-xl text-sm transition-all duration-150 active:scale-[0.98]",
-                  active
-                    ? "bg-[#181B24] border border-[rgba(148,163,184,0.15)] shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12),0_4px_12px_rgba(0,0,0,0.3)] text-foreground font-semibold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-[#12141A]/60"
-                )}
+                className="relative flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-md text-sm transition-colors duration-150"
               >
                 {/* Active indicator */}
                 {active && (
                   <motion.div
                     layoutId="system-bar-active-indicator"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r bg-white shadow-[0_0_8px_rgba(255,255,255,0.6)]"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-px h-4 bg-primary"
+                    transition={INDICATOR_TRANSITION}
+                  />
+                )}
+
+                {/* Active background */}
+                {active && (
+                  <motion.div
+                    layoutId="system-bar-active-fill"
+                    className="absolute inset-y-0.5 left-2 right-0 rounded-md system-nav-active"
                     transition={INDICATOR_TRANSITION}
                   />
                 )}
 
                 <Icon
                   size={16}
-                  strokeWidth={active ? 2.2 : 1.7}
+                  strokeWidth={active ? 2 : 1.5}
                   className={cn(
                     "relative shrink-0 transition-colors duration-150",
                     active
-                      ? "text-white"
-                      : "text-muted-foreground group-hover:text-foreground",
+                      ? "text-primary"
+                      : "text-foreground/70 group-hover:text-foreground",
                   )}
                 />
 
                 <span
                   className={cn(
-                    "relative flex-1 transition-colors duration-150 truncate font-sans",
+                    "relative flex-1 transition-colors duration-150 truncate",
                     active
                       ? "text-foreground font-semibold"
-                      : "text-muted-foreground font-medium group-hover:text-foreground",
+                      : "text-foreground/80 font-medium group-hover:text-foreground",
                   )}
                 >
                   {label}
                 </span>
 
                 {to === "/quests" && activeQuestCount > 0 && (
-                  <span className="relative ml-auto px-1.5 py-0.5 text-[10px] font-mono font-bold rounded-full bg-white/10 text-white border border-white/20 tnum">
+                  <span className="relative ml-auto px-1.5 py-0.5 text-[10px] font-semibold rounded-full bg-primary/20 text-primary">
                     {activeQuestCount}
                   </span>
                 )}
                 {to === "/mentor" && hasMentorInsight && (
-                  <span className="relative ml-auto size-2 rounded-full bg-white animate-pulse" />
+                  <span className="relative ml-auto size-2 rounded-full bg-primary" />
                 )}
               </NavLink>
             );
@@ -177,10 +181,10 @@ export default function SystemBar({
             onClick={() => soundEngine.playNavigation()}
             className={({ isActive: active }) =>
               cn(
-                "w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all active:scale-[0.98]",
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors",
                 active
-                  ? "bg-[#181B24] border border-[rgba(148,163,184,0.15)] text-foreground font-semibold shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)]"
-                  : "text-muted-foreground hover:text-foreground hover:bg-[#12141A]/60"
+                  ? "bg-accent text-accent-foreground font-semibold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
               )
             }
           >
@@ -194,14 +198,14 @@ export default function SystemBar({
               soundEngine.playTap();
               window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
             }}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-[rgba(148,163,184,0.12)] bg-[#12141A]/80 hover:bg-[#181B24] hover:text-foreground text-xs text-muted-foreground transition-all group cursor-pointer shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.06)] active:scale-[0.98]"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border/70 bg-card/60 hover:bg-accent hover:text-accent-foreground text-xs text-muted-foreground transition-colors group cursor-pointer"
             title="Open Command Palette (⌘K / Ctrl+K)"
           >
             <span className="flex items-center gap-2">
               <Search className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
               <span>Commands...</span>
             </span>
-            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-[rgba(148,163,184,0.15)] bg-[#181B24] px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
               <span className="text-xs">⌘</span>K
             </kbd>
           </button>
@@ -209,11 +213,11 @@ export default function SystemBar({
       </aside>
 
       {/* ─────────────────────────────────────────────────────────
-          Mobile dock (Obsidian Kinetic Floating Frosted Tab Dock)
+          Mobile dock
       ───────────────────────────────────────────────────────── */}
       <nav
         className="
-          obsidian-dock
+          glass-dock
           md:hidden
           fixed
           left-3
@@ -225,15 +229,10 @@ export default function SystemBar({
           z-40
           flex
           items-stretch
-          h-[60px]
+          h-[56px]
           rounded-full
           isolate
           select-none
-          border
-          border-[rgba(148,163,184,0.16)]
-          shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.22),inset_0_-1px_1px_0_rgba(0,0,0,0.35),0_16px_40px_-4px_rgba(0,0,0,0.75)]
-          backdrop-blur-[24px]
-          saturate-[200%]
         "
         style={{
           bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
@@ -261,11 +260,10 @@ export default function SystemBar({
                   flex
                   items-center
                   justify-center
-                  min-w-[48px]
-                  min-h-[48px]
+                  min-w-[44px]
+                  min-h-[44px]
                   touch-manipulation
                   group
-                  active:scale-[0.96]
                 "
               >
                 {/* 1. Circular sliding active pill indicator with concentric radius & real glassmorphism */}
@@ -276,15 +274,11 @@ export default function SystemBar({
                       absolute
                       inset-0
                       m-auto
-                      size-[46px]
+                      size-[44px]
                       rounded-full
-                      bg-white/10
+                      glass-nav-pill
                       pointer-events-none
                       z-0
-                      border
-                      border-white/25
-                      shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.2),0_0_12px_rgba(255,255,255,0.1)]
-                      backdrop-blur-md
                     "
                     transition={indicatorTransition}
                   />
@@ -311,7 +305,7 @@ export default function SystemBar({
                         className={cn(
                           "size-[19px] rounded-full border flex items-center justify-center text-[9px] font-bold tracking-tight transition-colors duration-150",
                           active
-                            ? "border-white/40 text-white bg-white/10 shadow-[0_0_8px_rgba(255,255,255,0.2)]"
+                            ? "border-white/80 text-white"
                             : "border-muted-foreground/60 text-muted-foreground group-hover:text-foreground group-hover:border-foreground",
                         )}
                       >
@@ -334,7 +328,7 @@ export default function SystemBar({
                     {to === "/quests" && activeQuestCount > 0 && (
                       <span className={cn(
                         "absolute -top-0.5 -right-1 size-1.5 rounded-full pointer-events-none",
-                        active ? "bg-white shadow-[0_0_6px_rgba(255,255,255,0.8)]" : "bg-zinc-400"
+                        active ? "bg-white" : "bg-emerald-500"
                       )} />
                     )}
 
@@ -342,7 +336,7 @@ export default function SystemBar({
                     {to === "/mentor" && hasMentorInsight && (
                       <span className={cn(
                         "absolute -top-0.5 -right-1 size-1.5 rounded-full pointer-events-none",
-                        active ? "bg-white shadow-[0_0_6px_rgba(255,255,255,0.8)]" : "bg-zinc-400"
+                        active ? "bg-white" : "bg-emerald-500"
                       )} />
                     )}
                   </div>

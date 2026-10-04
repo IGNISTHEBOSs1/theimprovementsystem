@@ -121,14 +121,7 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
   };
 
   return (
-    <div className="min-h-screen bg-obsidian-canvas text-foreground flex relative selection:bg-white/20 selection:text-white">
-      {/* Atmospheric Backdrop Glows (Monochromatic Obsidian Kinetic) */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-96 h-96 bg-white/[0.03] rounded-full blur-3xl" />
-        <div className="absolute top-1/3 -right-28 w-80 h-80 bg-white/[0.02] rounded-full blur-3xl" />
-        <div className="absolute inset-0 bg-grid-subtle opacity-80" />
-      </div>
-
+    <div className="min-h-screen bg-background text-foreground flex">
       <div className="env-light-layer" aria-hidden="true" />
       <ViewportNavDiagnostic />
       <CommandPalette />
@@ -143,7 +136,7 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
       <main
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className="relative z-10 flex-1 min-w-0 overflow-y-auto pb-[calc(108px+env(safe-area-inset-bottom,0px))] md:pb-8 bg-transparent"
+        className="flex-1 min-w-0 overflow-y-auto pb-[calc(108px+env(safe-area-inset-bottom,0px))] md:pb-0 material-surface material-workspace"
       >
         {children}
       </main>

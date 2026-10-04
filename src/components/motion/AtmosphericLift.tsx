@@ -39,7 +39,7 @@ export function AtmosphericLift({
         y: 0,
         filter: 'blur(0px)',
       }}
-      viewport={{ once: triggerOnce, margin: '0px 0px -10% 0px' }}
+      viewport={{ once: triggerOnce, margin: '-6% 0px' }}
       transition={{
         duration,
         delay,
