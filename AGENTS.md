@@ -73,7 +73,7 @@ point of asking.
 
 - **Neoskeuomorphism over Flatness**: Use tactile depth, specular highlights (`inset 0 1px 1px 0 rgba(...)` on top edges), and liquid frosted glass (`backdrop-blur-xl`, saturation boost) for elevated cards and navigation docks. Every interactive element must provide a tangible press/hover state (`active:scale-[0.98]`).
 - **Intentional Minimalism & 3-Second Clarity**: Strip noise, never character. The app must communicate its purpose in under 3 seconds using 6th-grade clarity (except core branding terms):
-  1. Deep Obsidian + Emerald kinetic contrast.
+  1. Strictly Monochromatic: Deep Obsidian (`#050505` / `#0A0A0A`) & Pure White (`#FFFFFF`) with Zinc/Slate boundaries. NO green, emerald, or colored accents anywhere. Dual-mode SOLAR (clean paper canvas) and LUNAR (deep obsidian pitch black canvas).
   2. The signature ±10% mathematical buffer cone.
   3. Strict constraint: 1 Primary Focus + 2 Routines.
   4. Local-first encrypted browser storage.

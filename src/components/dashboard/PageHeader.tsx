@@ -19,7 +19,7 @@ export function PageHeader({ eyebrow, title, description, children }: PageHeader
             meaning. Pure visibility toggle (hidden md:block), not a
             content/data change — eyebrow is still passed and still
             rendered on desktop exactly as before. */}
-        {eyebrow && <p className="hidden md:block text-label text-primary mb-2">{eyebrow}</p>}
+        {eyebrow && <p className="hidden md:block text-[11px] font-mono font-bold uppercase tracking-wider text-white mb-2">{eyebrow}</p>}
         <h1 className="text-display-lg text-foreground">{title}</h1>
         <p className="mt-2 text-body-md text-muted-foreground">{description}</p>
       </div>

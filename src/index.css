@@ -72,51 +72,51 @@
   }
 
   .dark {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 98%;
-    --card-elevated: 0 0% 10%;
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 6%;
-    --primary-glow: 0 0% 85%;
-    --secondary: 0 0% 88%;
-    --secondary-foreground: 0 0% 6%;
-    --secondary-glow: 0 0% 75%;
-    --accent: 0 0% 14%;
-    --accent-foreground: 0 0% 98%;
-    --accent-glow: 0 0% 22%;
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 64%;
-    --destructive: 0 0% 80%;
-    --destructive-foreground: 0 0% 0%;
-    --success: 142 72% 50%;
-    --success-foreground: 0 0% 10%;
-    --warning: 0 0% 85%;
-    --warning-foreground: 0 0% 0%;
-    --border: 0 0% 16%;
-    --input: 0 0% 18%;
-    --ring: 0 0% 80%;
-    --glass: 0 0% 8%;
-    --glass-border: 0 0% 18%;
+    --background: 230 25% 5%; /* #090A0F Obsidian Canvas */
+    --foreground: 210 40% 98%; /* #F8FAFC Text Primary */
+    --card: 225 18% 9%; /* #12141A Surface 1 */
+    --card-foreground: 210 40% 98%;
+    --card-elevated: 225 20% 12%; /* #181B24 Surface 2 */
+    --popover: 225 18% 9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 239 84% 67%; /* Electric Indigo #6366F1 */
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 239 84% 67%;
+    --secondary: 225 20% 16%;
+    --secondary-foreground: 210 40% 98%;
+    --secondary-glow: 225 20% 25%;
+    --accent: 225 18% 14%;
+    --accent-foreground: 210 40% 98%;
+    --accent-glow: 225 20% 22%;
+    --muted: 225 18% 13%;
+    --muted-foreground: 215 16% 65%; /* #94A3B8 Text Secondary */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 0 0% 100%; /* #FFFFFF Pure White Monochromatic */
+    --success-foreground: 0 0% 0%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --border: 215 16% 15%; /* hairline slate bevel border */
+    --input: 225 20% 14%;
+    --ring: 239 84% 67%;
+    --glass: 225 18% 9%;
+    --glass-border: 215 16% 18%;
 
     /* Dark Mode: Specular highlight + deep ambient occlusion */
-    --shadow-card: 0 0 0 1px hsl(var(--border)), inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 4px 16px rgba(0, 0, 0, 0.5);
-    --shadow-elevated: 0 0 0 1px hsl(var(--border)), inset 0 1px 0 0 rgba(255, 255, 255, 0.09), 0 8px 32px rgba(0, 0, 0, 0.7);
+    --shadow-card: 0 0 0 1px rgba(148, 163, 184, 0.12), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.55);
+    --shadow-elevated: 0 0 0 1px rgba(148, 163, 184, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.20), 0 16px 40px rgba(0, 0, 0, 0.7);
     --shadow-glow-primary: 0 0 0 1px hsl(var(--primary) / 0.25), 0 0 24px hsl(var(--primary) / 0.3);
 
     --env-light-intensity: 0.04;
 
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 88%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 0 0% 6%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 0 0% 80%;
+    --sidebar-background: 230 25% 5%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 225 18% 14%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 16% 15%;
+    --sidebar-ring: 239 84% 67%;
   }
 }
 
@@ -133,7 +133,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     max-width: 100vw;
     overflow-x: hidden;
   }
@@ -180,25 +180,26 @@
    unoverridable utilities). No selectors, class names, or declarations
    below were changed — only which layer they belong to. */
 @layer components {
-  /* ── Typography Scale ── */
+  /* ── Typography Scale (Plus Jakarta Sans) ── */
   .text-display-xl {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: clamp(2.5rem, 6vw, 4.5rem);
-    font-weight: 900;
-    letter-spacing: -0.02em;
+    font-weight: 800;
+    letter-spacing: -0.03em;
     line-height: 1.05;
   }
   .text-display-lg {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: clamp(1.5rem, 3vw, 2.5rem);
     font-weight: 800;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
     line-height: 1.1;
   }
   .text-display-md {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: clamp(1rem, 2vw, 1.5rem);
     font-weight: 700;
+    letter-spacing: -0.01em;
     line-height: 1.2;
   }
   .text-body-lg { font-size: 1.125rem; font-weight: 400; line-height: 1.7; }
@@ -393,15 +394,15 @@
   .glass-slider-handle-done {
     backdrop-filter: blur(10px) saturate(200%);
     -webkit-backdrop-filter: blur(10px) saturate(200%);
-    background: linear-gradient(145deg, rgba(16, 185, 129, 0.96) 0%, rgba(5, 150, 105, 0.88) 100%);
-    border: 1px solid rgba(110, 231, 183, 0.75);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.96) 0%, rgba(228, 228, 231, 0.90) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
     box-shadow:
-      0 6px 22px -2px rgba(16, 185, 129, 0.5),
-      0 2px 6px 0 rgba(16, 185, 129, 0.3),
-      inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.75),
+      0 6px 22px -2px rgba(255, 255, 255, 0.35),
+      0 2px 6px 0 rgba(255, 255, 255, 0.2),
+      inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.9),
       inset 0 -1px 1px 0 rgba(0, 0, 0, 0.15);
     filter: brightness(1.08);
-    color: #ffffff;
+    color: #000000;
   }
 
   /* ── Liquid Glass Navbar Sliding Indicator (Hardware-Accelerated Optical Glass) ── */
@@ -475,11 +476,11 @@
       0 24px 48px -12px rgba(0, 0, 0, 0.4);
   }
   .dark .glass-dialog {
-    background: hsl(var(--card) / 0.82);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: #12141A;
+    border: 1px solid rgba(148, 163, 184, 0.16);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
-      0 24px 48px -12px rgba(0, 0, 0, 0.75);
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
+      0 24px 64px -12px rgba(0, 0, 0, 0.85);
   }
 
   .card-base {
@@ -826,6 +827,97 @@
       inset 0 -1px 1px 0 rgba(0, 0, 0, 0.05),
       0 12px 32px -4px rgba(0, 0, 0, 0.09),
       0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  /* ── Google Stitch Obsidian Kinetic Specification Classes ── */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Continuous corner radii (Apple Squircle / continuous curvature) */
+  .round-eight { border-radius: 8px; }
+  .squircle-sm { border-radius: 8px; }
+  .squircle-md { border-radius: 12px; }
+  .squircle-lg { border-radius: 16px; }
+  .squircle-xl { border-radius: 24px; }
+  .squircle-pill { border-radius: 9999px; }
+
+  /* Hairline inner bevel border */
+  .hairline-bevel {
+    border: 1px solid rgba(148, 163, 184, 0.12);
+  }
+
+  /* Specular top edge highlight (Neoskeuomorphic optical edge) */
+  .specular-top {
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  .specular-top-strong {
+    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.22);
+  }
+
+  /* Obsidian substrate layers */
+  .obsidian-card {
+    background-color: #12141A;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow:
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
+      0 8px 32px -4px rgba(0, 0, 0, 0.55);
+    border-radius: 16px;
+  }
+
+  .obsidian-surface {
+    background-color: #181B24;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+  }
+
+  /* Floating frosted glass tab dock */
+  .obsidian-dock {
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    background: linear-gradient(180deg, rgba(24, 27, 36, 0.85) 0%, rgba(18, 20, 26, 0.70) 100%);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    box-shadow:
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.20),
+      inset 0 -1px 1px 0 rgba(0, 0, 0, 0.35),
+      0 16px 40px -4px rgba(0, 0, 0, 0.70);
+    border-radius: 9999px;
+  }
+
+  /* Specular white kinetic glow */
+  .specular-glow {
+    box-shadow:
+      0 0 20px rgba(255, 255, 255, 0.20),
+      0 0 40px rgba(255, 255, 255, 0.08);
+  }
+
+  /* Telemetry HUD Bar */
+  .telemetry-hud-card {
+    background: linear-gradient(180deg, rgba(24, 27, 36, 0.85) 0%, rgba(18, 20, 26, 0.90) 100%);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    box-shadow:
+      inset 0 1px 1px 0 rgba(255, 255, 255, 0.15),
+      0 12px 32px -4px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 16px;
+  }
+
+  /* Subtle neon scanline & grid effects from Stitch */
+  .bg-grid-subtle {
+    background-size: 24px 24px;
+    background-image: 
+      linear-gradient(to right, rgba(148, 163, 184, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
+  }
+
+  .glow-indigo-box {
+    box-shadow: 0 0 24px -2px rgba(255, 255, 255, 0.22);
+  }
+
+  .hairline-highlight {
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
   }
 }
 

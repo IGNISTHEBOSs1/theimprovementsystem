@@ -24,52 +24,54 @@ function CompletionRing({ completed, total }: { completed: number; total: number
   const fraction = total > 0 ? completed / total : 0;
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={`${completed} of ${total} goal-linked Quests completed`}>
-      {/* Inactive track: was hsl(var(--muted)) — 12% lightness against a
-          2% background, under 2:1 contrast. Bumped to 20% white to clear
-          WCAG's 3:1 minimum for non-text UI graphics (1.4.11). */}
-      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--foreground) / 0.2)" strokeWidth={stroke} />
+      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(148, 163, 184, 0.15)" strokeWidth={stroke} />
       <circle
         cx={size / 2}
         cy={size / 2}
         r={radius}
         fill="none"
-        stroke="hsl(var(--primary))"
+        stroke="#FFFFFF"
         strokeWidth={stroke}
         strokeLinecap="round"
         strokeDasharray={circumference}
         strokeDashoffset={circumference * (1 - fraction)}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
       />
-      <text x="50%" y="47%" textAnchor="middle" className="fill-foreground text-[15px] font-semibold">{completed}</text>
-      <text x="50%" y="66%" textAnchor="middle" className="fill-muted-foreground text-[9px]">of {total}</text>
+      <text x="50%" y="47%" textAnchor="middle" className="fill-foreground text-[15px] font-bold tnum font-sans">{completed}</text>
+      <text x="50%" y="66%" textAnchor="middle" className="fill-muted-foreground text-[9px] font-mono tnum">of {total}</text>
     </svg>
   );
 }
 
 export function DirectionCard({ name, goalStats }: DirectionCardProps) {
   return (
-    <section className="rounded-2xl border border-border/80 bg-card/60 p-5 shadow-sm" aria-labelledby="direction-heading">
-      <div className="flex items-start gap-3">
-        <Compass className="mt-0.5 size-4 shrink-0 text-primary/80" aria-hidden="true" />
+    <section className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-5 sm:p-6 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15),0_12px_32px_-4px_rgba(0,0,0,0.55)] backdrop-blur-xl" aria-labelledby="direction-heading">
+      <div className="flex items-start gap-3.5">
+        <div className="size-9 rounded-xl border border-[rgba(148,163,184,0.14)] bg-[#181B24] flex items-center justify-center text-white shrink-0 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)]">
+          <Compass className="size-4" aria-hidden="true" />
+        </div>
         <div className="min-w-0 flex-1">
-          <p className="text-label text-muted-foreground">Your direction</p>
-          <h2 id="direction-heading" className="mt-1 text-lg font-semibold tracking-tight text-foreground">
+          <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Your direction</p>
+          <h2 id="direction-heading" className="mt-1 text-lg font-bold tracking-tight text-foreground font-sans">
             Build a life you can direct with confidence.
           </h2>
-          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-muted-foreground">
+          <p className="mt-1 max-w-2xl text-xs sm:text-sm leading-relaxed text-muted-foreground">
             {name}, each deliberate action is evidence of the person you are becoming.
           </p>
 
           {goalStats && goalStats.linked > 0 && (
-            <div className="mt-3.5 flex items-center gap-4 rounded-xl bg-muted/40 p-3">
+            <div className="mt-3.5 flex items-center gap-4 rounded-xl border border-[rgba(148,163,184,0.12)] bg-[#181B24] p-3 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.06)]">
               <CompletionRing completed={goalStats.completed} total={goalStats.linked} />
               <div>
-                <p className="text-body-sm font-medium text-foreground">Quests completed</p>
+                <p className="text-sm font-semibold text-foreground font-sans">Quests completed</p>
+                <p className="text-xs font-mono text-white tnum mt-0.5">
+                  {Math.round((goalStats.completed / goalStats.linked) * 100)}% trajectory progress
+                </p>
               </div>
             </div>
           )}
           {goalStats && goalStats.linked === 0 && (
-            <p className="mt-2 text-body-sm text-muted-foreground">No Quests linked to this goal yet.</p>
+            <p className="mt-2 text-xs text-muted-foreground">No Quests linked to this goal yet.</p>
           )}
         </div>
       </div>

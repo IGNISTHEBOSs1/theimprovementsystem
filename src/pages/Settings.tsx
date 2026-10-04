@@ -241,12 +241,12 @@ export default function Settings() {
       <div className="mt-8 sm:mt-10 space-y-6 sm:space-y-8">
         {/* -- SECTION 1: APPEARANCE & DISPLAY MATRIX -- */}
         <section
-          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-[28px] border border-white/10 bg-[#12141A] p-5 sm:p-7 shadow-xl specular-top transition-all"
           aria-labelledby="appearance-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <div className="size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground">
+              <div className="size-9 rounded-xl bg-[#181B24] border border-white/10 flex items-center justify-center text-white shadow-xs">
                 <Sparkles className="size-4" aria-hidden="true" />
               </div>
               <div>
@@ -258,7 +258,7 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="outline" className="text-[10px] font-mono uppercase tracking-wider border-white/10 bg-[#181B24] text-muted-foreground hidden sm:inline-flex">
               Display Matrix
             </Badge>
           </div>
@@ -272,24 +272,24 @@ export default function Settings() {
               }}
               className="w-full"
             >
-              <TabsList className="grid grid-cols-3 w-full max-w-md h-12 p-1.5 rounded-xl bg-muted/50 border border-border/80">
+              <TabsList className="grid grid-cols-3 w-full max-w-md h-12 p-1.5 rounded-[18px] bg-[#181B24] border border-white/10">
                 <TabsTrigger
                   value="light"
-                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 h-9 rounded-[14px] text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-[#12141A] data-[state=active]:text-foreground data-[state=active]:border data-[state=active]:border-white/10 data-[state=active]:shadow-md active:scale-[0.98]"
                 >
                   <Sun className="size-4" aria-hidden="true" />
                   <span>Light</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="dark"
-                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 h-9 rounded-[14px] text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-[#12141A] data-[state=active]:text-foreground data-[state=active]:border data-[state=active]:border-white/10 data-[state=active]:shadow-md active:scale-[0.98]"
                 >
                   <Moon className="size-4" aria-hidden="true" />
                   <span>Dark</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="system"
-                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 h-9 rounded-[14px] text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-[#12141A] data-[state=active]:text-foreground data-[state=active]:border data-[state=active]:border-white/10 data-[state=active]:shadow-md active:scale-[0.98]"
                 >
                   <Monitor className="size-4" aria-hidden="true" />
                   <span>Auto</span>
@@ -297,8 +297,8 @@ export default function Settings() {
               </TabsList>
             </Tabs>
 
-            <div className="mt-3.5 flex items-center gap-2 text-xs text-muted-foreground font-tech-mono">
-              <span className="size-1.5 rounded-full bg-foreground/60" />
+            <div className="mt-3.5 flex items-center gap-2 text-xs text-muted-foreground font-mono">
+              <span className="size-1.5 rounded-full bg-white" />
               <span>
                 Active:{" "}
                 {mode === "light"
@@ -313,12 +313,12 @@ export default function Settings() {
 
         {/* -- SECTION: TACTILE SOUND & ACOUSTIC FEEDBACK -- */}
         <section
-          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-[28px] border border-white/10 bg-[#12141A] p-5 sm:p-7 shadow-xl specular-top transition-all"
           aria-labelledby="audio-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <div className="size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground">
+              <div className="size-9 rounded-xl bg-[#181B24] border border-white/10 flex items-center justify-center text-white shadow-xs">
                 {soundEnabled ? (
                   <Volume2 className="size-4" aria-hidden="true" />
                 ) : (
@@ -334,12 +334,12 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="outline" className="text-[10px] font-mono uppercase tracking-wider border-white/10 bg-[#181B24] text-muted-foreground hidden sm:inline-flex">
               Audio Engine
             </Badge>
           </div>
 
-          <div className="mt-4 p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="mt-4 p-4 rounded-[20px] bg-[#181B24] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Switch
                 id="sound-toggle"
@@ -369,9 +369,9 @@ export default function Settings() {
                   playSuccess();
                 }}
                 disabled={!soundEnabled}
-                className="h-9 px-3 text-xs gap-1.5 active:scale-[0.98]"
+                className="h-9 px-3 rounded-[12px] border-white/10 bg-[#12141A] hover:bg-white/5 text-xs gap-1.5 active:scale-[0.98]"
               >
-                <Sparkles className="size-3.5 text-foreground" />
+                <Sparkles className="size-3.5 text-white" />
                 <span>Test Success Bloom</span>
               </Button>
               <Button
@@ -382,9 +382,9 @@ export default function Settings() {
                   playButtonPress();
                 }}
                 disabled={!soundEnabled}
-                className="h-9 px-3 text-xs gap-1.5 active:scale-[0.98]"
+                className="h-9 px-3 rounded-[12px] border-white/10 bg-[#12141A] hover:bg-white/5 text-xs gap-1.5 active:scale-[0.98]"
               >
-                <Sliders className="size-3.5 text-foreground" />
+                <Sliders className="size-3.5 text-muted-foreground" />
                 <span>Test Click</span>
               </Button>
             </div>
@@ -393,12 +393,12 @@ export default function Settings() {
 
         {/* -- SECTION 2: TEMPORAL ENGINE & SYSTEM CADENCE -- */}
         <section
-          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-[28px] border border-white/10 bg-[#12141A] p-5 sm:p-7 shadow-xl specular-top transition-all"
           aria-labelledby="timezone-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <div className="size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground">
+              <div className="size-9 rounded-xl bg-[#181B24] border border-white/10 flex items-center justify-center text-white shadow-xs">
                 <Clock className="size-4" aria-hidden="true" />
               </div>
               <div>
@@ -410,22 +410,22 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="outline" className="text-[10px] font-mono uppercase tracking-wider border-white/10 bg-[#181B24] text-muted-foreground hidden sm:inline-flex">
               Temporal Engine
             </Badge>
           </div>
 
           {/* Device Sync Status Badge / 1-Click Action */}
-          <div className="mt-4 p-3.5 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="mt-4 p-3.5 rounded-[20px] bg-[#181B24] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs">
               <span
                 className={`size-2 rounded-full ${
-                  isTimezoneSynced ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-amber-500"
+                  isTimezoneSynced ? "bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]" : "bg-amber-500"
                 }`}
               />
               <span className="text-muted-foreground">
                 Browser Detected Zone:{" "}
-                <strong className="text-foreground font-tech-mono font-medium">{detectedTz}</strong>
+                <strong className="text-foreground font-mono font-medium">{detectedTz}</strong>
               </span>
             </div>
 
@@ -436,15 +436,15 @@ export default function Settings() {
                 size="sm"
                 onClick={() => void handleSyncDetectedTimezone()}
                 disabled={tzSaving}
-                className="h-8 text-xs gap-1.5 active:scale-[0.98]"
+                className="h-8 rounded-[12px] border-white/10 bg-[#12141A] hover:bg-white/5 text-xs gap-1.5 active:scale-[0.98]"
               >
                 <RefreshCw className={`size-3 ${tzSaving ? "animate-spin" : ""}`} />
                 <span>Sync to Browser Zone</span>
               </Button>
             )}
             {isTimezoneSynced && (
-              <span className="text-[11px] font-tech-mono text-muted-foreground flex items-center gap-1">
-                <CheckCircle2 className="size-3 text-emerald-500" />
+              <span className="text-[11px] font-mono text-muted-foreground flex items-center gap-1">
+                <CheckCircle2 className="size-3 text-white" />
                 Synchronized
               </span>
             )}
@@ -462,12 +462,12 @@ export default function Settings() {
                 placeholder="e.g. Asia/Kolkata or America/New_York"
                 aria-label="Timezone"
                 disabled={tzSaving}
-                className="min-h-11 font-tech-mono text-xs sm:text-sm pl-3.5 bg-background/60"
+                className="min-h-11 font-mono text-xs sm:text-sm pl-3.5 bg-[#181B24] border-white/10 rounded-[16px] text-foreground"
               />
             </div>
             <Button
               type="submit"
-              className="min-h-11 px-6 shrink-0 font-medium active:scale-[0.98]"
+              className="min-h-11 px-6 shrink-0 rounded-[16px] bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_14px_rgba(255,255,255,0.15)] active:scale-[0.98]"
               disabled={tzSaving}
             >
               {tzSaving ? "Saving…" : "Save Timezone"}
@@ -475,13 +475,13 @@ export default function Settings() {
           </form>
 
           {tzError && (
-            <div className="mt-3 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive flex items-center gap-2" role="alert">
+            <div className="mt-3 p-3 rounded-[14px] bg-destructive/10 border border-destructive/30 text-xs text-destructive flex items-center gap-2" role="alert">
               <AlertTriangle className="size-4 shrink-0" />
               <span>{tzError}</span>
             </div>
           )}
           {tzSuccess && !tzError && (
-            <div className="mt-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-2" role="status">
+            <div className="mt-3 p-3 rounded-[14px] bg-white/10 border border-white/20 text-xs text-white flex items-center gap-2" role="status">
               <CheckCircle2 className="size-4 shrink-0" />
               <span>Timezone successfully saved. Daily tasks will reset at midnight in this zone.</span>
             </div>
@@ -490,12 +490,12 @@ export default function Settings() {
 
         {/* -- SECTION 3: DATA SOVEREIGNTY & LOCAL ENCLAVE -- */}
         <section
-          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-[28px] border border-white/10 bg-[#12141A] p-5 sm:p-7 shadow-xl specular-top transition-all"
           aria-labelledby="enclave-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <div className="size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground">
+              <div className="size-9 rounded-xl bg-[#181B24] border border-white/10 flex items-center justify-center text-white shadow-xs">
                 <ShieldCheck className="size-4" aria-hidden="true" />
               </div>
               <div>
@@ -507,15 +507,15 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="outline" className="text-[10px] font-mono uppercase tracking-wider border-white/10 bg-[#181B24] text-muted-foreground hidden sm:inline-flex">
               Vault Enclave
             </Badge>
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
+            <div className="p-4 rounded-[20px] bg-[#181B24] border border-white/[0.08]">
               <div className="flex items-center gap-2 text-xs font-semibold text-foreground mb-1">
-                <Lock className="size-3.5 text-foreground" />
+                <Lock className="size-3.5 text-white" />
                 <span>Local-First Enclave</span>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
@@ -523,9 +523,9 @@ export default function Settings() {
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
+            <div className="p-4 rounded-[20px] bg-[#181B24] border border-white/[0.08]">
               <div className="flex items-center gap-2 text-xs font-semibold text-foreground mb-1">
-                <Sliders className="size-3.5 text-foreground" />
+                <Sliders className="size-3.5 text-white" />
                 <span>Zero Third-Party Trackers</span>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
@@ -534,7 +534,7 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="mt-4 pt-4 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <p className="text-xs font-medium text-foreground">Export Personal Trajectory Data</p>
               <p className="text-[11px] text-muted-foreground">
@@ -547,7 +547,7 @@ export default function Settings() {
               size="sm"
               onClick={handleExportVault}
               disabled={exporting}
-              className="min-h-10 px-4 text-xs font-medium gap-2 active:scale-[0.98] shrink-0"
+              className="min-h-11 px-5 rounded-[16px] border border-white/10 bg-[#181B24] hover:bg-white/5 text-xs font-medium gap-2 active:scale-[0.98] shrink-0"
             >
               <Download className="size-3.5" />
               <span>{exporting ? "Generating Snapshot…" : "Export Vault (JSON)"}</span>
@@ -557,12 +557,12 @@ export default function Settings() {
 
         {/* -- SECTION 4: ACTIVE SESSION & IDENTITY -- */}
         <section
-          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-[28px] border border-white/10 bg-[#12141A] p-5 sm:p-7 shadow-xl specular-top transition-all"
           aria-labelledby="session-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <div className="size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground">
+              <div className="size-9 rounded-xl bg-[#181B24] border border-white/10 flex items-center justify-center text-white shadow-xs">
                 <User className="size-4" aria-hidden="true" />
               </div>
               <div>
@@ -574,21 +574,21 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="outline" className="text-[10px] font-mono uppercase tracking-wider border-white/10 bg-[#181B24] text-muted-foreground hidden sm:inline-flex">
               Session
             </Badge>
           </div>
 
-          <div className="mt-4 p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="mt-4 p-4 rounded-[20px] bg-[#181B24] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span className="text-[11px] uppercase tracking-wider font-tech-mono text-muted-foreground">
+              <span className="text-[11px] uppercase tracking-wider font-mono text-muted-foreground">
                 Connected Identity
               </span>
               <p className="text-sm font-semibold text-foreground mt-0.5">
                 {user?.email || profile?.username || "Authenticated User"}
               </p>
               {profile?.created_at && (
-                <p className="text-[11px] font-tech-mono text-muted-foreground mt-0.5">
+                <p className="text-[11px] font-mono tnum text-muted-foreground mt-0.5">
                   Member since {new Date(profile.created_at).toLocaleDateString()}
                 </p>
               )}
@@ -596,7 +596,7 @@ export default function Settings() {
 
             <Button
               variant="outline"
-              className="min-h-11 px-5 text-xs font-medium gap-2 active:scale-[0.98] shrink-0"
+              className="min-h-11 px-5 rounded-[16px] border border-white/10 bg-[#12141A] hover:bg-white/5 text-xs font-medium gap-2 active:scale-[0.98] shrink-0"
               onClick={() => void handleSignOut()}
               disabled={signingOut}
             >
@@ -608,16 +608,16 @@ export default function Settings() {
 
         {/* -- SECTION 5: DANGER ZONE -- */}
         <section
-          className="rounded-2xl border border-destructive/30 bg-destructive/5 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-[28px] border border-rose-500/30 bg-[#12141A] p-5 sm:p-7 shadow-xl specular-top transition-all"
           aria-labelledby="danger-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2.5">
-              <div className="size-8 rounded-lg bg-destructive/10 border border-destructive/30 flex items-center justify-center text-destructive">
+              <div className="size-9 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-400">
                 <AlertTriangle className="size-4" aria-hidden="true" />
               </div>
               <div>
-                <h2 id="danger-heading" className="text-sm font-semibold tracking-tight text-destructive">
+                <h2 id="danger-heading" className="text-sm font-semibold tracking-tight text-rose-400">
                   Account Data & Danger Zone
                 </h2>
                 <p className="text-xs text-muted-foreground">
@@ -625,12 +625,12 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="destructive" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="destructive" className="text-[10px] font-mono uppercase tracking-wider border-rose-500/30 bg-rose-500/10 text-rose-400 hidden sm:inline-flex">
               Destructive
             </Badge>
           </div>
 
-          <div className="mt-5 space-y-5 divide-y divide-destructive/15">
+          <div className="mt-5 space-y-5 divide-y divide-rose-500/15">
             <div className="pt-2 first:pt-0">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
@@ -641,7 +641,7 @@ export default function Settings() {
                 </div>
                 <Button
                   variant="outline"
-                  className="min-h-10 px-4 shrink-0 border-destructive/40 text-destructive hover:bg-destructive/10 text-xs font-medium active:scale-[0.98]"
+                  className="min-h-11 px-5 rounded-[16px] shrink-0 border border-rose-500/40 text-rose-400 hover:bg-rose-500/10 text-xs font-medium active:scale-[0.98]"
                   onClick={() => setResetDialogOpen(true)}
                   disabled={resetting}
                 >
@@ -656,7 +656,7 @@ export default function Settings() {
                 </p>
               )}
               {resetSuccess && !resetError && (
-                <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5" role="status">
+                <p className="mt-2 text-xs text-white flex items-center gap-1.5" role="status">
                   <CheckCircle2 className="size-3.5" />
                   <span>Trajectory progress reset successfully.</span>
                 </p>
@@ -673,7 +673,7 @@ export default function Settings() {
                 </div>
                 <Button
                   variant="outline"
-                  className="min-h-10 px-4 shrink-0 border-destructive/40 text-destructive hover:bg-destructive/10 text-xs font-medium active:scale-[0.98]"
+                  className="min-h-11 px-5 rounded-[16px] shrink-0 border border-rose-500/40 text-rose-400 hover:bg-rose-500/10 text-xs font-medium active:scale-[0.98]"
                   onClick={() => setDeleteDialogOpen(true)}
                   disabled={deleting}
                 >
@@ -694,20 +694,22 @@ export default function Settings() {
 
       {/* Reset Progress Alert Dialog */}
       <AlertDialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
-        <AlertDialogContent className="max-w-md">
+        <AlertDialogContent className="max-w-md rounded-[28px] bg-[#12141A] border border-white/10 text-foreground specular-top">
           <AlertDialogHeader>
-            <div className="flex items-center gap-2 text-destructive">
+            <div className="flex items-center gap-2 text-rose-400">
               <AlertTriangle className="size-5" aria-hidden="true" />
               <AlertDialogTitle>Reset all trajectory progress?</AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="text-xs sm:text-sm">
+            <AlertDialogDescription className="text-xs sm:text-sm text-muted-foreground">
               Your primary goal and login account remain intact. Every active and historical task record will be permanently cleared. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4 gap-2">
-            <AlertDialogCancel className="min-h-11 text-xs sm:text-sm">Keep my progress</AlertDialogCancel>
+            <AlertDialogCancel className="min-h-11 rounded-[16px] border-white/10 bg-[#181B24] hover:bg-white/5 text-xs sm:text-sm text-foreground active:scale-[0.98]">
+              Keep my progress
+            </AlertDialogCancel>
             <AlertDialogAction
-              className="min-h-11 bg-destructive text-destructive-foreground hover:bg-destructive/90 text-xs sm:text-sm"
+              className="min-h-11 rounded-[16px] bg-rose-600 text-white hover:bg-rose-500 text-xs sm:text-sm active:scale-[0.98]"
               onClick={() => void executeReset()}
             >
               Reset trajectory
@@ -718,20 +720,22 @@ export default function Settings() {
 
       {/* Delete Account Alert Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="max-w-md">
+        <AlertDialogContent className="max-w-md rounded-[28px] bg-[#12141A] border border-white/10 text-foreground specular-top">
           <AlertDialogHeader>
-            <div className="flex items-center gap-2 text-destructive">
+            <div className="flex items-center gap-2 text-rose-400">
               <AlertTriangle className="size-5" aria-hidden="true" />
               <AlertDialogTitle>Permanently delete account?</AlertDialogTitle>
             </div>
-            <AlertDialogDescription className="text-xs sm:text-sm">
+            <AlertDialogDescription className="text-xs sm:text-sm text-muted-foreground">
               This will permanently remove your goal, profile, and all trajectory history. You will be signed out immediately. This cannot be reversed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4 gap-2">
-            <AlertDialogCancel className="min-h-11 text-xs sm:text-sm">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="min-h-11 rounded-[16px] border-white/10 bg-[#181B24] hover:bg-white/5 text-xs sm:text-sm text-foreground active:scale-[0.98]">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              className="min-h-11 bg-destructive text-destructive-foreground hover:bg-destructive/90 text-xs sm:text-sm"
+              className="min-h-11 rounded-[16px] bg-rose-600 text-white hover:bg-rose-500 text-xs sm:text-sm active:scale-[0.98]"
               onClick={() => void executeDelete()}
             >
               Delete account

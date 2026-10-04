@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
 import { TrajectoryVisualizer } from "@/components/journey/TrajectoryVisualizer";
+import { TelemetryHud } from "@/components/dashboard/TelemetryHud";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { deriveGoalPace, deriveGoalStats, deriveResolvedAt } from "@/lib/trajectory";
@@ -48,7 +49,7 @@ export default function Journey() {
   if (loading) {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
-        <div className="h-72 animate-pulse rounded-2xl bg-muted/60" aria-label="Loading your journey" />
+        <div className="h-72 animate-pulse rounded-2xl bg-[#12141A] border border-[rgba(148,163,184,0.14)]" aria-label="Loading your journey" />
       </div>
     );
   }
@@ -56,13 +57,13 @@ export default function Journey() {
   if (error) {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
-        <section className="rounded-2xl border border-border bg-card p-7 shadow-sm" aria-label="Journey unavailable">
-          <p className="text-label text-muted-foreground">Your journey</p>
+        <section className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-7 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12),0_12px_32px_-4px_rgba(0,0,0,0.55)] backdrop-blur-xl" aria-label="Journey unavailable">
+          <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-zinc-400">Your journey</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your journey.</h2>
-          <p className="mt-2 text-body-md text-muted-foreground">
+          <p className="mt-2 text-sm text-muted-foreground">
             This is usually temporary. Try again now.
           </p>
-          <Button variant="neon" size="lg" className="mt-4" onClick={() => void reload()}>
+          <Button size="lg" className="mt-4 rounded-xl px-6 bg-white text-black hover:bg-zinc-200 font-bold active:scale-[0.98] transition-all shadow-[0_0_16px_rgba(255,255,255,0.2)]" onClick={() => void reload()}>
             Try again
           </Button>
         </section>
@@ -140,30 +141,38 @@ export default function Journey() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-6 sm:px-8 sm:py-10">
-      {/* ── Page Header ── */}
       {/* ── Page Header & Narrative Guidance ── */}
       <div className="space-y-2">
-        <p className="text-label text-primary font-mono uppercase tracking-wider text-xs">
+        <p className="text-label text-zinc-400 font-mono uppercase tracking-wider text-xs">
           Trajectory & Navigation
         </p>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground font-sans">
           Your Path.
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
           Tracking deliberate progress toward{" "}
           <span className="font-semibold text-foreground">"{profile?.primary_goal}"</span>.
         </p>
-        <div className="mt-2 pl-3 border-l-2 border-primary/40 py-1 text-xs sm:text-sm text-foreground/90 font-medium">
+        <div className="mt-2 pl-3 border-l-2 border-white/60 py-1 text-xs sm:text-sm text-foreground/90 font-medium">
           {pace ? (
             pace.isOnTrack ? (
-              `Averaging ${pace.actualDailyPace} goal quest${pace.actualDailyPace === 1 ? "" : "s"} a day — on track for completion by ${pace.targetDateFormatted}.`
+              <span className="tnum">
+                Averaging <strong>{pace.actualDailyPace}</strong> goal quest{pace.actualDailyPace === 1 ? "" : "s"} a day — on track for completion by <strong>{pace.targetDateFormatted}</strong>.
+              </span>
             ) : (
-              `To reach your goal by ${pace.targetDateFormatted}, aim for ${pace.requiredDailyPace} goal quests a day (currently averaging ${pace.actualDailyPace}).`
+              <span className="tnum">
+                To reach your goal by <strong>{pace.targetDateFormatted}</strong>, aim for <strong>{pace.requiredDailyPace}</strong> goal quests a day (currently averaging <strong>{pace.actualDailyPace}</strong>).
+              </span>
             )
           ) : (
             `Set an optional target date in your Profile to unlock your velocity telemetry and estimated completion timeline.`
           )}
         </div>
+      </div>
+
+      {/* ── Telemetry HUD ── */}
+      <div className="mt-5">
+        <TelemetryHud />
       </div>
 
       {/* ── 1. Trajectory Visualizer Centerpiece ── */}
@@ -176,12 +185,12 @@ export default function Journey() {
         />
       </div>
 
-      {/* ── 2. Trajectory Telemetry Console (Spacious & Deconstructed) ── */}
-      <div className="mt-6 rounded-3xl border border-border/80 bg-card/50 p-6 sm:p-7 shadow-sm space-y-6 glass-specular">
+      {/* ── 2. Trajectory Telemetry Console (Obsidian Substrate) ── */}
+      <div className="mt-6 rounded-[28px] border border-white/10 bg-[#12141A] p-6 sm:p-7 shadow-xl space-y-6 specular-top">
         {/* Console Header: Title & Global Pace Status Pill */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="size-8 rounded-xl border border-border/80 bg-background flex items-center justify-center text-primary shadow-xs">
+            <div className="size-9 rounded-xl border border-white/10 bg-[#181B24] flex items-center justify-center text-white shadow-sm">
               <Gauge className="size-4" aria-hidden="true" />
             </div>
             <div>
@@ -198,12 +207,12 @@ export default function Journey() {
             <Badge
               variant="outline"
               className={cn(
-                "px-3 py-1 font-mono text-xs font-semibold rounded-full",
+                "px-3 py-1 font-mono tnum text-xs font-semibold rounded-full",
                 pace.paceRatio >= 1.1
-                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
+                  ? "border-white/30 bg-white/10 text-white shadow-[0_0_10px_rgba(255,255,255,0.2)]"
                   : pace.isOnTrack
-                  ? "border-primary/30 bg-primary/10 text-primary"
-                  : "border-warning/40 bg-warning/10 text-warning"
+                  ? "border-white/20 bg-white/10 text-white"
+                  : "border-zinc-500/30 bg-zinc-500/10 text-zinc-300"
               )}
             >
               {pace.paceRatio >= 1.1
@@ -219,32 +228,32 @@ export default function Journey() {
         {pace ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
             {/* Metric 1: Velocity vs Required */}
-            <div className="rounded-2xl border border-border/60 bg-background/50 p-5 flex flex-col justify-between">
+            <div className="rounded-[20px] border border-white/[0.08] bg-[#181B24] p-5 flex flex-col justify-between shadow-md">
               <div>
                 <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
                   Daily Execution Velocity
                 </span>
                 <div className="mt-2.5 flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-bold font-mono tracking-tight text-foreground">
+                  <span className="text-3xl sm:text-4xl font-bold font-mono tnum tracking-tight text-foreground">
                     {pace.actualDailyPace}
                   </span>
-                  <span className="text-xs font-mono text-muted-foreground">
+                  <span className="text-xs font-mono tnum text-muted-foreground">
                     / <strong className="text-foreground font-semibold">{pace.requiredDailyPace}</strong> quests/day needed
                   </span>
                 </div>
 
                 {/* Ratio Progress Line */}
                 <div className="mt-4 space-y-1.5">
-                  <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div className="relative h-2 w-full overflow-hidden rounded-full bg-white/5 border border-white/[0.06]">
                     <div
                       className={cn(
                         "h-full rounded-full transition-all duration-500",
-                        pace.isOnTrack ? "bg-emerald-500" : "bg-warning"
+                        pace.isOnTrack ? "bg-white shadow-[0_0_8px_rgba(255,255,255,0.4)]" : "bg-zinc-400"
                       )}
                       style={{ width: `${Math.min(Math.round(pace.paceRatio * 100), 100)}%` }}
                     />
                   </div>
-                  <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground pt-0.5">
+                  <div className="flex items-center justify-between text-[11px] font-mono tnum text-muted-foreground pt-0.5">
                     <span className="text-foreground font-medium">
                       {Math.round(pace.paceRatio * 100)}% velocity ratio
                     </span>
@@ -255,7 +264,7 @@ export default function Journey() {
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between text-xs font-mono text-muted-foreground">
+              <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono tnum text-muted-foreground">
                 <span>Observed window</span>
                 <span className="text-foreground font-medium">
                   {pace.recentGoalCompleted} quests in {pace.daysObserved}d
@@ -264,22 +273,22 @@ export default function Journey() {
             </div>
 
             {/* Metric 2: Target Horizon & Milestone Progress */}
-            <div className="rounded-2xl border border-border/60 bg-background/50 p-5 flex flex-col justify-between">
+            <div className="rounded-[20px] border border-white/[0.08] bg-[#181B24] p-5 flex flex-col justify-between shadow-md">
               <div>
                 <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
                   Target Horizon & Milestone
                 </span>
                 <div className="mt-2.5">
-                  <h4 className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-foreground">
+                  <h4 className="text-2xl sm:text-3xl font-bold font-mono tnum tracking-tight text-foreground">
                     {pace.targetDateFormatted}
                   </h4>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 text-xs font-mono tnum text-muted-foreground">
                     {pace.daysRemaining} days remaining in commitment window.
                   </p>
                 </div>
               </div>
 
-              <div className="mt-6 pt-3 border-t border-border/40 flex items-center justify-between text-xs font-mono text-muted-foreground">
+              <div className="mt-6 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono tnum text-muted-foreground">
                 <span>Goal progress</span>
                 <span className="text-foreground font-semibold">
                   {goalStats.completed} of {goalStats.linked} completed ({goalStats.linked > 0 ? Math.round((goalStats.completed / goalStats.linked) * 100) : 0}%)
@@ -288,14 +297,14 @@ export default function Journey() {
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border/60 bg-background/50 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="rounded-[20px] border border-white/[0.08] bg-[#181B24] p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h4 className="text-base font-semibold text-foreground">No target milestone set</h4>
               <p className="mt-1 text-xs text-muted-foreground">
                 Set a target date in Profile to unlock predictive velocity ratios and pace tracking.
               </p>
             </div>
-            <Button asChild variant="outline" size="sm" className="rounded-xl text-xs shrink-0 min-h-10">
+            <Button asChild variant="outline" size="sm" className="rounded-xl border-white/10 bg-[#12141A] hover:bg-white/5 text-xs shrink-0 min-h-10 active:scale-[0.98]">
               <Link to="/profile">
                 <span>Set milestone</span>
                 <ArrowRight className="size-3.5 ml-1" />
@@ -305,8 +314,8 @@ export default function Journey() {
         )}
       </div>
 
-      {/* ── 3. Up Next Commitment (Clean Horizon Bar) ── */}
-      <div className="mt-6 rounded-3xl border border-border/80 bg-card/60 p-5 sm:p-6 shadow-sm">
+      {/* ── 3. Up Next Commitment (Obsidian Substrate) ── */}
+      <div className="mt-6 rounded-[24px] border border-white/10 bg-[#12141A] p-5 sm:p-6 shadow-xl specular-top">
         {primaryActionQuest ? (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="min-w-0 flex-1">
@@ -332,7 +341,7 @@ export default function Journey() {
                 size="sm"
                 disabled={isRecalibrating || saving}
                 onClick={handleOneTapBump}
-                className="min-h-11 rounded-xl border-border hover:bg-accent px-4 text-xs font-medium transition-all"
+                className="min-h-11 rounded-[16px] border-white/10 bg-[#181B24] hover:bg-white/5 px-4 text-xs font-medium transition-all active:scale-[0.98]"
                 title="Shift non-essential quests to tomorrow to protect your momentum"
               >
                 <RotateCcw className={`size-3.5 mr-1.5 ${isRecalibrating ? "animate-spin" : ""}`} />
@@ -341,7 +350,7 @@ export default function Journey() {
               <Button
                 onClick={() => void handleActionComplete(primaryActionQuest.id)}
                 disabled={completingId === primaryActionQuest.id || saving}
-                className="min-h-11 rounded-xl bg-foreground text-background hover:bg-foreground/90 px-6 text-xs font-semibold transition-all"
+                className="min-h-11 rounded-[16px] bg-white text-black hover:bg-zinc-200 px-6 text-xs font-semibold shadow-[0_0_16px_rgba(255,255,255,0.15)] transition-all active:scale-[0.98]"
               >
                 <Check className="size-4 mr-1.5" />
                 <span>{completingId === primaryActionQuest.id ? "Recording…" : "Mark done"}</span>
@@ -350,7 +359,7 @@ export default function Journey() {
                 asChild
                 variant="outline"
                 size="sm"
-                className="min-h-11 rounded-xl border-border px-4 text-xs font-medium"
+                className="min-h-11 rounded-[16px] border-white/10 bg-[#181B24] hover:bg-white/5 px-4 text-xs font-medium active:scale-[0.98]"
               >
                 <Link to="/quests">
                   <span>Manage</span>
@@ -373,7 +382,7 @@ export default function Journey() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-              <Button asChild className="min-h-11 rounded-xl bg-foreground text-background px-6 text-xs font-semibold">
+              <Button asChild className="min-h-11 rounded-[16px] bg-white text-black hover:bg-zinc-200 font-semibold shadow-[0_0_14px_rgba(255,255,255,0.15)] px-6 text-xs active:scale-[0.98]">
                 <Link to="/quests">
                   <span>Choose Today's Focus</span>
                   <ArrowRight className="size-4 ml-1.5" />
@@ -395,14 +404,14 @@ export default function Journey() {
               Commitment Ledger (Last 48 hours)
             </h3>
           </div>
-          <span className="text-xs font-mono text-muted-foreground">
+          <span className="text-xs font-mono tnum text-muted-foreground">
             {recentEvidence48h.length} recorded
           </span>
         </div>
 
         {recentEvidence48h.length > 0 ? (
-          <div className="rounded-3xl border border-border/80 bg-card/40 overflow-hidden shadow-sm">
-            <ul className="divide-y divide-border/40">
+          <div className="rounded-[24px] border border-white/10 bg-[#12141A] overflow-hidden shadow-xl specular-top">
+            <ul className="divide-y divide-white/[0.06]">
               {visibleActivity.map((q) => {
                 const isCompleted = q.completed;
                 const timeStr = new Date(deriveResolvedAt(q)).toLocaleTimeString([], {
@@ -417,7 +426,7 @@ export default function Journey() {
                 return (
                   <li
                     key={q.id}
-                    className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-muted/20 transition-colors"
+                    className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-[#181B24]/60 transition-colors"
                   >
                     <div className="min-w-0 flex-1">
                       <span
@@ -433,7 +442,7 @@ export default function Journey() {
                     </div>
 
                     <div className="flex items-center shrink-0 text-xs">
-                      <span className="font-mono text-[11px] text-muted-foreground">
+                      <span className="font-mono tnum text-[11px] text-muted-foreground">
                         {dateStr} {timeStr}
                       </span>
                     </div>
@@ -443,12 +452,12 @@ export default function Journey() {
             </ul>
 
             {recentEvidence48h.length > 4 && (
-              <div className="p-3 border-t border-border/40 bg-muted/10">
+              <div className="p-3 border-t border-white/[0.06] bg-[#181B24]/30">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowAllActivity((prev) => !prev)}
-                  className="w-full h-9 rounded-xl hover:bg-muted/40 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full h-9 rounded-xl hover:bg-white/5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1.5 active:scale-[0.98]"
                 >
                   {showAllActivity ? (
                     <>
@@ -466,7 +475,7 @@ export default function Journey() {
             )}
           </div>
         ) : (
-          <div className="rounded-3xl border border-border/60 bg-card/30 p-6 text-center text-xs text-muted-foreground">
+          <div className="rounded-[24px] border border-white/10 bg-[#12141A] p-6 text-center text-xs text-muted-foreground">
             No activity recorded in the last 48 hours. When you complete a commitment, it will appear here.
           </div>
         )}

@@ -115,7 +115,7 @@ export function TrajectoryChart({ trajectory, goalLabel }: TrajectoryChartProps)
   const gridLines = 4;
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 sm:p-7">
+    <div className="rounded-2xl border border-[rgba(148,163,184,0.14)] bg-[#12141A] p-5 sm:p-7 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.12),0_12px_32px_-4px_rgba(0,0,0,0.55)] backdrop-blur-xl">
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         className="w-full"

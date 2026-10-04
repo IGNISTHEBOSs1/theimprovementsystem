@@ -48,7 +48,7 @@ export function MysteriousClipReveal({
           clipPath: animateClip,
           opacity: 1,
         }}
-        viewport={{ once: true, margin: '-6% 0px' }}
+        viewport={{ once: true, margin: '0px 0px -10% 0px' }}
         transition={{
           duration,
           delay,
@@ -70,7 +70,7 @@ export function MysteriousClipReveal({
             [isHorizontal ? 'left' : 'top']: '100%',
             opacity: [0, 1, 1, 0],
           }}
-          viewport={{ once: true, margin: '-6% 0px' }}
+          viewport={{ once: true, margin: '0px 0px -10% 0px' }}
           transition={{
             duration,
             delay,
@@ -92,7 +92,7 @@ export function MysteriousClipReveal({
             aria-hidden="true"
             initial={{ left: '50%', opacity: 0 }}
             whileInView={{ left: '0%', opacity: [0, 1, 1, 0] }}
-            viewport={{ once: true, margin: '-6% 0px' }}
+            viewport={{ once: true, margin: '0px 0px -10% 0px' }}
             transition={{
               duration,
               delay,
@@ -105,7 +105,7 @@ export function MysteriousClipReveal({
             aria-hidden="true"
             initial={{ right: '50%', opacity: 0 }}
             whileInView={{ right: '0%', opacity: [0, 1, 1, 0] }}
-            viewport={{ once: true, margin: '-6% 0px' }}
+            viewport={{ once: true, margin: '0px 0px -10% 0px' }}
             transition={{
               duration,
               delay,
