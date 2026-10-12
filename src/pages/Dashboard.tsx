@@ -81,7 +81,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         layout: TIS_SPRINGS.settle,
       }}
       className={cn(
-        "flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/80 bg-card/80 px-4 py-3.5 text-body-sm shadow-sm transition-colors duration-250 overflow-hidden",
+        "flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-card/80 px-4 py-3.5 text-body-sm transition-colors duration-250 overflow-hidden",
         completionStage !== "idle" && "bg-emerald-500/[0.12] border-emerald-500/50"
       )}
     >
@@ -178,7 +178,7 @@ export default function Dashboard() {
   if (profileLoading) {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
-        <section className="rounded-2xl border border-border bg-card p-7" aria-label="Loading">
+        <section className="rounded-2xl border border-white/[0.08] bg-card p-7" aria-label="Loading">
           <div className="h-3 w-24 animate-pulse rounded bg-muted" />
           <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
         </section>
@@ -195,7 +195,7 @@ export default function Dashboard() {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <section
-          className="rounded-2xl border border-border bg-card p-7"
+          className="rounded-2xl border border-white/[0.08] bg-card p-7"
           aria-label="Profile unavailable"
         >
           <p className="text-label text-muted-foreground">Your system</p>
@@ -230,7 +230,7 @@ export default function Dashboard() {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <section
-          className="rounded-2xl border border-border bg-card p-7"
+          className="rounded-2xl border border-white/[0.08] bg-card p-7"
           aria-label="Progress unavailable"
         >
           <p className="text-label text-muted-foreground">Your system</p>
@@ -299,11 +299,12 @@ export default function Dashboard() {
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-  const completedToday = safeQuests.filter(
-    (q) => (q.completed || (q as any).status === "completed") &&
-      Boolean((q.resolvedAt || (q as any).completedAt) &&
-        (todayStr ? String(q.resolvedAt || (q as any).completedAt).startsWith(todayStr) : false))
-  ).length;
+  const completedToday = safeQuests.filter((q) => {
+    const qRecord = q as unknown as Record<string, unknown>;
+    const isCompleted = Boolean(q.completed || qRecord.status === "completed");
+    const dateVal = q.resolvedAt || (typeof qRecord.completedAt === "string" ? qRecord.completedAt : undefined);
+    return isCompleted && Boolean(dateVal && (todayStr ? String(dateVal).startsWith(todayStr) : false));
+  }).length;
 
   return (
     <motion.div
@@ -317,7 +318,7 @@ export default function Dashboard() {
       {/* ── Cockpit Status Header (Compact, Glanceable & Above-the-Fold) ── */}
       <header className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-border/60">
         <div>
-          <p className="text-caption text-muted-foreground uppercase tracking-wider font-semibold">
+          <p className="text-caption text-muted-foreground font-semibold">
             {todayDateFormatted}
           </p>
           <h1 className="text-display-md font-bold text-foreground mt-0.5">
@@ -336,12 +337,12 @@ export default function Dashboard() {
       {/* ── Rhythm & Momentum Cockpit (Prominent, Dedicated Streak & Weekly Rhythm) ── */}
       <section
         aria-label="Rhythm and Streak Momentum"
-        className="mt-6 rounded-2xl border border-border/80 bg-card/70 p-5 sm:p-6 shadow-[var(--shadow-card)] backdrop-blur-xs relative overflow-hidden glass-specular"
+        className="mt-6 rounded-2xl border border-white/[0.08] bg-card/70 p-5 sm:p-6 shadow-[var(--shadow-card)] backdrop-blur-xs relative overflow-hidden"
       >
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           {/* Left: Streak Counter & Status Microcopy */}
           <div className="flex items-center gap-4">
-            <div className="size-12 shrink-0 rounded-2xl border border-border bg-background/80 flex items-center justify-center shadow-xs">
+            <div className="size-12 shrink-0 rounded-2xl border border-white/[0.08] bg-background/80 flex items-center justify-center">
               <Flame
                 className={cn(
                   "size-6 transition-all",
@@ -357,7 +358,7 @@ export default function Dashboard() {
                     <span className="text-2xl font-bold tracking-tight text-foreground font-mono">
                       {currentStreak}
                     </span>
-                    <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-sm font-semibold text-muted-foreground">
                       {currentStreak === 1 ? "Day Active" : "Days Active"}
                     </span>
                   </>
@@ -383,42 +384,24 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Right: 7-Day Rhythm Cadence */}
+          {/* Right: 7-Day Rhythm Cadence (Single row of 7 dot indicators, 8px circles) */}
           {weeklyCadence.length === 7 && (
-            <div className="flex flex-col sm:items-end gap-2 pt-2 sm:pt-0 border-t border-border/40 sm:border-t-0">
+            <div className="flex flex-col sm:items-end gap-1.5 pt-2 sm:pt-0 border-t border-border/40 sm:border-t-0">
               <div
-                className="inline-flex items-center gap-2 p-1.5 rounded-xl border border-border/80 bg-background/60"
+                className="inline-flex items-center gap-1.5 p-1.5 rounded-full border border-white/[0.08] bg-background/60"
                 aria-label="7-day completion cadence"
               >
                 {weeklyCadence.map((day) => (
-                  <div
+                  <span
                     key={day.dateStr}
-                    className="flex flex-col items-center gap-1"
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-all",
+                      day.completed
+                        ? "bg-emerald-500"
+                        : "border border-border/80 bg-transparent"
+                    )}
                     title={`${day.dateStr}: ${day.completed ? "Completed" : day.isToday ? "Today" : "Incomplete"}`}
-                  >
-                    <span className={cn(
-                      "text-[10px] font-mono font-semibold uppercase leading-none",
-                      day.isToday ? "text-foreground font-bold" : "text-muted-foreground"
-                    )}>
-                      {day.dayLabel}
-                    </span>
-                    <span
-                      className={cn(
-                        "size-5 rounded-lg flex items-center justify-center transition-all",
-                        day.completed
-                          ? "bg-emerald-500 text-white border border-emerald-500 shadow-xs shadow-emerald-500/25"
-                          : day.isToday
-                          ? "border-2 border-dashed border-foreground/80 bg-foreground/10 text-foreground"
-                          : "border border-border/80 bg-muted/40"
-                      )}
-                    >
-                      {day.completed ? (
-                        <Check className="size-3 stroke-[3]" aria-hidden="true" />
-                      ) : day.isToday ? (
-                        <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
-                      ) : null}
-                    </span>
-                  </div>
+                  />
                 ))}
               </div>
               <span className={cn("text-[11px] font-medium", completedToday > 0 ? "text-emerald-500" : "text-muted-foreground")}>
@@ -432,7 +415,7 @@ export default function Dashboard() {
       {/* ── Tier 1 Action — Today's Focus (Immediately Visible Without Scrolling) ── */}
       <div className="mt-6">
         {loading ? (
-          <section className="rounded-2xl border border-border bg-card p-7" aria-label="Loading today’s focus">
+          <section className="rounded-2xl border border-white/[0.08] bg-card p-7" aria-label="Loading today’s focus">
             <div className="h-3 w-24 animate-pulse rounded bg-muted" />
             <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
           </section>
@@ -457,7 +440,7 @@ export default function Dashboard() {
                 <p className="text-label text-muted-foreground">Also active</p>
                 <ul className="mt-3 space-y-2.5">
                   <AnimatePresence mode="popLayout" initial={false}>
-                    {activeQuests.slice(1).map((quest) => (
+                    {activeQuests.slice(1, 2).map((quest) => (
                       <SecondaryQuestItem
                         key={quest.id}
                         quest={quest}
@@ -469,6 +452,11 @@ export default function Dashboard() {
                 </ul>
               </div>
             )}
+            <div className="mt-4">
+              <Link to="/quests" className="text-body-sm text-primary underline-offset-4 hover:underline">
+                See all quests
+              </Link>
+            </div>
           </>
         ) : completedToday > 0 ? (
           <DailyClosureCard

@@ -62,6 +62,8 @@ export default function Mentor() {
   const { profile } = useAuth();
   const { state, loading, error, reload } = useDashboardDataContext();
   const [rebalanceOpen, setRebalanceOpen] = useState(false);
+  const [showTelemetryDetails, setShowTelemetryDetails] = useState(false);
+  const [showAllDynamics, setShowAllDynamics] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   if (loading) {
@@ -75,7 +77,7 @@ export default function Mentor() {
   if (error) {
     return (
       <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
-        <section className="rounded-3xl border border-border bg-card p-7" aria-label="Mentor unavailable">
+        <section className="rounded-3xl border border-white/[0.08] bg-card p-7" aria-label="Mentor unavailable">
           <p className="text-label text-muted-foreground">Mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
           <p className="mt-2 text-body-md text-muted-foreground">This is usually temporary. You can try again now.</p>
@@ -159,6 +161,19 @@ export default function Mentor() {
     );
   }
 
+  type TelemetryTileId = "trajectory" | "recovery" | "momentum";
+  const activeTelemetryTiles: TelemetryTileId[] = [
+    showTrajectoryCard ? ("trajectory" as const) : null,
+    showRecoveryCard && recovery ? ("recovery" as const) : null,
+    showMomentumCard && momentum ? ("momentum" as const) : null,
+  ].filter(Boolean) as TelemetryTileId[];
+
+  const primaryTile = activeTelemetryTiles[0];
+  const secondaryTiles = activeTelemetryTiles.slice(1);
+
+  const hasExpandableDynamics = surfaced.length > 3 || surfaced.some((item) => Boolean(item.evidence));
+  const visibleDynamics = showAllDynamics ? surfaced : surfaced.slice(0, 3);
+
   return (
     <motion.div
       variants={shouldReduceMotion ? undefined : containerVariants}
@@ -178,13 +193,13 @@ export default function Mentor() {
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
+              className="rounded-3xl border border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
+                <span className="text-xs font-bold text-primary">
                   Executive Briefing • Primary Pattern
                 </span>
-                <span className="text-xs font-mono text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   Behavioral Analysis
                 </span>
               </div>
@@ -207,9 +222,9 @@ export default function Mentor() {
 
                   return (
                     <div className="pt-2 space-y-2.5">
-                      <div className="flex items-center justify-between text-xs font-mono">
+                      <div className="flex items-center justify-between text-xs">
                         <span className="font-medium text-foreground">Where misses happen</span>
-                        <span className="text-muted-foreground">{totalMissed} total misses</span>
+                        <span className="text-muted-foreground font-mono">{totalMissed} total misses</span>
                       </div>
 
                       {/* 2-Tone Segmented Ratio Bar */}
@@ -234,16 +249,16 @@ export default function Mentor() {
                       </div>
 
                       {/* Legend */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                         <div className="flex items-center gap-1.5">
                           <span className="size-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
                           <span className="font-semibold text-foreground">Repeating series</span>
-                          <span className="text-muted-foreground">({recurringMissed} • {recurringPct}%)</span>
+                          <span className="text-muted-foreground font-mono">({recurringMissed} • {recurringPct}%)</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           <span className="size-2 rounded-full bg-muted-foreground/40 shrink-0" aria-hidden="true" />
                           <span className="text-muted-foreground">One-time quests</span>
-                          <span className="text-muted-foreground">({oneOffMissed} • {oneOffPct}%)</span>
+                          <span className="text-muted-foreground font-mono">({oneOffMissed} • {oneOffPct}%)</span>
                         </div>
                       </div>
                     </div>
@@ -294,10 +309,10 @@ export default function Mentor() {
           {isRecoveryHero && recovery && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
+              className="rounded-3xl border border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
+                <span className="text-xs font-bold text-primary">
                   Your focus right now • Bouncing back
                 </span>
               </div>
@@ -318,10 +333,10 @@ export default function Mentor() {
           {isMomentumHero && momentum && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-3xl border border-border/80 bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
+              className="rounded-3xl border border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
+                <span className="text-xs font-bold text-primary">
                   Executive Briefing • Momentum
                 </span>
                 {momentum.comparison && (
@@ -343,16 +358,16 @@ export default function Mentor() {
               </h2>
               {momentum.comparison && (
                 <div className="pt-2 space-y-2.5">
-                  <div className="flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center justify-between text-xs">
                     <span className="font-medium text-foreground">Goal quest finish rate</span>
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground font-mono">
                       {momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal} recent
                     </span>
                   </div>
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center justify-between text-xs">
                       <span className="font-medium text-foreground">Recent</span>
-                      <span className="text-foreground font-semibold">
+                      <span className="text-foreground font-semibold font-mono">
                         {Math.round(momentum.comparison.recentRate * 100)}%
                       </span>
                     </div>
@@ -364,9 +379,9 @@ export default function Mentor() {
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">Earlier</span>
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground font-mono">
                         {Math.round(momentum.comparison.previousRate * 100)}%
                       </span>
                     </div>
@@ -398,29 +413,24 @@ export default function Mentor() {
         </motion.div>
       )}
 
-      {/* ── 2. Unified Telemetry Band (Zero Stacked Cards) ── */}
-      {signalCardsCount > 0 && (
+      {/* ── 2. Unified Telemetry Band (Reduced Density: First tile visible, other 2 collapsable) ── */}
+      {activeTelemetryTiles.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm"
+          className="mt-6 rounded-3xl border border-white/[0.08] bg-card/50 overflow-hidden shadow-sm"
         >
-          <div className={cn(
-            "grid divide-y md:divide-y-0 divide-border/60",
-            signalCardsCount === 1 ? "grid-cols-1" :
-            signalCardsCount === 2 ? "grid-cols-1 md:grid-cols-2 md:divide-x" :
-            "grid-cols-1 md:grid-cols-3 md:divide-x"
-          )}>
-            {/* Tile A: Trajectory Direction & Score */}
-            {showTrajectoryCard && (
+          <div className="grid grid-cols-1">
+            {/* Primary Tile (First available) — Always Visible */}
+            {primaryTile === "trajectory" && (
               <div className="p-5 sm:p-6 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                       <Compass className="size-4 text-primary" aria-hidden="true" />
                       <span>Momentum Score</span>
                     </div>
-                    <span className="text-xs font-mono text-muted-foreground">
-                      {trajectory.actual.length} events
+                    <span className="text-xs text-muted-foreground">
+                      <span className="font-mono">{trajectory.actual.length}</span> events
                     </span>
                   </div>
 
@@ -428,12 +438,12 @@ export default function Mentor() {
                     <span className="text-3xl font-bold font-mono tracking-tight text-foreground">
                       {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
                     </span>
-                    <span className="text-xs font-mono text-muted-foreground">net direction</span>
+                    <span className="text-xs text-muted-foreground">net direction</span>
                   </div>
 
                   {/* Recent Step Events */}
                   <div className="mt-4 space-y-1.5">
-                    <span className="text-[11px] font-mono text-muted-foreground">Recent outcomes:</span>
+                    <span className="text-[11px] text-muted-foreground">Recent outcomes:</span>
                     <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" aria-label="Recent outcomes">
                       {trajectory.actual.slice(-7).map((pt, idx) => (
                         <span
@@ -465,11 +475,10 @@ export default function Mentor() {
               </div>
             )}
 
-            {/* Tile B: Resilience / Recovery */}
-            {showRecoveryCard && recovery && (
+            {primaryTile === "recovery" && recovery && (
               <div className="p-5 sm:p-6 flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                     <Sprout className="size-4 text-primary" aria-hidden="true" />
                     <span>Bouncing Back</span>
                   </div>
@@ -489,18 +498,17 @@ export default function Mentor() {
               </div>
             )}
 
-            {/* Tile C: Goal Momentum Shift */}
-            {showMomentumCard && momentum && (
+            {primaryTile === "momentum" && momentum && (
               <div className="p-5 sm:p-6 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 text-muted-foreground text-xs font-mono font-medium uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                       <RotateCcw className="size-4 text-primary" aria-hidden="true" />
                       <span>Velocity Momentum</span>
                     </div>
                     {momentum.comparison && (
                       <span className={cn(
-                        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium",
+                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-mono font-medium",
                         momentum.comparison.delta >= 0
                           ? "bg-primary/10 text-primary border border-primary/20"
                           : "bg-destructive/10 text-destructive border border-destructive/20"
@@ -512,11 +520,11 @@ export default function Mentor() {
 
                   {momentum.comparison ? (
                     <div className="mt-3 space-y-2">
-                      <p className="text-xs text-muted-foreground font-mono">Goal quest finish rate</p>
+                      <p className="text-xs text-muted-foreground">Goal quest finish rate</p>
                       <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs font-mono">
+                        <div className="flex items-center justify-between text-xs">
                           <span className="text-foreground font-medium">Recent</span>
-                          <span className="text-foreground font-semibold">
+                          <span className="text-foreground font-semibold font-mono">
                             {Math.round(momentum.comparison.recentRate * 100)}%{" "}
                             <span className="text-muted-foreground font-normal">
                               ({momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal})
@@ -532,9 +540,9 @@ export default function Mentor() {
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs font-mono">
+                        <div className="flex items-center justify-between text-xs">
                           <span className="text-muted-foreground">Earlier</span>
-                          <span className="text-muted-foreground">
+                          <span className="text-muted-foreground font-mono">
                             {Math.round(momentum.comparison.previousRate * 100)}%{" "}
                             <span>
                               ({momentum.comparison.previousCompleted}/{momentum.comparison.previousTotal})
@@ -564,34 +572,186 @@ export default function Mentor() {
                 </div>
               </div>
             )}
+
+            {/* Collapsed Secondary Tiles */}
+            {secondaryTiles.length > 0 && showTelemetryDetails && (
+              <div className={cn(
+                "border-t border-border/60 grid grid-cols-1 divide-y divide-border/60",
+                secondaryTiles.length === 2 && "md:grid-cols-2 md:divide-y-0 md:divide-x"
+              )}>
+                {secondaryTiles.includes("recovery") && recovery && (
+                  <div className="p-5 sm:p-6 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                        <Sprout className="size-4 text-primary" aria-hidden="true" />
+                        <span>Bouncing Back</span>
+                      </div>
+                      <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-foreground">
+                        {recovery.text}
+                      </p>
+                    </div>
+                    <div className="mt-5 pt-3 border-t border-border/50">
+                      <Link
+                        to="/quests"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                      >
+                        <span>Commit to today's focus</span>
+                        <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
+                {secondaryTiles.includes("momentum") && momentum && (
+                  <div className="p-5 sm:p-6 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                          <RotateCcw className="size-4 text-primary" aria-hidden="true" />
+                          <span>Velocity Momentum</span>
+                        </div>
+                        {momentum.comparison && (
+                          <span className={cn(
+                            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-mono font-medium",
+                            momentum.comparison.delta >= 0
+                              ? "bg-primary/10 text-primary border border-primary/20"
+                              : "bg-destructive/10 text-destructive border border-destructive/20"
+                          )}>
+                            {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}% shift
+                          </span>
+                        )}
+                      </div>
+
+                      {momentum.comparison ? (
+                        <div className="mt-3 space-y-2">
+                          <p className="text-xs text-muted-foreground">Goal quest finish rate</p>
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-foreground font-medium">Recent</span>
+                              <span className="text-foreground font-semibold font-mono">
+                                {Math.round(momentum.comparison.recentRate * 100)}%{" "}
+                                <span className="text-muted-foreground font-normal">
+                                  ({momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal})
+                                </span>
+                              </span>
+                            </div>
+                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                              <div
+                                className="h-full bg-primary rounded-full transition-[width] duration-500"
+                                style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="text-muted-foreground">Earlier</span>
+                              <span className="text-muted-foreground font-mono">
+                                {Math.round(momentum.comparison.previousRate * 100)}%{" "}
+                                <span>
+                                  ({momentum.comparison.previousCompleted}/{momentum.comparison.previousTotal})
+                                </span>
+                              </span>
+                            </div>
+                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                              <div
+                                className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
+                                style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="mt-3 text-sm text-foreground">{momentum.observation}</p>
+                      )}
+                    </div>
+                    <div className="mt-5 pt-3 border-t border-border/50">
+                      <Link
+                        to="/journey"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                      >
+                        <span>View trajectory telemetry</span>
+                        <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
+                {secondaryTiles.includes("trajectory") && (
+                  <div className="p-5 sm:p-6 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                          <Compass className="size-4 text-primary" aria-hidden="true" />
+                          <span>Momentum Score</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          <span className="font-mono">{trajectory.actual.length}</span> events
+                        </span>
+                      </div>
+
+                      <div className="mt-3 flex items-baseline gap-2">
+                        <span className="text-3xl font-bold font-mono tracking-tight text-foreground">
+                          {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
+                        </span>
+                        <span className="text-xs text-muted-foreground">net direction</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 pt-3 border-t border-border/50">
+                      <Link
+                        to="/journey"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                      >
+                        <span>Explore trajectory</span>
+                        <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Show Details Toggle */}
+            {secondaryTiles.length > 0 && (
+              <div className="p-3 border-t border-border/50 bg-muted/10 text-center">
+                <button
+                  type="button"
+                  onClick={() => setShowTelemetryDetails((prev) => !prev)}
+                  className="text-xs font-semibold text-primary hover:underline cursor-pointer"
+                >
+                  {showTelemetryDetails ? "Hide details" : "Show details"}
+                </button>
+              </div>
+            )}
           </div>
         </motion.div>
       )}
 
-      {/* ── 3. Open Behavioral Pattern Ledger (Zero Nested Cards) ── */}
+      {/* ── 3. Open Behavioral Pattern Ledger (Capped at 3 with Show more toggle; evidence chips shown when expanded) ── */}
       {surfaced.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-3xl border border-border/80 bg-card/50 overflow-hidden shadow-sm"
+          className="mt-6 rounded-3xl border border-white/[0.08] bg-card/50 overflow-hidden shadow-sm"
         >
           <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
-            <span className="text-xs font-mono uppercase font-semibold text-muted-foreground tracking-wider">
+            <span className="text-xs font-semibold text-muted-foreground">
               Observed Behavioral Dynamics
             </span>
-            <span className="text-xs font-mono text-muted-foreground">
-              {surfaced.length} signals tracked
+            <span className="text-xs text-muted-foreground">
+              <span className="font-mono">{surfaced.length}</span> signals tracked
             </span>
           </div>
 
           <div className="divide-y divide-border/40">
-            {surfaced.map((item) => (
+            {visibleDynamics.map((item) => (
               <div key={item.key} className="p-5 sm:p-6 space-y-2.5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-primary">
+                  <span className="text-[11px] font-semibold text-primary">
                     {item.categoryLabel}
                   </span>
-                  {item.evidence && (
-                    <span className="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-mono text-muted-foreground border border-border/50">
+                  {showAllDynamics && item.evidence && (
+                    <span className="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-[11px] text-muted-foreground border border-border/50">
                       {item.evidence}
                     </span>
                   )}
@@ -619,6 +779,18 @@ export default function Mentor() {
               </div>
             ))}
           </div>
+
+          {hasExpandableDynamics && (
+            <div className="p-3.5 border-t border-border/40 text-center bg-muted/10">
+              <button
+                type="button"
+                onClick={() => setShowAllDynamics((prev) => !prev)}
+                className="text-xs font-semibold text-primary hover:underline cursor-pointer"
+              >
+                {showAllDynamics ? "Show less" : "Show more"}
+              </button>
+            </div>
+          )}
         </motion.div>
       )}
 

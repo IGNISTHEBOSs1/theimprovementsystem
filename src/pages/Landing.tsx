@@ -1,17 +1,14 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, useReducedMotion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, useReducedMotion, AnimatePresence, useScroll } from 'framer-motion';
 import {
   Target,
   ArrowRight,
-  Activity,
   Check,
   RotateCcw,
   Sparkles,
   Lock,
-  MousePointer,
   Layers,
-  Compass,
   Sun,
   Moon,
   ShieldCheck,
@@ -98,15 +95,6 @@ function MonochromaticMeshBackground() {
           { amp: 50, freq: 0.0007, speed: 0.35, color: 'rgba(82, 82, 91, 0.22)', yOffset: height * 0.88, lineWidth: 1.8 },
         ];
 
-    // 24 Traveling trajectory data beacons along wave contours with comet trails
-    const particles = Array.from({ length: 24 }, (_, i) => ({
-      x: (i / 24) * width,
-      waveIndex: i % 5,
-      speed: 0.35 + (i % 4) * 0.20,
-      radius: i % 3 === 0 ? 3.0 : i % 2 === 0 ? 2.4 : 1.8,
-      history: [] as { x: number; y: number }[],
-    }));
-
     let time = 0;
     const render = () => {
       time += 0.005;
@@ -134,46 +122,6 @@ function MonochromaticMeshBackground() {
         ctx.stroke();
       });
 
-      // Render traveling trajectory data particles with comet trails
-      particles.forEach((p) => {
-        p.x = (p.x + p.speed) % width;
-        const wave = waveLines[p.waveIndex];
-        const mouseDist = Math.hypot(p.x / width - mx, wave.yOffset / height - my);
-        const mouseInfluence = Math.max(0, 1 - mouseDist * 2.2) * 22;
-        const y =
-          wave.yOffset +
-          Math.sin(p.x * wave.freq + time * wave.speed) * wave.amp +
-          Math.cos(p.x * wave.freq * 0.5 + time * 0.5) * 10 +
-          mouseInfluence;
-
-        p.history.push({ x: p.x, y });
-        if (p.history.length > 5) p.history.shift();
-
-        // Trailing comet tail
-        if (p.history.length > 1) {
-          ctx.beginPath();
-          ctx.moveTo(p.history[0].x, p.history[0].y);
-          for (let h = 1; h < p.history.length; h++) {
-            ctx.lineTo(p.history[h].x, p.history[h].y);
-          }
-          ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.28)' : 'rgba(24, 24, 27, 0.22)';
-          ctx.lineWidth = p.radius * 0.9;
-          ctx.stroke();
-        }
-
-        // Ambient glow halo
-        ctx.beginPath();
-        ctx.arc(p.x, y, p.radius * 2.8, 0, Math.PI * 2);
-        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.18)' : 'rgba(24, 24, 27, 0.14)';
-        ctx.fill();
-
-        // Solid particle core
-        ctx.beginPath();
-        ctx.arc(p.x, y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.95)' : 'rgba(24, 24, 27, 0.85)';
-        ctx.fill();
-      });
-
       animationFrameId = requestAnimationFrame(render);
     };
 
@@ -183,11 +131,6 @@ function MonochromaticMeshBackground() {
       window.removeEventListener('resize', handleResize);
     };
   }, [shouldReduceMotion, resolvedMode]);
-
-  const { scrollYProgress } = useScroll();
-  const orb1Y = useTransform(scrollYProgress, [0, 1], [-20, 80]);
-  const orb2Y = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const orb3Y = useTransform(scrollYProgress, [0, 1], [0, 60]);
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
@@ -206,11 +149,6 @@ function MonochromaticMeshBackground() {
       {!shouldReduceMotion && (
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full opacity-100" />
       )}
-
-      {/* Ambient Volumetric Diffusions (Image 01: Parallax layers at different speeds) */}
-      <motion.div style={{ y: orb1Y }} className="absolute -top-32 -left-24 w-[540px] h-[540px] rounded-full bg-zinc-400/[0.18] dark:bg-white/[0.06] blur-[140px] pointer-events-none" />
-      <motion.div style={{ y: orb2Y }} className="absolute top-1/2 -right-32 w-[500px] h-[500px] rounded-full bg-zinc-500/[0.14] dark:bg-zinc-700/20 blur-[150px] pointer-events-none" />
-      <motion.div style={{ y: orb3Y }} className="absolute -bottom-32 left-1/3 w-[480px] h-[480px] rounded-full bg-zinc-400/[0.16] dark:bg-white/[0.05] blur-[140px] pointer-events-none" />
     </div>
   );
 }
@@ -246,7 +184,7 @@ function TactileThemeToggle() {
       <div className="absolute inset-0 flex items-center justify-between px-2.5 pointer-events-none select-none">
         <span
           className={cn(
-            "text-[8px] sm:text-[9px] font-tech-mono font-bold tracking-widest transition-opacity duration-200",
+            "text-[8px] sm:text-[9px] font-bold transition-opacity duration-200",
             isDark ? "opacity-100 text-zinc-400" : "opacity-0"
           )}
         >
@@ -254,7 +192,7 @@ function TactileThemeToggle() {
         </span>
         <span
           className={cn(
-            "text-[8px] sm:text-[9px] font-tech-mono font-bold tracking-widest transition-opacity duration-200 ml-auto",
+            "text-[8px] sm:text-[9px] font-bold transition-opacity duration-200 ml-auto",
             !isDark ? "opacity-100 text-zinc-600" : "opacity-0"
           )}
         >
@@ -307,40 +245,6 @@ function TactileThemeToggle() {
     </button>
   );
 }
-
-// -- THE THREE PILLARS (BENEFIT-ORIENTED, EXPLAINING WHAT, WHY, AND WHAT PROBLEM IT PREVENTS) --
-const principles = [
-  {
-    step: '01',
-    eyebrow: 'DAILY CLARITY',
-    title: 'One Focus Each Day',
-    what: 'Lock in your single highest-leverage task every morning before touching anything else.',
-    why: 'Cognitive bandwidth is finite. Sustained velocity comes from completing one decisive outcome, not checking off 20 trivial errands.',
-    prevents: 'Prevents decision fatigue, backlog paralysis, and that hollow feeling of being busy without making real progress.',
-    rule: 'Strict 1 Focus Cap',
-    icon: Target,
-  },
-  {
-    step: '02',
-    eyebrow: 'HABIT STABILITY',
-    title: 'Two Supporting Routines',
-    what: 'Anchor two lightweight non-negotiable rituals that protect your energy and foundation.',
-    why: 'Routines preserve personal stability on both high-energy days and exhausting, chaotic ones without requiring willpower.',
-    prevents: 'Prevents turning your life into an unsustainable 15-item habit checklist that inevitably collapses.',
-    rule: '2 Routine Anchor',
-    icon: Layers,
-  },
-  {
-    step: '03',
-    eyebrow: 'RESILIENT PROGRESS',
-    title: 'The ±10% Trajectory Buffer',
-    what: 'A mathematical tolerance corridor calibrated over your cumulative 90-day trajectory.',
-    why: 'Streaks are static counters that shatter on an off-day. Trajectory is dynamic velocity that measures cumulative achievement.',
-    prevents: 'Prevents the all-or-nothing guilt spiral. Your streak may reset, but your 90-day trajectory never restarts at zero.',
-    rule: 'Dynamic Trajectory Protection',
-    icon: Compass,
-  },
-];
 
 // -- 4-STAGE TRAJECTORY ENGINE CONSOLE (INTERACTIVE & LIVING CADENCE) --
 function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
@@ -450,10 +354,10 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
       {/* Section Header with Clip Reveal & Atmospheric Lift */}
       <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
         <AtmosphericLift yOffset={14} blurAmount={4}>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-3 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/[0.08] mb-3 shadow-xs">
             <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
-            <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-              01 // SYSTEM MECHANICS • 4-STAGE TRAJECTORY ENGINE
+            <span className="text-[10px] sm:text-[11px] font-medium text-foreground">
+              System Mechanics • 4-Stage Trajectory Engine
             </span>
           </div>
         </AtmosphericLift>
@@ -479,14 +383,14 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
       >
         {/* Left Column: Pinned Living HUD Console Display */}
         <div className="md:col-span-7 flex flex-col">
-          <div className="h-full relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_20px_50px_rgba(0,0,0,0.4)] p-5 sm:p-6 overflow-hidden kinetic-specular-box flex flex-col justify-between">
+          <div className="h-full relative rounded-2xl md:rounded-3xl border border-white/[0.08] bg-card/85 backdrop-blur-2xl shadow-xl p-5 sm:p-6 overflow-hidden flex flex-col justify-between">
             <div>
               {/* Console HUD Bar */}
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10 text-xs font-tech-mono">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/[0.08] text-xs">
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-foreground animate-pulse" />
-                  <span className="font-bold text-foreground tracking-wide">
-                    STAGE {steps[activeStep].num} // {steps[activeStep].tag}
+                  <span className="font-semibold text-foreground">
+                    STAGE <span className="font-tech-mono">{steps[activeStep].num}</span> // {steps[activeStep].tag}
                   </span>
                 </div>
                 <div className="px-2.5 py-0.5 rounded-full bg-muted border border-border text-[10px] text-foreground font-semibold">
@@ -495,7 +399,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
               </div>
 
               {/* Animated Graphic Display: Dynamically updates with activeStep */}
-              <div className="relative h-64 sm:h-72 w-full rounded-xl bg-background/80 border border-white/10 p-4 flex flex-col justify-between overflow-hidden shadow-inner">
+              <div className="relative h-64 sm:h-72 w-full rounded-xl bg-background/80 border border-white/[0.08] p-4 flex flex-col justify-between overflow-hidden">
                 {/* Background grid lines */}
                 <div
                   className="absolute inset-0 opacity-[0.08] pointer-events-none"
@@ -524,8 +428,8 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                       <line x1="30" y1="120" x2="370" y2="45" stroke="currentColor" strokeWidth="2.5" strokeDasharray="6 6" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
                       <circle cx="30" cy="120" r="5" fill="currentColor" />
                       <circle cx="370" cy="45" r="5" fill="currentColor" fillOpacity="0.5" />
-                      <text x="40" y="125" fill="currentColor" fontSize="10" fontFamily="monospace">DAY 01 (ORIGIN)</text>
-                      <text x="270" y="38" fill="currentColor" fontSize="10" fontFamily="monospace">DAY 90 HORIZON</text>
+                      <text x="40" y="125" fill="currentColor" fontSize="10" fontFamily="sans-serif">Day 01 (Origin)</text>
+                      <text x="270" y="38" fill="currentColor" fontSize="10" fontFamily="sans-serif">Day 90 Horizon</text>
                     </g>
                   )}
 
@@ -535,7 +439,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                       <path d="M 30,120 Q 180,95 240,65" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
                       <circle cx="240" cy="65" r="6" fill="currentColor" />
                       <line x1="240" y1="65" x2="370" y2="35" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" strokeOpacity="0.5" vectorEffect="non-scaling-stroke" />
-                      <text x="170" y="55" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="monospace">+35% THRUST INJECTED</text>
+                      <text x="170" y="55" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="sans-serif">+35% Thrust Injected</text>
                     </g>
                   )}
 
@@ -544,7 +448,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                     <g className="transition-all duration-500">
                       <path d="M 30,120 C 130,110 200,60 370,22" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
                       <circle cx="370" cy="22" r="6" fill="currentColor" />
-                      <text x="220" y="20" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="monospace">1.25x PEAK VELOCITY</text>
+                      <text x="220" y="20" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="sans-serif">1.25x Peak Velocity</text>
                     </g>
                   )}
 
@@ -561,34 +465,34 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                       
                       {/* Shock absorption marker */}
                       <circle cx="230" cy="76" r="4.5" fill="none" stroke="currentColor" strokeWidth="2" vectorEffect="non-scaling-stroke" />
-                      <text x="200" y="98" fill="currentColor" fontSize="10" fontFamily="monospace">DIP ABSORBED</text>
-                      <text x="240" y="30" fill="currentColor" fontSize="10" fontWeight="bold" fontFamily="monospace">90D TARGET PRESERVED</text>
+                      <text x="200" y="98" fill="currentColor" fontSize="10" fontFamily="sans-serif">Dip Absorbed</text>
+                      <text x="240" y="30" fill="currentColor" fontSize="10" fontWeight="bold" fontFamily="sans-serif">90d Target Preserved</text>
                     </g>
                   )}
                 </svg>
 
                 {/* Bottom Console Telemetry Readout */}
-                <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[11px] font-tech-mono">
-                  <span className="text-muted-foreground">VELOCITY ENGINE:</span>
-                  <span className="text-foreground font-bold">{steps[activeStep].metric}</span>
+                <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[11px]">
+                  <span className="text-muted-foreground">Velocity Engine:</span>
+                  <span className="text-foreground font-bold font-tech-mono">{steps[activeStep].metric}</span>
                 </div>
               </div>
 
               {/* Subtext description below graphic */}
-              <div className="mt-3 p-3 rounded-xl bg-muted/40 border border-white/5 flex items-center justify-between text-xs font-tech-mono">
+              <div className="mt-3 p-3 rounded-xl bg-muted/40 border border-white/[0.08] flex items-center justify-between text-xs">
                 <span className="text-muted-foreground truncate mr-2">
                   {activeStep === 3
                     ? 'Streak Apps: Reset to 0 | Kinetic: Trajectory Absorbs Drift ✓'
                     : 'Deterministic Trajectory • 1 Primary Focus + 2 Routines'}
                 </span>
                 <span className="text-foreground font-semibold shrink-0">
-                  STEP {activeStep + 1} OF 4
+                  Step {activeStep + 1} of 4
                 </span>
               </div>
             </div>
 
             {/* Interactive Cadence Controls & Progress Line */}
-            <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+            <div className="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -604,17 +508,17 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                   onClick={() => setIsPlaying(!isPlaying)}
                   aria-label={isPlaying ? 'Pause Cadence' : 'Play Cadence'}
                   data-cuelume-press="press"
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-card/60 hover:bg-card text-xs font-tech-mono text-foreground transition-colors active:scale-95"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-card/60 hover:bg-card text-xs text-foreground transition-colors active:scale-95"
                 >
                   {isPlaying ? (
                     <>
                       <Pause className="size-3" />
-                      <span>PAUSE</span>
+                      <span>Pause</span>
                     </>
                   ) : (
                     <>
                       <Play className="size-3" />
-                      <span>PLAY</span>
+                      <span>Play</span>
                     </>
                   )}
                 </button>
@@ -661,10 +565,10 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 data-cuelume-press="press"
                 data-cuelume-hover="tick"
                 className={cn(
-                  "relative p-4 sm:p-4.5 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden kinetic-specular-box",
+                  "relative p-4 sm:p-4.5 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden",
                   isActive
-                    ? "bg-card/95 border-white/35 dark:border-white/25 shadow-xl scale-[1.01] opacity-100 ring-1 ring-foreground/20"
-                    : "bg-card/35 border-white/5 opacity-55 hover:opacity-90 hover:bg-card/55 hover:border-white/15 scale-[0.99]"
+                    ? "bg-card/95 border-white/[0.08] scale-[1.01] opacity-100"
+                    : "bg-card/35 border-white/[0.08] opacity-55 hover:opacity-90 hover:bg-card/55 scale-[0.99]"
                 )}
               >
                 {/* Active Step Cadence Progress Bar */}
@@ -717,319 +621,8 @@ export default function Landing() {
   const navigate = useNavigate();
   const { resolvedMode } = useThemeContext();
   const isDark = resolvedMode === 'dark';
-  const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
-
-  // Differential Parallax Layers (IMAGE 01: PARALLAX - Layers move at different speeds)
-  const heroParallaxFast = useTransform(scrollYProgress, [0, 0.25], [0, -50]);
-  const heroParallaxSlow = useTransform(scrollYProgress, [0, 0.25], [0, 35]);
-
-  // Task Completion State for Live Trajectory Engine
-  const [focusDone, setFocusDone] = useState<boolean>(true);
-  const [routine1Done, setRoutine1Done] = useState<boolean>(true);
-  const [routine2Done, setRoutine2Done] = useState<boolean>(false);
-  const [hoveredStep, setHoveredStep] = useState<number | null>(null);
-
-  // Target element refs for precision human mouse simulation
-  const consoleRef = useRef<HTMLDivElement | null>(null);
-  const focusBoxRef = useRef<HTMLDivElement | null>(null);
-  const routine1BoxRef = useRef<HTMLDivElement | null>(null);
-  const routine2BoxRef = useRef<HTMLDivElement | null>(null);
-  const graphNodeRef = useRef<HTMLDivElement | null>(null);
-  const todayCircleRef = useRef<SVGCircleElement | null>(null);
-  const velocityBadgeRef = useRef<HTMLDivElement | null>(null);
-  const resetBtnRef = useRef<HTMLButtonElement | null>(null);
-  const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Video Sneak Peek Walkthrough Engine
-  const [isPlayingWalkthrough, setIsPlayingWalkthrough] = useState<boolean>(true);
-  const [videoElapsedSec, setVideoElapsedSec] = useState<number>(0);
-  const [simCursorPos, setSimCursorPos] = useState<{ x: number; y: number }>({ x: 260, y: 140 });
-  const [isClicking, setIsClicking] = useState<boolean>(false);
-  const [activePressedTarget, setActivePressedTarget] = useState<string | null>(null);
-  const [cursorLabel, setCursorLabel] = useState<string>('1 Focus / Day');
-
-  // User activity tracker: immediately hides simulated cursor on touch/click, resumes tour after 4s idle
-  const handleUserActivity = useCallback(() => {
-    setIsPlayingWalkthrough(false);
-    if (inactivityTimerRef.current) {
-      clearTimeout(inactivityTimerRef.current);
-    }
-    inactivityTimerRef.current = setTimeout(() => {
-      setIsPlayingWalkthrough(true);
-    }, 4000);
-  }, []);
-
-  // Responsive desktop detection for Three Steps hover expansion
-  const [isDesktop, setIsDesktop] = useState<boolean>(() =>
-    typeof window !== 'undefined' ? window.innerWidth >= 768 : false
-  );
-  useEffect(() => {
-    const updateSize = () => setIsDesktop(window.innerWidth >= 768);
-    window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
-  }, []);
-
-  // Viewport intersection observer: only run walkthrough when console is visible
-  const [isConsoleVisible, setIsConsoleVisible] = useState<boolean>(false);
-  useEffect(() => {
-    const el = document.getElementById('sneak-peek-frame');
-    if (!el) return;
-    if (!('IntersectionObserver' in window)) {
-      setIsConsoleVisible(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          setIsConsoleVisible(entry.isIntersecting);
-        });
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  // Passive user activity listener on console container
-  useEffect(() => {
-    const el = consoleRef.current;
-    if (!el) return;
-    const onUserInteract = () => handleUserActivity();
-    el.addEventListener('click', onUserInteract, { passive: true });
-    return () => el.removeEventListener('click', onUserInteract);
-  }, [handleUserActivity]);
-
-  // -- TRAJECTORY MATHEMATICS & FIXED PAST CONTINUITY --
-  const completedCount = (focusDone ? 1 : 0) + (routine1Done ? 1 : 0) + (routine2Done ? 1 : 0);
-
-  // Dynamic velocity index based on task thrust
-  const todayScore = (focusDone ? 35 : 0) + (routine1Done ? 10 : 0) + (routine2Done ? 10 : 0) + 45;
-  const velocityNum = parseFloat((todayScore / 80).toFixed(2));
-  const velocity = velocityNum.toFixed(2);
-  const isAhead = velocityNum >= 1.05;
-  const isInBuffer = velocityNum >= 0.90 && velocityNum < 1.05;
-  const daysMargin = focusDone
-    ? routine1Done && routine2Done
-      ? 16
-      : routine1Done || routine2Done
-      ? 11
-      : 6
-    : routine1Done || routine2Done
-    ? 1
-    : -4;
-
-  // Coordinate Grid: 500 x 210
-  const startX = 32;
-  const startY = 166;
-  const fixedTodayX = 220;
-  const fixedTodayY = 104; // Exact center of nominal corridor at Today milestone
-  const endX = 465;
-  const targetHorizonY = 54;
-
-  // -- 1. PAST HISTORICAL LINE: COMPLETELY FIXED (NEVER MOVES ON TASK INTERACTION) --
-  // The past has already happened; history does not retroactively change when you toggle today's checkboxes.
-  const historicalPath = `M ${startX},${startY} C ${startX + 50},${startY - 6} 174,129 ${fixedTodayX},${fixedTodayY}`;
-
-  // -- 2. FIXED NOMINAL ±10% BUFFER CORRIDOR (STATIONARY MATHEMATICAL CORRIDOR) --
-  // The tolerance corridor stays fixed so the dynamic forward projection line moves relative to it.
-  const bufferUpperPath = `M ${fixedTodayX},96 C ${fixedTodayX + 60},84 ${endX - 60},40 ${endX},36`;
-  const bufferLowerPath = `M ${fixedTodayX},112 C ${fixedTodayX + 60},104 ${endX - 60},68 ${endX},72`;
-  const bufferPolygon = `M ${fixedTodayX},96 C ${fixedTodayX + 60},84 ${endX - 60},40 ${endX},36 L ${endX},72 C ${endX - 60},68 ${fixedTodayX + 60},104 ${fixedTodayX},112 Z`;
-
-  // -- 3. ONLY THE CURVED LINE AFTER TODAY MOVES DYNAMICALLY --
-  // Projected Day 90 endpoint based on completed thrust
-  // Upper buffer boundary ends at Y=36. Peak velocity stays strictly inside the buffer, 3.5-4px below the boundary line.
-  const projectedEndY = focusDone
-    ? routine1Done && routine2Done
-      ? 39.5 // Peak Velocity: accelerated near upper buffer ceiling (3.5px below Y=36), mathematically preserved
-      : routine1Done || routine2Done
-      ? 46.5 // Ahead (upper buffer corridor)
-      : 53 // On Target (near nominal horizon 54)
-    : routine1Done || routine2Done
-    ? 66 // Sub-nominal (inside lower buffer)
-    : 74; // Buffer absorbing drift (cushioned near lower boundary 72)
-
-  // Dynamic cubic bezier starts from (fixedTodayX, fixedTodayY) and branches forward to (endX, projectedEndY)
-  const ctrl1X = fixedTodayX + 55; // 275
-  const ctrl1Y = fixedTodayY - (fixedTodayY - projectedEndY) * 0.42;
-  const ctrl2X = endX - 55; // 410
-  const ctrl2Y = projectedEndY + 5.5;
-  const projectedPath = `M ${fixedTodayX},${fixedTodayY} C ${ctrl1X},${ctrl1Y} ${ctrl2X},${ctrl2Y} ${endX},${projectedEndY}`;
-
-  // -- SNEAK PEEK AUTO-PLAYING SIMULATED MOUSE ENGINE --
-  useEffect(() => {
-    if (!isPlayingWalkthrough || !isConsoleVisible) return;
-
-    let cancelled = false;
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    let tickerId: ReturnType<typeof setInterval> | null = null;
-
-    const wait = (ms: number) =>
-      new Promise<void>((resolve) => {
-        timeoutId = setTimeout(() => {
-          if (!cancelled) resolve();
-        }, ms);
-      });
-
-    let startTime = Date.now();
-    tickerId = setInterval(() => {
-      if (cancelled) return;
-      const elapsed = Math.floor((Date.now() - startTime) / 1000) % 16;
-      setVideoElapsedSec(elapsed);
-    }, 200);
-
-    const getTargetPos = (
-      el: HTMLElement | SVGElement | null,
-      fallback: { x: number; y: number }
-    ) => {
-      if (!consoleRef.current || !el) return fallback;
-      const parentRect = consoleRef.current.getBoundingClientRect();
-      const elRect = el.getBoundingClientRect();
-      if (parentRect.width === 0 || elRect.width === 0) return fallback;
-      const rawX = elRect.left - parentRect.left + elRect.width / 2;
-      const rawY = elRect.top - parentRect.top + elRect.height / 2;
-      return {
-        x: Math.max(16, Math.min(parentRect.width - 24, rawX)),
-        y: Math.max(16, Math.min(parentRect.height - 24, rawY)),
-      };
-    };
-
-    const runScript = async () => {
-      await wait(150);
-      if (cancelled) return;
-
-      while (!cancelled) {
-        startTime = Date.now();
-        setVideoElapsedSec(0);
-
-        // Reset tasks
-        setFocusDone(false);
-        setRoutine1Done(false);
-        setRoutine2Done(false);
-        setIsClicking(false);
-        setActivePressedTarget(null);
-        setCursorLabel('1 Focus / Day');
-
-        // Initial cursor resting position
-        const initTarget = getTargetPos(focusBoxRef.current, { x: 300, y: 180 });
-        setSimCursorPos({ x: initTarget.x - 40, y: Math.max(30, initTarget.y - 70) });
-
-        // Phase 1: Glide into Primary Focus checkbox
-        await wait(1000);
-        if (cancelled) return;
-        const focusPos = getTargetPos(focusBoxRef.current, { x: 300, y: 180 });
-        setSimCursorPos(focusPos);
-
-        await wait(600);
-        if (cancelled) return;
-
-        // Click down on Primary Focus
-        setIsClicking(true);
-        setActivePressedTarget('focus');
-        setCursorLabel('+35% Thrust');
-        setFocusDone(true);
-        await wait(320);
-        if (cancelled) return;
-
-        setIsClicking(false);
-        setActivePressedTarget(null);
-
-        // Admire trajectory surge
-        await wait(1100);
-        if (cancelled) return;
-
-        // Phase 2: Glide to Routine 1
-        setCursorLabel('Routine 01 (Reading)');
-        const r1Pos = getTargetPos(routine1BoxRef.current, { x: 300, y: 240 });
-        setSimCursorPos(r1Pos);
-        await wait(750);
-        if (cancelled) return;
-
-        await wait(300);
-        if (cancelled) return;
-        setIsClicking(true);
-        setActivePressedTarget('routine1');
-        setCursorLabel('+10% Cadence');
-        setRoutine1Done(true);
-        await wait(320);
-        if (cancelled) return;
-
-        setIsClicking(false);
-        setActivePressedTarget(null);
-        await wait(700);
-        if (cancelled) return;
-
-        // Phase 3: Glide across to Fixed Today Milestone
-        setCursorLabel('Today Milestone (Fixed)');
-        const todayPos = getTargetPos(todayCircleRef.current, { x: 180, y: 130 });
-        setSimCursorPos(todayPos);
-        await wait(1200);
-        if (cancelled) return;
-
-        // Trace along ±10% buffer cone
-        setCursorLabel('±10% Safety Buffer');
-        setSimCursorPos({ x: todayPos.x + 45, y: todayPos.y - 12 });
-        await wait(1400);
-        if (cancelled) return;
-
-        // Phase 4: Glide down to Routine 2
-        setCursorLabel('Routine 02 (Review)');
-        const r2Pos = getTargetPos(routine2BoxRef.current, { x: 300, y: 300 });
-        setSimCursorPos(r2Pos);
-        await wait(850);
-        if (cancelled) return;
-
-        await wait(300);
-        if (cancelled) return;
-        setIsClicking(true);
-        setActivePressedTarget('routine2');
-        setCursorLabel('Peak Velocity (1.25x)');
-        setRoutine2Done(true);
-        await wait(320);
-        if (cancelled) return;
-
-        setIsClicking(false);
-        setActivePressedTarget(null);
-        await wait(800);
-        if (cancelled) return;
-
-        // Phase 5: Glide to Velocity Index badge
-        const badgePos = getTargetPos(velocityBadgeRef.current, { x: 420, y: 55 });
-        setSimCursorPos(badgePos);
-        await wait(1500);
-        if (cancelled) return;
-
-        // Phase 6: Glide to Reset button
-        setCursorLabel('Reset Loop');
-        const resetPos = getTargetPos(resetBtnRef.current, { x: 420, y: 170 });
-        setSimCursorPos(resetPos);
-        await wait(800);
-        if (cancelled) return;
-
-        setIsClicking(true);
-        setActivePressedTarget('reset');
-        setFocusDone(false);
-        setRoutine1Done(false);
-        setRoutine2Done(false);
-        await wait(320);
-        if (cancelled) return;
-
-        setIsClicking(false);
-        setActivePressedTarget(null);
-        await wait(800);
-        if (cancelled) return;
-      }
-    };
-
-    runScript();
-
-    return () => {
-      cancelled = true;
-      if (timeoutId) clearTimeout(timeoutId);
-      if (tickerId) clearInterval(tickerId);
-    };
-  }, [isPlayingWalkthrough, isConsoleVisible]);
+  const [showAllWhoFor, setShowAllWhoFor] = useState<boolean>(false);
 
   return (
     <div className="min-h-screen bg-background relative overflow-x-clip text-foreground selection:bg-foreground/20 selection:text-foreground">
@@ -1041,53 +634,6 @@ export default function Landing() {
 
       {/* -- HIGH-CONTRAST MONOCHROMATIC KINETIC MESH BACKGROUND -- */}
       <MonochromaticMeshBackground />
-
-      {/* -- AUTHENTIC NOTHING OS FROSTED & REEDED GLASS OVERLAY -- */}
-      {/* Renders a physical liquid frosted glass pane over the kinetic background, diffusing sharp edges and making typography pop while keeping motion 100% visible */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        {/* Layer 1: Frosted Liquid Glass Pane with Saturation Boost */}
-        <div
-          className="absolute inset-0 backdrop-blur-[2.5px] sm:backdrop-blur-[3.5px] backdrop-saturate-[140%] transition-colors duration-300"
-          style={{
-            backgroundColor: isDark ? 'rgba(10, 10, 14, 0.12)' : 'rgba(255, 255, 255, 0.15)',
-          }}
-        />
-
-        {/* Layer 2: Nothing OS Signature Reeded / Fluted Glass Texture */}
-        <div
-          className="absolute inset-0 opacity-[0.45] dark:opacity-[0.40] transition-opacity"
-          style={{
-            backgroundImage: isDark
-              ? 'repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 15px)'
-              : 'repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.035) 0px, rgba(0, 0, 0, 0.035) 1px, transparent 1px, transparent 15px)',
-          }}
-        />
-
-        {/* Layer 3: Diagonal Specular Sheen & Glass Glare */}
-        <div
-          className="absolute inset-0 transition-opacity"
-          style={{
-            background: isDark
-              ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 35%, transparent 65%)'
-              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.40) 0%, rgba(255, 255, 255, 0.10) 35%, transparent 65%)',
-          }}
-        />
-
-        {/* Layer 4: Central Typography Focus Atmosphere Lens (Softly nullifies background lines right behind headline) */}
-        <div
-          className="absolute inset-0 backdrop-blur-[6px] sm:backdrop-blur-[8px]"
-          style={{
-            maskImage: 'radial-gradient(ellipse 55% 42% at 50% 32%, black 20%, transparent 75%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 55% 42% at 50% 32%, black 20%, transparent 75%)',
-            background: isDark
-              ? 'radial-gradient(ellipse 55% 42% at 50% 32%, rgba(10, 10, 14, 0.35) 0%, rgba(10, 10, 14, 0.15) 50%, transparent 75%)'
-              : 'radial-gradient(ellipse 55% 42% at 50% 32%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.20) 50%, transparent 75%)',
-          }}
-        />
-
-        {/* Layer 5: Subtle Glass Specular Border Bezel */}
-        <div className="absolute inset-0 border border-white/[0.04] dark:border-white/[0.03]" />
-      </div>
 
       {/* Progressive Top Glass Blur Wash (Content fades smoothly under navbar) */}
       <div className="fixed top-0 inset-x-0 h-20 pointer-events-none z-40 bg-gradient-to-b from-background/85 via-background/40 to-transparent backdrop-blur-[3px]" />
@@ -1104,13 +650,13 @@ export default function Landing() {
               </div>
               <div className="min-w-0 flex items-center gap-2">
                 <MysteriousClipReveal direction="horizontal" duration={0.7} showLaserGlint={true}>
-                  <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight text-foreground uppercase truncate">
+                  <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight text-foreground truncate">
                     Kinetic
                   </span>
                 </MysteriousClipReveal>
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-tech-mono font-medium tracking-wider bg-muted/80 text-muted-foreground border border-border/80">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-medium bg-muted/80 text-muted-foreground border border-border/80">
                   <span className="size-1.5 rounded-full bg-foreground" />
-                  LOCAL ENCLAVE
+                  Local Enclave
                 </span>
               </div>
             </div>
@@ -1141,30 +687,11 @@ export default function Landing() {
 
       {/* -- HERO SECTION: HUMAN OUTCOME FIRST, THEN SYSTEM MECHANISM -- */}
       <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-32 pb-8 sm:pb-16 text-center">
-        {/* Differential Parallax Floating Telemetry Chips */}
-        <motion.div
-          style={{ y: heroParallaxSlow }}
-          className="hidden xl:flex absolute top-36 left-4 lg:left-8 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-xl text-[11px] font-tech-mono text-muted-foreground shadow-lg kinetic-specular-box pointer-events-none select-none z-20"
-        >
-          <span className="size-2 rounded-full bg-foreground animate-pulse" />
-          <span className="text-foreground font-semibold">Velocity: 1.25x</span>
-          <span className="text-muted-foreground">• +16d Margin</span>
-        </motion.div>
-
-        <motion.div
-          style={{ y: heroParallaxFast }}
-          className="hidden xl:flex absolute top-52 right-4 lg:right-8 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-xl text-[11px] font-tech-mono text-muted-foreground shadow-lg kinetic-specular-box pointer-events-none select-none z-20"
-        >
-          <ShieldCheck className="size-3.5 text-foreground" />
-          <span className="text-foreground font-semibold">±10% Safety Buffer</span>
-          <span className="text-muted-foreground">• Drift Absorbed</span>
-        </motion.div>
-
         {/* Eyebrow with Atmospheric Lift */}
         <AtmosphericLift yOffset={16} blurAmount={6} duration={0.65} className="inline-block mb-4 sm:mb-5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/[0.08] shadow-xs">
             <Sparkles className="size-3.5 text-foreground shrink-0" />
-            <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
+            <span className="text-[10px] sm:text-[11px] font-medium text-foreground">
               <span className="hidden sm:inline">Personal Trajectory Engine • Dynamic Vector, Not Static Streaks</span>
               <span className="sm:hidden">Dynamic Trajectory • ±10% Buffer</span>
             </span>
@@ -1230,7 +757,7 @@ export default function Landing() {
           </div>
 
           {/* Prominent Trust Signal with Staggered entrance */}
-          <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] font-tech-mono text-muted-foreground/90 mt-1">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-muted-foreground/90 mt-1">
             <span className="flex items-center gap-1.5 font-medium text-foreground">
               <Check className="size-3.5 text-foreground" />
               Free Forever
@@ -1246,579 +773,66 @@ export default function Landing() {
         </AtmosphericLift>
       </section>
 
-      {/* -- PRODUCT SNEAK PEEK CONSOLE (LIVE INTERACTIVE TRAJECTORY) -- */}
-      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-4 sm:py-8">
+      {/* -- PRODUCT SNEAK PEEK CONSOLE -- */}
+      <section className="hidden md:block relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-4 sm:py-8">
         <div
           id="sneak-peek-frame"
           className="relative max-w-5xl mx-auto text-left"
         >
-          {/* Hardware Frame with Liquid Frosted Glass and Monochromatic Specular Rim */}
-          <MysteriousClipReveal direction="center-out" duration={0.9} delay={0.08} showLaserGlint={true} className="rounded-2xl md:rounded-3xl">
-            <div className="relative rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/85 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.3),0_20px_50px_rgba(0,0,0,0.4)] overflow-hidden kinetic-specular-box">
-            {/* Top Bar HUD */}
-            <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b border-white/10 dark:border-white/10 bg-muted/30 text-xs font-tech-mono backdrop-blur-md">
-              <div className="flex items-center gap-2">
-                <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
-                <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
-                <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
-                <span className="ml-2 text-[11px] text-muted-foreground hidden sm:inline">
-                  LIVE PRODUCT SNEAK PEEK // TRAJECTORY VISUALIZER
-                </span>
-                <span className="ml-1 text-[10px] text-muted-foreground sm:hidden">
-                  LIVE TRAJECTORY
-                </span>
-              </div>
-
-              {/* Mode Badge */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/80 border border-border/80 text-[10px] text-muted-foreground backdrop-blur-sm shadow-xs">
-                  <span className={`size-1.5 rounded-full ${isPlayingWalkthrough ? 'bg-foreground animate-pulse' : 'bg-muted-foreground'}`} />
-                  <span>{isPlayingWalkthrough ? 'Guided Tour' : 'Interactive Mode'}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Inner Workspace: Trajectory Left + Daily Anchor Right */}
-            <div
-              ref={consoleRef}
-              className="p-3.5 sm:p-6 md:p-8 relative overflow-hidden"
-            >
-              {/* Simulated Human Mouse Cursor */}
-              <AnimatePresence>
-                {isPlayingWalkthrough && (() => {
-                  const isPillFlipped = Boolean(
-                    consoleRef.current
-                      ? simCursorPos.x > (consoleRef.current.clientWidth - 135) && simCursorPos.x > 120
-                      : simCursorPos.x > 180
-                  );
-
-                  return (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{
-                        opacity: 1,
-                        scale: 1,
-                        x: simCursorPos.x,
-                        y: simCursorPos.y,
-                      }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{
-                        x: { type: 'spring', damping: 24, stiffness: 160, mass: 0.6 },
-                        y: { type: 'spring', damping: 24, stiffness: 160, mass: 0.6 },
-                        opacity: { duration: 0.2 },
-                      }}
-                      style={{ left: 0, top: 0 }}
-                      className="absolute pointer-events-none z-30 flex items-start"
-                    >
-                      <div className="relative -top-1 -left-1 shrink-0">
-                        <motion.div
-                          animate={{
-                            scale: isClicking ? 0.82 : 1,
-                            rotate: isClicking ? -16 : -10,
-                          }}
-                          transition={{ duration: 0.12 }}
-                        >
-                          <MousePointer className="size-5 text-foreground drop-shadow-[0_3px_10px_rgba(0,0,0,0.6)] fill-foreground stroke-background stroke-[1.5]" />
-                        </motion.div>
-                        {isClicking && (
-                          <motion.div
-                            initial={{ scale: 0.3, opacity: 1 }}
-                            animate={{ scale: 2.2, opacity: 0 }}
-                            transition={{ duration: 0.35, ease: 'easeOut' }}
-                            className="absolute -top-1.5 -left-1.5 size-6 rounded-full border-2 border-foreground bg-foreground/25 pointer-events-none"
-                          />
-                        )}
-                      </div>
-
-                      {/* Contextual Action Pill */}
-                      <AnimatePresence mode="wait">
-                        {cursorLabel && (
-                          <motion.div
-                            key={cursorLabel}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            transition={{ duration: 0.15 }}
-                            className={cn(
-                              "absolute top-0 px-2.5 py-0.5 rounded-full bg-foreground text-background text-[10px] font-tech-mono font-bold tracking-wider uppercase shadow-lg select-none whitespace-nowrap pointer-events-none",
-                              isPillFlipped ? "right-full mr-2.5" : "left-full ml-2.5"
-                            )}
-                          >
-                            {cursorLabel}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  );
-                })()}
-              </AnimatePresence>
-
-              {/* Status Header: Removed 'DAY 41 OF 90' text as requested */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-4 sm:pb-5 border-b border-white/10 dark:border-white/10">
-                <div className="flex items-center gap-3">
-                  <div className="size-9 sm:size-10 rounded-xl bg-muted/80 border border-white/10 flex items-center justify-center text-foreground shrink-0 backdrop-blur-md">
-                    <Activity className="size-4 sm:size-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-display font-bold text-xs sm:text-sm text-foreground uppercase tracking-tight">
-                        Deterministic Momentum Vector
-                      </span>
-                    </div>
-                    <p className="hidden sm:block text-xs text-muted-foreground font-tech-mono mt-0.5">
-                      Fixed history • Dynamic forward trajectory updates with daily execution
-                    </p>
-                  </div>
-                </div>
-
-                {/* Velocity Readout */}
-                <div
-                  ref={velocityBadgeRef}
-                  className="flex items-center gap-3 bg-muted/40 border border-white/10 rounded-xl px-3 sm:px-3.5 py-1.5 backdrop-blur-md"
-                >
-                  <div className="text-right">
-                    <div className="text-[9px] sm:text-[10px] text-muted-foreground font-tech-mono uppercase tracking-wider">
-                      Velocity Index
-                    </div>
-                    <div className="font-tech-mono font-bold text-xs sm:text-base text-foreground flex items-center justify-end gap-1.5">
-                      <span>{velocity}x</span>
-                      <span className="text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded bg-foreground text-background font-bold">
-                        {isAhead ? 'AHEAD' : isInBuffer ? 'IN BUFFER' : 'ABSORBING DRIFT'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Main Console Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mt-4 sm:mt-6 items-center">
-                {/* Left: Dynamic Trajectory Plane */}
-                <div className="lg:col-span-7 space-y-3 sm:space-y-4">
-                  <div className="rounded-xl border border-white/10 bg-background/80 dark:bg-card/40 backdrop-blur-xl p-3 sm:p-4 shadow-inner kinetic-specular-box">
-                    <div className="flex flex-wrap items-center justify-between text-[10px] sm:text-[11px] font-tech-mono text-muted-foreground mb-2 gap-2">
-                      <span className="flex items-center gap-1.5 text-foreground font-medium">
-                        <span className="size-2 rounded-full bg-foreground" />
-                        Fixed History → Projected Trajectory
-                      </span>
-                      <span className="flex items-center gap-1.5">
-                        <span className="size-2 rounded-sm bg-muted-foreground/30 border border-border" />
-                        Stationary ±10% Buffer
-                      </span>
-                      <span className="text-foreground font-semibold">D1 → D90</span>
-                    </div>
-
-                    {/* SVG Trajectory Canvas: Past Line is Fixed, Buffer is Fixed, Only Forward Curve Moves */}
-                    <div ref={graphNodeRef} className="relative h-40 sm:h-52 w-full">
-                      <svg
-                        className="w-full h-full"
-                        viewBox="0 0 500 210"
-                        preserveAspectRatio="xMidYMid meet"
-                      >
-                        <defs>
-                          <linearGradient id="monochromeBufferGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.09 : 0.05} />
-                            <stop offset="100%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.22 : 0.14} />
-                          </linearGradient>
-                          <filter id="monochromeGlow" x="-30%" y="-30%" width="160%" height="160%">
-                            <feGaussianBlur stdDeviation="2.5" result="blur" />
-                            <feMerge>
-                              <feMergeNode in="blur" />
-                              <feMergeNode in="SourceGraphic" />
-                            </feMerge>
-                          </filter>
-                        </defs>
-
-                        {/* Baseline & Target Horizon Guidelines */}
-                        <line x1={startX} y1={startY} x2={endX} y2={startY} stroke="currentColor" strokeOpacity="0.08" strokeDasharray="3 3" />
-                        <line x1={startX} y1={targetHorizonY} x2={endX} y2={targetHorizonY} stroke="currentColor" strokeOpacity="0.22" strokeDasharray="4 4" />
-                        <text x={endX - 4} y={targetHorizonY - 6} textAnchor="end" fill="currentColor" opacity="0.6" fontSize="9" fontFamily="monospace">
-                          TARGET HORIZON (1.0x)
-                        </text>
-
-                        {/* Vertical Indicator: FIXED TODAY Milestone */}
-                        <line x1={fixedTodayX} y1={24} x2={fixedTodayX} y2={186} stroke="currentColor" strokeOpacity="0.18" strokeDasharray="2 2" />
-                        <text x={fixedTodayX} y={198} textAnchor="middle" fill="currentColor" fontSize="9" fontFamily="monospace" fontWeight="bold">
-                          TODAY
-                        </text>
-
-                        {/* Milestone Labels */}
-                        <text x={startX} y={198} textAnchor="start" fill="currentColor" opacity="0.4" fontSize="8" fontFamily="monospace">
-                          D1
-                        </text>
-                        <text x={125} y={198} textAnchor="middle" fill="currentColor" opacity="0.4" fontSize="8" fontFamily="monospace">
-                          D24
-                        </text>
-                        <text x={345} y={198} textAnchor="middle" fill="currentColor" opacity="0.4" fontSize="8" fontFamily="monospace">
-                          D68
-                        </text>
-                        <text x={endX} y={198} textAnchor="end" fill="currentColor" opacity="0.8" fontSize="8" fontFamily="monospace">
-                          D90 GOAL
-                        </text>
-
-                        {/* 1. FIXED ±10% Buffer Cone (Does Not Move) */}
-                        <path d={bufferPolygon} fill="url(#monochromeBufferGrad)" />
-                        <path d={bufferUpperPath} fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" strokeOpacity={isDark ? 0.45 : 0.35} />
-                        <path d={bufferLowerPath} fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" strokeOpacity={isDark ? 0.45 : 0.35} />
-
-                        {/* 2. FIXED Past Historical Line (D1 -> Today) (Does Not Move on checkbox toggles) */}
-                        <path
-                          d={historicalPath}
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeOpacity="0.65"
-                          strokeLinecap="round"
-                        />
-
-                        {/* Past History Nodes (Fixed) */}
-                        <circle cx={startX} cy={startY} r="3" fill="currentColor" opacity="0.6" />
-                        <circle cx={90} cy={160} r="2.5" fill="currentColor" opacity="0.6" />
-                        <circle cx={150} cy={142} r="2.5" fill="currentColor" opacity="0.7" />
-
-                        {/* 3. ONLY THE CURVED LINE AFTER TODAY MOVES DYNAMICALLY */}
-                        <motion.path
-                          d={projectedPath}
-                          initial={{ d: projectedPath }}
-                          animate={{ d: projectedPath }}
-                          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          filter="url(#monochromeGlow)"
-                        />
-
-                        {/* TODAY Anchor Node (Fixed at (fixedTodayX, fixedTodayY)) */}
-                        <circle
-                          ref={todayCircleRef}
-                          cx={fixedTodayX}
-                          cy={fixedTodayY}
-                          r="5.5"
-                          fill="currentColor"
-                        />
-                        <circle
-                          cx={fixedTodayX}
-                          cy={fixedTodayY}
-                          r="9"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.2"
-                          strokeOpacity="0.4"
-                          vectorEffect="non-scaling-stroke"
-                        />
-
-                        {/* Dynamic Forward Projected Goal Node at Day 90 */}
-                        <motion.circle
-                          cx={endX}
-                          cy={projectedEndY}
-                          initial={{ cy: projectedEndY }}
-                          animate={{ cy: projectedEndY }}
-                          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                          r="5.5"
-                          fill="currentColor"
-                        />
-                      </svg>
-
-                      {/* Embedded Telemetry Status Badge */}
-                      <div className="absolute right-2 top-2 px-2.5 py-1 rounded-md bg-card/90 border border-white/10 text-[10px] font-tech-mono text-foreground backdrop-blur-md shadow-sm">
-                        {isAhead ? `+${daysMargin}d Ahead • Accelerating` : isInBuffer ? 'Inside ±10% Buffer' : 'Buffer Absorbing Drift'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Telemetry Strip Under Graph */}
-                  <div className="grid grid-cols-3 gap-2 p-2.5 sm:p-3 rounded-xl border border-white/10 bg-background/60 dark:bg-card/30 backdrop-blur-md text-center">
-                    <div>
-                      <span className="text-[9px] sm:text-[10px] font-tech-mono text-muted-foreground uppercase">
-                        <span className="hidden sm:inline">Trajectory </span>Horizon
-                      </span>
-                      <p className="font-tech-mono font-bold text-xs sm:text-sm mt-0.5 text-foreground">
-                        {isAhead ? `+${daysMargin}d Margin` : isInBuffer ? 'Protected' : '-4d Off-Pace'}
-                      </p>
-                    </div>
-                    <div className="border-x border-border/50 px-1">
-                      <span className="text-[9px] sm:text-[10px] font-tech-mono text-muted-foreground uppercase">
-                        <span className="hidden sm:inline">Buffer </span>Tolerance
-                      </span>
-                      <p className="font-tech-mono font-bold text-xs sm:text-sm text-foreground mt-0.5">
-                        ±10% Cone
-                      </p>
-                    </div>
-                    <div>
-                      <span className="text-[9px] sm:text-[10px] font-tech-mono text-muted-foreground uppercase">
-                        <span className="hidden sm:inline">Daily </span>Tasks
-                      </span>
-                      <p className="font-tech-mono font-bold text-xs sm:text-sm text-foreground mt-0.5">
-                        {completedCount}/3 Done
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Tactile Daily Anchor Console */}
-                <div className="lg:col-span-5 flex flex-col justify-center space-y-3">
-                  <div className="p-3.5 sm:p-4 rounded-xl border border-white/10 bg-card/80 backdrop-blur-xl shadow-md kinetic-specular-box">
-                    <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-border/50">
-                      <div className="flex items-center gap-2">
-                        <Target className="size-4 text-foreground" />
-                        <span className="font-display font-semibold text-xs text-foreground tracking-wide uppercase">
-                          DAILY ANCHOR (1 FOCUS + 2 ROUTINES)
-                        </span>
-                      </div>
-                      <button
-                        ref={resetBtnRef}
-                        type="button"
-                        data-cuelume-press="toggle"
-                        data-cuelume-hover="tick"
-                        onClick={() => {
-                          handleUserActivity();
-                          setFocusDone(false);
-                          setRoutine1Done(false);
-                          setRoutine2Done(false);
-                        }}
-                        className={`text-[10px] font-tech-mono text-muted-foreground hover:text-foreground flex items-center gap-1 px-2 py-1 rounded bg-muted/60 hover:bg-muted transition-all touch-target ${
-                          activePressedTarget === 'reset' ? 'scale-95 bg-muted text-foreground' : ''
-                        }`}
-                        title="Reset daily items"
-                      >
-                        <RotateCcw className="size-3" />
-                        Reset
-                      </button>
-                    </div>
-
-                    {/* Primary Focus Card & Routines in Telemetry Stagger */}
-                    <TelemetryStaggerContainer staggerDelay={0.08} className="space-y-2 mt-2.5 sm:mt-3">
-                      <TelemetryStaggerItem>
-                        {/* Primary Focus Card (Image 04: Press + Spring feedback) */}
-                        <div
-                          role="button"
-                          tabIndex={0}
-                          data-cuelume-press="press"
-                          data-cuelume-release="release"
-                          data-cuelume-hover="tick"
-                          onClick={() => {
-                            handleUserActivity();
-                            setFocusDone(!focusDone);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              handleUserActivity();
-                              setFocusDone(!focusDone);
-                            }
-                          }}
-                          className={`p-3 sm:p-3.5 rounded-xl border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] ${
-                            activePressedTarget === 'focus' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
-                          } ${
-                            focusDone
-                              ? 'border-foreground/40 bg-muted/60 shadow-xs'
-                              : 'border-border/80 bg-background/90 hover:border-foreground/30'
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div
-                              ref={focusBoxRef}
-                              className={`size-6 rounded-lg border flex items-center justify-center transition-colors mt-0.5 shrink-0 ${
-                                focusDone
-                                  ? 'bg-foreground border-foreground text-background'
-                                  : 'border-border bg-background/80 text-transparent'
-                              }`}
-                            >
-                              <Check className="size-3.5 stroke-[3]" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-tech-mono font-semibold uppercase tracking-wider text-foreground">
-                                  PRIMARY FOCUS
-                                </span>
-                                <span className="text-[9px] font-tech-mono px-1.5 py-0.5 rounded bg-muted text-foreground border border-border">
-                                  +35% THRUST
-                                </span>
-                              </div>
-                              <p
-                                className={`text-xs sm:text-sm font-medium mt-1 leading-snug transition-colors ${
-                                  focusDone ? 'line-through text-muted-foreground' : 'text-foreground font-semibold'
-                                }`}
-                              >
-                                Finalize core mathematical buffer specification
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </TelemetryStaggerItem>
-
-                      <TelemetryStaggerItem>
-                        {/* Routine 1 */}
-                        <div
-                          role="button"
-                          tabIndex={0}
-                          data-cuelume-press="press"
-                          data-cuelume-release="release"
-                          data-cuelume-hover="tick"
-                          onClick={() => {
-                            handleUserActivity();
-                            setRoutine1Done(!routine1Done);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              handleUserActivity();
-                              setRoutine1Done(!routine1Done);
-                            }
-                          }}
-                          className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] flex items-center justify-between ${
-                            activePressedTarget === 'routine1' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
-                          } ${
-                            routine1Done
-                              ? 'border-border/80 bg-muted/40'
-                              : 'border-border/60 bg-background/90 hover:border-border'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div
-                              ref={routine1BoxRef}
-                              className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                                routine1Done
-                                  ? 'border-foreground bg-foreground text-background'
-                                  : 'border-border bg-background'
-                              }`}
-                            >
-                              {routine1Done && <Check className="size-2.5 stroke-[3]" />}
-                            </div>
-                            <span
-                              className={`text-xs truncate transition-colors ${
-                                routine1Done ? 'text-muted-foreground line-through' : 'text-foreground'
-                              }`}
-                            >
-                              Morning Deep Reading (45m)
-                            </span>
-                          </div>
-                          <span className="text-[9px] font-tech-mono text-muted-foreground shrink-0 ml-2">
-                            +10% CADENCE
-                          </span>
-                        </div>
-                      </TelemetryStaggerItem>
-
-                      <TelemetryStaggerItem>
-                        {/* Routine 2 */}
-                        <div
-                          role="button"
-                          tabIndex={0}
-                          data-cuelume-press="press"
-                          data-cuelume-release="release"
-                          data-cuelume-hover="tick"
-                          onClick={() => {
-                            handleUserActivity();
-                            setRoutine2Done(!routine2Done);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              handleUserActivity();
-                              setRoutine2Done(!routine2Done);
-                            }
-                          }}
-                          className={`p-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none active:scale-[0.96] flex items-center justify-between ${
-                            activePressedTarget === 'routine2' ? 'scale-[0.96] ring-1 ring-foreground/30 shadow-sm' : ''
-                          } ${
-                            routine2Done
-                              ? 'border-border/80 bg-muted/40'
-                              : 'border-border/60 bg-background/90 hover:border-border'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div
-                              ref={routine2BoxRef}
-                              className={`size-4 rounded-md border flex items-center justify-center transition-colors shrink-0 ${
-                                routine2Done
-                                  ? 'border-foreground bg-foreground text-background'
-                                  : 'border-border bg-background'
-                              }`}
-                            >
-                              {routine2Done && <Check className="size-2.5 stroke-[3]" />}
-                            </div>
-                            <span
-                              className={`text-xs truncate transition-colors ${
-                                routine2Done ? 'text-muted-foreground line-through' : 'text-foreground'
-                              }`}
-                            >
-                              Evening Trajectory Review
-                            </span>
-                          </div>
-                          <span className="text-[9px] font-tech-mono text-muted-foreground shrink-0 ml-2">
-                            +10% HABIT SEAL
-                          </span>
-                        </div>
-                      </TelemetryStaggerItem>
-                    </TelemetryStaggerContainer>
-
-                    {/* Execution Bar */}
-                    <div className="mt-3 pt-2.5 sm:pt-3 border-t border-border/40">
-                      <div className="flex justify-between text-[10px] sm:text-[11px] font-tech-mono mb-1.5">
-                        <span className="text-muted-foreground">Cadence Progress</span>
-                        <span className="font-bold text-foreground">
-                          {completedCount === 3
-                            ? '100% (Peak Velocity)'
-                            : completedCount === 2
-                            ? '66% (Accelerating)'
-                            : completedCount === 1
-                            ? '33% (On Track)'
-                            : '0% (Buffer Absorbing)'}
-                        </span>
-                      </div>
-                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-foreground transition-all duration-500 rounded-full"
-                          style={{ width: `${(completedCount / 3) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Bar: Timeline Scrubber */}
-            <div className="flex items-center justify-between px-3.5 sm:px-6 py-2 sm:py-2.5 border-t border-white/10 dark:border-white/10 bg-muted/30 text-xs font-tech-mono backdrop-blur-md">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="relative flex size-2">
-                  <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isPlayingWalkthrough ? 'animate-ping bg-foreground' : 'bg-muted-foreground'}`} />
-                  <span className={`relative inline-flex size-2 rounded-full ${isPlayingWalkthrough ? 'bg-foreground' : 'bg-muted-foreground'}`} />
-                </span>
-                <span className="text-[10px] sm:text-[11px] text-muted-foreground">
-                  00:{videoElapsedSec.toString().padStart(2, '0')} / 00:16
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 flex-1 max-w-xs mx-3 sm:mx-6">
-                <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-foreground transition-all duration-300"
-                    style={{ width: `${(videoElapsedSec / 16) * 100}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center">
-                <span className="text-[10px] font-tech-mono text-muted-foreground/70 hidden sm:inline">
-                  {isPlayingWalkthrough ? 'Tap any card to interact' : 'Resumes automatically in 4s'}
-                </span>
-                <span className="text-[9px] font-tech-mono text-muted-foreground/70 sm:hidden">
-                  {isPlayingWalkthrough ? 'Tap to test' : 'Auto-resumes'}
-                </span>
-              </div>
-            </div>
+          {/* Anchored Telemetry Chips */}
+          <div className="hidden md:flex absolute -top-5 left-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/[0.08] bg-card/70 backdrop-blur-xl text-[11px] text-muted-foreground shadow-sm pointer-events-none select-none z-20">
+            <span className="size-2 rounded-full bg-foreground animate-pulse" />
+            <span className="text-foreground font-semibold">Velocity: <span className="font-tech-mono">1.25x</span></span>
+            <span className="text-muted-foreground">• <span className="font-tech-mono">+16d</span> Margin</span>
           </div>
-        </MysteriousClipReveal>
-      </div>
-    </section>
+
+          <div className="hidden md:flex absolute -top-5 right-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/[0.08] bg-card/70 backdrop-blur-xl text-[11px] text-muted-foreground shadow-sm pointer-events-none select-none z-20">
+            <ShieldCheck className="size-3.5 text-foreground" />
+            <span className="text-foreground font-semibold">±10% Safety Buffer</span>
+            <span className="text-muted-foreground">• Drift Absorbed</span>
+          </div>
+
+          {/* Hardware Frame with Liquid Frosted Glass */}
+          <MysteriousClipReveal direction="center-out" duration={0.9} delay={0.08} showLaserGlint={true} className="rounded-2xl md:rounded-3xl">
+            <div className="relative rounded-2xl md:rounded-3xl border border-white/[0.08] bg-card/85 backdrop-blur-2xl shadow-xl overflow-hidden">
+              {/* Top Bar HUD */}
+              <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b border-white/[0.08] bg-muted/30 text-xs backdrop-blur-md">
+                <div className="flex items-center gap-2">
+                  <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
+                  <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
+                  <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
+                  <span className="ml-2 text-[11px] text-muted-foreground">
+                    Live Product Sneak Peek // Trajectory Visualizer
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/80 border border-border/80 text-[10px] text-muted-foreground backdrop-blur-sm shadow-xs">
+                    <span className="size-1.5 rounded-full bg-foreground" />
+                    <span>Preview</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Static Preview Image */}
+              <div className="p-3.5 sm:p-6 md:p-8">
+                <img
+                  src="/assets/app-demo-fallback.png"
+                  alt="Kinetic app preview"
+                  className="w-full h-auto object-cover max-h-[580px] rounded-xl border border-white/[0.08]"
+                />
+              </div>
+            </div>
+          </MysteriousClipReveal>
+        </div>
+      </section>
 
       {/* -- SECTION: THIS IS FOR YOU IF... (PEOPLE & EMPATHY RECOGNITION) -- */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <AtmosphericLift yOffset={14} blurAmount={4}>
-            <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
-              WHO THIS IS FOR
+            <p className="text-xs font-semibold text-muted-foreground mb-2">
+              Who This Is For
             </p>
           </AtmosphericLift>
 
@@ -1837,8 +851,8 @@ export default function Landing() {
 
         <TelemetryStaggerContainer staggerDelay={0.08} className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
           <TelemetryStaggerItem>
-            <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3 h-full">
-              <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
+            <div className="p-4 sm:p-5 rounded-2xl border border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+              <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <RotateCcw className="size-4" />
               </div>
               <div>
@@ -1853,8 +867,8 @@ export default function Landing() {
           </TelemetryStaggerItem>
 
           <TelemetryStaggerItem>
-            <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3 h-full">
-              <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
+            <div className="p-4 sm:p-5 rounded-2xl border border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+              <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <Layers className="size-4" />
               </div>
               <div>
@@ -1868,9 +882,9 @@ export default function Landing() {
             </div>
           </TelemetryStaggerItem>
 
-          <TelemetryStaggerItem>
-            <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3 h-full">
-              <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
+          <TelemetryStaggerItem className={showAllWhoFor ? "block" : "hidden md:block"}>
+            <div className="p-4 sm:p-5 rounded-2xl border border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+              <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <TrendingUp className="size-4" />
               </div>
               <div>
@@ -1884,9 +898,9 @@ export default function Landing() {
             </div>
           </TelemetryStaggerItem>
 
-          <TelemetryStaggerItem>
-            <div className="p-4 sm:p-5 rounded-2xl border border-white/10 dark:border-white/10 bg-card/60 backdrop-blur-xl kinetic-specular-box flex items-start gap-3 h-full">
-              <div className="size-8 rounded-xl bg-muted/80 border border-border/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
+          <TelemetryStaggerItem className={showAllWhoFor ? "block" : "hidden md:block"}>
+            <div className="p-4 sm:p-5 rounded-2xl border border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+              <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <ShieldCheck className="size-4" />
               </div>
               <div>
@@ -1900,14 +914,27 @@ export default function Landing() {
             </div>
           </TelemetryStaggerItem>
         </TelemetryStaggerContainer>
+
+        {!showAllWhoFor && (
+          <div className="mt-4 text-center md:hidden">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAllWhoFor(true)}
+              className="text-xs rounded-full border-border/80"
+            >
+              See all
+            </Button>
+          </div>
+        )}
       </section>
 
       {/* -- SECTION: VISUAL CORE CONCEPT (FRAGILE STREAK VS. PROTECTED TRAJECTORY) -- */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-10 sm:py-16">
         <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <AtmosphericLift yOffset={14} blurAmount={4}>
-            <p className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase mb-2">
-              THE MATHEMATICAL DIFFERENCE
+            <p className="text-xs font-semibold text-muted-foreground mb-2">
+              The Mathematical Difference
             </p>
           </AtmosphericLift>
 
@@ -1927,13 +954,13 @@ export default function Landing() {
         <TelemetryStaggerContainer staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Fragile Streak Card */}
           <TelemetryStaggerItem>
-            <div className="rounded-2xl border border-border/80 bg-card/50 dark:bg-card/30 p-5 sm:p-6 backdrop-blur-xl kinetic-specular-box relative h-full flex flex-col justify-between">
+            <div className="rounded-2xl border border-white/[0.08] bg-card/50 dark:bg-card/30 p-5 sm:p-6 backdrop-blur-xl relative h-full flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-tech-mono px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
-                    TRADITIONAL HABIT APPS
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                    Traditional Habit Apps
                   </span>
-                  <span className="text-xs font-tech-mono text-muted-foreground font-semibold">
+                  <span className="text-xs text-muted-foreground font-semibold">
                     Static Streak
                   </span>
                 </div>
@@ -1942,13 +969,13 @@ export default function Landing() {
                 </h3>
 
                 {/* Visual Timeline Diagram */}
-                <div className="p-3 rounded-xl bg-background/80 border border-border/60 font-tech-mono text-[11px] mb-4 space-y-2">
+                <div className="p-3 rounded-xl bg-background/80 text-[11px] mb-4 space-y-2">
                   <div className="flex items-center justify-between text-muted-foreground">
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D1</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D1</span></span>
                     <span>→</span>
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D2</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D2</span></span>
                     <span>→</span>
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D3</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D3</span></span>
                     <span>→</span>
                     <span className="flex items-center gap-1 text-foreground font-bold underline"><XCircle className="size-3 text-foreground" /> MISS</span>
                     <span>→</span>
@@ -1965,13 +992,13 @@ export default function Landing() {
 
           {/* Protected Trajectory Card (Kinetic) */}
           <TelemetryStaggerItem>
-            <div className="rounded-2xl border border-white/20 dark:border-white/10 bg-card/85 dark:bg-card/60 p-5 sm:p-6 backdrop-blur-xl kinetic-specular-box relative h-full flex flex-col justify-between">
+            <div className="rounded-2xl border border-white/[0.08] bg-card/85 dark:bg-card/60 p-5 sm:p-6 backdrop-blur-xl relative h-full flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-tech-mono px-2 py-0.5 rounded bg-foreground text-background font-bold">
-                    KINETIC
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-foreground text-background font-bold">
+                    Kinetic
                   </span>
-                  <span className="text-xs font-tech-mono text-foreground font-semibold">
+                  <span className="text-xs text-foreground font-semibold">
                     ±10% Trajectory Buffer
                   </span>
                 </div>
@@ -1980,17 +1007,17 @@ export default function Landing() {
                 </h3>
 
                 {/* Visual Timeline Diagram */}
-                <div className="p-3 rounded-xl bg-background/90 border border-foreground/30 font-tech-mono text-[11px] mb-4 space-y-2">
+                <div className="p-3 rounded-xl bg-background/90 text-[11px] mb-4 space-y-2">
                   <div className="flex items-center justify-between text-foreground">
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D1</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D1</span></span>
                     <span>→</span>
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D2</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D2</span></span>
                     <span>→</span>
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> D3</span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D3</span></span>
                     <span>→</span>
                     <span className="flex items-center gap-1 font-bold"><Zap className="size-3 text-foreground" /> BUFFER</span>
                     <span>→</span>
-                    <span className="text-foreground font-bold">D90 CONTINUES</span>
+                    <span className="text-foreground font-bold"><span className="font-tech-mono">D90</span> CONTINUES</span>
                   </div>
                 </div>
               </div>
@@ -2003,163 +1030,20 @@ export default function Landing() {
         </TelemetryStaggerContainer>
       </section>
 
-      {/* -- SECTION: THE THREE PILLARS (BENEFIT-ORIENTED, REDUCED BACKLOG FATIGUE) -- */}
-      <section id="pillars-section" className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24">
-        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
-          <AtmosphericLift yOffset={14} blurAmount={4}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/20 dark:border-white/10 mb-3 shadow-xs">
-              <span className="size-1.5 rounded-full bg-foreground" />
-              <span className="text-[10px] sm:text-[11px] font-tech-mono font-medium text-foreground tracking-wider uppercase">
-                02 // REVEAL HIERARCHY • THE THREE PILLARS
-              </span>
-            </div>
-          </AtmosphericLift>
-
-          <MysteriousClipReveal direction="horizontal" duration={0.8} showLaserGlint={true}>
-            <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground tracking-tight">
-              The Three Steps to Quiet Follow-Through
-            </h2>
-          </MysteriousClipReveal>
-
-          <AtmosphericLift yOffset={14} blurAmount={6} delay={0.15}>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-              Eliminate decision fatigue and sustain lifelong momentum with three architectural rules.
-            </p>
-          </AtmosphericLift>
-        </div>
-
-        {/* The Three Steps: Fade + Lift & Staggered Entrance on Desktop & Mobile */}
-        <TelemetryStaggerContainer staggerDelay={0.09} className="flex flex-col md:flex-row gap-4 sm:gap-5 items-stretch justify-center">
-          {principles.map((p, index) => {
-            const isHovered = isDesktop && hoveredStep === index;
-            const isOtherHovered = isDesktop && hoveredStep !== null && hoveredStep !== index;
-
-            return (
-              <motion.div
-                key={p.step}
-                layout="position"
-                initial={shouldReduceMotion ? false : { opacity: 0, y: 28, filter: 'blur(6px)' }}
-                whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{
-                  duration: 0.65,
-                  delay: index * 0.1,
-                  ease: [0.16, 1, 0.3, 1],
-                  layout: { type: 'spring', stiffness: 240, damping: 28 },
-                }}
-                onMouseEnter={() => isDesktop && setHoveredStep(index)}
-                onMouseLeave={() => isDesktop && setHoveredStep(null)}
-                className={cn(
-                  "group relative rounded-2xl border p-5 sm:p-6 backdrop-blur-2xl flex flex-col justify-between kinetic-specular-box overflow-hidden",
-                  "transition-[flex,transform,background-color,border-color,box-shadow,opacity] duration-700 ease-out",
-                  "w-full min-h-[380px] sm:min-h-[400px] md:min-h-[420px]",
-                  isDesktop && (
-                    isHovered
-                      ? "md:flex-[1.45] border-white/30 dark:border-white/20 shadow-2xl bg-card/95 z-10 scale-[1.01]"
-                      : isOtherHovered
-                      ? "md:flex-[0.78] border-white/10 bg-card/45 opacity-65 hover:opacity-95 scale-[0.985]"
-                      : "md:flex-1 border-white/10 bg-card/65 shadow-lg scale-100"
-                  )
-                )}
-              >
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:via-white/50 transition-colors pointer-events-none" />
-
-                <div>
-                  <div className="flex items-center justify-between mb-3 sm:mb-4">
-                    <span
-                      className={cn(
-                        "font-tech-mono font-extrabold text-2xl sm:text-3xl transition-all duration-500 ease-out origin-left",
-                        isHovered ? "scale-105 text-foreground" : isOtherHovered ? "scale-95 text-foreground/60" : "scale-100 text-foreground/80"
-                      )}
-                    >
-                      {p.step}
-                    </span>
-                    <span className="text-[10px] font-tech-mono px-2.5 py-0.5 rounded-full bg-muted/80 text-foreground border border-border whitespace-nowrap transition-colors duration-300">
-                      {p.rule}
-                    </span>
-                  </div>
-
-                  <div className="text-[10px] font-tech-mono text-muted-foreground uppercase tracking-wider mb-1 transition-colors duration-500">
-                    {p.eyebrow}
-                  </div>
-                  <h3
-                    className={cn(
-                      "font-display font-bold text-base sm:text-lg text-foreground mb-3 leading-snug transition-transform duration-500 ease-out origin-left",
-                      isHovered ? "scale-[1.015]" : "scale-100"
-                    )}
-                  >
-                    {p.title}
-                  </h3>
-
-                  <div className="space-y-2.5 text-xs sm:text-sm text-muted-foreground leading-relaxed transition-all duration-500 ease-out">
-                    <p className="transition-opacity duration-500">
-                      <strong className="text-foreground font-semibold">What you do:</strong> {p.what}
-                    </p>
-                    <p className="transition-opacity duration-500">
-                      <strong className="text-foreground font-semibold">Why it works:</strong> {p.why}
-                    </p>
-                    <p
-                      className={cn(
-                        "text-[11px] sm:text-xs pt-1.5 border-t border-border/40 transition-all duration-500",
-                        isOtherHovered ? "opacity-50" : "opacity-90"
-                      )}
-                    >
-                      <strong className="text-foreground/90 font-medium">Prevents:</strong> {p.prevents}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 sm:mt-5 pt-3 sm:pt-3.5 border-t border-border/50 flex items-center justify-between text-xs font-tech-mono transition-opacity duration-500">
-                  <span className="text-muted-foreground truncate">Architectural Rule</span>
-                  <span className="font-semibold text-foreground truncate ml-2">{p.rule}</span>
-                </div>
-              </motion.div>
-            );
-          })}
-        </TelemetryStaggerContainer>
-      </section>
-
       {/* -- SECTION: HOW IT WORKS (PIN + TRANSFORM SCROLL STORYTELLING ENGINE) -- */}
       <PinAndTransformWorkflow isDark={isDark} />
 
       {/* -- SIDE-BY-SIDE ARCHITECTURAL COMPARISON (REDUCED BASIS, OPTIMAL ON MOBILE & PC) -- */}
       <ComparisonTable onSelectPlan={() => navigate('/auth')} />
 
-      {/* -- DIRECT OBJECTION HANDLING: "WHY NOT JUST USE A NORMAL HABIT TRACKER?" -- */}
-      <section className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-16 text-center">
-        <AtmosphericLift yOffset={24} blurAmount={8} duration={0.7}>
-          <div className="p-6 sm:p-10 rounded-2xl md:rounded-3xl border border-white/15 dark:border-white/10 bg-card/70 backdrop-blur-2xl shadow-xl kinetic-specular-box">
-            <span className="text-xs font-tech-mono font-semibold text-muted-foreground tracking-widest uppercase">
-              THE CORE QUESTION
-            </span>
-            <MysteriousClipReveal direction="horizontal" duration={0.8} showLaserGlint={true} className="my-2">
-              <h2 className="font-display font-bold text-2xl sm:text-3xl text-foreground">
-                "Why not just use a normal habit tracker?"
-              </h2>
-            </MysteriousClipReveal>
-            <div className="max-w-2xl mx-auto text-xs sm:text-base text-muted-foreground leading-relaxed space-y-3 mt-4">
-              <p className="text-foreground font-semibold text-base sm:text-lg font-display">
-                Because human growth isn't a static streak.
-              </p>
-              <p>
-                Streaks are static, fragile, and binary. A missed day wipes out 60 days of genuine effort. But human development isn't an unbroken straight line—it's an accumulated vector.
-              </p>
-              <p>
-                We built Kinetic around Trajectory: a dynamic velocity engine protected by a ±10% mathematical buffer. Real consistency is measured by where your trajectory lands in 90 days, not whether every single day was flawless.
-              </p>
-            </div>
-          </div>
-        </AtmosphericLift>
-      </section>
-
-      {/* -- FINAL CALL TO ACTION (LIQUID GLASS DOCK & FREE FOREVER TRUST SIGNALS) -- */}
+      {/* -- FINAL CALL TO ACTION -- */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24 text-center">
         <MysteriousClipReveal direction="center-out" duration={0.9} showLaserGlint={true} className="rounded-2xl sm:rounded-3xl">
-          <div className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-white/15 dark:border-white/10 bg-card/80 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden kinetic-specular-box">
+          <div className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-white/[0.08] bg-card/80 backdrop-blur-2xl shadow-xl overflow-hidden">
             <AtmosphericLift yOffset={20} blurAmount={6} delay={0.15}>
               <div className="relative z-10 max-w-2xl mx-auto">
-                <span className="text-xs font-tech-mono font-semibold text-muted-foreground uppercase tracking-widest">
-                  INITIALIZE YOUR SYSTEM
+                <span className="text-xs font-semibold text-muted-foreground">
+                  Initialize Your System
                 </span>
                 <h2 className="font-display font-bold text-2xl sm:text-4xl text-foreground mt-2 mb-3 leading-tight">
                   One focus today. Compounding evidence forever.
@@ -2189,7 +1073,7 @@ export default function Landing() {
                   </Magnetic>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] font-tech-mono text-muted-foreground mt-6 pt-4 border-t border-border/40">
+                <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-muted-foreground mt-6 pt-4 border-t border-border/40">
                   <span className="flex items-center gap-1 text-foreground font-medium">
                     <Check className="size-3 text-foreground" />
                     Free Forever (Zero Paywalls)
@@ -2220,13 +1104,13 @@ export default function Landing() {
               <span className="font-display font-semibold text-sm text-foreground">
                 Kinetic
               </span>
-              <p className="text-[10px] text-muted-foreground font-tech-mono">
+              <p className="text-[10px] text-muted-foreground">
                 Personal Trajectory Engine • Consistency Without Perfection
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-tech-mono text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-muted-foreground">
             <button
               type="button"
               onClick={() => navigate('/auth')}

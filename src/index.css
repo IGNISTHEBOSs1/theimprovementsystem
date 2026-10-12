@@ -776,11 +776,11 @@
   }
 
   .glass-specular {
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08), 0 12px 32px -4px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.45);
   }
 
   :root:not(.dark) .glass-specular {
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.8), 0 8px 24px -4px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.06);
   }
 
   .font-tabular-nums {
@@ -797,35 +797,25 @@
   }
 
   .kinetic-specular-box {
-    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.16);
+    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.5);
   }
 
   :root:not(.dark) .kinetic-specular-box {
-    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.08), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.04);
   }
 
   .kinetic-glass-island {
-    backdrop-filter: blur(28px) saturate(200%);
-    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
     background: linear-gradient(180deg, rgba(18, 18, 22, 0.88) 0%, rgba(10, 10, 14, 0.76) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-top-color: rgba(255, 255, 255, 0.28);
-    box-shadow:
-      inset 0 1px 1px 0 rgba(255, 255, 255, 0.25),
-      inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
-      0 12px 36px -4px rgba(0, 0, 0, 0.55),
-      0 2px 6px 0 rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   :root:not(.dark) .kinetic-glass-island {
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(245, 245, 248, 0.84) 100%);
-    border: 1px solid rgba(0, 0, 0, 0.10);
-    border-top-color: rgba(255, 255, 255, 0.95);
-    box-shadow:
-      inset 0 1px 1px 0 rgba(255, 255, 255, 1),
-      inset 0 -1px 1px 0 rgba(0, 0, 0, 0.05),
-      0 12px 32px -4px rgba(0, 0, 0, 0.09),
-      0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 }
 

@@ -5,7 +5,7 @@ import {
   RiArrowRightLine,
   RiSparkling2Line,
 } from "@remixicon/react";
-import { Flame } from "lucide-react";
+import { Flame, ChevronDown } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -61,7 +61,14 @@ interface ComparisonTableProps {
 }
 
 export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) {
-  const [mobileTab, setMobileTab] = React.useState<"kinetic" | "other">("kinetic");
+  const [expandedRows, setExpandedRows] = React.useState<Record<string, boolean>>({});
+
+  const toggleRow = (basis: string) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [basis]: !prev[basis],
+    }));
+  };
 
   return (
     <section id="comparison-section" className="flex w-full justify-center bg-transparent px-3.5 sm:px-6 md:px-8 py-12 sm:py-20 text-foreground relative z-10">
@@ -71,7 +78,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
           <AtmosphericLift yOffset={14} blurAmount={4}>
             <Badge
               variant="outline"
-              className="mb-3 px-3 py-1 font-tech-mono text-[11px] tracking-wider uppercase border-white/20 dark:border-white/10 bg-white/[0.04] dark:bg-zinc-900/40 backdrop-blur-md shadow-xs"
+              className="mb-3 px-3 py-1 text-[11px] border-white/20 dark:border-white/10 bg-white/[0.04] dark:bg-zinc-900/40 backdrop-blur-md shadow-xs"
             >
               <RiSparkling2Line className="size-3.5 mr-1.5 text-foreground" />
               Architectural Comparison
@@ -96,75 +103,67 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
           </AtmosphericLift>
         </div>
 
-        {/* ── MOBILE VIEW: SIDE-BY-SIDE TICK & CROSS COMPARISON ── */}
-        <div className="block sm:hidden">
-          {/* Header Legend */}
-          <div className="grid grid-cols-2 gap-2 mb-3 px-1">
-            <div className="flex items-center gap-1.5 text-[11px] font-display text-muted-foreground">
-              <span className="flex size-4 items-center justify-center rounded bg-muted/80 text-muted-foreground shrink-0 shadow-xs">
-                <RiCloseLine className="size-3" aria-hidden />
-              </span>
-              <span>Conventional Apps</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[11px] font-display font-semibold text-foreground">
-              <span className="flex size-4 items-center justify-center rounded bg-foreground text-background shrink-0 shadow-xs">
-                <RiCheckLine className="size-3 stroke-[2.5]" aria-hidden />
-              </span>
-              <span>Kinetic</span>
-            </div>
-          </div>
+        {/* ── MOBILE VIEW: VERTICAL ACCORDION (< 768px) ── */}
+        <div className="block md:hidden">
+          <div className="space-y-2.5">
+            {comparisons.map((row) => {
+              const isExpanded = Boolean(expandedRows[row.basis]);
+              return (
+                <div
+                  key={row.basis}
+                  className="rounded-2xl border border-white/[0.08] bg-card/60 backdrop-blur-xl shadow-sm overflow-hidden"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggleRow(row.basis)}
+                    className="w-full p-4 flex items-center justify-between text-left font-semibold text-xs sm:text-sm text-foreground transition-colors hover:bg-white/[0.03]"
+                    aria-expanded={isExpanded}
+                  >
+                    <span>{row.basis}</span>
+                    <ChevronDown
+                      className={cn(
+                        "size-4 text-muted-foreground transition-transform duration-200 shrink-0 ml-2",
+                        isExpanded && "rotate-180"
+                      )}
+                    />
+                  </button>
 
-          {/* Mobile Comparison Cards with Side-by-Side Tick & Cross */}
-          <div className="space-y-3">
-            {comparisons.map((row) => (
-              <div
-                key={row.basis}
-                className="p-3.5 rounded-2xl border border-white/20 dark:border-white/10 bg-white/[0.04] dark:bg-zinc-900/40 backdrop-blur-xl shadow-lg kinetic-specular-box"
-              >
-                <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-white/10 dark:border-white/5">
-                  <span className="font-semibold text-xs text-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
-                    {row.basis}
-                  </span>
-                  {row.subBasis && (
-                    <span className="text-[9px] text-muted-foreground font-tech-mono">
-                      {row.subBasis}
-                    </span>
+                  {isExpanded && (
+                    <div className="px-4 pb-4 pt-1 border-t border-white/[0.08] space-y-2.5">
+                      {/* Traditional Apps Value */}
+                      <div className="p-3 rounded-xl bg-black/[0.03] dark:bg-zinc-950/40">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <span className="flex size-4 items-center justify-center rounded bg-muted text-muted-foreground shrink-0 shadow-xs">
+                            <RiCloseLine className="size-3" aria-hidden />
+                          </span>
+                          <span className="text-[10px] font-semibold text-muted-foreground">
+                            Traditional Apps
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-snug">
+                          {row.otherText}
+                        </p>
+                      </div>
+
+                      {/* Kinetic Value */}
+                      <div className="p-3 rounded-xl bg-white/[0.05] dark:bg-white/[0.03]">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <span className="flex size-4 items-center justify-center rounded bg-foreground text-background shrink-0 shadow-xs">
+                            <RiCheckLine className="size-3 stroke-[2.5]" aria-hidden />
+                          </span>
+                          <span className="text-[10px] font-semibold text-foreground">
+                            Kinetic
+                          </span>
+                        </div>
+                        <p className="text-xs font-medium text-foreground leading-snug">
+                          {row.kineticText}
+                        </p>
+                      </div>
+                    </div>
                   )}
                 </div>
-
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  {/* Conventional Apps: Cross ✗ */}
-                  <div className="p-2.5 rounded-xl border border-white/10 dark:border-white/5 bg-black/[0.03] dark:bg-zinc-950/40 flex flex-col gap-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <span className="flex size-4 items-center justify-center rounded bg-muted text-muted-foreground shrink-0 shadow-xs">
-                        <RiCloseLine className="size-3" aria-hidden />
-                      </span>
-                      <span className="text-[10px] font-tech-mono text-muted-foreground">
-                        Static Streaks
-                      </span>
-                    </div>
-                    <span className="text-[11px] text-muted-foreground leading-snug">
-                      {row.otherText}
-                    </span>
-                  </div>
-
-                  {/* Kinetic: Tick ✓ */}
-                  <div className="p-2.5 rounded-xl border border-white/25 dark:border-white/15 bg-white/[0.08] dark:bg-white/[0.04] shadow-[inset_0_1px_1px_rgba(255,255,255,0.18)] flex flex-col gap-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <span className="flex size-4 items-center justify-center rounded bg-foreground text-background shrink-0 shadow-xs">
-                        <RiCheckLine className="size-3 stroke-[2.5]" aria-hidden />
-                      </span>
-                      <span className="text-[10px] font-tech-mono font-bold text-foreground">
-                        Trajectory Engine
-                      </span>
-                    </div>
-                    <span className="text-[11px] font-semibold text-foreground leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
-                      {row.kineticText}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Mobile CTA */}
@@ -184,44 +183,44 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
           </div>
         </div>
 
-        {/* ── DESKTOP VIEW: CLEAN 3-COLUMN SIDE-BY-SIDE MATRIX (LIQUID FROSTED GLASS) ── */}
-        <div className="hidden sm:block relative">
-          <div className="overflow-x-auto rounded-2xl md:rounded-3xl border border-white/20 dark:border-white/15 bg-white/[0.03] dark:bg-zinc-950/35 backdrop-blur-2xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.18),0_20px_50px_rgba(0,0,0,0.35)] kinetic-specular-box transition-all duration-300">
+        {/* ── DESKTOP VIEW: CLEAN 3-COLUMN SIDE-BY-SIDE MATRIX (>= 768px) ── */}
+        <div className="hidden md:block relative">
+          <div className="overflow-x-auto rounded-2xl md:rounded-3xl border border-white/[0.08] bg-white/[0.03] dark:bg-zinc-950/35 backdrop-blur-2xl shadow-xl transition-all duration-300">
             <Table className="table-fixed w-full text-xs sm:text-sm">
               <TableHeader>
-                <TableRow className="hover:bg-transparent border-b border-white/15 dark:border-white/10 bg-white/[0.04] dark:bg-white/[0.02]">
+                <TableRow className="hover:bg-transparent border-b border-white/[0.08] bg-white/[0.04] dark:bg-white/[0.02]">
                   {/* Left Column: Basis */}
-                  <TableHead className="w-[38%] border-b border-white/15 dark:border-white/10 bg-transparent align-bottom p-3.5 sm:p-4">
-                    <span className="inline-block text-[10px] sm:text-xs font-tech-mono font-bold tracking-wider text-muted-foreground uppercase">
+                  <TableHead className="w-[38%] border-b border-white/[0.08] bg-transparent align-bottom p-3.5 sm:p-4">
+                    <span className="inline-block text-[10px] sm:text-xs font-semibold text-muted-foreground">
                       Basis of Design
                     </span>
                   </TableHead>
 
                   {/* Middle Column: Other Habit Apps */}
-                  <TableHead className="w-[31%] border-b border-white/15 dark:border-white/10 text-center align-bottom p-3.5 sm:p-4 bg-transparent">
+                  <TableHead className="w-[31%] border-b border-white/[0.08] text-center align-bottom p-3.5 sm:p-4 bg-transparent">
                     <div className="flex flex-col items-center gap-1.5 py-1">
-                      <div className="size-7 sm:size-8 rounded-xl bg-white/[0.05] dark:bg-zinc-800/40 border border-white/15 dark:border-white/10 flex items-center justify-center text-muted-foreground shadow-xs backdrop-blur-md">
+                      <div className="size-7 sm:size-8 rounded-xl bg-white/[0.05] dark:bg-zinc-800/40 border border-white/[0.08] flex items-center justify-center text-muted-foreground shadow-xs backdrop-blur-md">
                         <Flame className="size-3.5 sm:size-4 text-muted-foreground" />
                       </div>
                       <span className="text-xs sm:text-sm font-display font-semibold text-muted-foreground">
                         Other Habit Apps
                       </span>
-                      <span className="text-[9px] sm:text-[10px] font-tech-mono text-muted-foreground/70">
+                      <span className="text-[9px] sm:text-[10px] text-muted-foreground/70">
                         Static Streaks
                       </span>
                     </div>
                   </TableHead>
 
                   {/* Right Column: Kinetic */}
-                  <TableHead className="w-[31%] border-b border-white/15 dark:border-white/10 text-center align-bottom p-3.5 sm:p-4 bg-white/[0.06] dark:bg-white/[0.04] border-l border-white/15 dark:border-white/10">
+                  <TableHead className="w-[31%] border-b border-white/[0.08] text-center align-bottom p-3.5 sm:p-4 bg-white/[0.06] dark:bg-white/[0.04] border-l border-white/[0.08]">
                     <div className="flex flex-col items-center gap-1.5 py-1">
-                      <div className="p-1 rounded-xl bg-card/80 border border-white/20 shadow-xs backdrop-blur-md">
+                      <div className="p-1 rounded-xl bg-card/80 border border-white/[0.08] shadow-xs backdrop-blur-md">
                         <SystemLogo size={24} />
                       </div>
                       <span className="text-xs sm:text-sm font-display font-bold text-foreground">
                         Kinetic
                       </span>
-                      <span className="text-[9px] sm:text-[10px] font-tech-mono font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-foreground text-background">
+                      <span className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded bg-foreground text-background">
                         Trajectory Engine
                       </span>
                     </div>
@@ -233,15 +232,15 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                 {comparisons.map((row) => (
                   <TableRow
                     key={row.basis}
-                    className="hover:bg-white/[0.04] dark:hover:bg-white/[0.02] border-b border-white/10 dark:border-white/[0.06] transition-colors"
+                    className="hover:bg-white/[0.04] dark:hover:bg-white/[0.02] border-b border-white/[0.08] transition-colors"
                   >
                     {/* Basis Column */}
                     <TableCell className="py-3 px-3 sm:px-4 align-top sm:align-middle">
-                      <p className="font-semibold text-xs sm:text-sm text-foreground leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                      <p className="font-semibold text-xs sm:text-sm text-foreground leading-snug">
                         {row.basis}
                       </p>
                       {row.subBasis && (
-                        <p className="text-[11px] text-muted-foreground font-tech-mono mt-0.5">
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
                           {row.subBasis}
                         </p>
                       )}
@@ -260,12 +259,12 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                     </TableCell>
 
                     {/* Kinetic Column (Highlighted Glass Column) */}
-                    <TableCell className="py-3 px-2.5 sm:px-3 text-center sm:text-left align-top sm:align-middle bg-white/[0.05] dark:bg-white/[0.03] border-l border-white/15 dark:border-white/10">
+                    <TableCell className="py-3 px-2.5 sm:px-3 text-center sm:text-left align-top sm:align-middle bg-white/[0.05] dark:bg-white/[0.03] border-l border-white/[0.08]">
                       <div className="flex flex-col sm:flex-row items-center sm:items-start gap-1.5 sm:gap-2">
                         <span className="flex size-4 sm:size-5 items-center justify-center rounded bg-foreground text-background shadow-xs shrink-0 mt-0.5">
                           <RiCheckLine className="size-3 sm:size-3.5 stroke-[2.5]" aria-hidden />
                         </span>
-                        <span className="text-[11px] sm:text-xs font-semibold text-foreground leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
+                        <span className="text-[11px] sm:text-xs font-semibold text-foreground leading-snug">
                           {row.kineticText}
                         </span>
                       </div>
@@ -273,7 +272,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                   </TableRow>
                 ))}
 
-                {/* Bottom CTA Action Row (All 3 columns guaranteed to remain aligned) */}
+                {/* Bottom CTA Action Row */}
                 <TableRow className="hover:bg-transparent">
                   <TableCell className="py-4 px-3 sm:px-4" />
                   <TableCell className="py-4 px-2.5 sm:px-4 text-center align-middle">
@@ -281,12 +280,12 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                       size="sm"
                       variant="outline"
                       disabled
-                      className="w-full text-[11px] sm:text-xs font-display font-medium h-8 sm:h-9 opacity-40 cursor-not-allowed text-muted-foreground border-white/10"
+                      className="w-full text-[11px] sm:text-xs font-display font-medium h-8 sm:h-9 opacity-40 cursor-not-allowed text-muted-foreground border-white/[0.08]"
                     >
                       <span>Static Streaks</span>
                     </Button>
                   </TableCell>
-                  <TableCell className="py-4 px-2.5 sm:px-4 text-center align-middle bg-white/[0.06] dark:bg-white/[0.04] border-l border-white/15 dark:border-white/10">
+                  <TableCell className="py-4 px-2.5 sm:px-4 text-center align-middle bg-white/[0.06] dark:bg-white/[0.04] border-l border-white/[0.08]">
                     <Button
                       size="sm"
                       variant="default"
