@@ -88,11 +88,11 @@ function MonochromaticMeshBackground() {
           { amp: 50, freq: 0.0007, speed: 0.35, color: 'rgba(161, 161, 170, 0.26)', yOffset: height * 0.88, lineWidth: 1.8 },
         ]
       : [
-          { amp: 36, freq: 0.0011, speed: 0.65, color: 'rgba(24, 24, 27, 0.38)', yOffset: height * 0.18, lineWidth: 2.2 },
-          { amp: 48, freq: 0.0009, speed: 0.50, color: 'rgba(24, 24, 27, 0.44)', yOffset: height * 0.36, lineWidth: 2.6 },
-          { amp: 32, freq: 0.0013, speed: 0.75, color: 'rgba(39, 39, 42, 0.32)', yOffset: height * 0.54, lineWidth: 2.0 },
-          { amp: 42, freq: 0.0010, speed: 0.45, color: 'rgba(63, 63, 70, 0.28)', yOffset: height * 0.72, lineWidth: 2.0 },
-          { amp: 50, freq: 0.0007, speed: 0.35, color: 'rgba(82, 82, 91, 0.22)', yOffset: height * 0.88, lineWidth: 1.8 },
+          { amp: 36, freq: 0.0011, speed: 0.65, color: 'rgba(0, 0, 0, 0.46)', yOffset: height * 0.18, lineWidth: 2.2 },
+          { amp: 48, freq: 0.0009, speed: 0.50, color: 'rgba(0, 0, 0, 0.52)', yOffset: height * 0.36, lineWidth: 2.6 },
+          { amp: 32, freq: 0.0013, speed: 0.75, color: 'rgba(0, 0, 0, 0.38)', yOffset: height * 0.54, lineWidth: 2.0 },
+          { amp: 42, freq: 0.0010, speed: 0.45, color: 'rgba(0, 0, 0, 0.34)', yOffset: height * 0.72, lineWidth: 2.0 },
+          { amp: 50, freq: 0.0007, speed: 0.35, color: 'rgba(0, 0, 0, 0.26)', yOffset: height * 0.88, lineWidth: 1.8 },
         ];
 
     let time = 0;
@@ -136,7 +136,7 @@ function MonochromaticMeshBackground() {
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
       {/* Precision Trajectory Coordinate Grid */}
       <div
-        className="absolute inset-0 opacity-[0.10] dark:opacity-[0.12] text-foreground transition-opacity"
+        className="absolute inset-0 opacity-[0.12] text-foreground transition-opacity"
         style={{
           backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
@@ -253,7 +253,6 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
 
   const [activeStep, setActiveStep] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [isHovered, setIsHovered] = useState<boolean>(false);
   const [isInView, setIsInView] = useState<boolean>(false);
   const [stepProgress, setStepProgress] = useState<number>(0);
 
@@ -303,11 +302,20 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
       setIsInView(true);
       return;
     }
+
+    // Initial check if section is already within viewport
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setIsInView(true);
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((e) => setIsInView(e.isIntersecting));
+        entries.forEach((e) => {
+          setIsInView(e.isIntersecting);
+        });
       },
-      { threshold: 0.15 }
+      { threshold: 0.05, rootMargin: '60px 0px 60px 0px' }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -315,24 +323,25 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
 
   // Cadence progress ticker: auto-advances every 4.5s with a smooth progress bar
   useEffect(() => {
-    if (!isPlaying || isHovered || !isInView || shouldReduceMotion) return;
+    if (!isPlaying || !isInView || shouldReduceMotion) return;
 
     const duration = 4500;
-    const tick = 60;
-    const increment = (tick / duration) * 100;
+    const startTime = Date.now();
+    setStepProgress(0);
 
     const interval = setInterval(() => {
-      setStepProgress((prev) => {
-        if (prev >= 100) {
-          setActiveStep((curr) => (curr + 1) % steps.length);
-          return 0;
-        }
-        return prev + increment;
-      });
-    }, tick);
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(100, (elapsed / duration) * 100);
+      setStepProgress(progress);
+
+      if (progress >= 100) {
+        clearInterval(interval);
+        setActiveStep((curr) => (curr + 1) % steps.length);
+      }
+    }, 40);
 
     return () => clearInterval(interval);
-  }, [isPlaying, isHovered, isInView, shouldReduceMotion, steps.length]);
+  }, [activeStep, isPlaying, isInView, shouldReduceMotion, steps.length]);
 
   const selectStep = (idx: number) => {
     setActiveStep(idx);
@@ -376,11 +385,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
       </div>
 
       {/* Main Interactive Stage Console (Zero Empty Void, True Flow Layout) */}
-      <div
-        className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-stretch"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-stretch">
         {/* Left Column: Pinned Living HUD Console Display */}
         <div className="md:col-span-7 flex flex-col">
           <div className="h-full relative rounded-2xl md:rounded-3xl border border-white/[0.08] bg-card/85 backdrop-blur-2xl shadow-xl p-5 sm:p-6 overflow-hidden flex flex-col justify-between">
@@ -572,7 +577,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 )}
               >
                 {/* Active Step Cadence Progress Bar */}
-                {isActive && isPlaying && !isHovered && (
+                {isActive && (
                   <div
                     className="absolute bottom-0 inset-x-0 h-0.5 bg-foreground origin-left transition-all"
                     style={{ width: `${stepProgress}%` }}
