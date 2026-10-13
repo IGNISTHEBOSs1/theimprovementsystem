@@ -134,14 +134,14 @@ function MonochromaticMeshBackground() {
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-      {/* Precision Trajectory Coordinate Grid */}
+      {/* Precision Trajectory Coordinate Grid (High-contrast definition in both light & dark mode) */}
       <div
-        className="absolute inset-0 opacity-[0.12] text-foreground transition-opacity"
+        className="absolute inset-0 opacity-[0.24] dark:opacity-[0.14] text-foreground transition-opacity"
         style={{
-          backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(currentColor 1.25px, transparent 1.25px), linear-gradient(90deg, currentColor 1.25px, transparent 1.25px)`,
           backgroundSize: '40px 40px',
-          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 45%, rgba(0,0,0,0.2) 90%)',
-          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 45%, rgba(0,0,0,0.2) 90%)',
+          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 60%, rgba(0,0,0,0.3) 98%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 60%, rgba(0,0,0,0.3) 98%)',
         }}
       />
 
@@ -173,7 +173,7 @@ function TactileThemeToggle() {
       onClick={handleToggle}
       className={cn(
         "relative flex items-center h-8 sm:h-9 w-[76px] sm:w-[82px] p-1 rounded-full cursor-pointer select-none transition-all duration-300",
-        "border border-white/25 dark:border-white/15",
+        "border border-black/[0.08] dark:border-white/15",
         "bg-zinc-200/95 dark:bg-zinc-900/95",
         "shadow-[inset_0_2px_4px_rgba(0,0,0,0.18),0_1px_2px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_2px_5px_rgba(0,0,0,0.6),0_1px_1px_rgba(255,255,255,0.08)]",
         "hover:border-foreground/40 active:scale-[0.96] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-foreground",
@@ -363,7 +363,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
       {/* Section Header with Clip Reveal & Atmospheric Lift */}
       <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
         <AtmosphericLift yOffset={14} blurAmount={4}>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/[0.08] mb-3 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.08] mb-3 shadow-xs">
             <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
             <span className="text-[10px] sm:text-[11px] font-medium text-foreground">
               System Mechanics • 4-Stage Trajectory Engine
@@ -388,10 +388,10 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
       <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-stretch">
         {/* Left Column: Pinned Living HUD Console Display */}
         <div className="md:col-span-7 flex flex-col">
-          <div className="h-full relative rounded-2xl md:rounded-3xl border border-white/[0.08] bg-card/85 backdrop-blur-2xl shadow-xl p-5 sm:p-6 overflow-hidden flex flex-col justify-between">
+          <div className="h-full relative rounded-2xl md:rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/85 backdrop-blur-2xl shadow-xl p-5 sm:p-6 overflow-hidden flex flex-col justify-between">
             <div>
               {/* Console HUD Bar */}
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/[0.08] text-xs">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-black/[0.08] dark:border-white/[0.08] text-xs">
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-foreground animate-pulse" />
                   <span className="font-semibold text-foreground">
@@ -404,7 +404,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
               </div>
 
               {/* Animated Graphic Display: Dynamically updates with activeStep */}
-              <div className="relative h-64 sm:h-72 w-full rounded-xl bg-background/80 border border-white/[0.08] p-4 flex flex-col justify-between overflow-hidden">
+              <div className="relative h-64 sm:h-72 w-full rounded-xl bg-background/80 border border-black/[0.08] dark:border-white/[0.08] p-4 flex flex-col justify-between overflow-hidden">
                 {/* Background grid lines */}
                 <div
                   className="absolute inset-0 opacity-[0.08] pointer-events-none"
@@ -418,8 +418,8 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 <svg className="w-full h-44 sm:h-48 relative z-10" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid meet">
                   <defs>
                     <linearGradient id="pinBufferGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.08 : 0.04} />
-                      <stop offset="100%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.24 : 0.14} />
+                      <stop offset="0%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.08 : 0.07} />
+                      <stop offset="100%" stopColor={isDark ? '#ffffff' : '#000000'} stopOpacity={isDark ? 0.24 : 0.20} />
                     </linearGradient>
                   </defs>
 
@@ -484,7 +484,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
               </div>
 
               {/* Subtext description below graphic */}
-              <div className="mt-3 p-3 rounded-xl bg-muted/40 border border-white/[0.08] flex items-center justify-between text-xs">
+              <div className="mt-3 p-3 rounded-xl bg-muted/40 border border-black/[0.08] dark:border-white/[0.08] flex items-center justify-between text-xs">
                 <span className="text-muted-foreground truncate mr-2">
                   {activeStep === 3
                     ? 'Streak Apps: Reset to 0 | Kinetic: Trajectory Absorbs Drift ✓'
@@ -497,7 +497,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
             </div>
 
             {/* Interactive Cadence Controls & Progress Line */}
-            <div className="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between gap-3">
+            <div className="mt-4 pt-3 border-t border-black/[0.08] dark:border-white/[0.08] flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -572,8 +572,8 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 className={cn(
                   "relative p-4 sm:p-4.5 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden",
                   isActive
-                    ? "bg-card/95 border-white/[0.08] scale-[1.01] opacity-100"
-                    : "bg-card/35 border-white/[0.08] opacity-55 hover:opacity-90 hover:bg-card/55 scale-[0.99]"
+                    ? "bg-card/95 border-black/[0.08] dark:border-white/[0.08] scale-[1.01] opacity-100"
+                    : "bg-card/35 border-black/[0.08] dark:border-white/[0.08] opacity-55 hover:opacity-90 hover:bg-card/55 scale-[0.99]"
                 )}
               >
                 {/* Active Step Cadence Progress Bar */}
@@ -649,7 +649,7 @@ export default function Landing() {
           <div className="flex items-center justify-between gap-3 sm:gap-4">
             {/* Brand Identity */}
             <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className="p-1 rounded-xl bg-card/90 border border-white/20 dark:border-white/10 shadow-xs shrink-0 backdrop-blur-md">
+              <div className="p-1 rounded-xl bg-card/90 border border-black/[0.08] dark:border-white/10 shadow-xs shrink-0 backdrop-blur-md">
                 <SystemLogo size={22} className="sm:hidden" />
                 <SystemLogo size={26} className="hidden sm:block" />
               </div>
@@ -694,7 +694,7 @@ export default function Landing() {
       <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-32 pb-8 sm:pb-16 text-center">
         {/* Eyebrow with Atmospheric Lift */}
         <AtmosphericLift yOffset={16} blurAmount={6} duration={0.65} className="inline-block mb-4 sm:mb-5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-white/[0.08] shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.08] shadow-xs">
             <Sparkles className="size-3.5 text-foreground shrink-0" />
             <span className="text-[10px] sm:text-[11px] font-medium text-foreground">
               <span className="hidden sm:inline">Personal Trajectory Engine • Dynamic Vector, Not Static Streaks</span>
@@ -785,13 +785,13 @@ export default function Landing() {
           className="relative max-w-5xl mx-auto text-left"
         >
           {/* Anchored Telemetry Chips */}
-          <div className="hidden md:flex absolute -top-5 left-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/[0.08] bg-card/70 backdrop-blur-xl text-[11px] text-muted-foreground shadow-sm pointer-events-none select-none z-20">
+          <div className="hidden md:flex absolute -top-5 left-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-card/70 backdrop-blur-xl text-[11px] text-muted-foreground shadow-sm pointer-events-none select-none z-20">
             <span className="size-2 rounded-full bg-foreground animate-pulse" />
             <span className="text-foreground font-semibold">Velocity: <span className="font-tech-mono">1.25x</span></span>
             <span className="text-muted-foreground">• <span className="font-tech-mono">+16d</span> Margin</span>
           </div>
 
-          <div className="hidden md:flex absolute -top-5 right-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-white/[0.08] bg-card/70 backdrop-blur-xl text-[11px] text-muted-foreground shadow-sm pointer-events-none select-none z-20">
+          <div className="hidden md:flex absolute -top-5 right-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-card/70 backdrop-blur-xl text-[11px] text-muted-foreground shadow-sm pointer-events-none select-none z-20">
             <ShieldCheck className="size-3.5 text-foreground" />
             <span className="text-foreground font-semibold">±10% Safety Buffer</span>
             <span className="text-muted-foreground">• Drift Absorbed</span>
@@ -799,9 +799,9 @@ export default function Landing() {
 
           {/* Hardware Frame with Liquid Frosted Glass */}
           <MysteriousClipReveal direction="center-out" duration={0.9} delay={0.08} showLaserGlint={true} className="rounded-2xl md:rounded-3xl">
-            <div className="relative rounded-2xl md:rounded-3xl border border-white/[0.08] bg-card/85 backdrop-blur-2xl shadow-xl overflow-hidden">
+            <div className="relative rounded-2xl md:rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/85 backdrop-blur-2xl shadow-xl overflow-hidden">
               {/* Top Bar HUD */}
-              <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b border-white/[0.08] bg-muted/30 text-xs backdrop-blur-md">
+              <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b border-black/[0.08] dark:border-white/[0.08] bg-muted/30 text-xs backdrop-blur-md">
                 <div className="flex items-center gap-2">
                   <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
                   <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
@@ -824,7 +824,7 @@ export default function Landing() {
                 <img
                   src="/assets/app-demo-fallback.png"
                   alt="Kinetic app preview"
-                  className="w-full h-auto object-cover max-h-[580px] rounded-xl border border-white/[0.08]"
+                  className="w-full h-auto object-cover max-h-[580px] rounded-xl border border-black/[0.08] dark:border-white/[0.08]"
                 />
               </div>
             </div>
@@ -856,7 +856,7 @@ export default function Landing() {
 
         <TelemetryStaggerContainer staggerDelay={0.08} className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
           <TelemetryStaggerItem>
-            <div className="p-4 sm:p-5 rounded-2xl border border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+            <div className="p-4 sm:p-5 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
               <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <RotateCcw className="size-4" />
               </div>
@@ -872,7 +872,7 @@ export default function Landing() {
           </TelemetryStaggerItem>
 
           <TelemetryStaggerItem>
-            <div className="p-4 sm:p-5 rounded-2xl border border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+            <div className="p-4 sm:p-5 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
               <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <Layers className="size-4" />
               </div>
@@ -888,7 +888,7 @@ export default function Landing() {
           </TelemetryStaggerItem>
 
           <TelemetryStaggerItem className={showAllWhoFor ? "block" : "hidden md:block"}>
-            <div className="p-4 sm:p-5 rounded-2xl border border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+            <div className="p-4 sm:p-5 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
               <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <TrendingUp className="size-4" />
               </div>
@@ -904,7 +904,7 @@ export default function Landing() {
           </TelemetryStaggerItem>
 
           <TelemetryStaggerItem className={showAllWhoFor ? "block" : "hidden md:block"}>
-            <div className="p-4 sm:p-5 rounded-2xl border border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+            <div className="p-4 sm:p-5 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
               <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <ShieldCheck className="size-4" />
               </div>
@@ -959,7 +959,7 @@ export default function Landing() {
         <TelemetryStaggerContainer staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Fragile Streak Card */}
           <TelemetryStaggerItem>
-            <div className="rounded-2xl border border-white/[0.08] bg-card/50 dark:bg-card/30 p-5 sm:p-6 backdrop-blur-xl relative h-full flex flex-col justify-between">
+            <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/50 dark:bg-card/30 p-5 sm:p-6 backdrop-blur-xl relative h-full flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[10px] px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
@@ -997,7 +997,7 @@ export default function Landing() {
 
           {/* Protected Trajectory Card (Kinetic) */}
           <TelemetryStaggerItem>
-            <div className="rounded-2xl border border-white/[0.08] bg-card/85 dark:bg-card/60 p-5 sm:p-6 backdrop-blur-xl relative h-full flex flex-col justify-between">
+            <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/85 dark:bg-card/60 p-5 sm:p-6 backdrop-blur-xl relative h-full flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[10px] px-2 py-0.5 rounded bg-foreground text-background font-bold">
@@ -1044,7 +1044,7 @@ export default function Landing() {
       {/* -- FINAL CALL TO ACTION -- */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24 text-center">
         <MysteriousClipReveal direction="center-out" duration={0.9} showLaserGlint={true} className="rounded-2xl sm:rounded-3xl">
-          <div className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-white/[0.08] bg-card/80 backdrop-blur-2xl shadow-xl overflow-hidden">
+          <div className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-black/[0.08] dark:border-white/[0.08] bg-card/80 backdrop-blur-2xl shadow-xl overflow-hidden">
             <AtmosphericLift yOffset={20} blurAmount={6} delay={0.15}>
               <div className="relative z-10 max-w-2xl mx-auto">
                 <span className="text-xs font-semibold text-muted-foreground">
@@ -1124,7 +1124,7 @@ export default function Landing() {
               Log In
             </button>
             <span className="hidden sm:inline text-border">|</span>
-            <span className="text-muted-foreground/60">© 2026 Kinetic</span>
+            <span className="text-muted-foreground">© 2026 Kinetic</span>
           </div>
         </div>
       </footer>

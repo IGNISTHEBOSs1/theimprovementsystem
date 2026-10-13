@@ -81,7 +81,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         layout: TIS_SPRINGS.settle,
       }}
       className={cn(
-        "flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/[0.08] bg-card/80 px-4 py-3.5 text-body-sm transition-colors duration-250 overflow-hidden",
+        "flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/80 px-4 py-3.5 text-body-sm transition-colors duration-250 overflow-hidden",
         completionStage !== "idle" && "bg-emerald-500/[0.12] border-emerald-500/50"
       )}
     >
@@ -178,7 +178,7 @@ export default function Dashboard() {
   if (profileLoading) {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
-        <section className="rounded-2xl border border-white/[0.08] bg-card p-7" aria-label="Loading">
+        <section className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7" aria-label="Loading">
           <div className="h-3 w-24 animate-pulse rounded bg-muted" />
           <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
         </section>
@@ -195,7 +195,7 @@ export default function Dashboard() {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <section
-          className="rounded-2xl border border-white/[0.08] bg-card p-7"
+          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7"
           aria-label="Profile unavailable"
         >
           <p className="text-label text-muted-foreground">Your system</p>
@@ -230,7 +230,7 @@ export default function Dashboard() {
     return (
       <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
         <section
-          className="rounded-2xl border border-white/[0.08] bg-card p-7"
+          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7"
           aria-label="Progress unavailable"
         >
           <p className="text-label text-muted-foreground">Your system</p>
@@ -337,12 +337,12 @@ export default function Dashboard() {
       {/* ── Rhythm & Momentum Cockpit (Prominent, Dedicated Streak & Weekly Rhythm) ── */}
       <section
         aria-label="Rhythm and Streak Momentum"
-        className="mt-6 rounded-2xl border border-white/[0.08] bg-card/70 p-5 sm:p-6 shadow-[var(--shadow-card)] backdrop-blur-xs relative overflow-hidden"
+        className="mt-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/70 p-5 sm:p-6 shadow-[var(--shadow-card)] backdrop-blur-xs relative overflow-hidden"
       >
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           {/* Left: Streak Counter & Status Microcopy */}
           <div className="flex items-center gap-4">
-            <div className="size-12 shrink-0 rounded-2xl border border-white/[0.08] bg-background/80 flex items-center justify-center">
+            <div className="size-12 shrink-0 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-background/80 flex items-center justify-center">
               <Flame
                 className={cn(
                   "size-6 transition-all",
@@ -388,7 +388,7 @@ export default function Dashboard() {
           {weeklyCadence.length === 7 && (
             <div className="flex flex-col sm:items-end gap-1.5 pt-2 sm:pt-0 border-t border-border/40 sm:border-t-0">
               <div
-                className="inline-flex items-center gap-1.5 p-1.5 rounded-full border border-white/[0.08] bg-background/60"
+                className="inline-flex items-center gap-1.5 p-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-background/60"
                 aria-label="7-day completion cadence"
               >
                 {weeklyCadence.map((day) => (
@@ -415,7 +415,7 @@ export default function Dashboard() {
       {/* ── Tier 1 Action — Today's Focus (Immediately Visible Without Scrolling) ── */}
       <div className="mt-6">
         {loading ? (
-          <section className="rounded-2xl border border-white/[0.08] bg-card p-7" aria-label="Loading today’s focus">
+          <section className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7" aria-label="Loading today’s focus">
             <div className="h-3 w-24 animate-pulse rounded bg-muted" />
             <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
           </section>

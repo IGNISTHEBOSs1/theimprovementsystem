@@ -103,7 +103,7 @@ export default function SystemBar({
           aria-label="Primary navigation"
         >
           <div
-            className="absolute left-4 top-1 bottom-1 w-px bg-white/[0.06]"
+            className="absolute left-4 top-1 bottom-1 w-px bg-black/[0.08] dark:bg-white/[0.06]"
             aria-hidden="true"
           />
 

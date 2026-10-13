@@ -77,7 +77,7 @@ export default function Mentor() {
   if (error) {
     return (
       <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
-        <section className="rounded-3xl border border-white/[0.08] bg-card p-7" aria-label="Mentor unavailable">
+        <section className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7" aria-label="Mentor unavailable">
           <p className="text-label text-muted-foreground">Mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
           <p className="mt-2 text-body-md text-muted-foreground">This is usually temporary. You can try again now.</p>
@@ -193,7 +193,7 @@ export default function Mentor() {
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-3xl border border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
+              className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-bold text-primary">
@@ -309,7 +309,7 @@ export default function Mentor() {
           {isRecoveryHero && recovery && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-3xl border border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
+              className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-bold text-primary">
@@ -333,7 +333,7 @@ export default function Mentor() {
           {isMomentumHero && momentum && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-3xl border border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
+              className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-bold text-primary">
@@ -417,7 +417,7 @@ export default function Mentor() {
       {activeTelemetryTiles.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-3xl border border-white/[0.08] bg-card/50 overflow-hidden shadow-sm"
+          className="mt-6 rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/50 overflow-hidden shadow-sm"
         >
           <div className="grid grid-cols-1">
             {/* Primary Tile (First available) — Always Visible */}
@@ -732,7 +732,7 @@ export default function Mentor() {
       {surfaced.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-3xl border border-white/[0.08] bg-card/50 overflow-hidden shadow-sm"
+          className="mt-6 rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/50 overflow-hidden shadow-sm"
         >
           <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground">

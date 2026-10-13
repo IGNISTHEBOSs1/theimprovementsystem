@@ -22,18 +22,18 @@
     --accent-foreground: 0 0% 9%;
     --accent-glow: 0 0% 85%;
     --muted: 0 0% 93%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 37%;
     --destructive: 0 0% 20%;
     --destructive-foreground: 0 0% 100%;
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
     --warning: 0 0% 25%;
     --warning-foreground: 0 0% 100%;
-    --border: 0 0% 88%;
-    --input: 0 0% 88%;
+    --border: 0 0% 86%;
+    --input: 0 0% 64%;
     --ring: 0 0% 20%;
     --glass: 0 0% 100%;
-    --glass-border: 0 0% 88%;
+    --glass-border: 0 0% 86%;
     --radius: 0.75rem;
     --spacing-page: 1.5rem;
     --spacing-card: 1.5rem;
@@ -67,7 +67,7 @@
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 93%;
     --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 88%;
+    --sidebar-border: 0 0% 86%;
     --sidebar-ring: 0 0% 20%;
   }
 
@@ -259,10 +259,10 @@
   /* ── Restrained Glass Morphism System (Optical Physics & Specular Highlights) ── */
   /* ── Liquid Glass & Frosted Glassmorphism System (Bernard & Albert Refraction) ── */
   :root {
-    --glass-tint: rgba(255, 255, 255, 0.14);
-    --glass-border: rgba(255, 255, 255, 0.32);
-    --glass-highlight: rgba(255, 255, 255, 0.75);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12);
+    --glass-tint: rgba(0, 0, 0, 0.02);
+    --glass-border: rgba(0, 0, 0, 0.09);
+    --glass-highlight: rgba(255, 255, 255, 0.95);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.06);
   }
   .dark {
     --glass-tint: rgba(255, 255, 255, 0.08);
@@ -483,41 +483,63 @@
   }
 
   .card-base {
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 1rem;
     background: hsl(var(--card));
     box-shadow: var(--shadow-card);
     transition: all var(--transition-base);
+  }
+  .dark .card-base {
+    border-color: rgba(255, 255, 255, 0.08);
   }
   /* ── Depth System ── */
 
   /* Layered surface depth — creates a sense of elevation */
   .surface-base {
     background: hsl(var(--card));
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 1px solid rgba(0, 0, 0, 0.07);
     box-shadow:
-      0 1px 0 rgba(255,255,255,0.04) inset,
-      0 -1px 0 rgba(0,0,0,0.2) inset,
+      0 1px 0 rgba(255, 255, 255, 0.8) inset,
+      var(--shadow-card);
+  }
+  .dark .surface-base {
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.2) inset,
       var(--shadow-card);
   }
 
   .surface-raised {
     background: hsl(var(--card-elevated));
-    border: 1px solid rgba(255,255,255,0.09);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow:
-      0 1px 0 rgba(255,255,255,0.06) inset,
-      0 -1px 0 rgba(0,0,0,0.25) inset,
+      0 1px 0 rgba(255, 255, 255, 0.9) inset,
+      var(--shadow-elevated);
+  }
+  .dark .surface-raised {
+    border-color: rgba(255, 255, 255, 0.09);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.25) inset,
       var(--shadow-elevated);
   }
 
   .surface-overlay {
     background: linear-gradient(160deg, hsl(var(--card-elevated)) 0%, hsl(var(--card)) 100%);
-    border: 1px solid rgba(255,255,255,0.11);
+    border: 1px solid rgba(0, 0, 0, 0.09);
     box-shadow:
-      0 1px 0 rgba(255,255,255,0.07) inset,
-      0 -1px 0 rgba(0,0,0,0.3) inset,
-      0 8px 32px rgba(0,0,0,0.5),
-      0 2px 8px rgba(0,0,0,0.3);
+      0 1px 0 rgba(255, 255, 255, 0.95) inset,
+      0 8px 32px rgba(0, 0, 0, 0.06),
+      0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  .dark .surface-overlay {
+    border-color: rgba(255, 255, 255, 0.11);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.07) inset,
+      0 -1px 0 rgba(0, 0, 0, 0.3) inset,
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
   /* Noise grain texture for card depth */
@@ -674,12 +696,21 @@
   /* Premium stat chip */
   .stat-chip {
     @apply flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-display font-bold transition-all duration-200;
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset, 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .dark .stat-chip {
     background: rgba(255,255,255,0.04);
     border-color: rgba(255,255,255,0.08);
     box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 1px 3px rgba(0,0,0,0.3);
   }
 
   .stat-chip:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.14);
+  }
+  .dark .stat-chip:hover {
     background: rgba(255,255,255,0.07);
     border-color: rgba(255,255,255,0.14);
   }
@@ -815,7 +846,8 @@
     backdrop-filter: blur(28px);
     -webkit-backdrop-filter: blur(28px);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(245, 245, 248, 0.84) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), inset 0 1px 1px 0 rgba(255, 255, 255, 0.8);
   }
 }
 

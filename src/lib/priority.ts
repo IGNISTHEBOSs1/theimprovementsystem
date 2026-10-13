@@ -20,7 +20,7 @@ import type { QuestPriority } from "@/types/quest";
 export const PRIORITY_BADGE_CLASSES: Record<QuestPriority, string> = {
   Essential: "border-foreground/30 bg-foreground/10 text-foreground font-semibold",
   Important: "border-border bg-muted/70 text-foreground/90 font-medium",
-  Optional: "border-border/60 bg-muted/30 text-muted-foreground",
+  Optional: "border-border/80 bg-muted/40 text-muted-foreground font-medium",
 };
 
 // Founder Decision (multi-active Quest chunk): with multiple concurrently

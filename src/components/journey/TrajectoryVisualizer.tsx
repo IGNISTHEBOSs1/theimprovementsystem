@@ -171,8 +171,8 @@ export function TrajectoryVisualizer({
               y1={y}
               x2={WIDTH - 30}
               y2={y}
-              stroke="hsl(var(--border))"
-              strokeOpacity={0.25}
+              stroke="hsl(var(--foreground))"
+              strokeOpacity={0.12}
               strokeDasharray="4 8"
               strokeWidth={1}
             />
@@ -236,7 +236,7 @@ export function TrajectoryVisualizer({
             d={historicTrailPath}
             fill="none"
             stroke="hsl(var(--foreground))"
-            strokeOpacity={0.3}
+            strokeOpacity={0.45}
             strokeWidth={2.5}
             strokeDasharray="5 4"
             initial={shouldReduceMotion ? false : { pathLength: 0, opacity: 0 }}
@@ -373,7 +373,7 @@ export function TrajectoryVisualizer({
       </div>
 
       {/* Legend & Status */}
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 text-[11px] text-muted-foreground border-t border-white/[0.06] dark:border-white/[0.04] pt-3">
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-3 text-[11px] text-muted-foreground border-t border-border/80 pt-3">
         <div className="flex flex-wrap items-center gap-4">
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-1 w-3.5 rounded-full bg-primary" />
