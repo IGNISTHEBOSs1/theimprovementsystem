@@ -21,46 +21,6 @@ export function deriveResolvedAt(quest?: Quest | null): string {
   return quest.resolvedAt ?? quest.createdAt ?? new Date().toISOString();
 }
 
-// Founder Decision (Visual override chunk): current-streak derivation.
-// Consecutive CALENDAR days (server-local, via the same
-// toServerLocalDate conversion used everywhere else in the app — no
-// second time model) with at least one completed Quest, counting
-// backward from today. Stops at the first day with zero completions.
-// This is a real, honestly-computed count from existing resolvedAt
-// data — not a fabricated or persisted number, and not gameable by
-// creating empty Quests (only `completed: true` counts).
-export function deriveCurrentStreak(quests: Quest[], todayStr: string, timezone: string): number {
-  if (!todayStr || typeof todayStr !== "string") return 0;
-
-  const validQuests = Array.isArray(quests) ? quests.filter((q) => q && q.completed) : [];
-  const completedDates = new Set(
-    validQuests.map((q) => {
-      const resolved = deriveResolvedAt(q);
-      const parsed = new Date(resolved);
-      return toServerLocalDate(parsed, timezone).dateStr;
-    }),
-  );
-
-  let streak = 0;
-  const cursor = new Date(`${todayStr}T12:00:00Z`);
-  if (isNaN(cursor.getTime())) {
-    return 0;
-  }
-
-  // If today is completed, streak includes today.
-  // If today is not yet completed, check if yesterday was completed so the active streak is preserved.
-  if (!completedDates.has(todayStr)) {
-    cursor.setUTCDate(cursor.getUTCDate() - 1);
-  }
-
-  for (let i = 0; i < 3650; i++) {
-    const cursorStr = cursor.toISOString().split("T")[0];
-    if (!completedDates.has(cursorStr)) break;
-    streak += 1;
-    cursor.setUTCDate(cursor.getUTCDate() - 1);
-  }
-  return streak;
-}
 
 export interface CadenceDay {
   dateStr: string;

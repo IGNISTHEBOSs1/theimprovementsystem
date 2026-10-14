@@ -78,6 +78,7 @@ point of asking.
   3. Strict constraint: 1 Primary Focus + 2 Routines.
   4. Local-first encrypted browser storage.
 - **No RPG Gamification**: Never introduce hunter ranks, XP bars, or fantasy game tropes. Frame user growth as deterministic personal trajectory and quiet mathematical velocity.
+- **No Streak Counters or Attendance Gamification**: Never introduce streak counters, streak badges, flame meters, or streak-preservation pressure ("extend your streak", "streak preserved", "don't break the chain"). TIS does not treat unbroken daily attendance as proof of improvement. Daily practice is honored only to the extent that it genuinely serves a chosen Goal. Progress is measured strictly through deterministic trajectory velocity (within the ±10% buffer), commitment follow-through rates, and verified cumulative execution proof.
 - **Side-by-Side Comparative Clarity**: When contrasting TIS with conventional streak apps, use clean side-by-side matrices with responsive segmented controls, never ambiguous sliders.
 - **Story-Driven Motion**: Motion must do real work (guiding the eye, recalculating velocity curves, demonstrating buffer resilience). If the user notices the animation before the product, the motion is too loud.
 

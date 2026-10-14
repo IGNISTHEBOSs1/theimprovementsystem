@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Flame, CheckCircle2, Sparkles, Check, Loader2 } from "lucide-react";
+import { CheckCircle2, Target, Sparkles, Check, Loader2 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import { DailyClosureCard } from "@/components/dashboard/DailyClosureCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
-import { deriveGoalStats, deriveTrajectory, deriveCurrentStreak, deriveWeeklyCadence } from "@/lib/trajectory";
+import { deriveGoalStats, deriveTrajectory, deriveWeeklyCadence } from "@/lib/trajectory";
 import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
 import { triggerHaptic } from "@/lib/haptics";
@@ -271,12 +271,6 @@ export default function Dashboard() {
     console.warn("deriveTrajectory error:", e);
   }
 
-  let currentStreak = 0;
-  try {
-    currentStreak = todayStr ? deriveCurrentStreak(safeQuests, todayStr, profile?.timezone || "UTC") : 0;
-  } catch (e) {
-    console.warn("deriveCurrentStreak error:", e);
-  }
 
   let weeklyCadence: ReturnType<typeof deriveWeeklyCadence> = [];
   try {
@@ -334,51 +328,44 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* ── Rhythm & Momentum Cockpit (Prominent, Dedicated Streak & Weekly Rhythm) ── */}
+      {/* ── Daily Focus & Weekly Rhythm Cockpit (Calm, Goal-Aligned Daily Focus & 7-Day History) ── */}
       <section
-        aria-label="Rhythm and Streak Momentum"
+        aria-label="Daily Focus and Weekly Rhythm"
         className="mt-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/70 p-5 sm:p-6 shadow-[var(--shadow-card)] backdrop-blur-xs relative overflow-hidden"
       >
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          {/* Left: Streak Counter & Status Microcopy */}
+          {/* Left: Daily Focus Status */}
           <div className="flex items-center gap-4">
             <div className="size-12 shrink-0 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-background/80 flex items-center justify-center">
-              <Flame
-                className={cn(
-                  "size-6 transition-all",
-                  currentStreak > 0 ? "text-foreground fill-foreground/15" : "text-muted-foreground"
-                )}
-                aria-hidden="true"
-              />
+              {completedToday > 0 ? (
+                <CheckCircle2
+                  className="size-6 text-emerald-500"
+                  aria-hidden="true"
+                />
+              ) : (
+                <Target
+                  className="size-6 text-muted-foreground"
+                  aria-hidden="true"
+                />
+              )}
             </div>
             <div>
               <div className="flex items-baseline gap-2">
-                {currentStreak > 0 ? (
-                  <>
-                    <span className="text-2xl font-bold tracking-tight text-foreground font-mono">
-                      {currentStreak}
-                    </span>
-                    <span className="text-sm font-semibold text-muted-foreground">
-                      {currentStreak === 1 ? "Day Active" : "Days Active"}
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-lg font-bold tracking-tight text-foreground">
-                    Build Momentum
-                  </span>
-                )}
+                <span className="text-xl font-bold tracking-tight text-foreground">
+                  {completedToday > 0 ? "Focus Honored" : "Daily Focus"}
+                </span>
               </div>
               <p className="mt-0.5 text-xs text-muted-foreground flex items-center gap-1.5">
                 {completedToday > 0 ? (
                   <>
                     <Check className="size-3.5 text-emerald-500 stroke-[2.5]" aria-hidden="true" />
-                    <span className="text-emerald-500 font-medium">Streak preserved for today</span>
-                    <span>• Excellent focus</span>
+                    <span className="text-emerald-500 font-medium">
+                      {completedToday} {completedToday === 1 ? "commitment" : "commitments"} logged today
+                    </span>
+                    <span>• Momentum secure</span>
                   </>
-                ) : currentStreak > 0 ? (
-                  <span>Complete today&apos;s focus to extend your streak to {currentStreak + 1} days</span>
                 ) : (
-                  <span>Complete today&apos;s focus to begin your active streak</span>
+                  <span>Execute your primary focus to advance your trajectory.</span>
                 )}
               </p>
             </div>
@@ -405,7 +392,7 @@ export default function Dashboard() {
                 ))}
               </div>
               <span className={cn("text-[11px] font-medium", completedToday > 0 ? "text-emerald-500" : "text-muted-foreground")}>
-                {completedToday > 0 ? `✓ ${completedToday} completed today` : "No quests completed today yet"}
+                {completedToday > 0 ? `✓ ${completedToday} completed today` : "7-day follow-through cadence"}
               </span>
             </div>
           )}

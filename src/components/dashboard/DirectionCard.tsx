@@ -10,7 +10,6 @@ interface DirectionCardProps {
   // failed:0} and renders its own honest "nothing linked yet" line
   // rather than being hidden).
   goalStats?: GoalStats;
-  streak?: number;
 }
 
 // Founder Decision (Visual override chunk): a small ring visualization

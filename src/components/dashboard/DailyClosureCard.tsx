@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 
 interface DailyClosureCardProps {
   completedToday: number;
-  currentStreak?: number;
   onChooseQuest: () => void;
 }
 

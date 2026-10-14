@@ -6,7 +6,6 @@ import {
   Settings as SettingsIcon,
   Target,
   CheckCircle2,
-  Flame,
   Compass,
   History,
   ChevronRight,
@@ -18,7 +17,7 @@ import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
-import { deriveFollowThroughStats, deriveCurrentStreak } from "@/lib/trajectory";
+import { deriveFollowThroughStats, deriveGoalStats } from "@/lib/trajectory";
 
 export default function Profile() {
   const { profile, updateProfile } = useAuth();
@@ -86,9 +85,11 @@ export default function Profile() {
       ? Math.round((followThrough.completed / followThrough.total) * 100)
       : 0;
 
-  const currentStreak = todayStr
-    ? deriveCurrentStreak(safeQuests, todayStr, profile?.timezone || "UTC")
-    : 0;
+  const goalStats = deriveGoalStats(safeQuests);
+  const goalCompletionRate =
+    goalStats.linked > 0
+      ? Math.round((goalStats.completed / goalStats.linked) * 100)
+      : 0;
   const daysRemaining = profile?.primary_goal_target_date
     ? Math.max(
         0,
@@ -346,21 +347,21 @@ export default function Profile() {
             <p className="text-[11px] text-muted-foreground mt-1">Commitment follow-through</p>
           </div>
 
-          {/* Pillar 2: Momentum Streak */}
+          {/* Pillar 2: Goal Focus */}
           <div className="py-3 sm:py-0 sm:px-4">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
-                Active Streak
+                Goal Focus
               </span>
-              <Flame className="size-4 text-primary" aria-hidden="true" />
+              <Target className="size-4 text-primary" aria-hidden="true" />
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-3xl font-bold font-mono text-foreground">{currentStreak}</span>
+              <span className="text-3xl font-bold font-mono text-foreground">{goalCompletionRate}%</span>
               <span className="text-xs font-mono text-muted-foreground">
-                {currentStreak === 1 ? "day" : "days"}
+                ({goalStats.completed}/{goalStats.linked})
               </span>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1">Consecutive momentum days</p>
+            <p className="text-[11px] text-muted-foreground mt-1">North Star follow-through</p>
           </div>
 
           {/* Pillar 3: Volume */}
