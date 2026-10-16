@@ -129,9 +129,6 @@ export default function Profile() {
               <h1 className="truncate text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 {profile?.username || "Operator"}
               </h1>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider border border-border bg-muted/70 text-foreground">
-                Operator Cockpit
-              </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-2">
               <span>Timezone: {profile?.timezone || "UTC"}</span>
@@ -368,13 +365,13 @@ export default function Profile() {
           <div className="py-3 sm:py-0 sm:px-4 last:sm:pr-0">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
-                Quests Honored
+                Commitments Honored
               </span>
               <Compass className="size-4 text-foreground" aria-hidden="true" />
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
               <span className="text-3xl font-bold font-mono text-foreground">{followThrough.completed}</span>
-              <span className="text-xs font-mono text-muted-foreground">honored</span>
+              <span className="text-sm font-mono text-muted-foreground">of {followThrough.total}</span>
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">Verified execution proof</p>
           </div>

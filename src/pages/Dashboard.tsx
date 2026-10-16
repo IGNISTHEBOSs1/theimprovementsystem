@@ -112,7 +112,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
           <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>
             {quest.priority}
           </Badge>
-          <span className={cn("text-foreground font-medium truncate", isCompleted && "line-through text-muted-foreground")}>
+          <span className={cn("text-foreground font-medium line-clamp-2 break-words leading-snug", isCompleted && "line-through text-muted-foreground")}>
             {quest.title}
           </span>
         </div>

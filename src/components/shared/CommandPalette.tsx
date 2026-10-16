@@ -75,7 +75,7 @@ export function CommandPalette({ open: controlledOpen, onOpenChange: controlledO
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate("/quests"))}>
             <CheckSquare className="mr-2 size-4 text-muted-foreground" />
-            <span>Quests & Commitments</span>
+            <span>Commitments</span>
             <CommandShortcut>G Q</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate("/journey"))}>

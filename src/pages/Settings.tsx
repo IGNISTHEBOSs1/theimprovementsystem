@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
+  ArrowLeft,
   Sun,
   Moon,
   Monitor,
@@ -236,7 +237,14 @@ export default function Settings() {
         eyebrow="SYSTEM PREFERENCES"
         title="Settings & System Controls"
         description="Configure appearance, cadence engine, local security enclave, and account lifecycle."
-      />
+      >
+        <Button variant="ghost" asChild className="shrink-0 gap-1.5">
+          <Link to="/profile">
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            Back to profile
+          </Link>
+        </Button>
+      </PageHeader>
 
       <div className="mt-8 sm:mt-10 space-y-6 sm:space-y-8">
         {/* -- SECTION 1: APPEARANCE & DISPLAY MATRIX -- */}
@@ -640,8 +648,8 @@ export default function Settings() {
                   </p>
                 </div>
                 <Button
-                  variant="outline"
-                  className="min-h-10 px-4 shrink-0 border-destructive/40 text-destructive hover:bg-destructive/10 text-xs font-medium active:scale-[0.98]"
+                  variant="destructive"
+                  className="min-h-10 px-4 shrink-0 bg-red-600 hover:bg-red-700 text-white font-medium text-xs active:scale-[0.98]"
                   onClick={() => setResetDialogOpen(true)}
                   disabled={resetting}
                 >
@@ -672,8 +680,8 @@ export default function Settings() {
                   </p>
                 </div>
                 <Button
-                  variant="outline"
-                  className="min-h-10 px-4 shrink-0 border-destructive/40 text-destructive hover:bg-destructive/10 text-xs font-medium active:scale-[0.98]"
+                  variant="destructive"
+                  className="min-h-10 px-4 shrink-0 bg-red-600 hover:bg-red-700 text-white font-medium text-xs active:scale-[0.98]"
                   onClick={() => setDeleteDialogOpen(true)}
                   disabled={deleting}
                 >
@@ -707,7 +715,7 @@ export default function Settings() {
           <AlertDialogFooter className="mt-4 gap-2">
             <AlertDialogCancel className="min-h-11 text-xs sm:text-sm">Keep my progress</AlertDialogCancel>
             <AlertDialogAction
-              className="min-h-11 bg-destructive text-destructive-foreground hover:bg-destructive/90 text-xs sm:text-sm"
+              className="min-h-11 bg-red-600 text-white hover:bg-red-700 text-xs sm:text-sm font-medium"
               onClick={() => void executeReset()}
             >
               Reset trajectory
@@ -731,7 +739,7 @@ export default function Settings() {
           <AlertDialogFooter className="mt-4 gap-2">
             <AlertDialogCancel className="min-h-11 text-xs sm:text-sm">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="min-h-11 bg-destructive text-destructive-foreground hover:bg-destructive/90 text-xs sm:text-sm"
+              className="min-h-11 bg-red-600 text-white hover:bg-red-700 text-xs sm:text-sm font-medium"
               onClick={() => void executeDelete()}
             >
               Delete account

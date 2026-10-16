@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { cn } from "@/lib/utils";
@@ -40,7 +41,7 @@ function HistoryItem({ quest }: { quest: Quest }) {
           <div className="flex items-center gap-2">
             <span
               className={cn(
-                "text-sm font-medium text-foreground truncate",
+                "text-sm font-medium text-foreground line-clamp-2 break-words leading-snug",
                 !isCompleted && "text-muted-foreground"
               )}
             >
@@ -198,20 +199,48 @@ export default function QuestHistory() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-xs font-mono px-2.5 py-1",
-                    completionRate >= 80
-                      ? "border-foreground/30 bg-foreground/10 text-foreground font-semibold"
-                      : completionRate >= 60
-                      ? "border-border bg-muted/70 text-foreground/90 font-medium"
-                      : "border-border/60 bg-muted/40 text-muted-foreground"
-                  )}
-                >
-                  {completionRate >= 80 ? "✓ Strong Momentum" : completionRate >= 60 ? "Steady Rhythm" : "Rebuilding Flow"}
-                </Badge>
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "text-xs font-mono px-2.5 py-1 cursor-help transition-colors",
+                        completionRate >= 80
+                          ? "border-foreground/30 bg-foreground/10 text-foreground font-semibold"
+                          : completionRate >= 60
+                          ? "border-border bg-muted/70 text-foreground/90 font-medium"
+                          : "border-border/60 bg-muted/40 text-muted-foreground"
+                      )}
+                    >
+                      {completionRate >= 80 ? "✓ Strong Momentum" : completionRate >= 60 ? "Steady Rhythm" : "Rebuilding Flow"}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" align="end" className="max-w-xs p-3 text-xs space-y-1.5 bg-popover text-popover-foreground border border-border shadow-md">
+                    <p className="font-semibold text-foreground">Follow-Through Momentum Tiers</p>
+                    <div className="space-y-1 font-mono text-[11px] text-muted-foreground">
+                      <div className={cn("flex justify-between gap-3", completionRate >= 80 && "text-foreground font-semibold")}>
+                        <span>Strong Momentum (Above):</span>
+                        <span>≥ 80%</span>
+                      </div>
+                      <div className={cn("flex justify-between gap-3", completionRate >= 60 && completionRate < 80 && "text-foreground font-semibold")}>
+                        <span>Steady Rhythm (Current):</span>
+                        <span>60% – 79%</span>
+                      </div>
+                      <div className={cn("flex justify-between gap-3", completionRate < 60 && "text-foreground font-semibold")}>
+                        <span>Rebuilding Flow (Below):</span>
+                        <span>&lt; 60%</span>
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+                <span className="text-[10px] font-mono text-muted-foreground">
+                  {completionRate >= 80
+                    ? "Tier: ≥80% follow-through"
+                    : completionRate >= 60
+                    ? "Tier: 60–79% (Above: ≥80% | Below: <60%)"
+                    : "Tier: <60% (Above: ≥60%)"}
+                </span>
               </div>
             </div>
 

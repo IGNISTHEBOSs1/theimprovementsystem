@@ -318,7 +318,7 @@ export default function Journey() {
                   Up next on path
                 </span>
               </div>
-              <h4 className="mt-1.5 text-lg sm:text-xl font-bold text-foreground truncate">
+              <h4 className="mt-1.5 text-lg sm:text-xl font-bold text-foreground line-clamp-2 break-words leading-snug">
                 {primaryActionQuest.title}
               </h4>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -422,7 +422,7 @@ export default function Journey() {
                     <div className="min-w-0 flex-1">
                       <span
                         className={cn(
-                          "truncate text-sm block",
+                          "line-clamp-2 break-words leading-snug text-sm block",
                           isCompleted
                             ? "line-through text-muted-foreground/60 font-normal"
                             : "text-foreground font-medium"

@@ -30,8 +30,8 @@ const NAV_ITEMS = [
   },
   {
     to: "/quests",
-    label: "Quests",
-    mobileLabel: undefined,
+    label: "Commitments",
+    mobileLabel: "Commitments",
     icon: CheckSquare,
   },
   {

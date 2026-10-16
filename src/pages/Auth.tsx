@@ -272,7 +272,7 @@ const Auth = () => {
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {mode === 'signin'
-                  ? 'Sign in to access your daily anchors'
+                  ? 'Sign in to access your commitments'
                   : mode === 'signup'
                   ? 'Set up your personal execution enclave'
                   : 'Enter your email for recovery instructions'}
