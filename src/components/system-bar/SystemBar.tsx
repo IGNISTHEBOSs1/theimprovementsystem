@@ -142,6 +142,7 @@ export default function SystemBar({
                 <Icon
                   size={16}
                   strokeWidth={active ? 2 : 1.5}
+                  fill={active ? "currentColor" : "none"}
                   className={cn(
                     "relative shrink-0 transition-colors duration-150",
                     active
@@ -305,7 +306,7 @@ export default function SystemBar({
                         className={cn(
                           "size-[19px] rounded-full border flex items-center justify-center text-[9px] font-bold tracking-tight transition-colors duration-150",
                           active
-                            ? "border-white/80 text-white"
+                            ? "border-foreground bg-foreground text-background"
                             : "border-muted-foreground/60 text-muted-foreground group-hover:text-foreground group-hover:border-foreground",
                         )}
                       >
@@ -314,11 +315,12 @@ export default function SystemBar({
                     ) : (
                       <Icon
                         size={19}
-                        strokeWidth={active ? 2.2 : 1.7}
+                        strokeWidth={active ? 2 : 1.5}
+                        fill={active ? "currentColor" : "none"}
                         className={cn(
                           "size-[19px] transition-colors duration-150",
                           active
-                            ? "text-white"
+                            ? "text-foreground"
                             : "text-muted-foreground group-hover:text-foreground",
                         )}
                       />
@@ -328,7 +330,7 @@ export default function SystemBar({
                     {to === "/quests" && activeQuestCount > 0 && (
                       <span className={cn(
                         "absolute -top-0.5 -right-1 size-1.5 rounded-full pointer-events-none",
-                        active ? "bg-white" : "bg-emerald-500"
+                        active ? "bg-foreground" : "bg-emerald-500"
                       )} />
                     )}
 
@@ -336,7 +338,7 @@ export default function SystemBar({
                     {to === "/mentor" && hasMentorInsight && (
                       <span className={cn(
                         "absolute -top-0.5 -right-1 size-1.5 rounded-full pointer-events-none",
-                        active ? "bg-white" : "bg-emerald-500"
+                        active ? "bg-foreground" : "bg-emerald-500"
                       )} />
                     )}
                   </div>
@@ -346,7 +348,7 @@ export default function SystemBar({
                     className={cn(
                       "text-[10px] leading-none transition-colors duration-150 tracking-tight",
                       active
-                        ? "text-white font-bold"
+                        ? "text-foreground font-bold"
                         : "text-muted-foreground font-medium group-hover:text-foreground",
                     )}
                   >

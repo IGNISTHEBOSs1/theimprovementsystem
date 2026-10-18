@@ -179,7 +179,7 @@ export default function Mentor() {
       variants={shouldReduceMotion ? undefined : containerVariants}
       initial={shouldReduceMotion ? false : "hidden"}
       animate="visible"
-      className="mx-auto w-full max-w-4xl px-4 py-6 pb-8 sm:px-8 sm:py-10 sm:pb-12"
+      className="mx-auto w-full max-w-4xl px-4 py-6 pb-24 sm:px-8 sm:py-10"
     >
       <PageHeader
         eyebrow="Mentor"
@@ -187,16 +187,16 @@ export default function Mentor() {
         description="What works and where you get stuck, based on what you actually do."
       />
 
-      {/* ── 1. Executive Advisory Briefing (Zero Nested Cards) ── */}
+      {/* ── 1. Executive Advisory Briefing ── */}
       {hasHero && (
         <motion.div variants={shouldReduceMotion ? undefined : itemVariants} className="mt-6">
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
+              className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-bold text-primary">
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
                   Executive Briefing • Primary Pattern
                 </span>
                 <span className="text-xs text-muted-foreground">
@@ -309,10 +309,10 @@ export default function Mentor() {
           {isRecoveryHero && recovery && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
+              className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-bold text-primary">
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
                   Your focus right now • Bouncing back
                 </span>
               </div>
@@ -333,10 +333,10 @@ export default function Mentor() {
           {isMomentumHero && momentum && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 p-6 sm:p-8 shadow-sm space-y-4"
+              className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-bold text-primary">
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
                   Executive Briefing • Momentum
                 </span>
                 {momentum.comparison && (
@@ -417,7 +417,7 @@ export default function Mentor() {
       {activeTelemetryTiles.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/50 overflow-hidden shadow-sm"
+          className="mt-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card overflow-hidden shadow-[var(--shadow-card)]"
         >
           <div className="grid grid-cols-1">
             {/* Primary Tile (First available) — Always Visible */}
@@ -728,11 +728,11 @@ export default function Mentor() {
         </motion.div>
       )}
 
-      {/* ── 3. Open Behavioral Pattern Ledger (Capped at 3 with Show more toggle; evidence chips shown when expanded) ── */}
+      {/* ── 3. Open Behavioral Pattern Ledger ── */}
       {surfaced.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/50 overflow-hidden shadow-sm"
+          className="mt-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card overflow-hidden shadow-[var(--shadow-card)]"
         >
           <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground">

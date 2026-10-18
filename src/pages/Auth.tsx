@@ -136,14 +136,14 @@ const Auth = () => {
                 <SystemLogo size={32} />
               </div>
               <div>
-                <span className="font-display font-bold text-xl tracking-tight text-foreground block">Kinetic</span>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">The Improvement System</span>
+                <span className="font-bold text-xl tracking-tight text-foreground block">Kinetic</span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-mono">The Improvement System</span>
               </div>
             </div>
 
-            <h1 className="font-display font-extrabold text-3xl xl:text-4xl tracking-tight text-foreground leading-[1.18]">
+            <h1 className="font-bold text-3xl xl:text-4xl tracking-tight text-foreground leading-[1.18]">
               Deterministic momentum.<br />
-              <span className="text-muted-foreground font-semibold">Zero noise.</span>
+              <span className="text-muted-foreground font-medium">Zero noise.</span>
             </h1>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-md">
               A personal execution system built on mathematical velocity, an elastic ±10% buffer cone, and strict daily constraints.
@@ -152,32 +152,32 @@ const Auth = () => {
 
           {/* 3 Architectural Pillars */}
           <div className="space-y-3 pt-1">
-            <div className="p-3.5 rounded-xl border border-border/80 dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3">
+            <div className="p-3.5 rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-xs flex items-start gap-3">
               <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <Target className="size-4" />
               </div>
               <div>
-                <h2 className="font-display font-semibold text-xs text-foreground">1 Primary Focus + 2 Routines</h2>
+                <h2 className="font-semibold text-xs text-foreground">1 Primary Focus + 2 Routines</h2>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-snug">Strict daily constraint eliminates backlog guilt. Execute in under 90 seconds.</p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl border border-border/80 dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3">
+            <div className="p-3.5 rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-xs flex items-start gap-3">
               <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <ShieldCheck className="size-4" />
               </div>
               <div>
-                <h2 className="font-display font-semibold text-xs text-foreground">±10% Mathematical Safety Buffer</h2>
+                <h2 className="font-semibold text-xs text-foreground">±10% Mathematical Safety Buffer</h2>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-snug">Life interrupts. Sickness or travel are absorbed without breaking your 90-day vector.</p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl border border-border/80 dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3">
+            <div className="p-3.5 rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-xs flex items-start gap-3">
               <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <Layers className="size-4" />
               </div>
               <div>
-                <h2 className="font-display font-semibold text-xs text-foreground">Local-First Enclave</h2>
+                <h2 className="font-semibold text-xs text-foreground">Local-First Enclave</h2>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-snug">Zero cloud tracking. Your daily commitments remain encrypted in your browser.</p>
               </div>
             </div>
@@ -185,8 +185,8 @@ const Auth = () => {
 
           {/* Telemetry Indicator */}
           <div className="pt-1">
-            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-border/80 dark:border-white/[0.08] bg-card/60 backdrop-blur-md text-[11px] text-muted-foreground">
-              <span className="size-2 rounded-full bg-foreground animate-pulse" />
+            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-card text-[11px] font-mono text-muted-foreground shadow-xs">
+              <span className="size-2 rounded-full bg-foreground" />
               <span className="text-foreground font-medium">Telemetry: Nominal</span>
               <span>• Velocity 1.25x</span>
               <span>• Vector Protected</span>
@@ -254,20 +254,20 @@ const Auth = () => {
           </div>
 
           {/* Liquid Frosted Glass Authentication Card */}
-          <div className="rounded-2xl border border-border/80 dark:border-white/[0.08] bg-card/95 dark:bg-card/85 backdrop-blur-2xl shadow-xl overflow-hidden">
+          <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-[var(--shadow-card)] overflow-hidden">
             {/* Header (Shows full brand on mobile, streamlined on PC) */}
-            <div className="px-5 py-4 sm:py-5 text-center bg-muted/40 dark:bg-muted/20 border-b border-border/80 dark:border-white/10 backdrop-blur-md">
+            <div className="px-5 py-4 sm:py-5 text-center bg-muted/40 dark:bg-muted/20 border-b border-border/80 dark:border-white/10">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.1, type: 'spring', stiffness: 280 }}
                 className="flex items-center justify-center mb-1.5 lg:hidden"
               >
-                <div className="p-1.5 rounded-xl bg-card border border-border/80 dark:border-white/10 shadow-xs backdrop-blur-md">
+                <div className="p-1.5 rounded-xl bg-card border border-border/80 dark:border-white/10 shadow-xs">
                   <SystemLogo size={28} />
                 </div>
               </motion.div>
-              <h2 className="font-display font-bold text-lg sm:text-xl text-foreground tracking-tight">
+              <h2 className="font-bold text-lg sm:text-xl text-foreground tracking-tight">
                 {mode === 'signin' ? 'Welcome Back' : mode === 'signup' ? 'Begin Trajectory' : 'Reset Password'}
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -289,7 +289,7 @@ const Auth = () => {
                         key={m}
                         type="button"
                         onClick={() => { playClick(); setMode(m); }}
-                        className={`flex-1 py-1.5 rounded text-xs font-display font-semibold transition-all relative cursor-pointer ${
+                        className={`flex-1 py-1.5 rounded text-xs font-semibold transition-all relative cursor-pointer ${
                           mode === m ? 'text-background' : 'text-muted-foreground hover:text-foreground'
                         }`}
                       >
@@ -380,7 +380,7 @@ const Auth = () => {
                 type="submit"
                 variant="default"
                 disabled={loading}
-                className="w-full font-display font-semibold text-xs sm:text-sm h-10 sm:h-11 rounded-xl bg-foreground text-background hover:bg-foreground/90 active:scale-[0.98] shadow-xs cursor-pointer mt-1"
+                className="w-full font-semibold text-xs sm:text-sm h-10 sm:h-11 rounded-xl bg-foreground text-background hover:bg-foreground/90 active:scale-[0.98] shadow-xs cursor-pointer mt-1"
                 size="default"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}

@@ -232,7 +232,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-24 sm:px-8 sm:py-10">
       <PageHeader
         eyebrow="SYSTEM PREFERENCES"
         title="Settings & System Controls"
@@ -249,7 +249,7 @@ export default function Settings() {
       <div className="mt-8 sm:mt-10 space-y-6 sm:space-y-8">
         {/* -- SECTION 1: APPEARANCE & DISPLAY MATRIX -- */}
         <section
-          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="appearance-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
@@ -321,7 +321,7 @@ export default function Settings() {
 
         {/* -- SECTION: TACTILE SOUND & ACOUSTIC FEEDBACK -- */}
         <section
-          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="audio-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
@@ -401,7 +401,7 @@ export default function Settings() {
 
         {/* -- SECTION 2: TEMPORAL ENGINE & SYSTEM CADENCE -- */}
         <section
-          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="timezone-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
@@ -498,7 +498,7 @@ export default function Settings() {
 
         {/* -- SECTION 3: DATA SOVEREIGNTY & LOCAL ENCLAVE -- */}
         <section
-          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="enclave-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
@@ -565,7 +565,7 @@ export default function Settings() {
 
         {/* -- SECTION 4: ACTIVE SESSION & IDENTITY -- */}
         <section
-          className="rounded-2xl border border-border/80 bg-card/80 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="session-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
@@ -616,7 +616,7 @@ export default function Settings() {
 
         {/* -- SECTION 5: DANGER ZONE -- */}
         <section
-          className="rounded-2xl border border-destructive/30 bg-destructive/5 backdrop-blur-xl p-5 sm:p-7 shadow-sm kinetic-specular-box transition-all"
+          className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="danger-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">

@@ -139,14 +139,13 @@ export default function Journey() {
   const primaryActionQuest = activeQuests[0];
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-6 sm:px-8 sm:py-10">
-      {/* ── Page Header ── */}
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-24 sm:px-8 sm:py-10">
       {/* ── Page Header & Narrative Guidance ── */}
       <div className="space-y-2">
-        <p className="text-label text-primary font-mono uppercase tracking-wider text-xs">
+        <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
           Trajectory & Navigation
         </p>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
           Your Path.
         </h1>
         <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
@@ -176,8 +175,8 @@ export default function Journey() {
         />
       </div>
 
-      {/* ── 2. Trajectory Telemetry Console (Spacious & Deconstructed) ── */}
-      <div className="mt-6 rounded-3xl border border-border/80 bg-card/50 p-6 sm:p-7 shadow-sm space-y-6 glass-specular">
+      {/* ── 2. Trajectory Telemetry Console (Bento Grid) ── */}
+      <div className="mt-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-7 shadow-[var(--shadow-card)] space-y-6">
         {/* Console Header: Title & Global Pace Status Pill */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -219,7 +218,7 @@ export default function Journey() {
         {pace ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
             {/* Metric 1: Velocity vs Required */}
-            <div className="rounded-2xl border border-border/60 bg-background/50 p-5 flex flex-col justify-between">
+            <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-muted/30 p-5 flex flex-col justify-between">
               <div>
                 <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
                   Daily Execution Velocity
@@ -239,7 +238,7 @@ export default function Journey() {
                     <div
                       className={cn(
                         "h-full rounded-full transition-all duration-500",
-                        pace.isOnTrack ? "bg-emerald-500" : "bg-warning"
+                        pace.isOnTrack ? "bg-foreground" : "bg-warning"
                       )}
                       style={{ width: `${Math.min(Math.round(pace.paceRatio * 100), 100)}%` }}
                     />
@@ -264,7 +263,7 @@ export default function Journey() {
             </div>
 
             {/* Metric 2: Target Horizon & Milestone Progress */}
-            <div className="rounded-2xl border border-border/60 bg-background/50 p-5 flex flex-col justify-between">
+            <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-muted/30 p-5 flex flex-col justify-between">
               <div>
                 <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
                   Target Horizon & Milestone
@@ -288,7 +287,7 @@ export default function Journey() {
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border/60 bg-background/50 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-muted/30 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <h4 className="text-base font-semibold text-foreground">No target milestone set</h4>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -306,7 +305,7 @@ export default function Journey() {
       </div>
 
       {/* ── 3. Up Next Commitment (Clean Horizon Bar) ── */}
-      <div className="mt-6 rounded-3xl border border-border/80 bg-card/60 p-5 sm:p-6 shadow-sm">
+      <div className="mt-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-6 shadow-[var(--shadow-card)]">
         {primaryActionQuest ? (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="min-w-0 flex-1">
@@ -388,7 +387,7 @@ export default function Journey() {
       <div className="mt-8 space-y-3">
         <div className="flex items-center justify-between gap-3 px-1">
           <div>
-            <p className="text-xs font-mono font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="text-[11px] font-mono font-medium uppercase tracking-wider text-muted-foreground">
               Recent Activity
             </p>
             <h3 className="mt-0.5 text-base font-bold text-foreground">
@@ -401,7 +400,7 @@ export default function Journey() {
         </div>
 
         {recentEvidence48h.length > 0 ? (
-          <div className="rounded-3xl border border-border/80 bg-card/40 overflow-hidden shadow-sm">
+          <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card overflow-hidden shadow-[var(--shadow-card)]">
             <ul className="divide-y divide-border/40">
               {visibleActivity.map((q) => {
                 const isCompleted = q.completed;

@@ -109,7 +109,7 @@ export default function Profile() {
       {/* ── 1. Operator Identity & Command Header ── */}
       <header
         aria-label="Operator Profile Header"
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-3xl border border-border/80 bg-card/60 shadow-sm glass-specular"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-[var(--shadow-card)]"
       >
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -155,7 +155,7 @@ export default function Profile() {
 
       {/* ── 2. The North Star Mission Spotlight ── */}
       <section
-        className="rounded-3xl border border-border/80 bg-card/80 p-6 sm:p-7 shadow-sm relative overflow-hidden glass-specular"
+        className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-7 shadow-[var(--shadow-card)] relative overflow-hidden"
         aria-labelledby="primary-goal-heading"
       >
         <div className="flex items-center justify-between gap-3">
@@ -315,7 +315,7 @@ export default function Profile() {
       {/* ── 3. Unified Performance Telemetry Console ── */}
       <section
         aria-label="Standing and Momentum Telemetry"
-        className="rounded-3xl border border-border/80 bg-card/60 p-5 sm:p-6 shadow-sm glass-specular"
+        className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-6 shadow-[var(--shadow-card)]"
       >
         <div className="flex items-center justify-between mb-4">
           <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -388,7 +388,7 @@ export default function Profile() {
           {/* Quest History Entry */}
           <Link
             to="/profile/history"
-            className="group flex items-center justify-between p-4 rounded-2xl border border-border/80 bg-card/60 hover:bg-muted/40 hover:border-border transition-all shadow-xs"
+            className="group flex items-center justify-between p-4 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card hover:bg-muted/40 transition-all shadow-xs"
           >
             <div className="flex items-start gap-3.5 min-w-0">
               <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">
@@ -420,7 +420,7 @@ export default function Profile() {
           {/* System Settings Entry */}
           <Link
             to="/profile/settings"
-            className="group flex items-center justify-between p-4 rounded-2xl border border-border/80 bg-card/60 hover:bg-muted/40 hover:border-border transition-all shadow-xs"
+            className="group flex items-center justify-between p-4 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card hover:bg-muted/40 transition-all shadow-xs"
           >
             <div className="flex items-start gap-3.5 min-w-0">
               <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">
