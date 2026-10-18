@@ -29,7 +29,6 @@ export default defineConfig(({ mode }) => ({
           "vendor-radix": [
             "@radix-ui/react-dialog",
             "@radix-ui/react-alert-dialog",
-            "@radix-ui/react-dropdown-menu",
             "@radix-ui/react-slot",
             "cmdk",
             "lucide-react",
