@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
@@ -106,9 +107,15 @@ export default function Profile() {
 
   return (
     <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-24 sm:px-8 sm:py-10 space-y-6">
+      <PageHeader
+        eyebrow="Profile"
+        title="Your cockpit."
+        description="Manage your identity, North Star goal, and long-term momentum ledger."
+      />
+
       {/* ── 1. Operator Identity & Command Header ── */}
-      <header
-        aria-label="Operator Profile Header"
+      <section
+        aria-label="Operator Profile Card"
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-[var(--shadow-card)]"
       >
         <div className="flex items-center gap-4">
@@ -126,9 +133,9 @@ export default function Profile() {
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              <h2 className="truncate text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 {profile?.username || "Operator"}
-              </h1>
+              </h2>
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-2">
               <span>Timezone: {profile?.timezone || "UTC"}</span>
@@ -151,31 +158,31 @@ export default function Profile() {
             </Link>
           </Button>
         </div>
-      </header>
+      </section>
 
       {/* ── 2. The North Star Mission Spotlight ── */}
       <section
         className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-7 shadow-[var(--shadow-card)] relative overflow-hidden"
         aria-labelledby="primary-goal-heading"
       >
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="size-7 rounded-lg border border-border/80 bg-background flex items-center justify-center text-primary shadow-xs">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1 flex items-center gap-2">
+            <div className="size-7 rounded-lg border border-border/80 bg-background flex items-center justify-center text-primary shadow-xs shrink-0">
               <Target className="size-3.5" aria-hidden="true" />
             </div>
             <span
               id="primary-goal-heading"
-              className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground"
+              className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground block truncate"
             >
               Primary Goal · North Star
             </span>
           </div>
 
           {profile?.primary_goal && !editingGoal && (
-            <div className="flex items-center gap-2">
+            <div className="shrink-0 whitespace-nowrap text-xs flex items-center gap-2">
               <Link
                 to="/journey"
-                className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 transition-colors"
+                className="font-semibold text-primary hover:underline flex items-center gap-1 transition-colors"
               >
                 <span>Track on Path</span>
                 <ArrowRight className="size-3.5" aria-hidden="true" />

@@ -234,8 +234,8 @@ export default function Settings() {
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-24 sm:px-8 sm:py-10">
       <PageHeader
-        eyebrow="SYSTEM PREFERENCES"
-        title="Settings & System Controls"
+        eyebrow="Preferences"
+        title="Settings & system controls."
         description="Configure appearance, cadence engine, local security enclave, and account lifecycle."
       >
         <Button variant="ghost" asChild className="shrink-0 gap-1.5">
@@ -246,7 +246,7 @@ export default function Settings() {
         </Button>
       </PageHeader>
 
-      <div className="mt-8 sm:mt-10 space-y-6 sm:space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* -- SECTION 1: APPEARANCE & DISPLAY MATRIX -- */}
         <section
           className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
@@ -280,24 +280,24 @@ export default function Settings() {
               }}
               className="w-full"
             >
-              <TabsList className="grid grid-cols-3 w-full max-w-md h-12 p-1.5 rounded-xl bg-muted/50 border border-border/80">
+              <TabsList className="grid grid-cols-3 w-full max-w-md h-11 p-1 rounded-xl bg-neutral-100 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800">
                 <TabsTrigger
                   value="light"
-                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100 active:scale-[0.98]"
                 >
                   <Sun className="size-4" aria-hidden="true" />
                   <span>Light</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="dark"
-                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100 active:scale-[0.98]"
                 >
                   <Moon className="size-4" aria-hidden="true" />
                   <span>Dark</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="system"
-                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100 active:scale-[0.98]"
                 >
                   <Monitor className="size-4" aria-hidden="true" />
                   <span>Auto</span>

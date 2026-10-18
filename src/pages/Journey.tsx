@@ -141,18 +141,18 @@ export default function Journey() {
   return (
     <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-24 sm:px-8 sm:py-10">
       {/* ── Page Header & Narrative Guidance ── */}
-      <div className="space-y-2">
-        <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+      <header className="mb-6">
+        <p className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-1">
           Trajectory & Navigation
         </p>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
           Your Path.
         </h1>
-        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl leading-relaxed">
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed max-w-2xl">
           Tracking deliberate progress toward{" "}
-          <span className="font-semibold text-foreground">"{profile?.primary_goal}"</span>.
+          <span className="font-semibold text-neutral-900 dark:text-neutral-100">"{profile?.primary_goal}"</span>.
         </p>
-        <div className="mt-2 pl-3 border-l-2 border-primary/40 py-1 text-xs sm:text-sm text-foreground/90 font-medium">
+        <div className="mt-3 pl-3 border-l-2 border-primary/40 py-1 text-xs sm:text-sm text-foreground/90 font-medium">
           {pace ? (
             pace.isOnTrack ? (
               `Averaging ${pace.actualDailyPace} goal quest${pace.actualDailyPace === 1 ? "" : "s"} a day — on track for completion by ${pace.targetDateFormatted}.`
@@ -163,7 +163,7 @@ export default function Journey() {
             `Set an optional target date in your Profile to unlock your velocity telemetry and estimated completion timeline.`
           )}
         </div>
-      </div>
+      </header>
 
       {/* ── 1. Trajectory Visualizer Centerpiece ── */}
       <div className="mt-6">
@@ -197,7 +197,7 @@ export default function Journey() {
             <Badge
               variant="outline"
               className={cn(
-                "px-3 py-1 font-mono text-xs font-semibold rounded-full",
+                "rounded-full px-2.5 py-0.5 text-xs font-medium font-mono",
                 pace.paceRatio >= 1.1
                   ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
                   : pace.isOnTrack
@@ -385,16 +385,16 @@ export default function Journey() {
 
       {/* ── 4. Open Activity Ledger (Last 48 Hours) ── */}
       <div className="mt-8 space-y-3">
-        <div className="flex items-center justify-between gap-3 px-1">
-          <div>
-            <p className="text-[11px] font-mono font-medium uppercase tracking-wider text-muted-foreground">
+        <div className="flex items-start justify-between gap-4 px-1">
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-0.5">
               Recent Activity
             </p>
-            <h3 className="mt-0.5 text-base font-bold text-foreground">
+            <h3 className="text-base font-bold text-neutral-900 dark:text-neutral-100">
               Commitment Ledger (Last 48 hours)
             </h3>
           </div>
-          <span className="text-xs font-mono text-muted-foreground">
+          <span className="shrink-0 whitespace-nowrap text-xs font-mono text-neutral-500 dark:text-neutral-400">
             {recentEvidence48h.length} recorded
           </span>
         </div>

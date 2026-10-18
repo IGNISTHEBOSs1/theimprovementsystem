@@ -18,9 +18,9 @@ import type { QuestPriority } from "@/types/quest";
 // rather than "danger." No new color introduced — still an existing
 // semantic token at reduced opacity, per the Design System's rule.
 export const PRIORITY_BADGE_CLASSES: Record<QuestPriority, string> = {
-  Essential: "border-foreground/30 bg-foreground/10 text-foreground font-semibold",
-  Important: "border-border bg-muted/70 text-foreground/90 font-medium",
-  Optional: "border-border/80 bg-muted/40 text-muted-foreground font-medium",
+  Essential: "border-neutral-900/20 bg-neutral-900/10 text-neutral-900 font-semibold dark:border-neutral-100/20 dark:bg-neutral-100/10 dark:text-neutral-100",
+  Important: "bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700 font-medium",
+  Optional: "bg-neutral-50 text-neutral-600 border-neutral-200/60 dark:bg-neutral-900 dark:text-neutral-400 dark:border-neutral-800 font-medium",
 };
 
 // Founder Decision (multi-active Quest chunk): with multiple concurrently

@@ -341,7 +341,7 @@ export default function Quests() {
                             <div className="size-6 rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
                               <Repeat className="size-3.5" aria-hidden="true" />
                             </div>
-                            <span className="font-medium text-foreground truncate text-sm">
+                            <span className="font-medium text-foreground line-clamp-2 break-words text-sm">
                               {quest.title}
                             </span>
                             {quest.linkedToGoal && quest.goalName && (

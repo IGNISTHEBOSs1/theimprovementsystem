@@ -126,7 +126,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
           <div className="flex items-center gap-2">
             <h3
               className={cn(
-                "text-sm sm:text-base font-semibold tracking-tight text-foreground transition-all line-clamp-2 sm:line-clamp-1",
+                "text-sm sm:text-base font-semibold tracking-tight text-foreground transition-all line-clamp-2 break-words leading-snug",
                 isCompleted && "line-through text-muted-foreground font-normal",
                 quest.failed && "text-muted-foreground line-through"
               )}
@@ -151,7 +151,14 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
             {quest.priority !== "Essential" && (
               <>
                 <span>·</span>
-                <span className={cn("font-medium", quest.priority === "Important" ? "text-foreground" : "text-muted-foreground")}>
+                <span
+                  className={cn(
+                    "inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border",
+                    quest.priority === "Important"
+                      ? "bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700"
+                      : "bg-neutral-50 text-neutral-600 border-neutral-200/60 dark:bg-neutral-900 dark:text-neutral-400 dark:border-neutral-800"
+                  )}
+                >
                   {quest.priority}
                 </span>
               </>
@@ -205,10 +212,10 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
         {quest.priority !== "Essential" ? (
           <span
             className={cn(
-              "font-semibold px-2 py-0.5 rounded-md border text-[11px]",
+              "inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border",
               quest.priority === "Important"
-                ? "text-foreground bg-muted/70 border-border"
-                : "text-muted-foreground bg-muted/30 border-border/60"
+                ? "bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700"
+                : "bg-neutral-50 text-neutral-600 border-neutral-200/60 dark:bg-neutral-900 dark:text-neutral-400 dark:border-neutral-800"
             )}
           >
             {quest.priority}

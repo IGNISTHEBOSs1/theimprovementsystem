@@ -73,10 +73,10 @@ function HistoryItem({ quest }: { quest: Quest }) {
         {quest.priority !== "Essential" ? (
           <span
             className={cn(
-              "font-medium text-[11px] px-1.5 py-0.5 rounded border",
+              "inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border",
               quest.priority === "Important"
-                ? "text-foreground bg-muted/70 border-border"
-                : "text-muted-foreground bg-muted/30 border-border/60"
+                ? "bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700"
+                : "bg-neutral-50 text-neutral-600 border-neutral-200/60 dark:bg-neutral-900 dark:text-neutral-400 dark:border-neutral-800"
             )}
           >
             {quest.priority}
@@ -87,10 +87,10 @@ function HistoryItem({ quest }: { quest: Quest }) {
 
         <span
           className={cn(
-            "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium border",
+            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border",
             isCompleted
-              ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/25"
-              : "bg-muted/40 text-muted-foreground border-border/60 font-mono"
+              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25"
+              : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700 font-mono"
           )}
         >
           {isCompleted ? "Completed" : "Missed"}
@@ -140,7 +140,7 @@ export default function QuestHistory() {
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-8 sm:px-8 sm:py-10 sm:pb-12">
       <PageHeader
-        eyebrow="Your system"
+        eyebrow="Archive"
         title="Quest history."
         description="Search and review your past commitments and outcomes."
       >
@@ -251,14 +251,23 @@ export default function QuestHistory() {
                 onValueChange={(val) => setActiveTab(val as "all" | "completed" | "failed")}
                 className="w-full sm:w-auto"
               >
-                <TabsList className="grid w-full grid-cols-3 sm:w-auto">
-                  <TabsTrigger value="all" className="text-xs">
+                <TabsList className="grid w-full grid-cols-3 sm:w-auto p-1 rounded-xl bg-neutral-100 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800">
+                  <TabsTrigger
+                    value="all"
+                    className="text-xs font-medium rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100"
+                  >
                     All ({resolved.length})
                   </TabsTrigger>
-                  <TabsTrigger value="completed" className="text-xs">
+                  <TabsTrigger
+                    value="completed"
+                    className="text-xs font-medium rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100"
+                  >
                     Completed ({completedCount})
                   </TabsTrigger>
-                  <TabsTrigger value="failed" className="text-xs">
+                  <TabsTrigger
+                    value="failed"
+                    className="text-xs font-medium rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100"
+                  >
                     Missed ({failedCount})
                   </TabsTrigger>
                 </TabsList>

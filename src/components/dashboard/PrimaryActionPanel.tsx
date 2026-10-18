@@ -148,7 +148,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
                 </span>
               )}
             </div>
-            <h2 id="focus-heading" className={cn("mt-2 text-2xl font-semibold tracking-tight text-foreground transition-all", completionStage !== "idle" && "line-through text-muted-foreground")}>
+            <h2 id="focus-heading" className={cn("mt-2 text-2xl font-semibold tracking-tight text-foreground transition-all line-clamp-2 break-words leading-snug", completionStage !== "idle" && "line-through text-muted-foreground")}>
               {quest.title}
             </h2>
             {quest.linkedToGoal && quest.goalName ? (

@@ -9,21 +9,21 @@ interface PageHeaderProps {
 
 export function PageHeader({ eyebrow, title, description, children }: PageHeaderProps) {
   return (
-    <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div className="max-w-2xl">
-        {/* Founder Decision (Mobile hierarchy chunk): eyebrow ("Your
-            system," "Your commitments," "Goal: X," etc.) removed from
-            mobile only — desktop keeps it unchanged. On a phone screen
-            this label was competing with the title for the very first
-            thing a person reads; the title alone already carries that
-            meaning. Pure visibility toggle (hidden md:block), not a
-            content/data change — eyebrow is still passed and still
-            rendered on desktop exactly as before. */}
-        {eyebrow && <p className="hidden md:block text-label text-primary mb-2">{eyebrow}</p>}
-        <h1 className="text-display-lg text-foreground">{title}</h1>
-        <p className="mt-2 text-body-md text-muted-foreground">{description}</p>
+    <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+      <div className="max-w-2xl min-w-0 flex-1">
+        {eyebrow && (
+          <p className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-1">
+            {eyebrow}
+          </p>
+        )}
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+          {title}
+        </h1>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed">
+          {description}
+        </p>
       </div>
-      {children}
+      {children && <div className="shrink-0">{children}</div>}
     </header>
   );
 }

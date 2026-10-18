@@ -195,11 +195,13 @@ export default function Mentor() {
               aria-labelledby="primary-insight-heading"
               className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
-                  Executive Briefing • Primary Pattern
-                </span>
-                <span className="text-xs text-muted-foreground">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <span className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400 block">
+                    Executive Briefing • Primary Pattern
+                  </span>
+                </div>
+                <span className="shrink-0 whitespace-nowrap text-xs text-neutral-500 dark:text-neutral-400">
                   Behavioral Analysis
                 </span>
               </div>

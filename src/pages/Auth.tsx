@@ -282,21 +282,21 @@ const Auth = () => {
             {/* Mode tabs — compact toggle */}
             <AnimatePresence>
               {mode !== 'reset' && (
-                <div className="px-4 py-2 border-b border-border/80 dark:border-white/10 bg-muted/30 dark:bg-muted/15">
-                  <div className="flex p-0.5 rounded-lg bg-muted/60 dark:bg-muted/40 border border-border/80">
+                <div className="px-4 py-2 border-b border-neutral-200/80 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30">
+                  <div className="flex p-1 rounded-xl bg-neutral-100 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800">
                     {(['signin', 'signup'] as const).map((m) => (
                       <button
                         key={m}
                         type="button"
                         onClick={() => { playClick(); setMode(m); }}
-                        className={`flex-1 py-1.5 rounded text-xs font-semibold transition-all relative cursor-pointer ${
-                          mode === m ? 'text-background' : 'text-muted-foreground hover:text-foreground'
+                        className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all relative cursor-pointer ${
+                          mode === m ? 'text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200'
                         }`}
                       >
                         {mode === m && (
                           <motion.div
                             layoutId="auth-tab"
-                            className="absolute inset-0 rounded bg-foreground shadow-xs"
+                            className="absolute inset-0 rounded-lg bg-white dark:bg-neutral-800 shadow-sm"
                             transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                           />
                         )}
