@@ -142,7 +142,6 @@ export default function SystemBar({
                 <Icon
                   size={16}
                   strokeWidth={active ? 2 : 1.5}
-                  fill={active ? "currentColor" : "none"}
                   className={cn(
                     "relative shrink-0 transition-colors duration-150",
                     active
@@ -306,7 +305,7 @@ export default function SystemBar({
                         className={cn(
                           "size-[19px] rounded-full border flex items-center justify-center text-[9px] font-bold tracking-tight transition-colors duration-150",
                           active
-                            ? "border-foreground bg-foreground text-background"
+                            ? "border-2 border-foreground text-foreground"
                             : "border-muted-foreground/60 text-muted-foreground group-hover:text-foreground group-hover:border-foreground",
                         )}
                       >
@@ -315,8 +314,7 @@ export default function SystemBar({
                     ) : (
                       <Icon
                         size={19}
-                        strokeWidth={active ? 2 : 1.5}
-                        fill={active ? "currentColor" : "none"}
+                        strokeWidth={active ? 2.25 : 1.5}
                         className={cn(
                           "size-[19px] transition-colors duration-150",
                           active

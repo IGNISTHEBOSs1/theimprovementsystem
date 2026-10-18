@@ -644,51 +644,52 @@ export default function Landing() {
       <div className="fixed top-0 inset-x-0 h-20 pointer-events-none z-40 bg-gradient-to-b from-background/85 via-background/40 to-transparent backdrop-blur-[3px]" />
 
       {/* -- HIGH-END LIQUID FROSTED GLASS FLOATING NAVBAR (ISLAND DOCK) -- */}
-      <AtmosphericLift yOffset={-16} duration={0.8} blurAmount={6} className="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-6 md:inset-x-8 max-w-5xl mx-auto z-50">
-        <header className="w-full kinetic-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300">
-          <div className="flex items-center justify-between gap-3 sm:gap-4">
-            {/* Brand Identity */}
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <div className="p-1 rounded-xl bg-card/90 border border-black/[0.08] dark:border-white/10 shadow-xs shrink-0 backdrop-blur-md">
-                <SystemLogo size={22} className="sm:hidden" />
-                <SystemLogo size={26} className="hidden sm:block" />
-              </div>
-              <div className="min-w-0 flex items-center gap-2">
-                <MysteriousClipReveal direction="horizontal" duration={0.7} showLaserGlint={true}>
-                  <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight text-foreground truncate">
-                    Kinetic
-                  </span>
-                </MysteriousClipReveal>
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-medium bg-muted/80 text-muted-foreground border border-border/80">
-                  <span className="size-1.5 rounded-full bg-foreground" />
-                  Local Enclave
-                </span>
-              </div>
+      <motion.header
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-6 md:inset-x-8 max-w-5xl mx-auto z-50 kinetic-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300"
+      >
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
+          {/* Brand Identity */}
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="p-1 rounded-xl bg-card/90 border border-black/[0.08] dark:border-white/10 shadow-xs shrink-0 backdrop-blur-md">
+              <SystemLogo size={22} className="sm:hidden" />
+              <SystemLogo size={26} className="hidden sm:block" />
             </div>
-
-            {/* Right Action Island: Tactile Theme Switcher + Tactile Log In Button */}
-            <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-              {/* Unique Tactile Dark/Light Mode Slider */}
-              <TactileThemeToggle />
-
-              {/* Tactile Log In Button with Specular Edge & Magnetic Hover */}
-              <Magnetic strength={0.18}>
-                <Button
-                  variant="default"
-                  size="sm"
-                  data-cuelume-press="press"
-                  data-cuelume-release="release"
-                  data-cuelume-hover="tick"
-                  onClick={() => navigate('/auth')}
-                  className="text-xs px-3.5 sm:px-4 h-8 sm:h-9 font-display font-semibold shadow-xs active:scale-[0.96] rounded-full transition-transform"
-                >
-                  <span>Log In</span>
-                </Button>
-              </Magnetic>
+            <div className="min-w-0 flex items-center gap-2">
+              <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight text-foreground truncate">
+                Kinetic
+              </span>
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-medium bg-muted/80 text-muted-foreground border border-border/80">
+                <span className="size-1.5 rounded-full bg-foreground" />
+                Local Enclave
+              </span>
             </div>
           </div>
-        </header>
-      </AtmosphericLift>
+
+          {/* Right Action Island: Tactile Theme Switcher + Tactile Log In Button */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            {/* Unique Tactile Dark/Light Mode Slider */}
+            <TactileThemeToggle />
+
+            {/* Tactile Log In Button with Specular Edge & Magnetic Hover */}
+            <Magnetic strength={0.18}>
+              <Button
+                variant="default"
+                size="sm"
+                data-cuelume-press="press"
+                data-cuelume-release="release"
+                data-cuelume-hover="tick"
+                onClick={() => navigate('/auth')}
+                className="text-xs px-3.5 sm:px-4 h-8 sm:h-9 font-display font-semibold shadow-xs active:scale-[0.96] rounded-full transition-transform"
+              >
+                <span>Log In</span>
+              </Button>
+            </Magnetic>
+          </div>
+        </div>
+      </motion.header>
 
       {/* -- HERO SECTION: HUMAN OUTCOME FIRST, THEN SYSTEM MECHANISM -- */}
       <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-32 pb-8 sm:pb-16 text-center">
