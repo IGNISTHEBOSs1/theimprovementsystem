@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle2, Target, Sparkles, Check, Loader2 } from "lucide-react";
+import { CheckCircle2, Target, Sparkles, Check, Loader2, ArrowRight } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -568,14 +568,19 @@ export default function Dashboard() {
                 That didn't go through. You can try again.
               </p>
             )}
-            {activeQuests.length > 1 && (
+            {activeQuests.length > 1 ? (
               <div className="mt-5">
-                <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
-                  Secondary Commitments
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+                    Also Active
+                  </p>
+                  <Link to="/quests" className="text-xs font-medium text-primary hover:underline">
+                    See all quests →
+                  </Link>
+                </div>
                 <ul className="mt-3 space-y-2.5">
                   <AnimatePresence mode="popLayout" initial={false}>
-                    {activeQuests.slice(1, 2).map((quest) => (
+                    {activeQuests.slice(1).map((quest) => (
                       <SecondaryQuestItem
                         key={quest.id}
                         quest={quest}
@@ -586,12 +591,13 @@ export default function Dashboard() {
                   </AnimatePresence>
                 </ul>
               </div>
+            ) : (
+              <div className="mt-4">
+                <Link to="/quests" className="text-body-sm text-primary underline-offset-4 hover:underline">
+                  See all commitments →
+                </Link>
+              </div>
             )}
-            <div className="mt-4">
-              <Link to="/quests" className="text-body-sm text-primary underline-offset-4 hover:underline">
-                See all commitments →
-              </Link>
-            </div>
           </>
         ) : completedToday > 0 ? (
           <DailyClosureCard
@@ -613,9 +619,20 @@ export default function Dashboard() {
 
       {/* ── Contextual Link ── */}
       {contextualLink && (
-        <div className="mt-6">
-          <Link to={contextualLink.to} className="text-body-sm text-primary underline-offset-4 hover:underline">
-            {contextualLink.label}
+        <div className="mt-8">
+          <Link
+            to={contextualLink.to}
+            className="group flex items-center justify-between p-4 rounded-2xl border border-border/80 bg-card hover:bg-muted/40 transition-all shadow-xs"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="size-8 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 text-primary">
+                <Sparkles className="size-4" aria-hidden="true" />
+              </div>
+              <p className="text-xs sm:text-sm font-medium text-foreground line-clamp-2 leading-snug">
+                {contextualLink.label}
+              </p>
+            </div>
+            <ArrowRight className="size-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 ml-2" aria-hidden="true" />
           </Link>
         </div>
       )}

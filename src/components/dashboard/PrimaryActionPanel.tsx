@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { ArrowRight, Check, ChevronRight, CircleDot, Target, Loader2 } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, CircleDot, Loader2 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -141,12 +141,6 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
               <CircleDot className="size-4 text-primary" aria-hidden="true" />
               <span>{quest.timeFrame}</span>
               <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>{quest.priority}</Badge>
-              {quest.linkedToGoal && quest.goalName && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-2.5 py-0.5 text-[11px] font-medium text-foreground">
-                  <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
-                  <span className="truncate max-w-[200px]">Goal: {quest.goalName}</span>
-                </span>
-              )}
             </div>
             <h2 id="focus-heading" className={cn("mt-2 text-2xl font-semibold tracking-tight text-foreground transition-all line-clamp-2 break-words leading-snug", completionStage !== "idle" && "line-through text-muted-foreground")}>
               {quest.title}

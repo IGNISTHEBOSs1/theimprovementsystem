@@ -142,15 +142,15 @@ export default function Journey() {
     <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-24 sm:px-8 sm:py-10">
       {/* ── Page Header & Narrative Guidance ── */}
       <header className="mb-6">
-        <p className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-1">
+        <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground mb-1">
           Trajectory & Navigation
         </p>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
           Your Path.
         </h1>
-        <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1 leading-relaxed max-w-2xl">
+        <p className="text-sm text-muted-foreground mt-1 leading-relaxed max-w-2xl">
           Tracking deliberate progress toward{" "}
-          <span className="font-semibold text-neutral-900 dark:text-neutral-100">"{profile?.primary_goal}"</span>.
+          <span className="font-semibold text-foreground">"{profile?.primary_goal}"</span>.
         </p>
         <div className="mt-3 pl-3 border-l-2 border-primary/40 py-1 text-xs sm:text-sm text-foreground/90 font-medium">
           {pace ? (
@@ -218,7 +218,7 @@ export default function Journey() {
         {pace ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
             {/* Metric 1: Velocity vs Required */}
-            <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-muted/30 p-5 flex flex-col justify-between">
+            <div className="rounded-2xl border border-border/80 bg-muted/40 p-5 flex flex-col justify-between shadow-xs">
               <div>
                 <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
                   Daily Execution Velocity
@@ -263,7 +263,7 @@ export default function Journey() {
             </div>
 
             {/* Metric 2: Target Horizon & Milestone Progress */}
-            <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-muted/30 p-5 flex flex-col justify-between">
+            <div className="rounded-2xl border border-border/80 bg-muted/40 p-5 flex flex-col justify-between shadow-xs">
               <div>
                 <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
                   Target Horizon & Milestone
@@ -287,7 +287,7 @@ export default function Journey() {
             </div>
           </div>
         ) : (
-          <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-muted/30 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="rounded-2xl border border-border/80 bg-muted/40 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
             <div>
               <h4 className="text-base font-semibold text-foreground">No target milestone set</h4>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -387,14 +387,14 @@ export default function Journey() {
       <div className="mt-8 space-y-3">
         <div className="flex items-start justify-between gap-4 px-1">
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400 mb-0.5">
+            <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground mb-0.5">
               Recent Activity
             </p>
-            <h3 className="text-base font-bold text-neutral-900 dark:text-neutral-100">
+            <h3 className="text-base font-bold text-foreground">
               Commitment Ledger (Last 48 hours)
             </h3>
           </div>
-          <span className="shrink-0 whitespace-nowrap text-xs font-mono text-neutral-500 dark:text-neutral-400">
+          <span className="shrink-0 whitespace-nowrap text-xs font-mono text-muted-foreground">
             {recentEvidence48h.length} recorded
           </span>
         </div>

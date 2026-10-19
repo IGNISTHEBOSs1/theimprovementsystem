@@ -280,24 +280,24 @@ export default function Settings() {
               }}
               className="w-full"
             >
-              <TabsList className="grid grid-cols-3 w-full max-w-md h-11 p-1 rounded-xl bg-neutral-100 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800">
+              <TabsList className="grid grid-cols-3 w-full max-w-md h-11 p-1 rounded-xl bg-muted/60 border border-border/80">
                 <TabsTrigger
                   value="light"
-                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100 active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
                 >
                   <Sun className="size-4" aria-hidden="true" />
                   <span>Light</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="dark"
-                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100 active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
                 >
                   <Moon className="size-4" aria-hidden="true" />
                   <span>Dark</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="system"
-                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100 active:scale-[0.98]"
+                  className="flex items-center justify-center gap-2 h-9 rounded-lg text-xs sm:text-sm font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
                 >
                   <Monitor className="size-4" aria-hidden="true" />
                   <span>Auto</span>

@@ -333,54 +333,54 @@ export default function Profile() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-border/60">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
           {/* Pillar 1: Reliability */}
-          <div className="py-3 sm:py-0 sm:px-4 first:sm:pl-0">
+          <div className="col-span-1 rounded-2xl border border-border/80 bg-muted/40 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
                 Completion Rate
               </span>
-              <CheckCircle2 className="size-4 text-emerald-500" aria-hidden="true" />
+              <CheckCircle2 className="size-4 text-emerald-500 shrink-0" aria-hidden="true" />
             </div>
-            <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-3xl font-bold font-mono text-foreground">{completionRate}%</span>
+            <div className="mt-2.5 flex items-baseline gap-1.5 flex-wrap">
+              <span className="text-2xl sm:text-3xl font-bold font-mono text-foreground">{completionRate}%</span>
               <span className="text-xs font-mono text-muted-foreground">
                 ({followThrough.completed}/{followThrough.total})
               </span>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1">Commitment follow-through</p>
+            <p className="text-[11px] text-muted-foreground mt-2 line-clamp-1">Commitment follow-through</p>
           </div>
 
           {/* Pillar 2: Goal Focus */}
-          <div className="py-3 sm:py-0 sm:px-4">
+          <div className="col-span-1 rounded-2xl border border-border/80 bg-muted/40 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
                 Goal Focus
               </span>
-              <Target className="size-4 text-primary" aria-hidden="true" />
+              <Target className="size-4 text-primary shrink-0" aria-hidden="true" />
             </div>
-            <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-3xl font-bold font-mono text-foreground">{goalCompletionRate}%</span>
+            <div className="mt-2.5 flex items-baseline gap-1.5 flex-wrap">
+              <span className="text-2xl sm:text-3xl font-bold font-mono text-foreground">{goalCompletionRate}%</span>
               <span className="text-xs font-mono text-muted-foreground">
                 ({goalStats.completed}/{goalStats.linked})
               </span>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1">North Star follow-through</p>
+            <p className="text-[11px] text-muted-foreground mt-2 line-clamp-1">North Star follow-through</p>
           </div>
 
           {/* Pillar 3: Volume */}
-          <div className="py-3 sm:py-0 sm:px-4 last:sm:pr-0">
+          <div className="col-span-2 sm:col-span-1 rounded-2xl border border-border/80 bg-muted/40 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
             <div className="flex items-center justify-between text-muted-foreground">
               <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
-                Commitments Honored
+                Honored Commitments
               </span>
-              <Compass className="size-4 text-foreground" aria-hidden="true" />
+              <Compass className="size-4 text-foreground shrink-0" aria-hidden="true" />
             </div>
-            <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-3xl font-bold font-mono text-foreground">{followThrough.completed}</span>
-              <span className="text-sm font-mono text-muted-foreground">of {followThrough.total}</span>
+            <div className="mt-2.5 flex items-baseline gap-1.5 flex-wrap">
+              <span className="text-2xl sm:text-3xl font-bold font-mono text-foreground">{followThrough.completed}</span>
+              <span className="text-xs sm:text-sm font-mono text-muted-foreground">of {followThrough.total} total</span>
             </div>
-            <p className="text-[11px] text-muted-foreground mt-1">Verified execution proof</p>
+            <p className="text-[11px] text-muted-foreground mt-2 line-clamp-1">Verified execution proof</p>
           </div>
         </div>
       </section>

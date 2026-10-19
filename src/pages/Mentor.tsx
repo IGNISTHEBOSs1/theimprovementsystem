@@ -197,11 +197,11 @@ export default function Mentor() {
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                  <span className="text-[11px] font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400 block">
+                  <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground block">
                     Executive Briefing • Primary Pattern
                   </span>
                 </div>
-                <span className="shrink-0 whitespace-nowrap text-xs text-neutral-500 dark:text-neutral-400">
+                <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">
                   Behavioral Analysis
                 </span>
               </div>

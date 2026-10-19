@@ -251,22 +251,22 @@ export default function QuestHistory() {
                 onValueChange={(val) => setActiveTab(val as "all" | "completed" | "failed")}
                 className="w-full sm:w-auto"
               >
-                <TabsList className="grid w-full grid-cols-3 sm:w-auto p-1 rounded-xl bg-neutral-100 dark:bg-neutral-900/60 border border-neutral-200/80 dark:border-neutral-800">
+                <TabsList className="grid w-full grid-cols-3 sm:w-auto p-1 rounded-xl bg-muted/60 border border-border/80">
                   <TabsTrigger
                     value="all"
-                    className="text-xs font-medium rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100"
+                    className="text-xs font-medium rounded-lg text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
                   >
                     All ({resolved.length})
                   </TabsTrigger>
                   <TabsTrigger
                     value="completed"
-                    className="text-xs font-medium rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100"
+                    className="text-xs font-medium rounded-lg text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
                   >
                     Completed ({completedCount})
                   </TabsTrigger>
                   <TabsTrigger
                     value="failed"
-                    className="text-xs font-medium rounded-lg text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200 data-[state=active]:bg-white data-[state=active]:text-neutral-900 data-[state=active]:shadow-sm dark:data-[state=active]:bg-neutral-800 dark:data-[state=active]:text-neutral-100"
+                    className="text-xs font-medium rounded-lg text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all"
                   >
                     Missed ({failedCount})
                   </TabsTrigger>

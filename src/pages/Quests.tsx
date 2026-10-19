@@ -229,54 +229,23 @@ export default function Quests() {
                   )}
                 </div>
 
-                {/* Proximity Clusters: Grouped by Priority with Tight Internal Row Proximity */}
-                {(
-                  [
-                    {
-                      label: "Essential Commitments",
-                      caption: "Core Anchor",
-                      quests: activeQuests.filter((q) => q.priority === "Essential"),
-                    },
-                    {
-                      label: "Important Objectives",
-                      caption: "High Leverage",
-                      quests: activeQuests.filter((q) => q.priority === "Important"),
-                    },
-                    {
-                      label: "Optional / Tactical",
-                      caption: "Bonus",
-                      quests: activeQuests.filter((q) => q.priority === "Optional"),
-                    },
-                  ] as const
-                )
-                  .filter((group) => group.quests.length > 0)
-                  .map((group) => (
-                    <section key={group.label} className="space-y-2" aria-label={group.label}>
-                      <div className="flex items-center justify-between px-1 text-xs">
-                        <span className="font-mono font-semibold uppercase tracking-wider text-muted-foreground text-[11px]">
-                          {group.label}
-                        </span>
-                        <span className="font-mono text-[11px] text-muted-foreground/75">
-                          {group.caption} · {group.quests.length}
-                        </span>
-                      </div>
-
-                      <ul className="space-y-2.5">
-                        <AnimatePresence mode="popLayout" initial={false}>
-                          {group.quests.map((quest) => (
-                            <QuestCard
-                              key={quest.id}
-                              quest={quest}
-                              completing={saving}
-                              onComplete={handleComplete}
-                              onCancel={handleCancel}
-                              cancelling={cancelling}
-                            />
-                          ))}
-                        </AnimatePresence>
-                      </ul>
-                    </section>
-                  ))}
+                {/* Active Commitments List: Core and Important quests render alongside each other */}
+                <section className="space-y-2.5" aria-label="Active Commitments Ledger">
+                  <ul className="space-y-2.5">
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      {activeQuests.map((quest) => (
+                        <QuestCard
+                          key={quest.id}
+                          quest={quest}
+                          completing={saving}
+                          onComplete={handleComplete}
+                          onCancel={handleCancel}
+                          cancelling={cancelling}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </ul>
+                </section>
               </div>
             ) : !showCommitForm ? (
               /* Inviting Empty State when 0 quests */

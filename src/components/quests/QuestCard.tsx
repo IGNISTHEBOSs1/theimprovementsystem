@@ -163,21 +163,27 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
                 </span>
               </>
             )}
-            {canCancel && (
-              <>
-                <span>·</span>
-                <button
-                  type="button"
-                  onClick={() => onCancel!(quest.id)}
-                  disabled={cancelling || completing}
-                  className="font-medium text-destructive/80 hover:text-destructive underline-offset-2 hover:underline"
-                >
-                  Cancel
-                </button>
-              </>
-            )}
           </div>
         </div>
+
+        {/* Mobile 44x44px Cancel Action */}
+        {canCancel && (
+          <div className="sm:hidden shrink-0 self-center">
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playTap();
+                onCancel!(quest.id);
+              }}
+              disabled={cancelling || completing}
+              className="size-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer"
+              title="Cancel commitment"
+              aria-label={`Cancel commitment "${quest.title}"`}
+            >
+              <X className="size-4" aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* RIGHT AXIS (Tablet/Desktop): Pinned hard-right metadata & actions (The Receipt Right Edge) */}
@@ -243,7 +249,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
                 onCancel!(quest.id);
               }}
               disabled={cancelling || completing || isCompleted}
-              className="p-1 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
+              className="size-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer"
               title="Cancel commitment"
               aria-label="Cancel commitment"
             >
