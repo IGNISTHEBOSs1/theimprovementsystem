@@ -1,5 +1,7 @@
 import { ArrowRight, RotateCcw } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { TIS_SPRINGS } from "@/lib/motion-tokens";
 import type { Quest } from "@/types/quest";
 
 interface RecoveryStateProps {
@@ -25,7 +27,14 @@ export function RecoveryState({ onChooseQuest, lastMissedQuest, onRecommit }: Re
   const canRecommit = Boolean(lastMissedQuest && !lastMissedQuest.seriesId && onRecommit);
 
   return (
-    <section className="rounded-2xl border border-border bg-muted/30 p-5 sm:p-6" aria-labelledby="recovery-heading">
+    <motion.section
+      initial={{ opacity: 0, y: 8, scale: 0.985 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -6, scale: 0.985 }}
+      transition={TIS_SPRINGS.settle}
+      className="rounded-2xl border border-border bg-muted/30 p-5 sm:p-6"
+      aria-labelledby="recovery-heading"
+    >
       <p className="text-label text-muted-foreground">A clear return</p>
       <h2 id="recovery-heading" className="mt-2 text-lg font-semibold text-foreground">You can begin again from here.</h2>
       {lastMissedQuest ? (
@@ -51,6 +60,6 @@ export function RecoveryState({ onChooseQuest, lastMissedQuest, onRecommit }: Re
           Choose one action <ArrowRight className="size-4" aria-hidden="true" />
         </Button>
       </div>
-    </section>
+    </motion.section>
   );
 }

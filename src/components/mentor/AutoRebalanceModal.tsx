@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { RotateCcw, ArrowRight, Info } from "lucide-react";
 import {
   Dialog,
@@ -9,6 +10,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { triggerHaptic } from "@/lib/haptics";
+import { useSoundEffects } from "@/hooks/useSoundEffects";
 import type { RebalanceProposal } from "@/lib/rebalance";
 
 interface AutoRebalanceModalProps {
@@ -28,6 +31,30 @@ interface AutoRebalanceModalProps {
 // backend gap (one new Supabase mutation + a UI control on the edit
 // flow), not something to fake from the modal layer.
 export function AutoRebalanceModal({ open, onOpenChange, proposal }: AutoRebalanceModalProps) {
+  const navigate = useNavigate();
+  const { playSuccess } = useSoundEffects();
+  const [applied, setApplied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
+  const handleApply = () => {
+    if (applied) return;
+    setApplied(true);
+    triggerHaptic("success");
+    playSuccess();
+    timerRef.current = setTimeout(() => {
+      onOpenChange(false);
+      navigate("/quests");
+      setApplied(false);
+    }, 220);
+  };
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -71,13 +98,11 @@ export function AutoRebalanceModal({ open, onOpenChange, proposal }: AutoRebalan
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">
-          <Button variant="ghost" className="min-h-11" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" className="min-h-11" onClick={() => onOpenChange(false)} disabled={applied}>
             Not now
           </Button>
-          <Button asChild className="min-h-11">
-            <Link to="/quests" onClick={() => onOpenChange(false)}>
-              Go to Quests
-            </Link>
+          <Button className="min-h-11" onClick={handleApply} disabled={applied}>
+            {applied ? "✓ Applied" : "Go to Quests"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Check, Target, Loader2, Repeat, Zap, X } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Quest } from "@/types/quest";
 import { triggerHaptic } from "@/lib/haptics";
 import { soundEngine } from "@/hooks/useSoundEffects";
+import { TIS_EASINGS } from "@/lib/motion-tokens";
 import { cn } from "@/lib/utils";
 
 interface QuestCardProps {
@@ -15,26 +16,49 @@ interface QuestCardProps {
 }
 
 export function QuestCard({ quest, completing, onComplete, onCancel, cancelling }: QuestCardProps) {
-  const [completionStage, setCompletionStage] = useState<"idle" | "shrink" | "slide">("idle");
+  const [completionStage, setCompletionStage] = useState<"idle" | "shrink">("idle");
+  const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shouldReduceMotion = useReducedMotion();
   const isDone = quest.completed || quest.failed;
   const isCompleted = quest.completed || completionStage !== "idle";
   const canCancel = Boolean(onCancel) && !isDone && !quest.seriesId && completionStage === "idle";
 
+  useEffect(() => {
+    return () => {
+      if (completeTimerRef.current) {
+        clearTimeout(completeTimerRef.current);
+        completeTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!completing && !quest.completed && completionStage !== "idle" && !completeTimerRef.current) {
+      setCompletionStage("idle");
+    }
+  }, [completing, quest.completed, completionStage]);
+
   const handleMarkComplete = () => {
-    if (completing || completionStage !== "idle" || isDone) return;
+    if (completing || isDone) return;
+    if (completionStage !== "idle") {
+      if (completeTimerRef.current) {
+        clearTimeout(completeTimerRef.current);
+        completeTimerRef.current = null;
+      }
+      setCompletionStage("idle");
+      return;
+    }
+
     setCompletionStage("shrink");
     triggerHaptic("success");
     soundEngine.playSuccess();
     if (shouldReduceMotion) {
       onComplete(quest.id);
     } else {
-      setTimeout(() => {
-        setCompletionStage("slide");
-      }, 220);
-      setTimeout(() => {
+      completeTimerRef.current = setTimeout(() => {
+        completeTimerRef.current = null;
         onComplete(quest.id);
-      }, 540);
+      }, 260);
     }
   };
 
@@ -45,17 +69,6 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
       animate={
         shouldReduceMotion
           ? { opacity: isDone ? 0.65 : 1 }
-          : completionStage === "slide"
-          ? {
-              scale: 0.92,
-              x: 340,
-              opacity: 0,
-              height: 0,
-              marginBottom: 0,
-              paddingTop: 0,
-              paddingBottom: 0,
-              boxShadow: "0 25px 30px -10px rgba(0,0,0,0.3)",
-            }
           : completionStage === "shrink"
           ? {
               scale: 0.93,
@@ -75,11 +88,11 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
       exit={
         shouldReduceMotion
           ? { opacity: 0 }
-          : { scale: 0.92, x: 340, opacity: 0, transition: { duration: 0.32, ease: [0.32, 0.72, 0, 1] } }
+          : { scale: 0.92, x: 340, opacity: 0, transition: { duration: 0.26, ease: TIS_EASINGS.exitDecel } }
       }
       transition={{
-        duration: completionStage === "shrink" ? 0.22 : 0.34,
-        ease: [0.32, 0.72, 0, 1],
+        duration: completionStage === "shrink" ? 0.22 : 0.26,
+        ease: TIS_EASINGS.exitDecel,
         layout: { type: "spring", stiffness: 360, damping: 28 },
       }}
       className={cn(
@@ -97,14 +110,14 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
         <button
           type="button"
           onClick={handleMarkComplete}
-          disabled={completing || isDone || isCompleted}
+          disabled={completing || isDone || quest.completed}
           aria-label={
             isCompleted
               ? `Quest "${quest.title}" completed`
               : `Mark "${quest.title}" as complete`
           }
           className={cn(
-            "relative mt-0.5 sm:mt-0 size-6 shrink-0 rounded-lg border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer",
+            "relative mt-0.5 sm:mt-0 size-6 shrink-0 rounded-lg border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] cursor-pointer",
             isCompleted
               ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105"
               : quest.failed

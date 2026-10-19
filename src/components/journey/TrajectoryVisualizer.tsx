@@ -254,7 +254,7 @@ export function TrajectoryVisualizer({
             filter={`url(#${glowFilterId})`}
             initial={shouldReduceMotion ? false : { pathLength: 0, opacity: 0.2 }}
             animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.65, ease: TIS_EASINGS.precisionInOut }}
           />
 
           {/* Origin Start Point */}

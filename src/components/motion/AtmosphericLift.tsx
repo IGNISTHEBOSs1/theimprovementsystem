@@ -15,9 +15,9 @@ interface AtmosphericLiftProps {
 export function AtmosphericLift({
   children,
   delay = 0,
-  duration = 0.72,
-  yOffset = 24,
-  blurAmount = 8,
+  duration = 0.24,
+  yOffset = 6,
+  blurAmount = 0,
   className = '',
   triggerOnce = true,
 }: AtmosphericLiftProps) {

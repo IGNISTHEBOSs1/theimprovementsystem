@@ -552,60 +552,76 @@ export default function Dashboard() {
             <div className="h-3 w-24 animate-pulse rounded bg-muted" />
             <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
           </section>
-        ) : activeQuests.length > 0 ? (
-          <>
-            <AnimatePresence mode="popLayout" initial={false}>
-              <PrimaryActionPanel
-                key={activeQuests[0].id}
-                quest={activeQuests[0]}
-                completing={saving}
-                onComplete={() => void handleComplete(activeQuests[0].id)}
+        ) : (
+          <AnimatePresence mode="wait" initial={false}>
+            {activeQuests.length > 0 ? (
+              <motion.div
+                key="active-quests"
+                initial={{ opacity: 0, y: 8, scale: 0.985 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6, scale: 0.985 }}
+                transition={TIS_SPRINGS.settle}
+              >
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <PrimaryActionPanel
+                    key={activeQuests[0].id}
+                    quest={activeQuests[0]}
+                    completing={saving}
+                    onComplete={() => void handleComplete(activeQuests[0].id)}
+                    onChooseQuest={chooseQuest}
+                  />
+                </AnimatePresence>
+                {completeError && (
+                  <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
+                    That didn't go through. You can try again.
+                  </p>
+                )}
+                {activeQuests.length > 1 ? (
+                  <div className="mt-5">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+                        Also Active
+                      </p>
+                      <Link to="/quests" className="text-xs font-medium text-primary hover:underline">
+                        See all quests →
+                      </Link>
+                    </div>
+                    <ul className="mt-3 space-y-2.5">
+                      <AnimatePresence mode="popLayout" initial={false}>
+                        {activeQuests.slice(1).map((quest) => (
+                          <SecondaryQuestItem
+                            key={quest.id}
+                            quest={quest}
+                            completing={saving}
+                            onComplete={handleComplete}
+                          />
+                        ))}
+                      </AnimatePresence>
+                    </ul>
+                  </div>
+                ) : (
+                  <div className="mt-4">
+                    <Link to="/quests" className="text-body-sm text-primary underline-offset-4 hover:underline">
+                      See all commitments →
+                    </Link>
+                  </div>
+                )}
+              </motion.div>
+            ) : completedToday > 0 ? (
+              <DailyClosureCard
+                key="daily-closure"
+                completedToday={completedToday}
                 onChooseQuest={chooseQuest}
               />
-            </AnimatePresence>
-            {completeError && (
-              <p className="mt-3 text-body-sm text-muted-foreground" role="alert">
-                That didn't go through. You can try again.
-              </p>
-            )}
-            {activeQuests.length > 1 ? (
-              <div className="mt-5">
-                <div className="flex items-center justify-between">
-                  <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
-                    Also Active
-                  </p>
-                  <Link to="/quests" className="text-xs font-medium text-primary hover:underline">
-                    See all quests →
-                  </Link>
-                </div>
-                <ul className="mt-3 space-y-2.5">
-                  <AnimatePresence mode="popLayout" initial={false}>
-                    {activeQuests.slice(1).map((quest) => (
-                      <SecondaryQuestItem
-                        key={quest.id}
-                        quest={quest}
-                        completing={saving}
-                        onComplete={handleComplete}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </ul>
-              </div>
             ) : (
-              <div className="mt-4">
-                <Link to="/quests" className="text-body-sm text-primary underline-offset-4 hover:underline">
-                  See all commitments →
-                </Link>
-              </div>
+              <RecoveryState
+                key="recovery-state"
+                onChooseQuest={chooseQuest}
+                lastMissedQuest={lastMissedQuest}
+                onRecommit={handleRecommit}
+              />
             )}
-          </>
-        ) : completedToday > 0 ? (
-          <DailyClosureCard
-            completedToday={completedToday}
-            onChooseQuest={chooseQuest}
-          />
-        ) : (
-          <RecoveryState onChooseQuest={chooseQuest} lastMissedQuest={lastMissedQuest} onRecommit={handleRecommit} />
+          </AnimatePresence>
         )}
       </div>
 

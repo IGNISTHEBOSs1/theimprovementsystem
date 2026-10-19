@@ -1,5 +1,7 @@
 import { CheckCircle2, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { TIS_SPRINGS } from "@/lib/motion-tokens";
 
 interface DailyClosureCardProps {
   completedToday: number;
@@ -11,7 +13,11 @@ export function DailyClosureCard({
   onChooseQuest,
 }: DailyClosureCardProps) {
   return (
-    <section
+    <motion.section
+      initial={{ opacity: 0, y: 8, scale: 0.985 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -6, scale: 0.985 }}
+      transition={TIS_SPRINGS.settle}
       className="rounded-2xl glass-hero p-5 sm:p-7 shadow-[var(--shadow-card)]"
       aria-labelledby="closure-heading"
     >
@@ -53,6 +59,6 @@ export function DailyClosureCard({
           <ArrowRight className="size-3.5 ml-1.5" aria-hidden="true" />
         </Button>
       </div>
-    </section>
+    </motion.section>
   );
 }

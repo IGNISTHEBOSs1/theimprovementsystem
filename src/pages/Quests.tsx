@@ -21,6 +21,7 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { nextEligibleDayLabel, MAX_ACTIVE_QUESTS, type CadencePreset } from "@/hooks/useDashboardData";
 import { getServerLocalDate, toServerLocalDate, type ServerLocalDate } from "@/lib/serverTime";
 import { soundEngine } from "@/hooks/useSoundEffects";
+import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import type { Quest, QuestPriority } from "@/types/quest";
 
@@ -84,16 +85,21 @@ export default function Quests() {
 
   const handleCommit = async (commitment: string, linkedToGoal: boolean, cadence: CadencePreset, customDays: number[], priority: QuestPriority) => {
     setCommitError(false);
+    setShowCommitForm(false);
+    soundEngine.playConfirmation();
     const { error: commitErr } = await commitToTodaysQuest(
       commitment, linkedToGoal, cadence, customDays, priority,
       linkedToGoal ? profile?.primary_goal ?? undefined : undefined,
     );
     if (commitErr) {
       setCommitError(true);
+      setShowCommitForm(true);
       soundEngine.playError();
-    } else {
-      soundEngine.playConfirmation();
-      setShowCommitForm(false);
+      toast({
+        title: "Could not create commitment",
+        description: "That didn't go through. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 

@@ -12,8 +12,8 @@ interface TelemetryStaggerContainerProps {
 
 export function TelemetryStaggerContainer({
   children,
-  staggerDelay = 0.07,
-  initialDelay = 0.05,
+  staggerDelay = 0.025,
+  initialDelay = 0,
   className = '',
   triggerOnce = true,
 }: TelemetryStaggerContainerProps) {
@@ -54,9 +54,9 @@ interface TelemetryStaggerItemProps {
 export function TelemetryStaggerItem({
   children,
   className = '',
-  yOffset = 18,
+  yOffset = 6,
   blurAmount = 4,
-  duration = 0.58,
+  duration = 0.22,
 }: TelemetryStaggerItemProps) {
   const shouldReduce = useReducedMotion();
 

@@ -29,7 +29,7 @@ const NotFound = lazyWithRetry(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
-import { AtomDemo } from "@/components/ui/loading-screen";
+import { AtomDemo, CockpitRouteSkeleton } from "@/components/ui/loading-screen";
 
 // Atom-based loading indicator — sleek, responsive, and aligned with Kinetic precision aesthetic
 function CenteredSpinner() {
@@ -68,11 +68,7 @@ const ProtectedLayout = () => (
   <ProtectedRoute>
     <AppLayout>
       <RouteErrorBoundary>
-        <Suspense fallback={
-          <div className="flex min-h-[50vh] items-center justify-center text-foreground p-6">
-            <AtomDemo />
-          </div>
-        }>
+        <Suspense fallback={<CockpitRouteSkeleton />}>
           <Outlet />
         </Suspense>
       </RouteErrorBoundary>
@@ -84,7 +80,7 @@ const App = () => (
   <DevErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="Monarch" defaultMode="system">
-        <TooltipProvider>
+        <TooltipProvider delayDuration={260} skipDelayDuration={450}>
           <Toaster />
           <Sonner />
           <AuthProvider>

@@ -23,12 +23,12 @@ export function Magnetic({ children, strength = 0.25, className }: MagneticProps
 
   const smoothX = useSpring(x, {
     stiffness: TIS_SPRINGS.gesture.stiffness,
-    damping: TIS_SPRINGS.gesture.damping,
+    damping: 11,
     mass: 0.1,
   });
   const smoothY = useSpring(y, {
     stiffness: TIS_SPRINGS.gesture.stiffness,
-    damping: TIS_SPRINGS.gesture.damping,
+    damping: 11,
     mass: 0.1,
   });
 

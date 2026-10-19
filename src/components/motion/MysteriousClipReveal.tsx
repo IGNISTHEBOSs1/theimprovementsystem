@@ -14,10 +14,10 @@ interface MysteriousClipRevealProps {
 export function MysteriousClipReveal({
   children,
   delay = 0,
-  duration = 0.85,
+  duration = 0.28,
   direction = 'horizontal',
   className = '',
-  showLaserGlint = true,
+  showLaserGlint = false,
 }: MysteriousClipRevealProps) {
   const shouldReduce = useReducedMotion();
 

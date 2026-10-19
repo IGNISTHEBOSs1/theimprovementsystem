@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { SystemLogo } from '@/components/branding/Logo';
+import { TIS_SPRINGS } from '@/lib/motion-tokens';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
 
@@ -260,7 +261,7 @@ const Auth = () => {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.1, type: 'spring', stiffness: 280 }}
+                transition={{ ...TIS_SPRINGS.settle, delay: 0.05 }}
                 className="flex items-center justify-center mb-1.5 lg:hidden"
               >
                 <div className="p-1.5 rounded-xl bg-card border border-border/80 dark:border-white/10 shadow-xs">

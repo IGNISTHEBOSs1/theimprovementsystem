@@ -68,6 +68,11 @@ export const TIS_EASINGS = {
    * Ease-Out-Quint: Velvety entrance curve.
    */
   subtleEntrance: [0.22, 1, 0.36, 1] as const,
+
+  /**
+   * Precision Smooth-Pursuit: Telemetry visualizers and progress rings.
+   */
+  precisionInOut: [0.65, 0, 0.35, 1] as const,
 } as const;
 
 export const TIS_TRANSITIONS = {

@@ -38,6 +38,7 @@ function CompletionRing({ completed, total }: { completed: number; total: number
         strokeDasharray={circumference}
         strokeDashoffset={circumference * (1 - fraction)}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        className="transition-[stroke-dashoffset] duration-500 ease-[cubic-bezier(0.65,0,0.35,1)]"
       />
       <text x="50%" y="47%" textAnchor="middle" className="fill-foreground text-[15px] font-semibold">{completed}</text>
       <text x="50%" y="66%" textAnchor="middle" className="fill-muted-foreground text-[9px]">of {total}</text>

@@ -1,8 +1,10 @@
 import { FormEvent, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Settings2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { TIS_SPRINGS } from "@/lib/motion-tokens";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { QuestPriority } from "@/types/quest";
@@ -162,84 +164,96 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
         </div>
 
         {/* EXPANDABLE OPTIONS: Clean Structured Grid */}
-        {showOptions && (
-          <div className="mt-2 flex flex-col gap-3.5 rounded-xl border border-border/70 bg-muted/20 p-3.5 sm:p-4 text-xs">
-            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-              <span className="w-16 font-medium text-muted-foreground shrink-0">Priority</span>
-              <ToggleGroup
-                type="single"
-                value={priority}
-                onValueChange={(val) => {
-                  if (val) setPriority(val as QuestPriority);
-                }}
-                disabled={committing}
-                className="flex-wrap justify-start gap-1.5"
-                aria-label="Priority"
-              >
-                {PRIORITIES.map((level) => (
-                  <ToggleGroupItem
-                    key={level}
-                    value={level}
-                    size="sm"
-                    className="h-7 px-2.5 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
-                  >
-                    {level}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-            </div>
-
-            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-              <span className="w-16 font-medium text-muted-foreground shrink-0">Repeats</span>
-              <ToggleGroup
-                type="single"
-                value={cadence}
-                onValueChange={(val) => {
-                  if (val) setCadence(val as CadencePreset);
-                }}
-                disabled={committing}
-                className="flex-wrap justify-start gap-1.5"
-                aria-label="Repeats"
-              >
-                {CADENCE_PRESETS.map((preset) => (
-                  <ToggleGroupItem
-                    key={preset}
-                    value={preset}
-                    size="sm"
-                    className="h-7 px-2.5 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
-                  >
-                    {preset}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-            </div>
-
-            {cadence === "Custom" && (
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-                <span className="w-16 font-medium text-muted-foreground shrink-0">Days</span>
-                <ToggleGroup
-                  type="multiple"
-                  value={customDays.map(String)}
-                  onValueChange={(vals) => setCustomDays(vals.map(Number).sort())}
-                  disabled={committing}
-                  className="flex-wrap justify-start gap-1.5"
-                  aria-label="Repeat on which days"
-                >
-                  {DAY_LABELS.map((label, i) => (
-                    <ToggleGroupItem
-                      key={i}
-                      value={String(i)}
-                      size="sm"
-                      className="h-7 w-9 px-0 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
+        <AnimatePresence initial={false}>
+          {showOptions && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={TIS_SPRINGS.settle}
+              className="overflow-hidden"
+            >
+              <div className="pt-2">
+                <div className="flex flex-col gap-3.5 rounded-xl border border-border/70 bg-muted/20 p-3.5 sm:p-4 text-xs">
+                  <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
+                    <span className="w-16 font-medium text-muted-foreground shrink-0">Priority</span>
+                    <ToggleGroup
+                      type="single"
+                      value={priority}
+                      onValueChange={(val) => {
+                        if (val) setPriority(val as QuestPriority);
+                      }}
+                      disabled={committing}
+                      className="flex-wrap justify-start gap-1.5"
+                      aria-label="Priority"
                     >
-                      {label}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
+                      {PRIORITIES.map((level) => (
+                        <ToggleGroupItem
+                          key={level}
+                          value={level}
+                          size="sm"
+                          className="h-7 px-2.5 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
+                        >
+                          {level}
+                        </ToggleGroupItem>
+                      ))}
+                    </ToggleGroup>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
+                    <span className="w-16 font-medium text-muted-foreground shrink-0">Repeats</span>
+                    <ToggleGroup
+                      type="single"
+                      value={cadence}
+                      onValueChange={(val) => {
+                        if (val) setCadence(val as CadencePreset);
+                      }}
+                      disabled={committing}
+                      className="flex-wrap justify-start gap-1.5"
+                      aria-label="Repeats"
+                    >
+                      {CADENCE_PRESETS.map((preset) => (
+                        <ToggleGroupItem
+                          key={preset}
+                          value={preset}
+                          size="sm"
+                          className="h-7 px-2.5 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
+                        >
+                          {preset}
+                        </ToggleGroupItem>
+                      ))}
+                    </ToggleGroup>
+                  </div>
+
+                  {cadence === "Custom" && (
+                    <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
+                      <span className="w-16 font-medium text-muted-foreground shrink-0">Days</span>
+                      <ToggleGroup
+                        type="multiple"
+                        value={customDays.map(String)}
+                        onValueChange={(vals) => setCustomDays(vals.map(Number).sort())}
+                        disabled={committing}
+                        className="flex-wrap justify-start gap-1.5"
+                        aria-label="Repeat on which days"
+                      >
+                        {DAY_LABELS.map((label, i) => (
+                          <ToggleGroupItem
+                            key={i}
+                            value={String(i)}
+                            size="sm"
+                            className="h-7 w-9 px-0 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
+                          >
+                            {label}
+                          </ToggleGroupItem>
+                        ))}
+                      </ToggleGroup>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </form>
     </section>
   );

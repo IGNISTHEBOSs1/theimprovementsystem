@@ -239,10 +239,8 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
     if (mode === "instant") {
       handle.style.transition = "none";
     } else if (mode === "settle") {
-      // Slight overshoot on the way to "completed" — a spring curve,
-      // not a linear ease, so landing at the end reads as a satisfying
-      // pop rather than a mechanical stop.
-      handle.style.transition = "transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1)";
+      // Front-loaded ease-out curve for clean snap with zero overshoot.
+      handle.style.transition = "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)";
     } else {
       handle.style.transition = "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)";
     }
