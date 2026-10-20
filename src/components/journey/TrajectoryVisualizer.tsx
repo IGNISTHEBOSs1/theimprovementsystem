@@ -8,17 +8,19 @@ import type { TrajectoryPoint } from "@/lib/trajectory";
 
 interface TrajectoryVisualizerProps {
   completedQuests: number;
-  targetQuests?: number; // default 72 target anchors
+  targetQuests?: number; // default 90 target anchors
   elapsedDays?: number; // 1 to 90
   daysRemaining?: number;
   actualPoints?: TrajectoryPoint[];
-  bufferDaysRemaining?: number; // out of 18 flex days
+  bufferDaysRemaining?: number; // out of 9 flex days
   paceRatio?: number;
   isOnTrack: boolean;
   goalLabel?: string;
   className?: string;
-  // Total days in cycle (defaults to 90)
+  // Total days in cycle (defaults to 90 + horizonExtensionDays)
   cycleTotalDays?: number;
+  horizonExtensionDays?: number;
+  isEarlyArrival?: boolean;
 }
 
 const WIDTH = 760;
@@ -51,16 +53,18 @@ function pointToX(
 
 export function TrajectoryVisualizer({
   completedQuests,
-  targetQuests = 72,
+  targetQuests = 90,
   elapsedDays = 1,
   daysRemaining = 89,
   actualPoints = [],
-  bufferDaysRemaining = 18,
+  bufferDaysRemaining = 9,
   paceRatio = 1.0,
   isOnTrack,
   goalLabel,
   className,
   cycleTotalDays = 90,
+  horizonExtensionDays = 0,
+  isEarlyArrival = false,
 }: TrajectoryVisualizerProps) {
   const gradientId = useId();
   const coneGradId = useId();
@@ -82,7 +86,7 @@ export function TrajectoryVisualizer({
   const spanY = yOrigin - yGoal;
 
   const safeElapsed = Math.max(1, Math.min(cycleTotalDays, elapsedDays));
-  const targetAnchors = Math.max(1, targetQuests || 72);
+  const targetAnchors = Math.max(1, targetQuests || 90);
   const safeCompleted = Math.max(0, completedQuests);
 
   const xCurrent = xOrigin + (spanX * safeElapsed) / cycleTotalDays;
@@ -247,9 +251,9 @@ export function TrajectoryVisualizer({
         <div className="flex items-center gap-2 shrink-0">
           {/* Buffer Bank Status */}
           <div className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/40 px-2.5 py-1 font-mono text-[11px]">
-            <ShieldCheck className="size-3.5 text-emerald-500" aria-hidden="true" />
+            <ShieldCheck className={cn("size-3.5", bufferDaysRemaining > 0 ? "text-emerald-500" : "text-warning")} aria-hidden="true" />
             <span className="text-muted-foreground">
-              <strong className="text-foreground font-semibold">{bufferDaysRemaining}</strong>/18 flex days
+              <strong className="text-foreground font-semibold">{bufferDaysRemaining}</strong>/9 flex days
             </span>
           </div>
 
@@ -583,9 +587,9 @@ export function TrajectoryVisualizer({
             <circle r={3.5} fill="hsl(var(--primary))" />
             <g transform="translate(0, -18)">
               <rect
-                x={-42}
+                x={horizonExtensionDays > 0 ? -64 : isEarlyArrival ? -68 : -42}
                 y={-14}
-                width={84}
+                width={horizonExtensionDays > 0 ? 128 : isEarlyArrival ? 136 : 84}
                 height={18}
                 rx={9}
                 fill="hsl(var(--card))"
@@ -601,7 +605,11 @@ export function TrajectoryVisualizer({
                 fontWeight="700"
                 fontFamily="monospace"
               >
-                {targetAnchors} ANCHORS
+                {horizonExtensionDays > 0
+                  ? `${targetAnchors} ANCHORS (+${horizonExtensionDays}D)`
+                  : isEarlyArrival
+                  ? `${targetAnchors} (EARLY VECTOR)`
+                  : `${targetAnchors} ANCHORS`}
               </text>
             </g>
             <text
@@ -687,7 +695,7 @@ export function TrajectoryVisualizer({
             <span>D45</span>
             <span>D60</span>
             <span>D75</span>
-            <span>Day 90</span>
+            <span>Day {cycleTotalDays}</span>
           </div>
         </div>
       </div>
@@ -697,11 +705,11 @@ export function TrajectoryVisualizer({
         <div className="flex flex-wrap items-center gap-4">
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-1 w-3.5 rounded-full bg-primary" />
-            <span>Target vector (0.80/day)</span>
+            <span>Target vector (1.0/day)</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="inline-block h-2 w-3 rounded-sm bg-primary/20 border border-primary/40" />
-            <span>80% buffer corridor (18 flex days)</span>
+            <span>±10% buffer corridor (9 flex days)</span>
           </span>
           <span className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1">

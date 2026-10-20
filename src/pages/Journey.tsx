@@ -100,7 +100,7 @@ export default function Journey() {
       ? Math.round((followThrough.completed / followThrough.total) * 100)
       : null;
 
-  const bufferUsed = 18 - (pace?.bufferDaysRemaining ?? 18);
+  const bufferUsed = 9 - (pace?.bufferDaysRemaining ?? 9);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 space-y-6">
@@ -139,7 +139,7 @@ export default function Journey() {
         <div className="rounded-2xl border border-border/70 bg-card/70 px-4 py-3 sm:px-5 sm:py-3.5 backdrop-blur-md shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <span className="text-[10px] font-mono uppercase text-muted-foreground tracking-wider block">
-              90-Day North Star Horizon
+              90-Anchor North Star Quota
             </span>
             <p className="text-sm sm:text-base font-bold text-foreground truncate mt-0.5">
               "{profile?.primary_goal}"
@@ -149,7 +149,7 @@ export default function Journey() {
           {/* Key Flight Stats Pills */}
           <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] shrink-0">
             <span className="rounded-lg border border-border/80 bg-muted/40 px-2.5 py-1 text-muted-foreground">
-              Day <strong className="text-foreground">{pace?.elapsedDays ?? 1}</strong>/90
+              Day <strong className="text-foreground">{pace?.elapsedDays ?? 1}</strong> of {pace?.cycleTotalDays ?? 90}
             </span>
             <span className="rounded-lg border border-border/80 bg-muted/40 px-2.5 py-1 text-muted-foreground">
               Target: <strong className="text-foreground">{pace?.targetDateFormatted ?? "90-Day Cycle"}</strong>
@@ -162,15 +162,17 @@ export default function Journey() {
       <section aria-label="Trajectory Flight Plotter">
         <TrajectoryVisualizer
           completedQuests={goalStats.completed}
-          targetQuests={72}
+          targetQuests={90}
           elapsedDays={pace?.elapsedDays ?? 1}
           daysRemaining={pace?.daysRemaining ?? 89}
           actualPoints={trajectory.actual}
-          bufferDaysRemaining={pace?.bufferDaysRemaining ?? 18}
+          bufferDaysRemaining={pace?.bufferDaysRemaining ?? 9}
           paceRatio={pace?.paceRatio ?? 1.0}
           isOnTrack={pace ? pace.isOnTrack : goalStats.failed === 0}
           goalLabel={profile?.primary_goal || undefined}
           cycleTotalDays={pace?.cycleTotalDays ?? 90}
+          horizonExtensionDays={pace?.horizonExtensionDays ?? 0}
+          isEarlyArrival={pace?.isEarlyArrival ?? false}
         />
       </section>
 
@@ -185,33 +187,33 @@ export default function Journey() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           
-          {/* Tile A: The 18-Day Flex Buffer Bank */}
+          {/* Tile A: The 9-Day Flex Buffer Bank */}
           <div className="rounded-3xl border border-border/80 bg-card/80 p-5 sm:p-6 backdrop-blur-xl shadow-[var(--shadow-card)] flex flex-col justify-between space-y-4">
             <div>
               <div className="flex items-center justify-between">
                 <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1.5">
-                  <ShieldCheck className="size-3.5 text-emerald-500" />
+                  <ShieldCheck className={cn("size-3.5", (pace?.bufferDaysRemaining ?? 9) > 0 ? "text-emerald-500" : "text-warning")} />
                   <span>±10% Flex Buffer Bank</span>
                 </span>
                 <span className="font-mono text-xs font-bold text-foreground">
-                  {pace?.bufferDaysRemaining ?? 18} / 18 Flex Days
+                  {pace?.bufferDaysRemaining ?? 9} / 9 Flex Days
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Kinetic's mathematical safety net absorbs missed days without destroying your trajectory velocity.
+                Kinetic's 10% mathematical shock absorber. First 9 missed days are absorbed without slipping your horizon.
               </p>
             </div>
 
-            {/* Tactile 18-Segment Physical LED Matrix */}
+            {/* Tactile 9-Segment Physical LED Matrix */}
             <div className="space-y-2 py-1">
               <div className="grid grid-cols-9 gap-1.5">
-                {Array.from({ length: 18 }).map((_, i) => {
-                  const isIntact = i < (pace?.bufferDaysRemaining ?? 18);
+                {Array.from({ length: 9 }).map((_, i) => {
+                  const isIntact = i < (pace?.bufferDaysRemaining ?? 9);
                   return (
                     <div
                       key={i}
                       className={cn(
-                        "h-6 rounded-md border flex items-center justify-center text-[10px] font-mono transition-all",
+                        "h-7 rounded-md border flex items-center justify-center text-[10px] font-mono transition-all",
                         isIntact
                           ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-500 font-semibold"
                           : "bg-muted/40 border-border/60 text-muted-foreground/40",
@@ -224,16 +226,24 @@ export default function Journey() {
                 })}
               </div>
               <div className="flex items-center justify-between text-[10px] font-mono text-muted-foreground pt-1">
-                <span>{bufferUsed} flex days absorbed</span>
-                <span className="text-emerald-500 font-medium">
-                  {Math.round(((pace?.bufferDaysRemaining ?? 18) / 18) * 100)}% resilience intact
-                </span>
+                {(pace?.horizonExtensionDays ?? 0) > 0 ? (
+                  <span className="text-warning font-semibold">
+                    Buffer Exhausted · Dynamic Extension Active (+{pace?.horizonExtensionDays}d)
+                  </span>
+                ) : (
+                  <>
+                    <span>{bufferUsed} flex days absorbed</span>
+                    <span className="text-emerald-500 font-medium">
+                      {Math.round(((pace?.bufferDaysRemaining ?? 9) / 9) * 100)}% resilience intact
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
             <div className="pt-3 border-t border-border/50 text-[11px] font-mono text-muted-foreground flex items-center justify-between">
-              <span>Goal Anchor Floor:</span>
-              <strong className="text-foreground">72 of 90 Days Required (80%)</strong>
+              <span>Goal Anchor Quota:</span>
+              <strong className="text-foreground">90 Completed Anchors Required</strong>
             </div>
           </div>
 
@@ -250,14 +260,22 @@ export default function Journey() {
                     variant="outline"
                     className={cn(
                       "rounded-full px-2.5 py-0.5 text-[10px] font-mono font-medium",
-                      pace.paceRatio >= 1.1
+                      pace.horizonExtensionDays > 0
+                        ? "border-warning/40 bg-warning/10 text-warning"
+                        : pace.isEarlyArrival
+                        ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-bold"
+                        : pace.paceRatio >= 1.1
                         ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
                         : pace.isOnTrack
                         ? "border-primary/30 bg-primary/10 text-primary"
                         : "border-warning/40 bg-warning/10 text-warning",
                     )}
                   >
-                    {pace.paceRatio >= 1.1
+                    {pace.horizonExtensionDays > 0
+                      ? `Horizon Slip (+${pace.horizonExtensionDays}d)`
+                      : pace.isEarlyArrival
+                      ? "Early Arrival Vector"
+                      : pace.paceRatio >= 1.1
                       ? "Vector Accelerating"
                       : pace.isOnTrack
                       ? "Nominal Pursuit"
@@ -271,7 +289,7 @@ export default function Journey() {
                   {pace?.actualDailyPace ?? 0}
                 </span>
                 <span className="text-xs font-mono text-muted-foreground">
-                  / <strong className="text-foreground">{pace?.requiredDailyPace ?? 0.80}</strong> anchors/day nominal
+                  / <strong className="text-foreground">{pace?.requiredDailyPace ?? 1.0}</strong> anchors/day nominal
                 </span>
               </div>
             </div>
@@ -302,7 +320,7 @@ export default function Journey() {
             <div className="pt-3 border-t border-border/50 text-[11px] font-mono text-muted-foreground flex items-center justify-between">
               <span>Horizon Target:</span>
               <strong className="text-foreground">
-                {goalStats.completed} / 72 Anchors ({Math.min(100, Math.round((goalStats.completed / 72) * 100))}%)
+                {goalStats.completed} / 90 Anchors ({Math.min(100, Math.round((goalStats.completed / 90) * 100))}%)
               </strong>
             </div>
           </div>

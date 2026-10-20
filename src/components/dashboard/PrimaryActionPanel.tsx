@@ -155,7 +155,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
                 )}
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-mono font-medium text-primary shadow-xs">
                   <Check className="size-3 text-primary shrink-0" aria-hidden="true" />
-                  <span>✓ North Star Accordance • Advances 90d Trajectory (+1.4% → Anchor #{completedGoalQuests + 1}/72)</span>
+                  <span>✓ North Star Accordance • Advances 90d Trajectory (+1.1% → Anchor #{completedGoalQuests + 1}/90)</span>
                 </span>
               </div>
             ) : (

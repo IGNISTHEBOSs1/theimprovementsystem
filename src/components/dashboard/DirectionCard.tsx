@@ -9,8 +9,8 @@ interface DirectionCardProps {
   elapsedDays?: number;
 }
 
-// Visual ring of completed anchors toward the 72-anchor 90-day horizon
-function CompletionRing({ completed, total = 72 }: { completed: number; total?: number }) {
+// Visual ring of completed anchors toward the 90-anchor 90-day horizon
+function CompletionRing({ completed, total = 90 }: { completed: number; total?: number }) {
   const size = 64;
   const stroke = 5;
   const radius = (size - stroke) / 2;
@@ -38,7 +38,7 @@ function CompletionRing({ completed, total = 72 }: { completed: number; total?: 
   );
 }
 
-export function DirectionCard({ name, goalStats, bufferDaysRemaining = 18, elapsedDays = 1 }: DirectionCardProps) {
+export function DirectionCard({ name, goalStats, bufferDaysRemaining = 9, elapsedDays = 1 }: DirectionCardProps) {
   return (
     <section className="rounded-2xl border border-border/80 bg-card/60 p-5 shadow-sm" aria-labelledby="direction-heading">
       <div className="flex items-start gap-3">
@@ -54,15 +54,15 @@ export function DirectionCard({ name, goalStats, bufferDaysRemaining = 18, elaps
 
           {goalStats && (
             <div className="mt-4 flex flex-wrap items-center gap-4 rounded-xl bg-muted/40 p-3.5 border border-border/60">
-              <CompletionRing completed={goalStats.completed} total={72} />
+              <CompletionRing completed={goalStats.completed} total={90} />
               <div className="space-y-1">
                 <p className="text-body-sm font-semibold text-foreground">
-                  {goalStats.completed} of 72 90-Day Anchors Honored
+                  {goalStats.completed} of 90 90-Day Anchors Honored
                 </p>
                 <div className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-background/80 px-2.5 py-0.5 text-xs font-mono text-muted-foreground">
                   <span className="text-emerald-500">🛡</span>
                   <span>
-                    <strong className="text-foreground">{bufferDaysRemaining}</strong>/18 Buffer Days Intact • Day {elapsedDays} of 90
+                    <strong className="text-foreground">{bufferDaysRemaining}</strong>/9 Flex Days Intact • Day {elapsedDays} of 90
                   </span>
                 </div>
               </div>

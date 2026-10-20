@@ -444,14 +444,14 @@ export default function Mentor() {
                     <span className="text-xs text-muted-foreground">anchors locked</span>
                     {pace && (
                       <span className="text-xs font-mono text-emerald-500 font-medium">
-                        (🛡 {pace.bufferDaysRemaining}/18 buffer days intact)
+                        (🛡 {pace.bufferDaysRemaining}/9 flex days intact)
                       </span>
                     )}
                   </div>
 
                   {/* Recent Step Events */}
                   <div className="mt-4 space-y-1.5">
-                    <span className="text-[11px] text-muted-foreground">Recent outcomes (80% Buffer absorbs misses):</span>
+                    <span className="text-[11px] text-muted-foreground">Recent outcomes (10% Buffer absorbs misses):</span>
                     <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" aria-label="Recent outcomes">
                       {trajectory.actual.slice(-7).map((pt, idx) => (
                         <span
@@ -705,7 +705,7 @@ export default function Mentor() {
                         <span className="text-xs text-muted-foreground">anchors locked</span>
                         {pace && (
                           <span className="text-xs font-mono text-emerald-500 font-medium">
-                            (🛡 {pace.bufferDaysRemaining}/18 buffer days intact)
+                            (🛡 {pace.bufferDaysRemaining}/9 flex days intact)
                           </span>
                         )}
                       </div>

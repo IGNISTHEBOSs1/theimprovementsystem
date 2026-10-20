@@ -125,7 +125,7 @@ export function deriveGoalStats(quests: Quest[], activeGoalName?: string | null)
   };
 }
 
-// Deterministic, evidence-based, 90/72/18 golden formula trajectory engine.
+// Deterministic, evidence-based, 90-Anchor Quota / 9-Day Buffer Trajectory Engine.
 // Pure function: same quests array in, same result out, every time. No AI, no external state, no randomness.
 export function deriveTrajectory(quests: Quest[], activeGoalName?: string | null): TrajectoryResult {
   // Evidence rule: linkedToGoal === true AND (completed === true OR failed === true).
@@ -144,11 +144,11 @@ export function deriveTrajectory(quests: Quest[], activeGoalName?: string | null
   for (const quest of evidence) {
     const outcome: "completed" | "failed" = quest.completed ? "completed" : "failed";
     // Non-punitive: +1 for completed, +0 for missed (evidence never vanishes; plateaus).
-    // Intended advances at 0.80 per step (the 80% buffer requirement: 72 anchors / 90 days).
+    // Intended advances at 1.0 anchor per step (nominal 90 anchors / 90 active days).
     if (outcome === "completed") {
       actualPosition += 1;
     }
-    intendedPosition = Number((intendedPosition + 0.8).toFixed(2));
+    intendedPosition = Number((intendedPosition + 1.0).toFixed(2));
     const timestamp = deriveResolvedAt(quest);
 
     actual.push({ position: actualPosition, quest, timestamp, outcome });
@@ -162,15 +162,15 @@ export function deriveTrajectory(quests: Quest[], activeGoalName?: string | null
   };
 }
 
-// Single source of truth for the "±10% / 80% mathematical buffer" advertised.
+// Single source of truth for the "±10% mathematical buffer bank".
 // Dynamic by design with an early-cycle floor to gracefully absorb early misses within buffer.
-export const TRAJECTORY_BUFFER_RATIO = 0.2;
+export const TRAJECTORY_BUFFER_RATIO = 0.1;
 
 export function deriveTrajectoryTolerance(trajectory: TrajectoryResult): number {
   const intendedEnd = trajectory.intended.length > 0
     ? trajectory.intended[trajectory.intended.length - 1].position
     : 0;
-  return Math.max(1.6, intendedEnd * TRAJECTORY_BUFFER_RATIO);
+  return Math.max(1.0, intendedEnd * TRAJECTORY_BUFFER_RATIO);
 }
 
 // Founder Decision (Trajectory completeness chunk, Tier 1 #2): shows what
@@ -275,18 +275,27 @@ export interface GoalPaceResult {
   isOnTrack: boolean;
   daysObserved: number;
   recentGoalCompleted: number;
-  // 90 / 72 / 18 Golden Formula telemetry fields
+  // Dynamic Anchor-Locked 90-Anchor Quota & 9-Day Buffer Bank telemetry fields
   cycleTotalDays: number;
   targetCycleQuests: number;
   completedGoalQuests: number;
+  failedGoalQuests: number;
   elapsedDays: number;
   bufferDaysTotal: number;
   bufferDaysRemaining: number;
+  horizonExtensionDays: number;
+  projectedTotalDays: number;
+  isEarlyArrival: boolean;
+  projectedFinishDateFormatted: string;
 }
 
-// 90/72/18 Evidence-based Goal Pace derivation.
-// Macro target: 90 days total, 72 target anchors (0.80 pace), 18 buffer flex days intact.
-// Compares required daily pace against observed actual daily pace.
+// Dynamic Anchor-Locked 90-Anchor Quota & 9-Day Buffer Bank Derivation.
+// Target volume: 90 Goal Anchors.
+// Buffer Bank: 9 Flex/Rest Days (strict 10% allowance for life variance).
+// B_rem = max(0, 9 - failedGoalQuests)
+// S = max(0, failedGoalQuests - 9)
+// If M <= 9 -> S = 0 (horizon does not slip, buffer absorbs misses).
+// If M > 9 -> S = M - 9 (every miss past day 9 adds +1 calendar day).
 // Pure function: deterministic, mathematically grounded, no artificial volatility.
 export function deriveGoalPace(
   quests: Quest[],
@@ -302,21 +311,28 @@ export function deriveGoalPace(
   if (isNaN(targetDate.getTime())) return null;
 
   const now = typeof nowMs === "number" ? new Date(nowMs) : new Date();
-  const diffMs = targetDate.getTime() - now.getTime();
-  if (diffMs <= 0) return null;
 
-  const cycleTotalDays = 90;
-  const daysRemaining = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-  const elapsedDays = Math.max(1, Math.min(cycleTotalDays, cycleTotalDays - daysRemaining + 1));
-
-  // 90-day macro target: 72 target anchors (0.80/day), leaving 18 built-in buffer days
-  const targetCycleQuests = Math.max(1, Math.round(Math.max(cycleTotalDays, daysRemaining) * 0.8));
   const completedGoalQuests = quests.filter((q) => isLinkedToActiveGoal(q, activeGoalName) && q.completed).length;
   const failedGoalQuests = quests.filter((q) => isLinkedToActiveGoal(q, activeGoalName) && q.failed).length;
+
+  const targetCycleQuests = 90;
+  const bufferDaysTotal = 9;
+  const bufferDaysRemaining = Math.max(0, bufferDaysTotal - failedGoalQuests);
+  const horizonExtensionDays = Math.max(0, failedGoalQuests - bufferDaysTotal);
+  const projectedTotalDays = 90 + failedGoalQuests;
+  const cycleTotalDays = 90 + horizonExtensionDays;
+
+  // Dynamic target date accounts for excess horizon slips S
+  const effectiveTargetDate = new Date(targetDate.getTime() + horizonExtensionDays * 24 * 60 * 60 * 1000);
+  const diffMs = effectiveTargetDate.getTime() - now.getTime();
+
+  const daysRemaining = Math.max(1, Math.ceil(Math.max(0, diffMs) / (1000 * 60 * 60 * 24)));
+  const elapsedDays = Math.max(1, Math.min(cycleTotalDays, cycleTotalDays - daysRemaining + 1));
+
   const remainingGoalQuests = Math.max(0, targetCycleQuests - completedGoalQuests);
 
-  // Defaults cleanly to ~0.80 quests/day on Day 1 rather than 0.01!
-  const requiredDailyPace = Number(Math.min(1.5, Math.max(0.1, remainingGoalQuests / daysRemaining)).toFixed(2));
+  // Required daily pace to finish remaining quota in remaining days (nominal baseline is 1.0)
+  const requiredDailyPace = Number(Math.min(2.5, Math.max(0.1, remainingGoalQuests / daysRemaining)).toFixed(2));
 
   // Compute actualDailyPace against observed window (up to 14 days, bounded by elapsedDays)
   const observedDays = Math.max(1, Math.min(14, elapsedDays));
@@ -337,12 +353,24 @@ export function deriveGoalPace(
     paceRatio = remainingGoalQuests === 0 ? 1 : 0;
   }
 
-  const isOnTrack = paceRatio >= 0.8; // 80% buffer is nominal on-track baseline
+  // On track if: all done, or within 10% buffer tolerance without active horizon slip
+  const isOnTrack = remainingGoalQuests === 0 || (paceRatio >= 0.9 && horizonExtensionDays === 0);
 
-  const bufferDaysTotal = 18;
-  const bufferDaysRemaining = Math.max(0, 18 - failedGoalQuests);
+  // Projected finish under current velocity
+  const effectiveVelocity = Math.max(0.2, actualDailyPace > 0 ? actualDailyPace : 1.0);
+  const daysToFinish = Math.ceil(remainingGoalQuests / effectiveVelocity);
+  const projectedFinishDate = new Date(now.getTime() + daysToFinish * 24 * 60 * 60 * 1000);
 
-  const targetDateFormatted = targetDate.toLocaleDateString(undefined, {
+  // Early arrival if projected finish is ahead of nominal target date
+  const isEarlyArrival = completedGoalQuests > 0 && projectedFinishDate.getTime() < targetDate.getTime();
+
+  const targetDateFormatted = effectiveTargetDate.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  const projectedFinishDateFormatted = projectedFinishDate.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -362,9 +390,14 @@ export function deriveGoalPace(
     cycleTotalDays,
     targetCycleQuests,
     completedGoalQuests,
+    failedGoalQuests,
     elapsedDays,
     bufferDaysTotal,
     bufferDaysRemaining,
+    horizonExtensionDays,
+    projectedTotalDays,
+    isEarlyArrival,
+    projectedFinishDateFormatted,
   };
 }
 

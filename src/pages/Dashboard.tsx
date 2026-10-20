@@ -307,11 +307,11 @@ export default function Dashboard() {
     ? Math.round((followThrough.completed / followThrough.total) * 100)
     : null;
   const goalFocusRate = goalStats.completed > 0
-    ? Math.min(100, Math.round((goalStats.completed / 72) * 100))
+    ? Math.min(100, Math.round((goalStats.completed / 90) * 100))
     : 0;
   const primaryGoal = profile?.primary_goal;
   const elapsedDays = pace?.elapsedDays ?? 1;
-  const bufferDaysRemaining = pace?.bufferDaysRemaining ?? 18;
+  const bufferDaysRemaining = pace?.bufferDaysRemaining ?? 9;
   const daysRemaining = pace?.daysRemaining ?? (profile?.primary_goal_target_date
     ? Math.max(
         0,
@@ -451,7 +451,7 @@ export default function Dashboard() {
                 Goal Focus
               </span>
               <span className="text-xs font-mono font-medium text-muted-foreground">
-                {goalStats.completed} / 72 anchors
+                {goalStats.completed} / 90 anchors
               </span>
             </div>
             <div className="mt-3 flex items-baseline gap-2">
@@ -470,7 +470,7 @@ export default function Dashboard() {
             </div>
             <p className="mt-3 text-[11px] text-muted-foreground">
               {goalStats.completed > 0
-                ? `${goalStats.completed} of 72 target anchors locked toward your 90-day North Star.`
+                ? `${goalStats.completed} of 90 target anchors locked toward your 90-day North Star.`
                 : "Commit to your daily focus in accordance with your 90-day goal."}
             </p>
           </section>

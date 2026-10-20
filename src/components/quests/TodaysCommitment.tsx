@@ -23,7 +23,7 @@ interface TodaysCommitmentProps {
   // The account's primary goal, if one is set.
   goalLabel?: string;
   initialValues?: { title: string; priority: QuestPriority; linkedToGoal: boolean };
-  // Current count of completed goal quests for showing next anchor number #{n}/72
+  // Current count of completed goal quests for showing next anchor number #{n}/90
   completedGoalQuests?: number;
 }
 
@@ -159,7 +159,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
         {goalLabel && linkedToGoal && (
           <div className="flex items-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-3.5 py-2 text-xs font-mono text-primary animate-in fade-in duration-200">
             <Target className="size-3.5 text-primary shrink-0" aria-hidden="true" />
-            <span className="truncate">🎯 In Accordance with 90d North Star • +1.4% Trajectory Lift (Anchor #{completedGoalQuests + 1}/72)</span>
+            <span className="truncate">🎯 In Accordance with 90d North Star • +1.1% Trajectory Lift (Anchor #{completedGoalQuests + 1}/90)</span>
           </div>
         )}
 
