@@ -24,6 +24,7 @@ import { soundEngine } from "@/hooks/useSoundEffects";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import type { Quest, QuestPriority } from "@/types/quest";
+import { deriveGoalStats } from "@/lib/trajectory";
 
 interface RecommitPrefill {
   title: string;
@@ -55,6 +56,7 @@ export default function Quests() {
   }, []);
 
   const [serverLocal, setServerLocal] = useState<ServerLocalDate | null>(null);
+  const goalStats = deriveGoalStats(state.quests, profile?.primary_goal);
   useEffect(() => {
     let cancelled = false;
     getServerLocalDate(profile?.timezone)
@@ -174,6 +176,7 @@ export default function Quests() {
                   onCancel={() => setShowCommitForm(false)}
                   goalLabel={profile?.primary_goal ?? undefined}
                   initialValues={recommitPrefill}
+                  completedGoalQuests={goalStats.completed}
                 />
                 {commitError && (
                   <p className="mt-3 text-body-sm text-destructive" role="alert">

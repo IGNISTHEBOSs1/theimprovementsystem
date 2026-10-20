@@ -79,6 +79,13 @@ export default function Profile() {
     setEditingGoal(false);
   };
 
+  const setDaysFromToday = (days: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    setTargetDate(d.toISOString().split("T")[0]);
+    playTap();
+  };
+
   const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
   const followThrough = deriveFollowThroughStats(safeQuests);
   const completionRate =
@@ -86,7 +93,7 @@ export default function Profile() {
       ? Math.round((followThrough.completed / followThrough.total) * 100)
       : 0;
 
-  const goalStats = deriveGoalStats(safeQuests);
+  const goalStats = deriveGoalStats(safeQuests, profile?.primary_goal);
   const goalCompletionRate =
     goalStats.linked > 0
       ? Math.round((goalStats.completed / goalStats.linked) * 100)
@@ -272,13 +279,42 @@ export default function Profile() {
                   className="min-h-11 rounded-xl"
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <label
                   htmlFor="target-date-input"
-                  className="text-xs font-medium text-foreground block mb-1.5"
+                  className="text-xs font-medium text-foreground block"
                 >
                   Target milestone date <span className="text-muted-foreground font-normal">(optional)</span>
                 </label>
+
+                {/* 1-Tap Horizon Presets */}
+                <div className="flex flex-wrap gap-2 pt-0.5 pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setDaysFromToday(90)}
+                    disabled={saving}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 hover:bg-primary/15 px-3 py-1 font-mono text-xs text-primary transition-all active:scale-[0.98]"
+                  >
+                    <span>★ Lock 90-Day Horizon (Recommended)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDaysFromToday(60)}
+                    disabled={saving}
+                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-all active:scale-[0.98]"
+                  >
+                    <span>60-Day Sprint</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDaysFromToday(30)}
+                    disabled={saving}
+                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-all active:scale-[0.98]"
+                  >
+                    <span>30-Day Calibration</span>
+                  </button>
+                </div>
+
                 <Input
                   id="target-date-input"
                   type="date"
@@ -286,7 +322,7 @@ export default function Profile() {
                   onChange={(event) => setTargetDate(event.target.value)}
                   aria-label="Goal target date"
                   disabled={saving}
-                  className="min-h-11 rounded-xl w-full sm:w-64"
+                  className="min-h-11 rounded-xl w-full sm:w-64 font-mono text-xs"
                 />
               </div>
             </div>

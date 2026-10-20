@@ -3,30 +3,22 @@ import type { GoalStats } from "@/lib/trajectory";
 
 interface DirectionCardProps {
   name: string;
-  // Founder Decision (Goal→Quest→Outcome chunk): a small, honest summary
-  // of what the current goal has actually gotten from the user so far —
-  // undefined when there's no primary goal set at all (distinct from a
-  // goal with zero linked Quests yet, which is {linked:0, completed:0,
-  // failed:0} and renders its own honest "nothing linked yet" line
-  // rather than being hidden).
+  // Summary of what the current goal has actually gotten from the user so far
   goalStats?: GoalStats;
+  bufferDaysRemaining?: number;
+  elapsedDays?: number;
 }
 
-// Founder Decision (Visual override chunk): a small ring visualization
-// of goalStats.completed/linked — same two numbers DirectionCard already
-// displayed as text, just also shown as a shape. Pure SVG, no library.
-function CompletionRing({ completed, total }: { completed: number; total: number }) {
+// Visual ring of completed anchors toward the 72-anchor 90-day horizon
+function CompletionRing({ completed, total = 72 }: { completed: number; total?: number }) {
   const size = 64;
   const stroke = 5;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const fraction = total > 0 ? completed / total : 0;
+  const fraction = total > 0 ? Math.min(1, completed / total) : 0;
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={`${completed} of ${total} goal-linked Quests completed`}>
-      {/* Inactive track: was hsl(var(--muted)) — 12% lightness against a
-          2% background, under 2:1 contrast. Bumped to 20% white to clear
-          WCAG's 3:1 minimum for non-text UI graphics (1.4.11). */}
-      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--foreground) / 0.2)" strokeWidth={stroke} />
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={`${completed} of ${total} 90-day anchors completed`}>
+      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--foreground) / 0.15)" strokeWidth={stroke} />
       <circle
         cx={size / 2}
         cy={size / 2}
@@ -40,13 +32,13 @@ function CompletionRing({ completed, total }: { completed: number; total: number
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
         className="transition-[stroke-dashoffset] duration-500 ease-[cubic-bezier(0.65,0,0.35,1)]"
       />
-      <text x="50%" y="47%" textAnchor="middle" className="fill-foreground text-[15px] font-semibold">{completed}</text>
-      <text x="50%" y="66%" textAnchor="middle" className="fill-muted-foreground text-[9px]">of {total}</text>
+      <text x="50%" y="47%" textAnchor="middle" className="fill-foreground text-[15px] font-semibold font-mono">{completed}</text>
+      <text x="50%" y="66%" textAnchor="middle" className="fill-muted-foreground text-[9px] font-mono">of {total}</text>
     </svg>
   );
 }
 
-export function DirectionCard({ name, goalStats }: DirectionCardProps) {
+export function DirectionCard({ name, goalStats, bufferDaysRemaining = 18, elapsedDays = 1 }: DirectionCardProps) {
   return (
     <section className="rounded-2xl border border-border/80 bg-card/60 p-5 shadow-sm" aria-labelledby="direction-heading">
       <div className="flex items-start gap-3">
@@ -60,16 +52,24 @@ export function DirectionCard({ name, goalStats }: DirectionCardProps) {
             {name}, each deliberate action is evidence of the person you are becoming.
           </p>
 
-          {goalStats && goalStats.linked > 0 && (
-            <div className="mt-3.5 flex items-center gap-4 rounded-xl bg-muted/40 p-3">
-              <CompletionRing completed={goalStats.completed} total={goalStats.linked} />
-              <div>
-                <p className="text-body-sm font-medium text-foreground">Quests completed</p>
+          {goalStats && (
+            <div className="mt-4 flex flex-wrap items-center gap-4 rounded-xl bg-muted/40 p-3.5 border border-border/60">
+              <CompletionRing completed={goalStats.completed} total={72} />
+              <div className="space-y-1">
+                <p className="text-body-sm font-semibold text-foreground">
+                  {goalStats.completed} of 72 90-Day Anchors Honored
+                </p>
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-background/80 px-2.5 py-0.5 text-xs font-mono text-muted-foreground">
+                  <span className="text-emerald-500">🛡</span>
+                  <span>
+                    <strong className="text-foreground">{bufferDaysRemaining}</strong>/18 Buffer Days Intact • Day {elapsedDays} of 90
+                  </span>
+                </div>
               </div>
             </div>
           )}
-          {goalStats && goalStats.linked === 0 && (
-            <p className="mt-2 text-body-sm text-muted-foreground">No Quests linked to this goal yet.</p>
+          {!goalStats && (
+            <p className="mt-2 text-body-sm text-muted-foreground">No North Star goal set yet.</p>
           )}
         </div>
       </div>

@@ -15,6 +15,7 @@ interface PrimaryActionPanelProps {
   completing?: boolean;
   onComplete: () => void;
   onChooseQuest: () => void;
+  completedGoalQuests?: number;
 }
 
 // Founder Decision (Kinetic visual toolkit chunk — USE: Spotlight Card,
@@ -49,7 +50,7 @@ function useSpotlight() {
   return { bind, enabled };
 }
 
-export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQuest }: PrimaryActionPanelProps) {
+export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQuest, completedGoalQuests = 0 }: PrimaryActionPanelProps) {
   const spotlight = useSpotlight();
   const shouldReduceMotion = useReducedMotion();
   const [completionStage, setCompletionStage] = useState<"idle" | "complete">("idle");
@@ -145,14 +146,16 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
             <h2 id="focus-heading" className={cn("mt-2 text-2xl font-semibold tracking-tight text-foreground transition-all line-clamp-2 break-words leading-snug", completionStage !== "idle" && "line-through text-muted-foreground")}>
               {quest.title}
             </h2>
-            {quest.linkedToGoal && quest.goalName ? (
+            {quest.linkedToGoal ? (
               <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                <span className="text-muted-foreground">
-                  Direct step toward <strong className="text-foreground font-medium">{quest.goalName}</strong>
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full border border-foreground/20 bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-foreground">
-                  <Check className="size-3 text-foreground shrink-0" aria-hidden="true" />
-                  <span>Advances today&apos;s goal velocity</span>
+                {quest.goalName && (
+                  <span className="text-muted-foreground">
+                    Direct step toward <strong className="text-foreground font-medium">{quest.goalName}</strong>
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-mono font-medium text-primary shadow-xs">
+                  <Check className="size-3 text-primary shrink-0" aria-hidden="true" />
+                  <span>✓ North Star Accordance • Advances 90d Trajectory (+1.4% → Anchor #{completedGoalQuests + 1}/72)</span>
                 </span>
               </div>
             ) : (

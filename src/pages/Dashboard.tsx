@@ -15,7 +15,7 @@ import { DailyClosureCard } from "@/components/dashboard/DailyClosureCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
-import { deriveFollowThroughStats, deriveGoalStats, deriveTrajectory, deriveWeeklyCadence } from "@/lib/trajectory";
+import { deriveFollowThroughStats, deriveGoalPace, deriveGoalStats, deriveTrajectory, deriveWeeklyCadence } from "@/lib/trajectory";
 import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
 import { triggerHaptic } from "@/lib/haptics";
@@ -301,15 +301,18 @@ export default function Dashboard() {
   }).length;
 
   const followThrough = deriveFollowThroughStats(safeQuests);
-  const goalStats = deriveGoalStats(safeQuests);
+  const goalStats = deriveGoalStats(safeQuests, profile?.primary_goal);
+  const pace = deriveGoalPace(safeQuests, profile?.primary_goal_target_date, undefined, profile?.primary_goal);
   const completionRate = followThrough.total > 0
     ? Math.round((followThrough.completed / followThrough.total) * 100)
     : null;
-  const goalFocusRate = goalStats.linked > 0
-    ? Math.round((goalStats.completed / goalStats.linked) * 100)
-    : null;
+  const goalFocusRate = goalStats.completed > 0
+    ? Math.min(100, Math.round((goalStats.completed / 72) * 100))
+    : 0;
   const primaryGoal = profile?.primary_goal;
-  const daysRemaining = profile?.primary_goal_target_date
+  const elapsedDays = pace?.elapsedDays ?? 1;
+  const bufferDaysRemaining = pace?.bufferDaysRemaining ?? 18;
+  const daysRemaining = pace?.daysRemaining ?? (profile?.primary_goal_target_date
     ? Math.max(
         0,
         Math.ceil(
@@ -322,7 +325,7 @@ export default function Dashboard() {
             (1000 * 60 * 60 * 24)
         )
       )
-    : null;
+    : null);
   const activeInsight = insights[0]?.text || guidance[0]?.text || "Execute your daily focus to maintain trajectory momentum within the ±10% buffer.";
 
   return (
@@ -368,7 +371,7 @@ export default function Dashboard() {
                 </span>
                 {daysRemaining !== null && (
                   <Badge variant="outline" className="font-mono text-[10px] px-1.5 py-0 border-border/80">
-                    {daysRemaining}d remaining
+                    Day {elapsedDays} of 90 • {daysRemaining}d remaining
                   </Badge>
                 )}
               </div>
@@ -448,27 +451,27 @@ export default function Dashboard() {
                 Goal Focus
               </span>
               <span className="text-xs font-mono font-medium text-muted-foreground">
-                {goalStats.completed} / {goalStats.linked}
+                {goalStats.completed} / 72 anchors
               </span>
             </div>
             <div className="mt-3 flex items-baseline gap-2">
               <span className="text-3xl sm:text-4xl font-mono font-bold tracking-tight text-foreground">
-                {goalFocusRate !== null ? `${goalFocusRate}%` : "—"}
+                {goalFocusRate}%
               </span>
               <span className="text-xs text-muted-foreground">
-                {goalFocusRate !== null ? "goal-aligned" : "no goal links yet"}
+                90-day milestone progress
               </span>
             </div>
             <div className="mt-3.5 h-1.5 w-full rounded-full bg-muted overflow-hidden">
               <div
                 className="h-full rounded-full bg-foreground transition-all duration-500 ease-out"
-                style={{ width: `${goalFocusRate ?? 0}%` }}
+                style={{ width: `${goalFocusRate}%` }}
               />
             </div>
             <p className="mt-3 text-[11px] text-muted-foreground">
-              {goalStats.linked > 0
-                ? `${goalStats.completed} of ${goalStats.linked} goal commitments fulfilled.`
-                : "Link commitments to your primary goal to measure focused momentum."}
+              {goalStats.completed > 0
+                ? `${goalStats.completed} of 72 target anchors locked toward your 90-day North Star.`
+                : "Commit to your daily focus in accordance with your 90-day goal."}
             </p>
           </section>
         </div>
@@ -569,6 +572,7 @@ export default function Dashboard() {
                     completing={saving}
                     onComplete={() => void handleComplete(activeQuests[0].id)}
                     onChooseQuest={chooseQuest}
+                    completedGoalQuests={goalStats.completed}
                   />
                 </AnimatePresence>
                 {completeError && (
@@ -629,7 +633,9 @@ export default function Dashboard() {
       <div className="mt-8 pt-6 border-t border-border/50">
         <DirectionCard
           name={name}
-          goalStats={profile?.primary_goal ? deriveGoalStats(state.quests) : undefined}
+          goalStats={profile?.primary_goal ? goalStats : undefined}
+          bufferDaysRemaining={bufferDaysRemaining}
+          elapsedDays={elapsedDays}
         />
       </div>
 

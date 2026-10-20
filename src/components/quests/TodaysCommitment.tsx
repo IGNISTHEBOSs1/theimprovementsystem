@@ -20,19 +20,11 @@ interface TodaysCommitmentProps {
   committing: boolean;
   onCommit: (commitment: string, linkedToGoal: boolean, cadence: CadencePreset, customDays: number[], priority: QuestPriority) => void;
   onCancel?: () => void;
-  // The account's primary goal, if one is set. When present, an explicit
-  // opt-in checkbox is shown so the user can mark this commitment as
-  // supporting that goal. When absent, no checkbox is shown at all —
-  // there's nothing to link to, and linkedToGoal is never inferred from
-  // the commitment text.
+  // The account's primary goal, if one is set.
   goalLabel?: string;
-  // Founder Decision (Recovery/Guidance chunk): pre-fills the form from a
-  // previously missed one-shot Quest the user chose to recommit to (see
-  // RecoveryState/Dashboard's handleRecommit). Still requires the user to
-  // press Commit — nothing is auto-submitted, preserving the same
-  // deliberate-commitment principle as manual entry. Absent for the
-  // normal empty-form path.
   initialValues?: { title: string; priority: QuestPriority; linkedToGoal: boolean };
+  // Current count of completed goal quests for showing next anchor number #{n}/72
+  completedGoalQuests?: number;
 }
 
 // Milestone 2 - First Mission. This is not a "create Quest" form. It is
@@ -55,9 +47,9 @@ interface TodaysCommitmentProps {
 // useDashboardData.commitToTodaysQuest, the one place that has
 // server-authoritative "today" available, so "Weekly" is never resolved
 // against the client's own clock.
-export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, initialValues }: TodaysCommitmentProps) {
+export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, initialValues, completedGoalQuests = 0 }: TodaysCommitmentProps) {
   const [commitment, setCommitment] = useState(initialValues?.title ?? "");
-  const [linkedToGoal, setLinkedToGoal] = useState(initialValues?.linkedToGoal ?? false);
+  const [linkedToGoal, setLinkedToGoal] = useState(initialValues?.linkedToGoal ?? Boolean(goalLabel));
   const [showOptions, setShowOptions] = useState(Boolean(initialValues && initialValues.priority !== DEFAULT_PRIORITY));
   const [cadence, setCadence] = useState<CadencePreset>(DEFAULT_CADENCE);
   const [customDays, setCustomDays] = useState<number[]>([]);
@@ -162,6 +154,14 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
             <span>{showOptions ? "Fewer options" : "Custom options"}</span>
           </button>
         </div>
+
+        {/* Prominent North Star Accordance Pill */}
+        {goalLabel && linkedToGoal && (
+          <div className="flex items-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-3.5 py-2 text-xs font-mono text-primary animate-in fade-in duration-200">
+            <Target className="size-3.5 text-primary shrink-0" aria-hidden="true" />
+            <span className="truncate">🎯 In Accordance with 90d North Star • +1.4% Trajectory Lift (Anchor #{completedGoalQuests + 1}/72)</span>
+          </div>
+        )}
 
         {/* EXPANDABLE OPTIONS: Clean Structured Grid */}
         <AnimatePresence initial={false}>

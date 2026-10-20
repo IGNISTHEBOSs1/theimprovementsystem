@@ -112,6 +112,7 @@ export type Database = {
           has_completed_first_launch: boolean
           id: string
           primary_goal: string | null
+          primary_goal_target_date: string | null
           timezone: string | null
           updated_at: string
           user_id: string
@@ -124,6 +125,7 @@ export type Database = {
           has_completed_first_launch?: boolean
           id?: string
           primary_goal?: string | null
+          primary_goal_target_date?: string | null
           timezone?: string | null
           updated_at?: string
           user_id: string
@@ -136,6 +138,7 @@ export type Database = {
           has_completed_first_launch?: boolean
           id?: string
           primary_goal?: string | null
+          primary_goal_target_date?: string | null
           timezone?: string | null
           updated_at?: string
           user_id?: string

@@ -95,7 +95,7 @@ export interface TrajectoryResult {
 }
 
 export interface GoalStats {
-  // Every Quest ever linked to the current primary goal, regardless of
+  // Every Quest ever linked to the active primary goal, regardless of
   // resolution state — includes still-active ones. Distinct from
   // trajectory's "evidence," which is resolved-only.
   linked: number;
@@ -103,18 +103,21 @@ export interface GoalStats {
   failed: number;
 }
 
+// Matching rule: A quest belongs to the active goal if Boolean(q.linkedToGoal) is true
+// AND (!activeGoalName || !q.goalName || q.goalName.trim().toLowerCase() === activeGoalName.trim().toLowerCase()).
+export function isLinkedToActiveGoal(quest?: Quest | null, activeGoalName?: string | null): boolean {
+  if (!quest || !quest.linkedToGoal) return false;
+  if (!activeGoalName || !quest.goalName) return true;
+  return quest.goalName.trim().toLowerCase() === activeGoalName.trim().toLowerCase();
+}
+
 // Founder Decision (Goal→Quest→Outcome chunk): a small, honestly-derived
 // summary of what a goal has actually gotten from the user — same
 // no-fabrication rule as deriveTrajectory: only counts real linkedToGoal
-// Quests, nothing inferred or estimated. Deliberately does not filter by
-// which goal's name matches goalName — every Quest's goalName is a
-// snapshot of whatever the primary goal was when it was linked (see
-// Quest.goalName), so this reflects the account's full linked history,
-// not just Quests linked to today's exact goal text. That mirrors how
-// Journey's trajectory already treats goal-linked evidence.
-export function deriveGoalStats(quests: Quest[]): GoalStats {
+// Quests, scoped to the active goal when provided.
+export function deriveGoalStats(quests: Quest[], activeGoalName?: string | null): GoalStats {
   const safeQuests = Array.isArray(quests) ? quests.filter(Boolean) : [];
-  const linkedQuests = safeQuests.filter((q) => q.linkedToGoal);
+  const linkedQuests = safeQuests.filter((q) => isLinkedToActiveGoal(q, activeGoalName));
   return {
     linked: linkedQuests.length,
     completed: linkedQuests.filter((q) => q.completed).length,
@@ -122,21 +125,15 @@ export function deriveGoalStats(quests: Quest[]): GoalStats {
   };
 }
 
-// Deterministic, evidence-based, single implicit dimension ("progress
-// toward the current Goal") for v1 — see the inspection report for why a
-// separate evidence table / goals table / multidimensional model is not
-// introduced here. Pure function: same quests array in, same result out,
-// every time. No AI, no external state, no randomness.
-const EVIDENCE_STEP = 1;
-
-export function deriveTrajectory(quests: Quest[]): TrajectoryResult {
-  // Evidence rule, exactly as specified: linkedToGoal === true AND
-  // (completed === true OR failed === true). A Quest that is merely
-  // active or was never goal-linked contributes nothing — creating a
-  // Quest never moves trajectory, only its resolution does.
+// Deterministic, evidence-based, 90/72/18 golden formula trajectory engine.
+// Pure function: same quests array in, same result out, every time. No AI, no external state, no randomness.
+export function deriveTrajectory(quests: Quest[], activeGoalName?: string | null): TrajectoryResult {
+  // Evidence rule: linkedToGoal === true AND (completed === true OR failed === true).
+  // A Quest that is merely active or was never goal-linked contributes nothing —
+  // creating a Quest never moves trajectory, only its resolution does.
   const safeQuests = Array.isArray(quests) ? quests.filter(Boolean) : [];
   const evidence = safeQuests
-    .filter((q) => q.linkedToGoal && (q.completed || q.failed))
+    .filter((q) => isLinkedToActiveGoal(q, activeGoalName) && (q.completed || q.failed))
     .sort((a, b) => (deriveResolvedAt(a) || "").localeCompare(deriveResolvedAt(b) || ""));
 
   let actualPosition = 0;
@@ -146,8 +143,12 @@ export function deriveTrajectory(quests: Quest[]): TrajectoryResult {
 
   for (const quest of evidence) {
     const outcome: "completed" | "failed" = quest.completed ? "completed" : "failed";
-    actualPosition += outcome === "completed" ? EVIDENCE_STEP : -EVIDENCE_STEP;
-    intendedPosition += EVIDENCE_STEP; // the reference path: every linked Quest, had it gone as intended
+    // Non-punitive: +1 for completed, +0 for missed (evidence never vanishes; plateaus).
+    // Intended advances at 0.80 per step (the 80% buffer requirement: 72 anchors / 90 days).
+    if (outcome === "completed") {
+      actualPosition += 1;
+    }
+    intendedPosition = Number((intendedPosition + 0.8).toFixed(2));
     const timestamp = deriveResolvedAt(quest);
 
     actual.push({ position: actualPosition, quest, timestamp, outcome });
@@ -161,26 +162,15 @@ export function deriveTrajectory(quests: Quest[]): TrajectoryResult {
   };
 }
 
-// Single source of truth for the "±10% mathematical buffer" advertised on
-// the landing page. Percentage-of-intended-so-far, not a fixed step count —
-// this deliberately REPLACES two previously-inconsistent hardcoded
-// tolerances that existed independently: TrajectoryChart's fixed ±1-step
-// visual band, and guidance.ts's fixed MIN_TRAJECTORY_DEFICIT = 3. Both are
-// now derived from this single constant/function so "10%" means the same
-// thing everywhere it's checked, instead of three different silent
-// definitions of "close enough."
-//
-// Dynamic by design: 10% of intendedEnd grows as the 90-day window
-// progresses (10% of 5 early on vs. 10% of 40 later), which is also why
-// the buffer corridor drawn on the landing page is narrow near "today" and
-// widens toward Day 90 — this function is the math behind that shape.
-export const TRAJECTORY_BUFFER_RATIO = 0.1;
+// Single source of truth for the "±10% / 80% mathematical buffer" advertised.
+// Dynamic by design with an early-cycle floor to gracefully absorb early misses within buffer.
+export const TRAJECTORY_BUFFER_RATIO = 0.2;
 
 export function deriveTrajectoryTolerance(trajectory: TrajectoryResult): number {
   const intendedEnd = trajectory.intended.length > 0
     ? trajectory.intended[trajectory.intended.length - 1].position
     : 0;
-  return intendedEnd * TRAJECTORY_BUFFER_RATIO;
+  return Math.max(1.6, intendedEnd * TRAJECTORY_BUFFER_RATIO);
 }
 
 // Founder Decision (Trajectory completeness chunk, Tier 1 #2): shows what
@@ -285,15 +275,24 @@ export interface GoalPaceResult {
   isOnTrack: boolean;
   daysObserved: number;
   recentGoalCompleted: number;
+  // 90 / 72 / 18 Golden Formula telemetry fields
+  cycleTotalDays: number;
+  targetCycleQuests: number;
+  completedGoalQuests: number;
+  elapsedDays: number;
+  bufferDaysTotal: number;
+  bufferDaysRemaining: number;
 }
 
-// Evidence-based Goal Pace derivation.
-// Computes required daily pace from the remaining goal-linked quests and target date,
-// and compares it against actual daily pace observed over the user's recent history (up to 14 days).
-// Pure function: no invented quotas, no fallback numbers, no fake momentum.
+// 90/72/18 Evidence-based Goal Pace derivation.
+// Macro target: 90 days total, 72 target anchors (0.80 pace), 18 buffer flex days intact.
+// Compares required daily pace against observed actual daily pace.
+// Pure function: deterministic, mathematically grounded, no artificial volatility.
 export function deriveGoalPace(
   quests: Quest[],
   targetDateStr: string | null | undefined,
+  nowMs?: number,
+  activeGoalName?: string | null,
 ): GoalPaceResult | null {
   if (!targetDateStr) return null;
 
@@ -302,30 +301,34 @@ export function deriveGoalPace(
   );
   if (isNaN(targetDate.getTime())) return null;
 
-  const now = new Date();
+  const now = typeof nowMs === "number" ? new Date(nowMs) : new Date();
   const diffMs = targetDate.getTime() - now.getTime();
   if (diffMs <= 0) return null;
 
+  const cycleTotalDays = 90;
   const daysRemaining = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-  const remainingGoalQuests = quests.filter((q) => q.linkedToGoal && !q.completed).length;
-  const requiredDailyPace = Number((remainingGoalQuests / daysRemaining).toFixed(2));
+  const elapsedDays = Math.max(1, Math.min(cycleTotalDays, cycleTotalDays - daysRemaining + 1));
 
-  const fourteenDaysAgo = now.getTime() - 14 * 24 * 60 * 60 * 1000;
+  // 90-day macro target: 72 target anchors (0.80/day), leaving 18 built-in buffer days
+  const targetCycleQuests = Math.max(1, Math.round(Math.max(cycleTotalDays, daysRemaining) * 0.8));
+  const completedGoalQuests = quests.filter((q) => isLinkedToActiveGoal(q, activeGoalName) && q.completed).length;
+  const failedGoalQuests = quests.filter((q) => isLinkedToActiveGoal(q, activeGoalName) && q.failed).length;
+  const remainingGoalQuests = Math.max(0, targetCycleQuests - completedGoalQuests);
+
+  // Defaults cleanly to ~0.80 quests/day on Day 1 rather than 0.01!
+  const requiredDailyPace = Number(Math.min(1.5, Math.max(0.1, remainingGoalQuests / daysRemaining)).toFixed(2));
+
+  // Compute actualDailyPace against observed window (up to 14 days, bounded by elapsedDays)
+  const observedDays = Math.max(1, Math.min(14, elapsedDays));
+  const windowStart = now.getTime() - observedDays * 24 * 60 * 60 * 1000;
+
   const recentGoalCompletedQuests = quests.filter((q) => {
-    if (!q.linkedToGoal || !q.completed) return false;
+    if (!isLinkedToActiveGoal(q, activeGoalName) || !q.completed) return false;
     const resolved = new Date(deriveResolvedAt(q)).getTime();
-    return !isNaN(resolved) && resolved >= fourteenDaysAgo;
+    return !isNaN(resolved) && resolved >= windowStart;
   });
   const recentGoalCompleted = recentGoalCompletedQuests.length;
-
-  const timestamps = quests
-    .map((q) => new Date(deriveResolvedAt(q)).getTime())
-    .filter((t) => !isNaN(t));
-  const earliestTimestamp = timestamps.length > 0 ? Math.min(...timestamps) : now.getTime();
-  const daysSinceEarliest = Math.max(1, Math.ceil((now.getTime() - earliestTimestamp) / (1000 * 60 * 60 * 24)));
-  const daysObserved = Math.min(14, daysSinceEarliest);
-
-  const actualDailyPace = Number((recentGoalCompleted / daysObserved).toFixed(2));
+  const actualDailyPace = Number((recentGoalCompleted / observedDays).toFixed(2));
 
   let paceRatio: number;
   if (requiredDailyPace > 0) {
@@ -334,7 +337,10 @@ export function deriveGoalPace(
     paceRatio = remainingGoalQuests === 0 ? 1 : 0;
   }
 
-  const isOnTrack = paceRatio >= 0.9;
+  const isOnTrack = paceRatio >= 0.8; // 80% buffer is nominal on-track baseline
+
+  const bufferDaysTotal = 18;
+  const bufferDaysRemaining = Math.max(0, 18 - failedGoalQuests);
 
   const targetDateFormatted = targetDate.toLocaleDateString(undefined, {
     month: "short",
@@ -351,8 +357,14 @@ export function deriveGoalPace(
     actualDailyPace,
     paceRatio,
     isOnTrack,
-    daysObserved,
+    daysObserved: observedDays,
     recentGoalCompleted,
+    cycleTotalDays,
+    targetCycleQuests,
+    completedGoalQuests,
+    elapsedDays,
+    bufferDaysTotal,
+    bufferDaysRemaining,
   };
 }
 

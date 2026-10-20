@@ -21,7 +21,7 @@ import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience
 import { TrajectoryVisualizer } from "@/components/journey/TrajectoryVisualizer";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
-import { deriveGoalPace, deriveGoalStats, deriveResolvedAt } from "@/lib/trajectory";
+import { deriveGoalPace, deriveGoalStats, deriveResolvedAt, deriveTrajectory } from "@/lib/trajectory";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
 import { triggerHaptic } from "@/lib/haptics";
 import { soundEngine } from "@/hooks/useSoundEffects";
@@ -83,8 +83,9 @@ export default function Journey() {
     );
   }
 
-  const goalStats = deriveGoalStats(state.quests);
-  const pace = deriveGoalPace(state.quests, profile?.primary_goal_target_date);
+  const goalStats = deriveGoalStats(state.quests, profile?.primary_goal);
+  const trajectory = deriveTrajectory(state.quests, profile?.primary_goal);
+  const pace = deriveGoalPace(state.quests, profile?.primary_goal_target_date, undefined, profile?.primary_goal);
 
   // Filter evidence to strictly the last 48 hours only (Neutralized History)
   const fortyEightHoursAgo = Date.now() - 48 * 60 * 60 * 1000;
@@ -169,7 +170,12 @@ export default function Journey() {
       <div className="mt-6">
         <TrajectoryVisualizer
           completedQuests={goalStats.completed}
-          targetQuests={goalStats.linked}
+          targetQuests={72}
+          elapsedDays={pace?.elapsedDays ?? 1}
+          daysRemaining={pace?.daysRemaining ?? 89}
+          actualPoints={trajectory.actual}
+          bufferDaysRemaining={pace?.bufferDaysRemaining ?? 18}
+          paceRatio={pace?.paceRatio ?? 1.0}
           isOnTrack={pace ? pace.isOnTrack : goalStats.failed === 0}
           goalLabel={profile?.primary_goal || undefined}
         />
@@ -228,7 +234,7 @@ export default function Journey() {
                     {pace.actualDailyPace}
                   </span>
                   <span className="text-xs font-mono text-muted-foreground">
-                    / <strong className="text-foreground font-semibold">{pace.requiredDailyPace}</strong> quests/day needed
+                    / <strong className="text-foreground font-semibold">{pace.requiredDailyPace}</strong> anchors/day needed
                   </span>
                 </div>
 
@@ -245,7 +251,7 @@ export default function Journey() {
                   </div>
                   <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground pt-0.5">
                     <span className="text-foreground font-medium">
-                      {Math.round(pace.paceRatio * 100)}% velocity ratio
+                      {Math.round(pace.paceRatio * 100)}% baseline
                     </span>
                     <span>
                       {pace.isOnTrack ? "✓ Meeting schedule" : "⚠ Pace boost needed"}
@@ -255,7 +261,10 @@ export default function Journey() {
               </div>
 
               <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between text-xs font-mono text-muted-foreground">
-                <span>Observed window</span>
+                <span className="flex items-center gap-1.5">
+                  <span>🛡</span>
+                  <span>{pace.bufferDaysRemaining}/18 Flex Days Intact</span>
+                </span>
                 <span className="text-foreground font-medium">
                   {pace.recentGoalCompleted} quests in {pace.daysObserved}d
                 </span>
@@ -270,18 +279,18 @@ export default function Journey() {
                 </span>
                 <div className="mt-2.5">
                   <h4 className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-foreground">
-                    {pace.targetDateFormatted}
+                    Day {pace.elapsedDays} of 90
                   </h4>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {pace.daysRemaining} days remaining in commitment window.
+                    {pace.daysRemaining}d remaining to horizon ({pace.targetDateFormatted})
                   </p>
                 </div>
               </div>
 
               <div className="mt-6 pt-3 border-t border-border/40 flex items-center justify-between text-xs font-mono text-muted-foreground">
-                <span>Goal progress</span>
+                <span>90-Day Mastery</span>
                 <span className="text-foreground font-semibold">
-                  {goalStats.completed} of {goalStats.linked} completed ({goalStats.linked > 0 ? Math.round((goalStats.completed / goalStats.linked) * 100) : 0}%)
+                  {pace.completedGoalQuests} of 72 anchors ({Math.min(100, Math.round((pace.completedGoalQuests / 72) * 100))}%)
                 </span>
               </div>
             </div>

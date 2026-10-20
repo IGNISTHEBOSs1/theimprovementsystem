@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
-import { deriveTrajectory } from "@/lib/trajectory";
+import { deriveGoalPace, deriveTrajectory } from "@/lib/trajectory";
 import { computeRebalanceProposal } from "@/lib/rebalance";
 import { TIS_SPRINGS } from "@/lib/motion-tokens";
 
@@ -95,7 +95,8 @@ export default function Mentor() {
 
   const guidance = deriveGuidance(state.quests, profile?.timezone || "UTC");
   const insights = deriveInsights(state.quests);
-  const trajectory = deriveTrajectory(state.quests);
+  const trajectory = deriveTrajectory(state.quests, profile?.primary_goal);
+  const pace = deriveGoalPace(state.quests, profile?.primary_goal_target_date, undefined, profile?.primary_goal);
 
   const recurring = insights.find((i) => i.id === "recurring-friction");
   const momentum = insights.find((i) => i.id === "momentum");
@@ -436,16 +437,21 @@ export default function Mentor() {
                     </span>
                   </div>
 
-                  <div className="mt-3 flex items-baseline gap-2">
+                  <div className="mt-3 flex flex-wrap items-baseline gap-2">
                     <span className="text-3xl font-bold font-mono tracking-tight text-foreground">
-                      {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
+                      {trajectory.currentPosition}
                     </span>
-                    <span className="text-xs text-muted-foreground">net direction</span>
+                    <span className="text-xs text-muted-foreground">anchors locked</span>
+                    {pace && (
+                      <span className="text-xs font-mono text-emerald-500 font-medium">
+                        (🛡 {pace.bufferDaysRemaining}/18 buffer days intact)
+                      </span>
+                    )}
                   </div>
 
                   {/* Recent Step Events */}
                   <div className="mt-4 space-y-1.5">
-                    <span className="text-[11px] text-muted-foreground">Recent outcomes:</span>
+                    <span className="text-[11px] text-muted-foreground">Recent outcomes (80% Buffer absorbs misses):</span>
                     <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" aria-label="Recent outcomes">
                       {trajectory.actual.slice(-7).map((pt, idx) => (
                         <span
@@ -458,7 +464,7 @@ export default function Mentor() {
                           )}
                           title={`${pt.quest.title}: ${pt.outcome}`}
                         >
-                          {pt.outcome === "completed" ? "+1" : "-1"}
+                          {pt.outcome === "completed" ? "+1" : "±0"}
                         </span>
                       ))}
                     </div>
@@ -692,11 +698,16 @@ export default function Mentor() {
                         </span>
                       </div>
 
-                      <div className="mt-3 flex items-baseline gap-2">
+                      <div className="mt-3 flex flex-wrap items-baseline gap-2">
                         <span className="text-3xl font-bold font-mono tracking-tight text-foreground">
-                          {trajectory.currentPosition >= 0 ? "+" : ""}{trajectory.currentPosition}
+                          {trajectory.currentPosition}
                         </span>
-                        <span className="text-xs text-muted-foreground">net direction</span>
+                        <span className="text-xs text-muted-foreground">anchors locked</span>
+                        {pace && (
+                          <span className="text-xs font-mono text-emerald-500 font-medium">
+                            (🛡 {pace.bufferDaysRemaining}/18 buffer days intact)
+                          </span>
+                        )}
                       </div>
                     </div>
 
