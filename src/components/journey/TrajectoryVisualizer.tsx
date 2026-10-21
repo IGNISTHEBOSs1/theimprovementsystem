@@ -1,6 +1,5 @@
 import { useId, useRef, useState, useCallback, useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Navigation, ShieldCheck, TrendingUp, TrendingDown, Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TIS_SPRINGS, TIS_EASINGS } from "@/lib/motion-tokens";
 import { triggerHaptic } from "@/lib/haptics";
@@ -79,7 +78,7 @@ export function TrajectoryVisualizer({
   const lastMilestoneRef = useRef<number | null>(null);
 
   // Coordinate geometry
-  const xOrigin = 52;
+  const xOrigin = 48;
   const xGoal = 688;
   const spanX = xGoal - xOrigin;
 
@@ -197,10 +196,7 @@ export function TrajectoryVisualizer({
           )
       : null;
 
-  const variancePct = Math.abs(Math.round((paceRatio - 1) * 100));
-  const paceSign = paceRatio >= 1 ? "+" : "-";
-
-  // Milestones: 15, 30, 45, 60, 75, 90
+  // Milestones: 15, 30, 45, 60, 75
   const milestoneDays = useMemo(() => {
     return [15, 30, 45, 60, 75];
   }, []);
@@ -228,113 +224,59 @@ export function TrajectoryVisualizer({
         aria-hidden="true"
       />
 
-      {/* ── Top Flight Bar: System Label & Primary Flight Status ── */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3.5">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="size-7 rounded-xl border border-border/70 bg-background flex items-center justify-center text-primary shadow-xs shrink-0">
-            <Navigation className="size-3.5" aria-hidden="true" />
-          </div>
-          <div className="min-w-0">
-            <span className="font-mono text-[11px] font-bold tracking-wider uppercase text-foreground block truncate">
-              {cycleTotalDays}-Day Flight Vector Plotter
+      {/* ── Revolut-Style Top KPI Header (Inside the Card) ── */}
+      <div className="relative z-10 flex items-start justify-between gap-4 pb-1">
+        <div className="min-w-0">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground block truncate">
+            {activeScrubDay !== null
+              ? `DAY ${activeScrubDay} OF ${cycleTotalDays} · ${isPastOrToday ? "RECORDED" : "PROJECTED"}`
+              : `HORIZON PROGRESS · DAY ${safeElapsed} OF ${cycleTotalDays}`}
+          </span>
+          <div className="mt-0.5 flex items-baseline gap-2">
+            <span className="text-3xl sm:text-4xl font-mono font-bold tracking-tight text-foreground tabular-nums">
+              {activeScrubDay !== null ? scrubAnchors : completedQuests}
             </span>
-            {goalLabel && (
-              <span className="text-[11px] text-muted-foreground truncate block">
-                Targeting: <strong className="text-foreground font-medium">{goalLabel}</strong>
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Buffer Bank Status */}
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/40 px-2.5 py-1 font-mono text-[11px]">
-            <ShieldCheck className={cn("size-3.5", bufferDaysRemaining > 0 ? "text-emerald-500" : "text-warning")} aria-hidden="true" />
-            <span className="text-muted-foreground">
-              <strong className="text-foreground font-semibold">{bufferDaysRemaining}</strong>/9 flex days
-            </span>
-          </div>
-
-          {/* Precision Flight Status Badge */}
-          <div
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider transition-all",
-              isOnTrack
-                ? "border border-success/40 bg-success/15 text-success shadow-[0_0_12px_rgba(16,185,129,0.15)]"
-                : "border border-warning/40 bg-warning/15 text-warning shadow-[0_0_12px_rgba(245,158,11,0.15)]",
-            )}
-          >
-            <span className="relative flex size-2">
-              <span
-                className={cn(
-                  "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
-                  isOnTrack ? "bg-success" : "bg-warning",
-                )}
-              />
-              <span
-                className={cn(
-                  "relative inline-flex size-2 rounded-full",
-                  isOnTrack ? "bg-success" : "bg-warning",
-                )}
-              />
-            </span>
-            <span>{isOnTrack ? "Trajectory Nominal" : "Thrust Required"}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Trajectory Coordinate Telemetry Strip (Decoupled from SVG for flawless mobile view) ── */}
-      <div className="mt-3 min-h-[30px] flex items-center justify-between text-xs font-mono px-1">
-        {activeScrubDay !== null ? (
-          <div className="flex flex-wrap items-center justify-between w-full gap-2 text-foreground bg-primary/10 border border-primary/30 rounded-xl px-3.5 py-1.5 animate-in fade-in duration-150">
-            <span className="flex items-center gap-2 font-bold">
-              <Crosshair className="size-3.5 text-primary shrink-0 animate-pulse" />
-              <span>
-                DAY {activeScrubDay} OF {cycleTotalDays} ·{" "}
-                <span className="text-muted-foreground">
-                  {isPastOrToday ? "RECORDED" : "PROJECTED FLIGHT"}
-                </span>
-              </span>
-            </span>
-            <span className="font-semibold">
-              {isPastOrToday ? (
-                <>
-                  PROOF: <strong className="text-primary font-bold">{scrubAnchors}</strong> / {targetAnchors} ANCHORS
-                </>
-              ) : (
-                <>
-                  NOMINAL TARGET: <strong className="text-primary font-bold">{scrubAnchors}</strong> / {targetAnchors}
-                </>
+            <span className="text-sm font-sans text-muted-foreground">
+              / {targetAnchors} anchors (
+              {Math.round(
+                ((activeScrubDay !== null ? scrubAnchors : completedQuests) /
+                  Math.max(1, targetAnchors)) *
+                  100,
               )}
+              %)
             </span>
           </div>
-        ) : (
-          <div className="flex flex-wrap items-center justify-between w-full gap-2 text-muted-foreground py-0.5">
-            <span className="flex items-center gap-2">
-              <span>
-                DAY <strong className="text-foreground">{safeElapsed}</strong> OF {cycleTotalDays}
-              </span>
-              <span className="text-border">·</span>
-              <span>{daysRemaining === 0 || isHorizonExpired ? "Horizon Reached" : `${daysRemaining}d to horizon`}</span>
-              <span className="text-border">·</span>
-              <span
-                className={cn(
-                  "font-semibold",
-                  isOnTrack ? "text-success" : "text-warning",
-                )}
-              >
-                {paceSign}{variancePct}% vs nominal vector
-              </span>
-            </span>
-            <span className="text-[11px] text-muted-foreground/75 hidden md:inline">
-              Hover curve or drag timeline rail to scrub
-            </span>
-          </div>
-        )}
+        </div>
+
+        {/* Single Flight Status Badge */}
+        <div
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-sans font-medium shrink-0 transition-all",
+            isOnTrack
+              ? "border border-success/40 bg-success/15 text-success shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+              : "border border-warning/40 bg-warning/15 text-warning shadow-[0_0_12px_rgba(245,158,11,0.15)]",
+          )}
+        >
+          <span className="relative flex size-2">
+            <span
+              className={cn(
+                "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
+                isOnTrack ? "bg-success" : "bg-warning",
+              )}
+            />
+            <span
+              className={cn(
+                "relative inline-flex size-2 rounded-full",
+                isOnTrack ? "bg-success" : "bg-warning",
+              )}
+            />
+          </span>
+          <span>{isOnTrack ? "Trajectory Nominal" : "Thrust Required"}</span>
+        </div>
       </div>
 
       {/* ── SVG Flight Canvas ── */}
-      <div className="relative mt-1 w-full touch-pan-y">
+      <div className="relative mt-2 w-full touch-pan-y">
         <svg
           ref={svgRef}
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -380,7 +322,7 @@ export function TrajectoryVisualizer({
             </filter>
           </defs>
 
-          {/* Altitude grid baselines & Y-axis labels (inside left margin at x=14, unclipped) */}
+          {/* Altitude grid baselines & Y-axis labels (right-aligned at x=38, chart starts at xOrigin=48) */}
           {[
             { y: yGoal, label: String(targetAnchors) },
             { y: (yOrigin + yGoal) / 2, label: String(Math.round(targetAnchors / 2)) },
@@ -388,9 +330,9 @@ export function TrajectoryVisualizer({
           ].map((item, idx) => (
             <g key={idx}>
               <line
-                x1={40}
+                x1={42}
                 y1={item.y}
-                x2={WIDTH - 30}
+                x2={WIDTH - 24}
                 y2={item.y}
                 stroke="hsl(var(--foreground))"
                 strokeOpacity={0.07}
@@ -398,12 +340,11 @@ export function TrajectoryVisualizer({
                 strokeWidth={1}
               />
               <text
-                x={14}
+                x={38}
                 y={item.y + 3}
-                textAnchor="start"
+                textAnchor="end"
                 fill="hsl(var(--muted-foreground))"
-                fontSize="10"
-                fontFamily="monospace"
+                className="text-[10px] font-mono fill-muted-foreground/60"
                 opacity={0.65}
               >
                 {item.label}
@@ -411,9 +352,9 @@ export function TrajectoryVisualizer({
             </g>
           ))}
           <line
-            x1={40}
+            x1={42}
             y1={yGoalCeiling}
-            x2={WIDTH - 30}
+            x2={WIDTH - 24}
             y2={yGoalCeiling}
             stroke="hsl(var(--foreground))"
             strokeOpacity={0.05}
@@ -474,7 +415,7 @@ export function TrajectoryVisualizer({
             x2={xGoal}
             y2={yGoal}
             stroke="hsl(var(--primary) / 0.55)"
-            strokeWidth={2}
+            strokeWidth={1.5}
             strokeLinecap="round"
           />
 
@@ -572,20 +513,8 @@ export function TrajectoryVisualizer({
             />
           )}
 
-          {/* Origin Marker */}
-          <g transform={`translate(${xOrigin}, ${yOrigin})`}>
-            <circle r={4} fill="hsl(var(--muted-foreground))" opacity={0.6} />
-            <text
-              y={20}
-              textAnchor="middle"
-              fill="hsl(var(--muted-foreground))"
-              fontSize="11"
-              fontWeight="500"
-              fontFamily="monospace"
-            >
-              Day 0
-            </text>
-          </g>
+          {/* Origin Marker (minimal dot without crushed labels) */}
+          <circle cx={xOrigin} cy={yOrigin} r={3.5} fill="hsl(var(--muted-foreground))" opacity={0.6} />
 
           {/* Current In-Flight Position Node */}
           <motion.g
@@ -599,80 +528,18 @@ export function TrajectoryVisualizer({
               <animate attributeName="opacity" values="0.6;0;0.6" dur="2.8s" repeatCount="indefinite" />
             </circle>
             <circle
-              r={7}
+              r={6}
               fill="hsl(var(--foreground))"
               stroke="hsl(var(--background))"
               strokeWidth={2}
             />
-            <circle r={3} fill="hsl(var(--background))" />
-
-            {/* Clean compact coordinate marker */}
-            <g transform="translate(0, -18)">
-              <rect
-                x={-28}
-                y={-14}
-                width={56}
-                height={18}
-                rx={9}
-                fill="hsl(var(--card))"
-                stroke="hsl(var(--border))"
-                strokeWidth={1}
-                className="drop-shadow-xs"
-              />
-              <text
-                y={-2}
-                textAnchor="middle"
-                fill="hsl(var(--foreground))"
-                fontSize="10"
-                fontWeight="700"
-                fontFamily="monospace"
-              >
-                D{safeElapsed}
-              </text>
-            </g>
+            <circle r={2.5} fill="hsl(var(--background))" />
           </motion.g>
 
-          {/* 90-Day Destination Target Node */}
+          {/* Destination Target Node (minimal crisp target pin) */}
           <g transform={`translate(${xGoal}, ${yGoal})`}>
-            <circle r={8} fill="hsl(var(--primary) / 0.18)" stroke="hsl(var(--primary))" strokeWidth={1.5} />
-            <circle r={3.5} fill="hsl(var(--primary))" />
-            <g transform="translate(0, -18)">
-              <rect
-                x={horizonExtensionDays > 0 ? -64 : isEarlyArrival ? -68 : -42}
-                y={-14}
-                width={horizonExtensionDays > 0 ? 128 : isEarlyArrival ? 136 : 84}
-                height={18}
-                rx={9}
-                fill="hsl(var(--card))"
-                stroke="hsl(var(--border))"
-                strokeWidth={1}
-                className="drop-shadow-xs"
-              />
-              <text
-                y={-2}
-                textAnchor="middle"
-                fill="hsl(var(--foreground))"
-                fontSize="10"
-                fontWeight="700"
-                fontFamily="monospace"
-              >
-                {horizonExtensionDays > 0
-                  ? `${targetAnchors} ANCHORS (+${horizonExtensionDays}D)`
-                  : isEarlyArrival
-                  ? `${targetAnchors} (EARLY VECTOR)`
-                  : `${targetAnchors} ANCHORS`}
-              </text>
-            </g>
-            <text
-              y={20}
-              textAnchor="middle"
-              fill="hsl(var(--muted-foreground))"
-              fontSize="11"
-              fontWeight="500"
-              fontFamily="monospace"
-            >
-              Day {cycleTotalDays}
-            </text>
+            <circle r={7} fill="hsl(var(--primary) / 0.18)" stroke="hsl(var(--primary))" strokeWidth={1.5} />
+            <circle r={3} fill="hsl(var(--primary))" />
           </g>
 
           {/* Active Scrub Hairline Cursor */}
@@ -707,79 +574,58 @@ export function TrajectoryVisualizer({
         </svg>
       </div>
 
-      {/* ── Touch-Friendly Dedicated Scrub Track (Reliable on mobile & desktop) ── */}
-      <div className="mt-3 pt-3 border-t border-border/60 space-y-2">
-        <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground px-1">
-          <span className="flex items-center gap-1 font-medium text-foreground">
-            <span>Timeline Detents</span>
-          </span>
-          <span>15-Day Milestone Grid</span>
-        </div>
+      {/* ── Sleek Range Slider Track Directly Below SVG Canvas ── */}
+      <div className="mt-3 relative py-1">
+        <input
+          type="range"
+          min={1}
+          max={cycleTotalDays}
+          value={activeScrubDay ?? safeElapsed}
+          onChange={(e) => {
+            const day = Number(e.target.value);
+            const mappedX = xOrigin + (spanX * day) / cycleTotalDays;
+            setScrubX(mappedX);
+            if (day % 15 === 0 && day !== lastMilestoneRef.current) {
+              triggerHaptic("light");
+              lastMilestoneRef.current = day;
+            }
+          }}
+          onMouseUp={() => setScrubX(null)}
+          onTouchEnd={() => setScrubX(null)}
+          className="w-full h-2 bg-muted/60 rounded-lg appearance-none cursor-pointer accent-foreground focus:outline-none"
+          aria-label="Timeline scrub rail"
+        />
 
-        {/* Tactile Scrub Slider Rail */}
-        <div className="relative py-1">
-          <input
-            type="range"
-            min={1}
-            max={cycleTotalDays}
-            value={activeScrubDay ?? safeElapsed}
-            onChange={(e) => {
-              const day = Number(e.target.value);
-              const mappedX = xOrigin + (spanX * day) / cycleTotalDays;
-              setScrubX(mappedX);
-              if (day % 15 === 0 && day !== lastMilestoneRef.current) {
-                triggerHaptic("light");
-                lastMilestoneRef.current = day;
-              }
-            }}
-            onMouseUp={() => setScrubX(null)}
-            onTouchEnd={() => setScrubX(null)}
-            className="w-full h-2 bg-muted/60 rounded-lg appearance-none cursor-pointer accent-foreground focus:outline-none"
-            aria-label="Timeline scrub rail"
-          />
-
-          {/* Milestone tick marks */}
-          <div className="flex justify-between text-[10px] font-mono text-muted-foreground pt-1.5 px-0.5">
-            <span>Day 1</span>
-            <span>D15</span>
-            <span>D30</span>
-            <span>D45</span>
-            <span>D60</span>
-            <span>D75</span>
-            <span>Day {cycleTotalDays}</span>
-          </div>
+        {/* Milestone tick marks */}
+        <div className="flex justify-between text-[10px] font-mono text-muted-foreground pt-1.5 px-0.5">
+          <span>Day 1</span>
+          <span>D15</span>
+          <span>D30</span>
+          <span>D45</span>
+          <span>D60</span>
+          <span>D75</span>
+          <span>Day {cycleTotalDays}</span>
         </div>
       </div>
 
-      {/* ── Legend ── */}
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-[11px] text-muted-foreground border-t border-border/60 pt-3">
-        <div className="flex flex-wrap items-center gap-4">
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-1 w-3.5 rounded-full bg-primary" />
-            <span>Target vector (1.0/day)</span>
+      {/* ── Single Ultra-Clean 1-Line Inline Key ── */}
+      <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-2 text-[11px] font-sans text-muted-foreground">
+        <div className="flex items-center gap-3">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-foreground" />
+            Actual
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block h-2 w-3 rounded-sm bg-primary/20 border border-primary/40" />
-            <span>±10% buffer corridor (9 flex days)</span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-3 h-0.5 bg-muted-foreground/50" />
+            1.0/d Target
           </span>
-          <span className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1">
-              <span className="inline-block size-2 rounded-full bg-foreground/70" />
-              <span>Anchor Locked</span>
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <span className="inline-block size-2 rounded-full bg-transparent border border-muted-foreground/50" />
-              <span>Buffer Absorbed</span>
-            </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2 rounded-xs bg-foreground/15 border border-border" />
+            ±10% Buffer
           </span>
         </div>
-        <span className="font-mono text-[10px] text-foreground/80 flex items-center gap-1">
-          {paceRatio >= 1 ? (
-            <TrendingUp className="size-3 text-success" />
-          ) : (
-            <TrendingDown className="size-3 text-warning" />
-          )}
-          Velocity: <strong className={paceRatio >= 1 ? "text-success" : "text-warning"}>{paceRatio}x</strong> nominal · {daysRemaining === 0 || isHorizonExpired ? "Horizon Reached" : `${daysRemaining}d to horizon`}
+        <span className="font-mono text-[11px] text-muted-foreground">
+          {activeScrubDay !== null ? "Scrubbing active" : "Drag to inspect"}
         </span>
       </div>
     </div>
