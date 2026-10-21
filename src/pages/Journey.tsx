@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Compass,
@@ -8,6 +9,8 @@ import {
   Target,
   BarChart2,
   Calendar,
+  Check,
+  Plus,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,18 +24,24 @@ import {
   deriveTrajectory,
   derivePriorityBreakdown,
   deriveFollowThroughStats,
+  isLinkedToActiveGoal,
 } from "@/lib/trajectory";
 import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
+import { triggerHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
 
 export default function Journey() {
   const { profile } = useAuth();
   const {
     state,
+    activeQuests,
+    completeQuest,
     loading,
     error,
     reload,
   } = useDashboardDataContext();
+
+  const [completingId, setCompletingId] = useState<string | null>(null);
 
   // ── Loading / Error / Empty states ──
   if (loading) {
@@ -93,7 +102,7 @@ export default function Journey() {
     profile?.primary_goal,
   );
 
-  const priorityBreakdown = derivePriorityBreakdown(trajectory.actual);
+  const priorityBreakdown = derivePriorityBreakdown(state.quests, profile?.primary_goal);
   const followThrough = deriveFollowThroughStats(state.quests);
   const followThroughRate =
     followThrough.total > 0
@@ -101,6 +110,20 @@ export default function Journey() {
       : null;
 
   const bufferUsed = 9 - (pace?.bufferDaysRemaining ?? 9);
+
+  const activeGoalQuest = activeQuests.find(
+    (q) => isLinkedToActiveGoal(q, profile?.primary_goal) && !q.completed && !q.failed
+  );
+
+  const handleCompleteAnchor = async (questId: string) => {
+    try {
+      setCompletingId(questId);
+      triggerHaptic("success");
+      await completeQuest(questId);
+    } finally {
+      setCompletingId(null);
+    }
+  };
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 space-y-6">
@@ -151,9 +174,22 @@ export default function Journey() {
             <span className="rounded-lg border border-border/80 bg-muted/40 px-2.5 py-1 text-muted-foreground">
               Day <strong className="text-foreground">{pace?.elapsedDays ?? 1}</strong> of {pace?.cycleTotalDays ?? 90}
             </span>
-            <span className="rounded-lg border border-border/80 bg-muted/40 px-2.5 py-1 text-muted-foreground">
-              Target: <strong className="text-foreground">{pace?.targetDateFormatted ?? "90-Day Cycle"}</strong>
-            </span>
+            {pace?.isHorizonExpired || pace?.daysRemaining === 0 ? (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="rounded-lg h-7 border-warning/50 bg-warning/10 text-warning hover:bg-warning/20 hover:text-warning px-2.5 py-1 text-[11px] font-mono font-semibold"
+              >
+                <Link to="/profile">
+                  Horizon Reached · Extend Target Date →
+                </Link>
+              </Button>
+            ) : (
+              <span className="rounded-lg border border-border/80 bg-muted/40 px-2.5 py-1 text-muted-foreground">
+                Target: <strong className="text-foreground">{pace?.targetDateFormatted ?? "90-Day Cycle"}</strong>
+              </span>
+            )}
           </div>
         </div>
       </header>
@@ -165,6 +201,7 @@ export default function Journey() {
           targetQuests={90}
           elapsedDays={pace?.elapsedDays ?? 1}
           daysRemaining={pace?.daysRemaining ?? 89}
+          isHorizonExpired={pace?.isHorizonExpired ?? false}
           actualPoints={trajectory.actual}
           bufferDaysRemaining={pace?.bufferDaysRemaining ?? 9}
           paceRatio={pace?.paceRatio ?? 1.0}
@@ -241,9 +278,11 @@ export default function Journey() {
               </div>
             </div>
 
-            <div className="pt-3 border-t border-border/50 text-[11px] font-mono text-muted-foreground flex items-center justify-between">
-              <span>Goal Anchor Quota:</span>
-              <strong className="text-foreground">90 Completed Anchors Required</strong>
+            <div className="pt-3 border-t border-border/50 flex items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground shrink-0">Goal Quota</span>
+              <span className="text-xs font-mono font-semibold text-foreground shrink-0 whitespace-nowrap">
+                90 Completed Anchors
+              </span>
             </div>
           </div>
 
@@ -284,12 +323,16 @@ export default function Journey() {
                 )}
               </div>
               
-              <div className="mt-3 flex items-baseline gap-2">
+              <div className="mt-3 flex flex-wrap items-baseline gap-2">
                 <span className="text-3xl sm:text-4xl font-bold font-mono tracking-tight text-foreground">
                   {pace?.actualDailyPace ?? 0}
+                  <span className="text-base sm:text-lg font-normal text-muted-foreground ml-1">/ day</span>
                 </span>
                 <span className="text-xs font-mono text-muted-foreground">
-                  / <strong className="text-foreground">{pace?.requiredDailyPace ?? 1.0}</strong> anchors/day nominal
+                  vs <strong className="text-foreground">1.0/day</strong> nominal{" "}
+                  <span className="text-muted-foreground/80">
+                    ({pace?.requiredDailyPace ?? 1.0}/day required to hit target)
+                  </span>
                 </span>
               </div>
             </div>
@@ -327,22 +370,21 @@ export default function Journey() {
 
           {/* Tile C: Evidence Weight & Goal Accordance (Full Width) */}
           <div className="md:col-span-2 rounded-3xl border border-border/80 bg-card/80 p-5 sm:p-6 backdrop-blur-xl shadow-[var(--shadow-card)] space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <BarChart2 className="size-4 text-primary" aria-hidden="true" />
-                <h3 className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <BarChart2 className="size-4 text-primary shrink-0" aria-hidden="true" />
+                <h3 className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground truncate">
                   Trajectory Evidence Attribution
                 </h3>
               </div>
-              <span className="font-mono text-xs text-muted-foreground">
-                {goalStats.linked} Goal-Linked Commitments
+              <span className="shrink-0 whitespace-nowrap rounded-full bg-muted/60 px-2.5 py-0.5 text-xs font-mono font-medium text-muted-foreground">
+                {goalStats.linked} Linked
               </span>
             </div>
 
             {priorityBreakdown.length > 0 ? (
               <div className="space-y-2.5">
-                {priorityBreakdown.map(({ priority, completed, failed }) => {
-                  const total = completed + failed;
+                {priorityBreakdown.map(({ priority, completed, total }) => {
                   const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
                   return (
                     <div key={priority} className="flex items-center gap-3">
@@ -387,6 +429,81 @@ export default function Journey() {
                     {Math.round((goalStats.completed / Math.max(1, goalStats.linked)) * 100)}% Accuracy
                   </strong>
                 </span>
+              </div>
+            )}
+          </div>
+
+          {/* Next Vector Action Card (Direct Execution Actionability) */}
+          <div className="md:col-span-2 rounded-3xl border border-border/80 bg-card/80 p-5 sm:p-6 backdrop-blur-xl shadow-[var(--shadow-card)] space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <Target className="size-3.5 text-primary" />
+                <span>Next Vector Action</span>
+              </span>
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2.5 text-xs text-muted-foreground hover:text-foreground font-mono"
+              >
+                <Link to="/quests">
+                  <span>Manage Anchors</span>
+                  <ArrowRight className="size-3 ml-1" />
+                </Link>
+              </Button>
+            </div>
+
+            {activeGoalQuest ? (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant="outline"
+                      className={cn("text-[10px] px-2 py-0.5", PRIORITY_BADGE_CLASSES[activeGoalQuest.priority])}
+                    >
+                      {activeGoalQuest.priority}
+                    </Badge>
+                    <span className="text-[11px] font-mono text-emerald-500 font-medium flex items-center gap-1">
+                      <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Queued for Today
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold text-foreground truncate">
+                    {activeGoalQuest.title}
+                  </p>
+                </div>
+
+                <Button
+                  size="sm"
+                  disabled={completingId === activeGoalQuest.id}
+                  onClick={() => void handleCompleteAnchor(activeGoalQuest.id)}
+                  className="rounded-xl px-4 h-9 bg-foreground text-background hover:bg-foreground/90 font-medium text-xs shrink-0 active:scale-[0.98] transition-all"
+                >
+                  <Check className="size-3.5 mr-1.5" />
+                  {completingId === activeGoalQuest.id ? "Honoring Anchor..." : "Honor Anchor"}
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground">
+                    No active anchor queued for today's vector.
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Lock today's commitment to advance your trajectory toward the 90-anchor horizon.
+                  </p>
+                </div>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="rounded-xl px-4 h-9 font-medium text-xs shrink-0 border-border hover:bg-muted/60 active:scale-[0.98] transition-all"
+                >
+                  <Link to="/quests">
+                    <Plus className="size-3.5 mr-1.5" />
+                    Lock Today's Anchor →
+                  </Link>
+                </Button>
               </div>
             )}
           </div>

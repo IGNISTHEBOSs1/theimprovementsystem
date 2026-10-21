@@ -11,6 +11,7 @@ interface TrajectoryVisualizerProps {
   targetQuests?: number; // default 90 target anchors
   elapsedDays?: number; // 1 to 90
   daysRemaining?: number;
+  isHorizonExpired?: boolean;
   actualPoints?: TrajectoryPoint[];
   bufferDaysRemaining?: number; // out of 9 flex days
   paceRatio?: number;
@@ -56,6 +57,7 @@ export function TrajectoryVisualizer({
   targetQuests = 90,
   elapsedDays = 1,
   daysRemaining = 89,
+  isHorizonExpired = false,
   actualPoints = [],
   bufferDaysRemaining = 9,
   paceRatio = 1.0,
@@ -96,6 +98,9 @@ export function TrajectoryVisualizer({
   const yGoalCeiling = 46;
   const yGoalFloor = 118;
 
+  // Prevent vertical 90-degree cliff if near horizon without meeting target quota
+  const isNearHorizonWithoutTarget = xCurrent >= xGoal - 12 && safeCompleted < targetAnchors;
+
   // Predictive curve control points
   const dx = xGoal - xCurrent;
   const dyGoal = yGoal - yCurrent;
@@ -105,18 +110,11 @@ export function TrajectoryVisualizer({
   const c2y = yGoal - dyGoal * 0.12;
   const predictiveCurvePath = `M ${xCurrent} ${yCurrent} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${xGoal} ${yGoal}`;
 
-  // Cone boundary paths
-  const dyCeil = yGoalCeiling - yCurrent;
-  const dyFloor = yGoalFloor - yCurrent;
-  const c1yUpper = yCurrent + dyCeil * 0.35;
-  const c2yUpper = yGoalCeiling - dyCeil * 0.15;
-  const c1yLower = yCurrent + dyFloor * 0.35;
-  const c2yLower = yGoalFloor - dyFloor * 0.15;
+  // Continuous Buffer Cone from (xOrigin, yOrigin) to (xGoal, yGoalCeiling/Floor)
   const conePath = `
-    M ${xCurrent} ${yCurrent}
-    C ${c1x} ${c1yUpper}, ${c2x} ${c2yUpper}, ${xGoal} ${yGoalCeiling}
+    M ${xOrigin} ${yOrigin}
+    L ${xGoal} ${yGoalCeiling}
     L ${xGoal} ${yGoalFloor}
-    C ${c2x} ${c2yLower}, ${c1x} ${c1yLower}, ${xCurrent} ${yCurrent}
     Z
   `;
 
@@ -317,7 +315,7 @@ export function TrajectoryVisualizer({
                 DAY <strong className="text-foreground">{safeElapsed}</strong> OF {cycleTotalDays}
               </span>
               <span className="text-border">·</span>
-              <span>{daysRemaining}d to horizon</span>
+              <span>{daysRemaining === 0 || isHorizonExpired ? "Horizon Reached" : `${daysRemaining}d to horizon`}</span>
               <span className="text-border">·</span>
               <span
                 className={cn(
@@ -382,53 +380,67 @@ export function TrajectoryVisualizer({
             </filter>
           </defs>
 
-          {/* Altitude grid baselines */}
-          {[yGoalCeiling, yGoal, (yOrigin + yGoal) / 2, yOrigin].map((y, idx) => (
-            <line
-              key={idx}
-              x1={40}
-              y1={y}
-              x2={WIDTH - 30}
-              y2={y}
-              stroke="hsl(var(--foreground))"
-              strokeOpacity={0.07}
-              strokeDasharray="4 8"
-              strokeWidth={1}
-            />
+          {/* Altitude grid baselines & Y-axis labels (inside left margin at x=14, unclipped) */}
+          {[
+            { y: yGoal, label: String(targetAnchors) },
+            { y: (yOrigin + yGoal) / 2, label: String(Math.round(targetAnchors / 2)) },
+            { y: yOrigin, label: "0" },
+          ].map((item, idx) => (
+            <g key={idx}>
+              <line
+                x1={40}
+                y1={item.y}
+                x2={WIDTH - 30}
+                y2={item.y}
+                stroke="hsl(var(--foreground))"
+                strokeOpacity={0.07}
+                strokeDasharray="4 8"
+                strokeWidth={1}
+              />
+              <text
+                x={14}
+                y={item.y + 3}
+                textAnchor="start"
+                fill="hsl(var(--muted-foreground))"
+                fontSize="10"
+                fontFamily="monospace"
+                opacity={0.65}
+              >
+                {item.label}
+              </text>
+            </g>
           ))}
+          <line
+            x1={40}
+            y1={yGoalCeiling}
+            x2={WIDTH - 30}
+            y2={yGoalCeiling}
+            stroke="hsl(var(--foreground))"
+            strokeOpacity={0.05}
+            strokeDasharray="4 8"
+            strokeWidth={1}
+          />
 
-          {/* Milestone day vertical markers */}
+          {/* Milestone day vertical markers (de-duplicated, scale on timeline rail below) */}
           {milestoneDays.map((d) => {
             const mx = xOrigin + (spanX * d) / cycleTotalDays;
             const isPast = d <= safeElapsed;
             return (
-              <g key={d}>
-                <line
-                  x1={mx}
-                  y1={42}
-                  x2={mx}
-                  y2={yOrigin + 6}
-                  stroke="hsl(var(--foreground))"
-                  strokeOpacity={isPast ? 0.12 : 0.05}
-                  strokeDasharray="2 4"
-                  strokeWidth={1}
-                />
-                <text
-                  x={mx}
-                  y={yOrigin + 20}
-                  textAnchor="middle"
-                  fill="hsl(var(--muted-foreground))"
-                  fontSize="11"
-                  fontFamily="monospace"
-                  opacity={isPast ? 0.9 : 0.45}
-                >
-                  D{d}
-                </text>
-              </g>
+              <line
+                key={d}
+                x1={mx}
+                y1={42}
+                x2={mx}
+                y2={yOrigin + 6}
+                stroke="hsl(var(--foreground))"
+                strokeOpacity={isPast ? 0.12 : 0.05}
+                strokeDasharray="2 4"
+                strokeWidth={1}
+              />
             );
           })}
 
-          {/* 1. The 80% Buffer Corridor Cone */}
+          {/* 1. Shaded ±10% Buffer Cone & Target Vector from Origin to Horizon */}
           <motion.path
             d={conePath}
             fill={`url(#${coneGradId})`}
@@ -436,25 +448,34 @@ export function TrajectoryVisualizer({
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, ease: TIS_EASINGS.subtleEntrance }}
           />
-          <motion.path
-            d={`M ${xCurrent} ${yCurrent} C ${c1x} ${c1yUpper}, ${c2x} ${c2yUpper}, ${xGoal} ${yGoalCeiling}`}
-            fill="none"
+          <line
+            x1={xOrigin}
+            y1={yOrigin}
+            x2={xGoal}
+            y2={yGoalCeiling}
             stroke="hsl(var(--primary) / 0.35)"
             strokeWidth={1.5}
             strokeDasharray="4 5"
-            initial={shouldReduceMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.65, delay: 0.1 }}
           />
-          <motion.path
-            d={`M ${xCurrent} ${yCurrent} C ${c1x} ${c1yLower}, ${c2x} ${c2yLower}, ${xGoal} ${yGoalFloor}`}
-            fill="none"
+          <line
+            x1={xOrigin}
+            y1={yOrigin}
+            x2={xGoal}
+            y2={yGoalFloor}
             stroke="hsl(var(--primary) / 0.35)"
             strokeWidth={1.5}
             strokeDasharray="4 5"
-            initial={shouldReduceMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.65, delay: 0.1 }}
+          />
+
+          {/* Solid Nominal Target Vector (1.0/day baseline) */}
+          <line
+            x1={xOrigin}
+            y1={yOrigin}
+            x2={xGoal}
+            y2={yGoal}
+            stroke="hsl(var(--primary) / 0.55)"
+            strokeWidth={2}
+            strokeLinecap="round"
           />
 
           {/* Buffer Bracket at Goal */}
@@ -508,18 +529,48 @@ export function TrajectoryVisualizer({
             />
           ))}
 
-          {/* 3. Predictive Pursuit Vector */}
-          <motion.path
-            d={predictiveCurvePath}
-            fill="none"
-            stroke={`url(#${gradientId})`}
-            strokeWidth={3}
-            strokeLinecap="round"
-            filter={`url(#${glowFilterId})`}
-            initial={shouldReduceMotion ? false : { pathLength: 0, opacity: 0.2 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 0.65, ease: TIS_EASINGS.precisionInOut }}
-          />
+          {/* 3. Predictive Pursuit Vector or Horizon Extension Indicator */}
+          {isNearHorizonWithoutTarget ? (
+            <g>
+              <line
+                x1={xCurrent}
+                y1={yCurrent}
+                x2={Math.min(WIDTH - 20, xCurrent + 40)}
+                y2={yCurrent}
+                stroke="hsl(var(--warning))"
+                strokeWidth={2.5}
+                strokeDasharray="4 4"
+                strokeLinecap="round"
+              />
+              <polygon
+                points={`${Math.min(WIDTH - 20, xCurrent + 40)},${yCurrent} ${Math.min(WIDTH - 20, xCurrent + 40) - 7},${yCurrent - 4} ${Math.min(WIDTH - 20, xCurrent + 40) - 7},${yCurrent + 4}`}
+                fill="hsl(var(--warning))"
+              />
+              <text
+                x={xCurrent - 8}
+                y={yCurrent - 10}
+                textAnchor="end"
+                fill="hsl(var(--warning))"
+                fontSize="10"
+                fontWeight="700"
+                fontFamily="monospace"
+              >
+                Horizon Extension Required →
+              </text>
+            </g>
+          ) : (
+            <motion.path
+              d={predictiveCurvePath}
+              fill="none"
+              stroke={`url(#${gradientId})`}
+              strokeWidth={3}
+              strokeLinecap="round"
+              filter={`url(#${glowFilterId})`}
+              initial={shouldReduceMotion ? false : { pathLength: 0, opacity: 0.2 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 0.65, ease: TIS_EASINGS.precisionInOut }}
+            />
+          )}
 
           {/* Origin Marker */}
           <g transform={`translate(${xOrigin}, ${yOrigin})`}>
@@ -728,7 +779,7 @@ export function TrajectoryVisualizer({
           ) : (
             <TrendingDown className="size-3 text-warning" />
           )}
-          Velocity: <strong className={paceRatio >= 1 ? "text-success" : "text-warning"}>{paceRatio}x</strong> nominal · {daysRemaining}d to horizon
+          Velocity: <strong className={paceRatio >= 1 ? "text-success" : "text-warning"}>{paceRatio}x</strong> nominal · {daysRemaining === 0 || isHorizonExpired ? "Horizon Reached" : `${daysRemaining}d to horizon`}
         </span>
       </div>
     </div>

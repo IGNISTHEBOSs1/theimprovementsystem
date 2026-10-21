@@ -183,17 +183,44 @@ export interface PriorityBreakdownEntry {
   priority: QuestPriority;
   completed: number;
   failed: number;
+  total: number;
 }
 
-export function derivePriorityBreakdown(actual: TrajectoryPoint[]): PriorityBreakdownEntry[] {
+export function normalizePriority(priority?: string | null): QuestPriority {
+  if (priority === "Essential" || priority === "Core") return "Essential";
+  if (priority === "Important") return "Important";
+  return "Optional";
+}
+
+export function derivePriorityBreakdown(
+  items: Array<Quest | TrajectoryPoint>,
+  activeGoalName?: string | null,
+): PriorityBreakdownEntry[] {
   const order: QuestPriority[] = ["Essential", "Important", "Optional"];
+  const safeItems = Array.isArray(items) ? items.filter(Boolean) : [];
+
+  const quests: Quest[] = safeItems.map((item) => {
+    if ("quest" in item && item.quest) {
+      return item.quest;
+    }
+    return item as Quest;
+  });
+
+  const linkedQuests = quests.filter((q) => isLinkedToActiveGoal(q, activeGoalName));
+
   return order
-    .map((priority) => ({
-      priority,
-      completed: actual.filter((p) => p.quest.priority === priority && p.outcome === "completed").length,
-      failed: actual.filter((p) => p.quest.priority === priority && p.outcome === "failed").length,
-    }))
-    .filter((entry) => entry.completed > 0 || entry.failed > 0);
+    .map((priority) => {
+      const matching = linkedQuests.filter((q) => normalizePriority(q.priority) === priority);
+      const completed = matching.filter((q) => q.completed).length;
+      const failed = matching.filter((q) => q.failed).length;
+      return {
+        priority,
+        completed,
+        failed,
+        total: matching.length,
+      };
+    })
+    .filter((entry) => entry.total > 0);
 }
 
 // Founder Decision (Trajectory completeness chunk, Tier 1 #1): per-series
@@ -268,6 +295,7 @@ export interface GoalPaceResult {
   targetDate: string;
   targetDateFormatted: string;
   daysRemaining: number;
+  isHorizonExpired: boolean;
   remainingGoalQuests: number;
   requiredDailyPace: number;
   actualDailyPace: number;
@@ -325,14 +353,33 @@ export function deriveGoalPace(
   // Dynamic target date accounts for excess horizon slips S
   const effectiveTargetDate = new Date(targetDate.getTime() + horizonExtensionDays * 24 * 60 * 60 * 1000);
   const diffMs = effectiveTargetDate.getTime() - now.getTime();
+  const isHorizonExpired = diffMs <= 0;
 
-  const daysRemaining = Math.max(1, Math.ceil(Math.max(0, diffMs) / (1000 * 60 * 60 * 24)));
-  const elapsedDays = Math.max(1, Math.min(cycleTotalDays, cycleTotalDays - daysRemaining + 1));
+  // Allow daysRemaining to reach 0 when diffMs <= 0
+  const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+
+  // Anchor cycle start timestamp from earliest timestamp among active-goal-linked quests,
+  // falling back to targetMs - 90 * 86400000 only if no quests exist yet
+  const linkedQuests = quests.filter((q) => isLinkedToActiveGoal(q, activeGoalName));
+  const validStartTimestamps = linkedQuests
+    .map((q) => Date.parse(deriveResolvedAt(q) || q.createdAt))
+    .filter((t) => !isNaN(t));
+  const cycleStartMs = validStartTimestamps.length > 0
+    ? Math.min(...validStartTimestamps)
+    : targetDate.getTime() - 90 * 86400000;
+
+  // Compute elapsedDays forward from cycleStartMs to now
+  const elapsedDays = Math.max(
+    1,
+    Math.min(cycleTotalDays, Math.floor((now.getTime() - cycleStartMs) / (1000 * 60 * 60 * 24)) + 1),
+  );
 
   const remainingGoalQuests = Math.max(0, targetCycleQuests - completedGoalQuests);
 
-  // Required daily pace to finish remaining quota in remaining days (nominal baseline is 1.0)
-  const requiredDailyPace = Number(Math.min(2.5, Math.max(0.1, remainingGoalQuests / daysRemaining)).toFixed(2));
+  // Required daily pace to finish remaining quota in remaining days (or remaining count if horizon reached)
+  const requiredDailyPace = daysRemaining > 0
+    ? Number(Math.min(3.0, Math.max(0.1, remainingGoalQuests / daysRemaining)).toFixed(2))
+    : (remainingGoalQuests > 0 ? remainingGoalQuests : 0);
 
   // Compute actualDailyPace against observed window (up to 14 days, bounded by elapsedDays)
   const observedDays = Math.max(1, Math.min(14, elapsedDays));
@@ -344,14 +391,15 @@ export function deriveGoalPace(
     return !isNaN(resolved) && resolved >= windowStart;
   });
   const recentGoalCompleted = recentGoalCompletedQuests.length;
-  const actualDailyPace = Number((recentGoalCompleted / observedDays).toFixed(2));
 
-  let paceRatio: number;
-  if (requiredDailyPace > 0) {
-    paceRatio = Number((actualDailyPace / requiredDailyPace).toFixed(2));
-  } else {
-    paceRatio = remainingGoalQuests === 0 ? 1 : 0;
-  }
+  // Actual daily pace: max of overall completed pace and recent window pace
+  const overallDailyPace = completedGoalQuests / Math.max(1, elapsedDays);
+  const windowDailyPace = recentGoalCompleted / observedDays;
+  const actualDailyPace = Number(Math.max(overallDailyPace, windowDailyPace).toFixed(2));
+
+  // Nominal daily pace baseline is 1.0 anchor/day
+  const nominalDailyPace = 1.0;
+  const paceRatio = Number((actualDailyPace / nominalDailyPace).toFixed(2));
 
   // On track if: all done, or within 10% buffer tolerance without active horizon slip
   const isOnTrack = remainingGoalQuests === 0 || (paceRatio >= 0.9 && horizonExtensionDays === 0);
@@ -380,6 +428,7 @@ export function deriveGoalPace(
     targetDate: targetDateStr,
     targetDateFormatted,
     daysRemaining,
+    isHorizonExpired,
     remainingGoalQuests,
     requiredDailyPace,
     actualDailyPace,
