@@ -663,7 +663,7 @@ export default function Landing() {
               </span>
               <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-medium bg-muted/80 text-muted-foreground border border-border/80">
                 <span className="size-1.5 rounded-full bg-foreground" />
-                Local Enclave
+                Local-First Privacy
               </span>
             </div>
           </div>
@@ -771,7 +771,7 @@ export default function Landing() {
             <span>•</span>
             <span className="flex items-center gap-1.5">
               <Lock className="size-3 text-muted-foreground" />
-              100% Private Offline Vault
+              Local-First & Private (Zero Tracking)
             </span>
             <span>•</span>
             <span className="hidden sm:inline">No Credit Card Required</span>
@@ -1092,7 +1092,7 @@ export default function Landing() {
                   <span>•</span>
                   <span className="flex items-center gap-1">
                     <Lock className="size-3 text-foreground" />
-                    100% Private Offline Vault
+                    Local-First & Private (Zero Tracking)
                   </span>
                 </div>
               </div>

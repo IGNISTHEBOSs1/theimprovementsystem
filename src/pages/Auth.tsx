@@ -119,7 +119,7 @@ const Auth = () => {
       </div>
 
       <div className="w-full max-w-5xl relative z-10 mx-auto lg:grid lg:grid-cols-12 lg:gap-12 xl:gap-16 lg:items-center">
-        {/* ── LEFT PANE: PC BRAND & ENCLAVE ARCHITECTURE SHOWCASE (Visible on lg+ screens) ── */}
+        {/* ── LEFT PANE: PC BRAND & PRIVACY ARCHITECTURE SHOWCASE (Visible on lg+ screens) ── */}
         <div className="hidden lg:flex lg:col-span-6 flex-col space-y-6 pr-4">
           <div className="flex items-center gap-2">
             <button
@@ -178,8 +178,8 @@ const Auth = () => {
                 <Layers className="size-4" />
               </div>
               <div>
-                <h2 className="font-semibold text-xs text-foreground">Local-First Enclave</h2>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">Zero cloud tracking. Your daily commitments remain encrypted in your browser.</p>
+                <h2 className="font-semibold text-xs text-foreground">Local-First Privacy</h2>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">Zero third-party trackers or telemetry brokers. You maintain full ownership of your data.</p>
               </div>
             </div>
           </div>
@@ -275,7 +275,7 @@ const Auth = () => {
                 {mode === 'signin'
                   ? 'Sign in to access your commitments'
                   : mode === 'signup'
-                  ? 'Set up your personal execution enclave'
+                  ? 'Set up your personal improvement plan'
                   : 'Enter your email for recovery instructions'}
               </p>
             </div>

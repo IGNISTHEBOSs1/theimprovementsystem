@@ -12,11 +12,20 @@
 // and display order elsewhere. It does not gate how many Quests may share
 // a priority value.
 export type QuestPriority = 'Essential' | 'Important' | 'Optional';
+export type QuestRole = 'focus' | 'routine';
+
+export function getQuestRole(quest: Quest): QuestRole {
+  if (quest.role) return quest.role;
+  if (quest.seriesId) return 'routine';
+  if (quest.priority === 'Essential') return 'focus';
+  return 'routine';
+}
 
 export interface Quest {
   id: string;
   title: string;
   priority: QuestPriority;
+  role?: QuestRole;
   timeFrame: string;
   scheduledFor?: string;
   // Founder Decision (RPG removal chunk): statCategory (an RPG attribute-

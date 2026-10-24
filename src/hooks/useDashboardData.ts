@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Quest } from "@/types/quest";
+import { Quest, QuestRole, getQuestRole } from "@/types/quest";
 import { Json } from "@/integrations/supabase/types";
 import { getServerLocalDate, toServerLocalDate } from "@/lib/serverTime";
 import { comparePriorityThenCreatedAt } from "@/lib/priority";
 
 // Focus & Cadence Model (2026): allows up to 3 active quests at a time
-// (e.g. 1 primary deep focus commitment + up to 2 daily recurring routines).
+// strictly partitioned as: 1 Primary Focus + up to 2 Supporting Routines.
 export const MAX_ACTIVE_QUESTS = 3;
+export const MAX_FOCUS_SLOTS = 1;
+export const MAX_ROUTINE_SLOTS = 2;
 
 // Founder Decision (RPG removal / Trajectory finalization chunk):
 // DashboardState no longer carries level, currentXp, maxXp, credits,
@@ -100,6 +102,17 @@ export function isQuestExpired(quest: Quest, today: string, timezone: string): b
   if (quest.completed || quest.failed) return false;
   if (quest.timeFrame !== "Today") return false;
   return toServerLocalDate(new Date(quest.createdAt), timezone).dateStr !== today;
+}
+
+export function isQuestResolvedToday(quest: Quest, today: string, timezone: string): boolean {
+  if (!quest.completed && !quest.failed) return false;
+  const resolvedAt = quest.resolvedAt || quest.createdAt;
+  if (!resolvedAt) return false;
+  try {
+    return toServerLocalDate(new Date(resolvedAt), timezone).dateStr === today;
+  } catch {
+    return resolvedAt.startsWith(today);
+  }
 }
 
 // True if this Quest currently counts toward the account's active-Quest
@@ -196,6 +209,8 @@ function nextOccurrencesToCreate(quests: Quest[], todayStr: string, todayWeekday
         id: crypto.randomUUID(),
         completed: false,
         failed: false,
+        role: "routine",
+        resolvedAt: undefined,
         createdAt: nowInstant.toISOString(),
       };
       created.push(next);
@@ -265,7 +280,8 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
           id: 'dev-1',
           title: 'Do pushups (3 sets of 20)',
           timeFrame: 'Today',
-          priority: 'Important',
+          priority: 'Essential',
+          role: 'focus',
           completed: false,
           failed: false,
           createdAt: todayIso,
@@ -276,22 +292,22 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
           id: 'dev-2',
           title: 'Read 20 pages of system design',
           timeFrame: 'Today',
-          priority: 'Core',
+          priority: 'Important',
+          role: 'routine',
           completed: false,
           failed: false,
           createdAt: todayIso,
-          isPrimaryGoal: false,
         },
         {
           id: 'dev-3',
           title: 'Walk 3,000 steps morning brisk pace',
           timeFrame: 'Today',
-          priority: 'Core',
+          priority: 'Optional',
+          role: 'routine',
           completed: true,
           failed: false,
           createdAt: todayIso,
           resolvedAt: todayIso,
-          isPrimaryGoal: false,
         },
         {
           id: 'dev-4',
@@ -556,7 +572,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
 
   const updateQuest = useCallback(async (
     questId: string,
-    updates: { title?: string; priority?: Quest["priority"]; linkedToGoal?: boolean; goalName?: string }
+    updates: { title?: string; priority?: Quest["priority"]; role?: QuestRole; linkedToGoal?: boolean; goalName?: string }
   ) => {
     if (!userId || writeLockRef.current) return { error: null };
     const quest = state.quests.find((item) => item.id === questId);
@@ -568,6 +584,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
         ...item,
         ...(updates.title !== undefined ? { title: updates.title.trim() } : {}),
         ...(updates.priority !== undefined ? { priority: updates.priority } : {}),
+        ...(updates.role !== undefined ? { role: updates.role } : {}),
         ...(updates.linkedToGoal !== undefined ? { linkedToGoal: updates.linkedToGoal } : {}),
         ...(updates.goalName !== undefined ? { goalName: updates.goalName } : {}),
       };
@@ -633,43 +650,55 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
   // required them — are removed from the Quest model as of this chunk.
   // Nothing in the live app ever read them; the last write site was this
   // object literal.
-  const commitToTodaysQuest = useCallback(async (commitment: string, linkedToGoal = false, cadence: CadencePreset = "Once", customDays: number[] = [], priority: Quest["priority"] = "Essential", goalName?: string) => {
+  const commitToTodaysQuest = useCallback(async (
+    commitment: string,
+    linkedToGoal = false,
+    cadence: CadencePreset = "Once",
+    customDays: number[] = [],
+    priority: Quest["priority"] = "Essential",
+    goalName?: string,
+    role?: QuestRole
+  ) => {
     const trimmed = commitment.trim();
     if (!userId || writeLockRef.current || !trimmed) return { error: null };
-    // Server-authoritative clock — see load() above for why this is
-    // never the client's Date(). Fetched before the active-slot guard
-    // below (not after, as this previously read) so that guard uses the
-    // same user-timezone "today" as everything else, rather than
-    // occupiesActiveSlot's UTC fallback — see occupiesActiveSlot's
-    // comment for why that previously diverged from the user's actual
-    // local calendar day.
     const serverLocal = await getServerLocalDate(timezone);
 
-    // Founder Decision (Quest lifecycle reconciliation chunk): the
-    // account may hold at most one active Quest (MAX_ACTIVE_QUESTS = 1),
-    // reversing the multi-active Quest chunk. A commit while a Quest is
-    // already active is a silent no-op — the caller (Quests.tsx)
-    // disables the entry point at the cap, but this guard is the actual
-    // enforcement, not the UI.
-    const activeCount = state.quests.filter((q) => occupiesActiveSlot(q, serverLocal.dateStr, timezone || "UTC")).length;
-    if (activeCount >= MAX_ACTIVE_QUESTS) return { error: null };
+    const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
+    const active = safeQuests.filter((q) => occupiesActiveSlot(q, serverLocal.dateStr, timezone || "UTC"));
+    if (active.length >= MAX_ACTIVE_QUESTS) return { error: new Error("Focus cap reached (3 active commitments max).") };
+
+    const resolvedRole: QuestRole = role ?? (cadence === "Once" && priority === "Essential" ? "focus" : "routine");
+    const activeFocus = active.filter((q) => getQuestRole(q) === "focus");
+    const activeRoutines = active.filter((q) => getQuestRole(q) === "routine");
+
+    if (resolvedRole === "focus" && activeFocus.length >= MAX_FOCUS_SLOTS) {
+      return { error: new Error("Primary focus slot is already occupied.") };
+    }
+    if (resolvedRole === "routine" && activeRoutines.length >= MAX_ROUTINE_SLOTS) {
+      return { error: new Error("Supporting routine slots are already full (max 2).") };
+    }
 
     const recurrenceDays = resolveRecurrenceDays(cadence, customDays, serverLocal.weekday);
-    const isRecurring = Boolean(recurrenceDays && recurrenceDays.length > 0);
+    const isRecurring = Boolean(recurrenceDays && recurrenceDays.length > 0) || (resolvedRole === "routine" && cadence !== "Once");
+    const finalRecurrenceDays = recurrenceDays && recurrenceDays.length > 0
+      ? recurrenceDays
+      : (isRecurring ? [0, 1, 2, 3, 4, 5, 6] : undefined);
+
     const quest: Quest = {
       id: crypto.randomUUID(),
       title: trimmed,
       priority,
+      role: resolvedRole,
       timeFrame: "Today",
       linkedToGoal,
       ...(linkedToGoal && goalName ? { goalName } : {}),
       completed: false,
       failed: false,
       createdAt: serverLocal.instant.toISOString(),
-      ...(isRecurring ? { seriesId: crypto.randomUUID(), recurrenceDays } : {}),
+      ...(finalRecurrenceDays ? { seriesId: crypto.randomUUID(), recurrenceDays: finalRecurrenceDays } : {}),
     };
 
-    const nextQuests = [...state.quests, quest];
+    const nextQuests = [...safeQuests, quest];
     writeLockRef.current = true;
     setSaving(true);
     setState((prev) => ({ ...prev, quests: nextQuests }));
@@ -684,29 +713,122 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     return { error: dbError };
   }, [load, state, userId, timezone]);
 
-  // Founder Decision (Quest lifecycle reconciliation chunk): at most one
-  // Quest occupies the active slot (MAX_ACTIVE_QUESTS = 1), reversing the
-  // multi-active Quest chunk. This array will hold 0 or 1 entries for any
-  // account whose data was only ever written under this constraint.
-  // Kept as an array (not a single Quest | undefined) rather than
-  // changing every caller's shape — Dashboard.tsx and Quests.tsx already
-  // read index 0 as "the" active Quest and treat the rest as an overflow
-  // case; see this chunk's report for why any pre-existing account with
-  // more than one already-active Quest from before this chunk is a
-  // separate, flagged data-reconciliation question, not resolved here.
-  // Uses the cached server-local `todayStr` (see above), not a client
-  // clock default.
+  const updateSeriesRecurrence = useCallback(async (seriesId: string, newRecurrenceDays: number[]) => {
+    if (!userId || writeLockRef.current || !seriesId) return { error: null };
+
+    const nextQuests = state.quests.map((item) => {
+      if (item.seriesId !== seriesId) return item;
+      return {
+        ...item,
+        recurrenceDays: newRecurrenceDays,
+      };
+    });
+
+    writeLockRef.current = true;
+    setSaving(true);
+    setState((prev) => ({ ...prev, quests: nextQuests }));
+    const { error: dbError } = await supabase
+      .from("game_state")
+      .update({ quests: nextQuests as unknown as Json })
+      .eq("user_id", userId);
+
+    if (dbError) await load();
+    writeLockRef.current = false;
+    setSaving(false);
+    return { error: dbError };
+  }, [load, state, userId]);
+
+  const pauseSeries = useCallback(async (seriesId: string) => {
+    if (!userId || writeLockRef.current || !seriesId) return { error: null };
+
+    const nextQuests = state.quests.map((item) => {
+      if (item.seriesId !== seriesId) return item;
+      return {
+        ...item,
+        recurrenceDays: [],
+      };
+    });
+
+    writeLockRef.current = true;
+    setSaving(true);
+    setState((prev) => ({ ...prev, quests: nextQuests }));
+    const { error: dbError } = await supabase
+      .from("game_state")
+      .update({ quests: nextQuests as unknown as Json })
+      .eq("user_id", userId);
+
+    if (dbError) await load();
+    writeLockRef.current = false;
+    setSaving(false);
+    return { error: dbError };
+  }, [load, state, userId]);
+
+  const resumeSeries = useCallback(async (seriesId: string, recurrenceDays = [0, 1, 2, 3, 4, 5, 6]) => {
+    if (!userId || writeLockRef.current || !seriesId) return { error: null };
+
+    const nextQuests = state.quests.map((item) => {
+      if (item.seriesId !== seriesId) return item;
+      return {
+        ...item,
+        recurrenceDays,
+      };
+    });
+
+    writeLockRef.current = true;
+    setSaving(true);
+    setState((prev) => ({ ...prev, quests: nextQuests }));
+    const { error: dbError } = await supabase
+      .from("game_state")
+      .update({ quests: nextQuests as unknown as Json })
+      .eq("user_id", userId);
+
+    if (dbError) await load();
+    writeLockRef.current = false;
+    setSaving(false);
+    return { error: dbError };
+  }, [load, state, userId]);
+
   const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
 
   const activeQuests = todayStr
     ? safeQuests.filter((q) => occupiesActiveSlot(q, todayStr, timezone || "UTC")).sort(comparePriorityThenCreatedAt)
     : [];
 
+  const primaryFocusQuest = activeQuests.find((q) => getQuestRole(q) === "focus");
+  const routineQuests = activeQuests.filter((q) => getQuestRole(q) === "routine");
+
+  const completedFocusToday = todayStr
+    ? safeQuests.find(
+        (q) =>
+          getQuestRole(q) === "focus" &&
+          q.completed &&
+          isQuestResolvedToday(q, todayStr, timezone || "UTC"),
+      )
+    : undefined;
+
   const lastMissedQuest = safeQuests
     .filter((q) => q.failed)
     .sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""))[0];
 
   return {
-    state, loading, error, saving, activeQuests, lastMissedQuest, completeQuest, cancelQuest, updateQuest, recalibrateSchedule, commitToTodaysQuest, reload: load, todayStr,
+    state,
+    loading,
+    error,
+    saving,
+    activeQuests,
+    primaryFocusQuest,
+    completedFocusToday,
+    routineQuests,
+    lastMissedQuest,
+    completeQuest,
+    cancelQuest,
+    updateQuest,
+    updateSeriesRecurrence,
+    pauseSeries,
+    resumeSeries,
+    recalibrateSchedule,
+    commitToTodaysQuest,
+    reload: load,
+    todayStr,
   };
 }

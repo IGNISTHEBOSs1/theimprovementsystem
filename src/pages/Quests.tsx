@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { CheckSquare, Plus, Repeat, Target } from "lucide-react";
+import { CheckSquare, Pause, Plus, Repeat, Sparkles, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { TodaysCommitment } from "@/components/quests/TodaysCommitment";
@@ -18,23 +18,37 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
-import { nextEligibleDayLabel, MAX_ACTIVE_QUESTS, type CadencePreset } from "@/hooks/useDashboardData";
+import { nextEligibleDayLabel, type CadencePreset } from "@/hooks/useDashboardData";
 import { getServerLocalDate, toServerLocalDate, type ServerLocalDate } from "@/lib/serverTime";
 import { soundEngine } from "@/hooks/useSoundEffects";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import type { Quest, QuestPriority } from "@/types/quest";
+import { type Quest, type QuestPriority, type QuestRole, getQuestRole } from "@/types/quest";
 import { deriveGoalStats } from "@/lib/trajectory";
 
 interface RecommitPrefill {
   title: string;
   priority: QuestPriority;
   linkedToGoal: boolean;
+  role?: QuestRole;
 }
 
 export default function Quests() {
   const { profile } = useAuth();
-  const { state, loading, error, saving, activeQuests, completeQuest, cancelQuest, commitToTodaysQuest, reload } = useDashboardDataContext();
+  const {
+    state,
+    loading,
+    error,
+    saving,
+    activeQuests,
+    completedFocusToday,
+    completeQuest,
+    cancelQuest,
+    commitToTodaysQuest,
+    pauseSeries,
+    reload,
+  } = useDashboardDataContext();
+
   const [commitError, setCommitError] = useState(false);
   const [completeError, setCompleteError] = useState(false);
   const [cancelling, setCancelling] = useState(false);
@@ -46,6 +60,7 @@ export default function Quests() {
   const [recommitPrefill] = useState<RecommitPrefill | undefined>(
     () => (location.state as { prefill?: RecommitPrefill } | null)?.prefill,
   );
+  const [formTargetRole, setFormTargetRole] = useState<QuestRole | undefined>(recommitPrefill?.role);
   const [showCommitForm, setShowCommitForm] = useState(Boolean(recommitPrefill));
 
   useEffect(() => {
@@ -57,6 +72,7 @@ export default function Quests() {
 
   const [serverLocal, setServerLocal] = useState<ServerLocalDate | null>(null);
   const goalStats = deriveGoalStats(state.quests, profile?.primary_goal);
+
   useEffect(() => {
     let cancelled = false;
     getServerLocalDate(profile?.timezone)
@@ -66,7 +82,9 @@ export default function Quests() {
       .catch(() => {
         // Degrades gracefully
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [profile?.timezone]);
 
   const seriesMap = new Map<string, Quest[]>();
@@ -76,22 +94,45 @@ export default function Quests() {
     existing.push(quest);
     seriesMap.set(quest.seriesId, existing);
   }
-  const upcoming = serverLocal ? Array.from(seriesMap.values())
-    .map((occurrences) => occurrences.reduce((a, b) => (a.createdAt > b.createdAt ? a : b)))
-    .filter((mostRecent) =>
-      (mostRecent.completed || mostRecent.failed) &&
-      mostRecent.recurrenceDays &&
-      mostRecent.recurrenceDays.length > 0 &&
-      toServerLocalDate(new Date(mostRecent.createdAt), profile?.timezone || "UTC").dateStr !== serverLocal.dateStr,
-    ) : [];
 
-  const handleCommit = async (commitment: string, linkedToGoal: boolean, cadence: CadencePreset, customDays: number[], priority: QuestPriority) => {
+  const upcoming = serverLocal
+    ? Array.from(seriesMap.values())
+        .map((occurrences) => occurrences.reduce((a, b) => (a.createdAt > b.createdAt ? a : b)))
+        .filter(
+          (mostRecent) =>
+            (mostRecent.completed || mostRecent.failed) &&
+            mostRecent.recurrenceDays &&
+            mostRecent.recurrenceDays.length > 0 &&
+            toServerLocalDate(new Date(mostRecent.createdAt), profile?.timezone || "UTC").dateStr !== serverLocal.dateStr,
+        )
+    : [];
+
+  const focusQuest = activeQuests.find((q) => getQuestRole(q) === "focus");
+  const routineQuests = activeQuests.filter((q) => getQuestRole(q) === "routine");
+
+  const focusAvailable = !focusQuest && !completedFocusToday;
+  const routineAvailable = routineQuests.length < 2;
+  const canAddAny = focusAvailable || routineAvailable;
+
+  const handleCommit = async (
+    commitment: string,
+    linkedToGoal: boolean,
+    cadence: CadencePreset,
+    customDays: number[],
+    priority: QuestPriority,
+    role: QuestRole,
+  ) => {
     setCommitError(false);
     setShowCommitForm(false);
     soundEngine.playConfirmation();
     const { error: commitErr } = await commitToTodaysQuest(
-      commitment, linkedToGoal, cadence, customDays, priority,
+      commitment,
+      linkedToGoal,
+      cadence,
+      customDays,
+      priority,
       linkedToGoal ? profile?.primary_goal ?? undefined : undefined,
+      role,
     );
     if (commitErr) {
       setCommitError(true);
@@ -99,7 +140,7 @@ export default function Quests() {
       soundEngine.playError();
       toast({
         title: "Could not create commitment",
-        description: "That didn't go through. Please try again.",
+        description: commitErr instanceof Error ? commitErr.message : "That didn't go through. Please try again.",
         variant: "destructive",
       });
     }
@@ -134,34 +175,43 @@ export default function Quests() {
     }
   };
 
+  const handlePauseSeries = async (seriesId: string) => {
+    soundEngine.playTap();
+    const { error: pauseErr } = await pauseSeries(seriesId);
+    if (pauseErr) {
+      toast({
+        title: "Could not pause routine",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Routine paused",
+        description: "The recurring routine has been paused for this cycle.",
+      });
+    }
+  };
+
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-8 sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
       <PageHeader
-        eyebrow="Your commitments"
+        eyebrow="Commitment Architecture"
         title="Your commitments."
-        description="What you're committed to right now, in one place."
+        description="Strictly constrained to 1 Primary Focus + 2 Supporting Routines to eliminate cognitive diffusion."
       />
 
-      <div className="mt-8 space-y-6">
+      <div className="mt-8 space-y-7">
         {loading ? (
-          <div className="space-y-3" aria-label="Loading quests">
-            <div className="h-20 animate-pulse rounded-2xl bg-muted" />
-            <div className="h-20 animate-pulse rounded-2xl bg-muted" />
-            <div className="h-20 animate-pulse rounded-2xl bg-muted" />
+          <div className="space-y-3" aria-label="Loading commitments">
+            <div className="h-24 animate-pulse rounded-2xl bg-muted" />
+            <div className="h-24 animate-pulse rounded-2xl bg-muted" />
           </div>
         ) : error ? (
-          <section
-            className="rounded-2xl border border-border bg-card p-7"
-            aria-label="Quests unavailable"
-          >
-            <p className="text-label text-muted-foreground">Your quests</p>
-            <h2 className="mt-2 text-lg font-semibold text-foreground">
-              We couldn't load your quests.
-            </h2>
-            <p className="mt-2 text-body-md text-muted-foreground">
-              This is usually temporary. You can try again now.
-            </p>
-            <Button variant="neon" size="lg" className="mt-4" onClick={() => void reload()}>
+          <section className="rounded-2xl border border-border bg-card p-7" aria-label="Commitments unavailable">
+            <p className="text-label text-muted-foreground">Your commitments</p>
+            <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your commitments.</h2>
+            <p className="mt-2 text-body-md text-muted-foreground">This is usually temporary. You can try again now.</p>
+            <Button size="lg" className="mt-4" onClick={() => void reload()}>
               Try again
             </Button>
           </section>
@@ -175,8 +225,11 @@ export default function Quests() {
                   onCommit={handleCommit}
                   onCancel={() => setShowCommitForm(false)}
                   goalLabel={profile?.primary_goal ?? undefined}
+                  initialRole={formTargetRole}
                   initialValues={recommitPrefill}
                   completedGoalQuests={goalStats.completed}
+                  focusAvailable={focusAvailable}
+                  routineAvailable={routineAvailable}
                 />
                 {commitError && (
                   <p className="mt-3 text-body-sm text-destructive" role="alert">
@@ -186,98 +239,178 @@ export default function Quests() {
               </div>
             )}
 
-            {/* ACTIVE COMMITMENTS: GROUPED BY GESTALT PROXIMITY RULE */}
-            {activeQuests.length > 0 ? (
-              <div className="space-y-6">
-                {/* Ledger Header & Capacity Summary */}
-                <div className="flex items-center justify-between px-1">
-                  <div className="flex items-center gap-2.5">
-                    <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                      Active Commitments
-                    </h2>
-                    {/* Visual Capacity Meter */}
-                    <div
-                      className="flex items-center gap-1.5 ml-1"
-                      title={`${activeQuests.length} of ${MAX_ACTIVE_QUESTS} slots committed`}
-                      aria-label={`${activeQuests.length} of ${MAX_ACTIVE_QUESTS} slots committed`}
-                    >
-                      <div className="flex items-center gap-1">
-                        {Array.from({ length: MAX_ACTIVE_QUESTS }).map((_, i) => (
-                          <span
-                            key={i}
-                            className={cn(
-                              "size-2 rounded-full transition-colors",
-                              i < activeQuests.length ? "bg-primary" : "bg-muted-foreground/25"
-                            )}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-[11px] font-mono text-muted-foreground">
-                        {activeQuests.length}/{MAX_ACTIVE_QUESTS}
+            {/* CAPACITY STRUCTURE HEADER */}
+            <div className="flex flex-wrap items-center justify-between gap-3 px-1 border-b border-border/60 pb-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+                  Commitment Capacity
+                </span>
+                {/* Structural capacity pill */}
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/80 bg-muted/40 text-xs font-mono">
+                  <span className={cn("size-2 rounded-full", focusQuest ? "bg-primary" : completedFocusToday ? "bg-emerald-500" : "bg-muted-foreground/30")} />
+                  <span className="font-medium text-foreground">
+                    1 Focus: {focusQuest ? "Committed" : completedFocusToday ? "Completed" : "Open"}
+                  </span>
+                  <span className="text-muted-foreground">·</span>
+                  <span className="text-muted-foreground">2 Routines: {routineQuests.length}/2</span>
+                </div>
+              </div>
+
+              {!showCommitForm && canAddAny && (
+                <Button
+                  size="sm"
+                  className="h-8 gap-1.5 text-xs rounded-xl px-3 font-semibold"
+                  onClick={() => {
+                    setFormTargetRole(focusAvailable ? "focus" : "routine");
+                    setShowCommitForm(true);
+                  }}
+                >
+                  <Plus className="size-3.5" aria-hidden="true" />
+                  <span>Add commitment</span>
+                </Button>
+              )}
+            </div>
+
+            {/* ── SECTION 1: PRIMARY FOCUS (THE DOMINANT SLOT) ── */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="size-4 text-primary" aria-hidden="true" />
+                  <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-foreground">
+                    Primary Focus (1 Slot)
+                  </h2>
+                </div>
+                <span className="text-[11px] font-mono text-muted-foreground">
+                  {focusQuest ? "1 of 1 committed" : completedFocusToday ? "1 of 1 completed" : "0 of 1 (Slot open)"}
+                </span>
+              </div>
+
+              {focusQuest ? (
+                <ul className="space-y-2.5">
+                  <QuestCard
+                    key={focusQuest.id}
+                    quest={focusQuest}
+                    completing={saving}
+                    onComplete={handleComplete}
+                    onCancel={handleCancel}
+                    cancelling={cancelling}
+                  />
+                </ul>
+              ) : completedFocusToday ? (
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.04] p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left transition-colors">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="size-8 rounded-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                      <CheckSquare className="size-4" aria-hidden="true" />
+                    </div>
+                    <div className="min-w-0 text-left">
+                      <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-500 font-semibold block">
+                        Primary Focus Completed
                       </span>
+                      <p className="text-sm font-semibold text-foreground mt-0.5 truncate">
+                        {completedFocusToday.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Today&apos;s primary focus commitment is fulfilled.
+                      </p>
                     </div>
                   </div>
-
+                  <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 shrink-0">
+                    ✓ Done for Today
+                  </span>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/[0.03] p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left transition-colors">
+                  <div>
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-primary font-semibold">
+                      Primary Focus Open
+                    </span>
+                    <p className="text-sm font-semibold text-foreground mt-0.5">
+                      Your single most important action for today
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Anchor your day around one non-negotiable step toward your goal.
+                    </p>
+                  </div>
                   {!showCommitForm && (
-                    activeQuests.length < MAX_ACTIVE_QUESTS ? (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 gap-1.5 text-xs text-primary hover:text-primary hover:bg-primary/10 rounded-lg px-2.5 font-medium"
-                        onClick={() => setShowCommitForm(true)}
-                        title={`${MAX_ACTIVE_QUESTS - activeQuests.length} slot${MAX_ACTIVE_QUESTS - activeQuests.length > 1 ? "s" : ""} available`}
-                      >
-                        <Plus className="size-3.5" aria-hidden="true" />
-                        <span>Add ({MAX_ACTIVE_QUESTS - activeQuests.length} open)</span>
-                      </Button>
-                    ) : (
-                      <span className="text-[11px] font-mono text-muted-foreground bg-muted/60 px-2.5 py-0.5 rounded-full border border-border/70">
-                        Focus cap (3/3)
-                      </span>
-                    )
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setFormTargetRole("focus");
+                        setShowCommitForm(true);
+                      }}
+                      className="rounded-xl px-4 min-h-10 text-xs font-semibold shrink-0"
+                    >
+                      <Plus className="size-3.5 mr-1.5" />
+                      Commit to Focus
+                    </Button>
                   )}
                 </div>
+              )}
+            </div>
 
-                {/* Active Commitments List: Core and Important quests render alongside each other */}
-                <section className="space-y-2.5" aria-label="Active Commitments Ledger">
-                  <ul className="space-y-2.5">
-                    <AnimatePresence mode="popLayout" initial={false}>
-                      {activeQuests.map((quest) => (
-                        <QuestCard
-                          key={quest.id}
-                          quest={quest}
-                          completing={saving}
-                          onComplete={handleComplete}
-                          onCancel={handleCancel}
-                          cancelling={cancelling}
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </ul>
-                </section>
-              </div>
-            ) : !showCommitForm ? (
-              /* Inviting Empty State when 0 quests */
-              <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 text-center flex flex-col items-center justify-center shadow-[var(--shadow-card)]">
-                <div className="size-12 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center mb-4">
-                  <CheckSquare className="size-6" aria-hidden="true" />
+            {/* ── SECTION 2: SUPPORTING ROUTINES (MAX 2 SLOTS) ── */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2">
+                  <Repeat className="size-4 text-muted-foreground" aria-hidden="true" />
+                  <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-foreground">
+                    Supporting Routines (Max 2 Slots)
+                  </h2>
                 </div>
-                <h3 className="text-lg sm:text-xl font-semibold text-foreground">
-                  No active commitments
-                </h3>
-                <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
-                  Focus comes from clarity. Commit to one meaningful action for today.
-                </p>
-                <Button
-                  size="lg"
-                  className="mt-6 min-h-11 rounded-full px-6 shadow-[0_4px_16px_hsl(var(--primary)/0.25)] hover:shadow-[0_4px_20px_hsl(var(--primary)/0.35)] active:scale-[0.98] transition-all"
-                  onClick={() => setShowCommitForm(true)}
-                >
-                  <Plus className="size-4 mr-1.5" aria-hidden="true" />
-                  Make a commitment
-                </Button>
+                <span className="text-[11px] font-mono text-muted-foreground">
+                  {routineQuests.length} of 2 committed
+                </span>
               </div>
-            ) : null}
+
+              {routineQuests.length > 0 ? (
+                <ul className="space-y-2.5">
+                  <AnimatePresence mode="popLayout" initial={false}>
+                    {routineQuests.map((quest) => (
+                      <QuestCard
+                        key={quest.id}
+                        quest={quest}
+                        completing={saving}
+                        onComplete={handleComplete}
+                        onCancel={handleCancel}
+                        cancelling={cancelling}
+                        onPauseSeries={handlePauseSeries}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </ul>
+              ) : null}
+
+              {/* Open Routine Slot Prompt if < 2 routines */}
+              {routineQuests.length < 2 && (
+                <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                  <div>
+                    <span className="text-[11px] font-mono text-muted-foreground font-medium">
+                      Routine Slot ({routineQuests.length + 1} of 2) · Open
+                    </span>
+                    <p className="text-xs text-foreground font-medium mt-0.5">
+                      Supporting daily habits or recurring practices
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Protect momentum with quiet, predictable daily practice.
+                    </p>
+                  </div>
+                  {!showCommitForm && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setFormTargetRole("routine");
+                        setShowCommitForm(true);
+                      }}
+                      className="rounded-xl px-3 h-9 text-xs shrink-0"
+                    >
+                      <Plus className="size-3 mr-1" />
+                      Add Routine
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Error notifications */}
             {completeError && (
@@ -291,15 +424,15 @@ export default function Quests() {
               </p>
             )}
 
-            {/* UPCOMING SERIES: UNIFIED LEDGER CONTAINER */}
+            {/* ── SECTION 3: UPCOMING SERIES (SCHEDULED ROUTINES) ── */}
             {upcoming.length > 0 && serverLocal && (
-              <div className="mt-8 pt-2">
+              <div className="mt-8 pt-4 border-t border-border/60">
                 <div className="flex items-center justify-between px-1 mb-2.5">
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Upcoming Series
+                    Scheduled Recurring Routines
                   </h3>
                   <span className="text-[11px] font-mono text-muted-foreground">
-                    {upcoming.length} scheduled
+                    {upcoming.length} active series
                   </span>
                 </div>
 
@@ -314,7 +447,6 @@ export default function Quests() {
                           key={quest.seriesId}
                           className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5 hover:bg-muted/20 transition-colors text-xs"
                         >
-                          {/* Left Edge: Repeat Icon, Title, Goal */}
                           <div className="flex items-center gap-2.5 min-w-0 flex-1">
                             <div className="size-6 rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
                               <Repeat className="size-3.5" aria-hidden="true" />
@@ -330,14 +462,22 @@ export default function Quests() {
                             )}
                           </div>
 
-                          {/* Right Edge: Next Day & Priority */}
                           <div className="flex items-center gap-2.5 shrink-0 text-muted-foreground">
                             <span className="font-mono text-[11px] bg-muted/40 px-2 py-0.5 rounded border border-border/40 text-foreground/80">
                               {dayLabel}
                             </span>
-                            <span className="font-mono text-[11px] text-muted-foreground/70">
-                              {quest.priority}
-                            </span>
+                            {quest.seriesId && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => void handlePauseSeries(quest.seriesId!)}
+                                className="h-7 px-2 text-[11px] text-muted-foreground hover:text-foreground gap-1"
+                                title="Pause routine"
+                              >
+                                <Pause className="size-3" />
+                                <span className="hidden sm:inline">Pause</span>
+                              </Button>
+                            )}
                           </div>
                         </li>
                       );

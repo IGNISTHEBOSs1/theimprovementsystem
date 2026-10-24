@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Compass, ArrowRight, Check, Plus } from "lucide-react";
+import { Compass, ArrowRight, Check, Plus, ChevronDown, ChevronUp, ShieldCheck, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
 import { TrajectoryVisualizer } from "@/components/journey/TrajectoryVisualizer";
@@ -28,38 +28,34 @@ export default function Journey() {
   } = useDashboardDataContext();
 
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [showTechnicalTelemetry, setShowTechnicalTelemetry] = useState(false);
 
-  // ── Loading / Error / Empty states ──
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 sm:pb-16 space-y-6 animate-pulse">
+      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 space-y-6 animate-pulse">
         <div className="h-8 w-48 rounded-xl bg-muted/60" />
-        <div className="h-80 rounded-3xl bg-muted/60" aria-label="Loading trajectory flight instrument" />
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          <div className="h-44 rounded-2xl bg-muted/60" />
-          <div className="h-44 rounded-2xl bg-muted/60" />
-          <div className="col-span-2 h-44 rounded-2xl bg-muted/60" />
-        </div>
+        <div className="h-80 rounded-3xl bg-muted/60" aria-label="Loading trajectory" />
+        <div className="h-44 rounded-2xl bg-muted/60" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 sm:pb-16">
+      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
         <section
           className="rounded-3xl border border-border bg-card p-8 shadow-xs text-center"
           aria-label="Trajectory unavailable"
         >
           <Compass className="size-8 mx-auto text-muted-foreground/60 mb-2" />
           <h2 className="text-lg font-bold font-sans text-foreground">
-            We couldn't initialize your trajectory telemetry.
+            We couldn't load your trajectory.
           </h2>
           <p className="mt-2 text-sm font-sans text-muted-foreground max-w-md mx-auto">
-            Unable to compute trajectory coordinates from stored commitment evidence.
+            Unable to compute trajectory from stored commitment history.
           </p>
           <Button variant="outline" size="sm" className="mt-5 rounded-xl px-5 font-sans" onClick={() => void reload()}>
-            Recompute Telemetry
+            Try again
           </Button>
         </section>
       </div>
@@ -69,17 +65,16 @@ export default function Journey() {
   const hasGoal = Boolean(profile?.primary_goal);
   if (!hasGoal) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 sm:pb-16">
+      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
         <PlaceholderExperience
           icon={Compass}
           title="No 90-Day North Star Set."
-          message="Your Path instrument plots mathematical trajectory toward a specific horizon. Lock your 90-day North Star goal in your Profile to initiate the flight vector."
+          message="Your Path plots deterministic trajectory toward a chosen milestone. Set your 90-day North Star goal in your Profile to initiate the trajectory."
         />
       </div>
     );
   }
 
-  // ── Mathematical Telemetry Derivation ──
   const goalStats = deriveGoalStats(state.quests, profile?.primary_goal);
   const trajectory = deriveTrajectory(state.quests, profile?.primary_goal);
   const pace = deriveGoalPace(
@@ -93,7 +88,7 @@ export default function Journey() {
   const accuracyPct = goalStats.linked > 0 ? Math.round((goalStats.completed / goalStats.linked) * 100) : 100;
 
   const activeGoalQuest = activeQuests.find(
-    (q) => isLinkedToActiveGoal(q, profile?.primary_goal) && !q.completed && !q.failed
+    (q) => isLinkedToActiveGoal(q, profile?.primary_goal) && !q.completed && !q.failed,
   );
 
   const handleCompleteAnchor = async (questId: string) => {
@@ -106,16 +101,46 @@ export default function Journey() {
     }
   };
 
-  return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 sm:pb-16 space-y-6">
+  // Plain-Language Status Derivation:
+  // "On pace" / "Slightly behind" / "Needs adjustment"
+  type PaceStatus = "on-pace" | "slightly-behind" | "needs-adjustment";
+  let paceStatus: PaceStatus = "on-pace";
+  let paceExplanation = "Your buffer is intact: one missed day will not change your plan.";
 
-      {/* ── ZONE 1: Editorial Header ── */}
-      <header className="space-y-2">
+  const buffer = pace?.bufferDaysRemaining ?? 9;
+  const isHorizonExpired = pace?.isHorizonExpired ?? false;
+  const daysLeft = pace?.daysRemaining ?? 90;
+
+  if (isHorizonExpired || daysLeft <= 0 || buffer <= 0) {
+    paceStatus = "needs-adjustment";
+    paceExplanation = "Your target date is too close for the current plan. Adjust your milestone date in Profile or rebalance your daily commitments.";
+  } else if (buffer < 6 || (pace?.paceRatio !== undefined && pace.paceRatio < 0.85)) {
+    paceStatus = "slightly-behind";
+    const neededThisWeek = Math.max(1, Math.min(7, Math.ceil((pace?.requiredDailyPace ?? 1.2) * 7) - 6));
+    paceExplanation = `You need ${neededThisWeek} goal-linked ${neededThisWeek === 1 ? "completion" : "completions"} this week to return to nominal pace.`;
+  } else {
+    paceStatus = "on-pace";
+    paceExplanation = "Your buffer is intact: one missed day will not change your plan.";
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 space-y-6">
+      {/* ── 1. HEADER (IDENTITY & PURPOSE) ── */}
+      <header className="space-y-2 pb-2 border-b border-border/60">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span
+              className={cn(
+                "size-2 rounded-full",
+                paceStatus === "on-pace"
+                  ? "bg-emerald-500"
+                  : paceStatus === "slightly-behind"
+                  ? "bg-amber-500"
+                  : "bg-rose-500",
+              )}
+            />
             <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground font-semibold">
-              90-Day North Star Vector
+              North Star Path
             </span>
           </div>
 
@@ -123,30 +148,79 @@ export default function Journey() {
             to="/profile"
             className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1 text-xs font-sans font-medium text-foreground hover:bg-muted/50 transition-colors shadow-xs"
           >
-            <span>Horizon</span>
+            <span>Goal details</span>
             <ArrowRight className="size-3" />
           </Link>
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-sans font-bold tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
           {profile?.primary_goal}
         </h1>
 
-        <p className="text-sm font-sans text-muted-foreground">
-          Day <span className="font-mono font-medium text-foreground tabular-nums">{pace?.elapsedDays ?? 1}</span> of{" "}
-          <span className="font-mono tabular-nums">{pace?.cycleTotalDays ?? 90}</span> · Target{" "}
-          {pace?.targetDateFormatted ?? "90-Day Cycle"} (
-          {pace?.isHorizonExpired || pace?.daysRemaining === 0 ? (
-            <span className="text-warning font-medium">Horizon reached</span>
-          ) : (
-            <span>{pace?.daysRemaining ?? 89}d left</span>
-          )}
-          )
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          Day <span className="font-mono font-medium text-foreground">{pace?.elapsedDays ?? 1}</span> of{" "}
+          <span className="font-mono">{pace?.cycleTotalDays ?? 90}</span> · Target{" "}
+          {pace?.targetDateFormatted ?? "90-Day Cycle"} ({daysLeft}d left)
         </p>
       </header>
 
-      {/* ── ZONE 2: Hero Instrument (Trajectory Plotter) ── */}
-      <section aria-label="Trajectory Flight Plotter">
+      {/* ── 2. PLAIN-LANGUAGE STATUS & EXPLANATION (DOMINANT ATTENTION BOX) ── */}
+      <section
+        aria-label="Pace status"
+        className={cn(
+          "rounded-2xl border p-5 sm:p-6 shadow-sm transition-all",
+          paceStatus === "on-pace"
+            ? "border-emerald-500/30 bg-emerald-500/[0.04]"
+            : paceStatus === "slightly-behind"
+            ? "border-amber-500/30 bg-amber-500/[0.04]"
+            : "border-destructive/30 bg-destructive/[0.04]",
+        )}
+      >
+        <div className="flex items-center gap-2">
+          {paceStatus === "on-pace" ? (
+            <ShieldCheck className="size-5 text-emerald-500 shrink-0" aria-hidden="true" />
+          ) : (
+            <AlertCircle
+              className={cn(
+                "size-5 shrink-0",
+                paceStatus === "slightly-behind" ? "text-amber-500" : "text-destructive",
+              )}
+              aria-hidden="true"
+            />
+          )}
+          <span
+            className={cn(
+              "text-xs font-mono font-bold uppercase tracking-wider",
+              paceStatus === "on-pace"
+                ? "text-emerald-500"
+                : paceStatus === "slightly-behind"
+                ? "text-amber-500"
+                : "text-destructive",
+            )}
+          >
+            {paceStatus === "on-pace"
+              ? "On Pace"
+              : paceStatus === "slightly-behind"
+              ? "Slightly Behind"
+              : "Needs Adjustment"}
+          </span>
+        </div>
+
+        <p className="text-base sm:text-lg font-semibold tracking-tight text-foreground mt-2 leading-snug">
+          {paceExplanation}
+        </p>
+
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+          <span>{goalStats.completed} of 90 anchors completed</span>
+          <span>·</span>
+          <span>{buffer} of 9 flex days intact</span>
+          <span>·</span>
+          <span>{daysLeft} days remaining</span>
+        </div>
+      </section>
+
+      {/* ── 3. THE VISUAL TRAJECTORY (THE VISUAL PROOF) ── */}
+      <section aria-label="Visual Trajectory Chart">
         <TrajectoryVisualizer
           completedQuests={goalStats.completed}
           targetQuests={90}
@@ -164,206 +238,162 @@ export default function Journey() {
         />
       </section>
 
-      {/* ── ZONE 3: Bento Grid ── */}
-      <section aria-label="Flight Telemetry Console">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      {/* ── 4. ONE NEXT ACTION (WHAT TO DO NEXT) ── */}
+      <section
+        aria-label="Next action for today"
+        className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-sm"
+      >
+        <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground font-semibold block mb-2">
+          Next Useful Move
+        </span>
 
-          {/* Tile A: Velocity */}
-          <div className="col-span-1 rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-3">
-            <div>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground font-semibold block">
-                Velocity
-              </span>
-              <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-foreground tabular-nums">
-                  {pace?.actualDailyPace ?? 0}
-                </span>
-                <span className="text-xs font-sans text-muted-foreground">/ day</span>
-              </div>
-              <p className="text-xs font-sans text-muted-foreground mt-0.5">
-                Target: 1.0/d ({pace?.requiredDailyPace ?? 1.0}/d catch-up)
+        {activeGoalQuest ? (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <span className="text-xs text-emerald-500 font-medium">Today's Goal Anchor Queued:</span>
+              <p className="text-base font-semibold text-foreground mt-0.5 truncate">
+                {activeGoalQuest.title}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Completing this advances your trajectory into the safe buffer zone.
               </p>
             </div>
 
-            <div>
-              <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-foreground transition-all duration-500"
-                  style={{
-                    width: `${Math.min(100, Math.round((pace?.paceRatio ?? 1) * 100))}%`,
-                  }}
-                />
-              </div>
-              <p className="mt-2 text-[11px] font-sans text-muted-foreground">
-                <span className="font-mono font-medium text-foreground tabular-nums">
-                  {Math.round((pace?.paceRatio ?? 1) * 100)}%
-                </span>{" "}
-                of nominal pace
-              </p>
-            </div>
+            <Button
+              size="sm"
+              disabled={completingId === activeGoalQuest.id}
+              onClick={() => void handleCompleteAnchor(activeGoalQuest.id)}
+              className="rounded-xl px-5 h-11 bg-foreground text-background hover:bg-foreground/90 font-medium text-xs shrink-0 active:scale-[0.98] transition-all"
+            >
+              <Check className="size-4 mr-1.5" />
+              {completingId === activeGoalQuest.id ? "Recording completion..." : "Complete Today's Focus"}
+            </Button>
           </div>
-
-          {/* Tile B: Flex Buffer */}
-          <div className="col-span-1 rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs flex flex-col justify-between space-y-3">
-            <div>
-              <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground font-semibold block">
-                Flex Buffer
-              </span>
-              <div className="mt-2 flex items-baseline gap-1">
-                <span className="text-2xl sm:text-3xl font-mono font-bold tracking-tight text-foreground tabular-nums">
-                  {pace?.bufferDaysRemaining ?? 9}
-                </span>
-                <span className="text-xs font-sans text-muted-foreground">/ 9 days</span>
-              </div>
-              <p className="text-xs font-sans text-muted-foreground mt-0.5 truncate">
-                {(pace?.horizonExtensionDays ?? 0) > 0
-                  ? `+${pace?.horizonExtensionDays}d slip active`
-                  : "10% shock absorber"}
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm sm:text-base font-semibold text-foreground">
+                No commitment linked to your goal today.
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Commit to today's primary focus to log evidence toward your 90-anchor horizon.
               </p>
             </div>
+            <Button
+              asChild
+              size="sm"
+              className="rounded-xl px-5 h-11 font-medium text-xs shrink-0 active:scale-[0.98] transition-all"
+            >
+              <Link to="/quests">
+                <Plus className="size-4 mr-1.5" />
+                Commit to Today's Focus →
+              </Link>
+            </Button>
+          </div>
+        )}
+      </section>
 
-            <div>
-              {/* Tactile 9-segment LED Matrix */}
-              <div className="grid grid-cols-9 gap-1">
+      {/* ── 5. OPTIONAL TECHNICAL TELEMETRY (SUBORDINATED BELOW) ── */}
+      <section className="pt-2">
+        <button
+          type="button"
+          onClick={() => setShowTechnicalTelemetry((v) => !v)}
+          className="flex items-center justify-between w-full p-4 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors text-xs text-muted-foreground"
+          aria-expanded={showTechnicalTelemetry}
+        >
+          <span className="font-mono font-medium text-foreground">
+            {showTechnicalTelemetry ? "Hide Technical Telemetry" : "View Technical Telemetry & Distribution"}
+          </span>
+          {showTechnicalTelemetry ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+        </button>
+
+        {showTechnicalTelemetry && (
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 animate-in fade-in duration-200">
+            {/* Flex Buffer breakdown */}
+            <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2">
+              <span className="font-mono uppercase text-[10px] tracking-wider text-muted-foreground block font-semibold">
+                Flex Buffer Slots
+              </span>
+              <div className="grid grid-cols-9 gap-1 pt-1">
                 {Array.from({ length: 9 }).map((_, i) => {
-                  const isIntact = i < (pace?.bufferDaysRemaining ?? 9);
+                  const isIntact = i < buffer;
                   return (
                     <div
                       key={i}
                       className={cn(
-                        "h-2 rounded-xs transition-all",
+                        "h-2.5 rounded-xs transition-all",
                         isIntact
                           ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.3)]"
-                          : "bg-foreground/15 dark:bg-white/15 border border-border/50",
+                          : "bg-muted-foreground/20 border border-border/50",
                       )}
-                      title={`Flex Slot ${i + 1}: ${isIntact ? "Intact" : "Absorbed"}`}
+                      title={`Flex Day ${i + 1}: ${isIntact ? "Intact" : "Used"}`}
                     />
                   );
                 })}
               </div>
-              <p className="mt-2 text-[11px] font-sans text-muted-foreground truncate">
-                {(pace?.bufferDaysRemaining ?? 9) > 0
-                  ? `${pace?.bufferDaysRemaining ?? 9} flex days intact`
-                  : "Buffer exhausted"}
+              <p className="text-[11px] text-muted-foreground pt-1">
+                {buffer} of 9 safety margin days intact (±10% mathematical resilience cone).
               </p>
             </div>
-          </div>
 
-          {/* Tile C: Evidence Breakdown (Full Width col-span-2) */}
-          <div className="col-span-2 rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground font-semibold">
-                Evidence Breakdown
+            {/* Daily Pace */}
+            <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2">
+              <span className="font-mono uppercase text-[10px] tracking-wider text-muted-foreground block font-semibold">
+                Daily Completion Velocity
               </span>
-              <span className="text-xs font-sans text-muted-foreground">
-                {goalStats.completed} completed · {goalStats.failed} missed (
-                <span className="font-mono font-medium text-foreground tabular-nums">
-                  {accuracyPct}%
+              <div className="flex items-baseline gap-1.5 pt-1">
+                <span className="text-2xl font-mono font-bold text-foreground">
+                  {pace?.actualDailyPace ?? 0}
                 </span>
-                )
-              </span>
-            </div>
-
-            {priorityBreakdown.length > 0 ? (
-              <div className="space-y-3 pt-1">
-                {priorityBreakdown.map(({ priority, completed, total }) => {
-                  const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-                  return (
-                    <div key={priority} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-sans font-medium text-foreground">
-                          {priority}
-                        </span>
-                        <span className="font-mono text-muted-foreground tabular-nums">
-                          <strong className="text-foreground">{completed}</strong>/{total} · {rate}%
-                        </span>
-                      </div>
-                      <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-foreground transition-all duration-500"
-                          style={{ width: `${rate}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+                <span className="text-muted-foreground">completions / day</span>
               </div>
-            ) : (
-              <p className="text-xs font-sans text-muted-foreground py-1">
-                Complete daily commitments linked to your North Star to populate evidence weight distribution.
+              <p className="text-[11px] text-muted-foreground">
+                Target pace: 1.0/day. Catch-up required: {pace?.requiredDailyPace ?? 1.0}/day.
               </p>
-            )}
-          </div>
-
-          {/* Tile D / Zone 4: Next Vector Action Card (Full Width col-span-2) */}
-          <div className="col-span-2 rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground font-semibold">
-                TODAY'S ANCHOR
-              </span>
-              <Link
-                to="/quests"
-                className="text-xs font-sans font-medium text-muted-foreground hover:text-foreground shrink-0 whitespace-nowrap transition-colors"
-              >
-                Manage →
-              </Link>
             </div>
 
-            {activeGoalQuest ? (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                <div className="min-w-0 flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-sans font-medium text-foreground">
-                      {activeGoalQuest.priority}
-                    </span>
-                    <span className="text-[11px] font-mono text-emerald-500 font-medium flex items-center gap-1">
-                      <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      Queued for Today
-                    </span>
-                  </div>
-                  <p className="text-sm font-sans font-medium text-foreground truncate">
-                    {activeGoalQuest.title}
-                  </p>
-                </div>
+            {/* Evidence Breakdown */}
+            <div className="sm:col-span-2 rounded-xl border border-border/80 bg-card p-4 text-xs space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="font-mono uppercase text-[10px] tracking-wider text-muted-foreground font-semibold">
+                  Evidence Breakdown by Priority
+                </span>
+                <span className="font-mono text-muted-foreground">
+                  {goalStats.completed} completed · {goalStats.failed} missed ({accuracyPct}%)
+                </span>
+              </div>
 
-                <Button
-                  size="sm"
-                  disabled={completingId === activeGoalQuest.id}
-                  onClick={() => void handleCompleteAnchor(activeGoalQuest.id)}
-                  className="rounded-xl px-4 h-9 bg-foreground text-background hover:bg-foreground/90 font-sans font-medium text-xs shrink-0 active:scale-[0.98] transition-all"
-                >
-                  <Check className="size-3.5 mr-1.5" />
-                  {completingId === activeGoalQuest.id ? "Honoring Anchor..." : "Honor Anchor"}
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-sans font-medium text-foreground">
-                    No active anchor queued for today's vector.
-                  </p>
-                  <p className="text-xs font-sans text-muted-foreground mt-0.5">
-                    Lock today's commitment to advance your trajectory toward the 90-anchor horizon.
-                  </p>
+              {priorityBreakdown.length > 0 ? (
+                <div className="space-y-2">
+                  {priorityBreakdown.map(({ priority, completed, total }) => {
+                    const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+                    return (
+                      <div key={priority} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-foreground">{priority}</span>
+                          <span className="font-mono text-muted-foreground">
+                            {completed} / {total} · {rate}%
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-foreground transition-all duration-500"
+                            style={{ width: `${rate}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <Button
-                  asChild
-                  size="sm"
-                  variant="outline"
-                  className="rounded-xl px-4 h-9 font-sans font-medium text-xs shrink-0 border-border hover:bg-muted/60 active:scale-[0.98] transition-all"
-                >
-                  <Link to="/quests">
-                    <Plus className="size-3.5 mr-1.5" />
-                    Lock Today's Anchor →
-                  </Link>
-                </Button>
-              </div>
-            )}
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Complete goal-linked commitments to populate priority evidence distribution.
+                </p>
+              )}
+            </div>
           </div>
-
-        </div>
+        )}
       </section>
-
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { isChunkLoadError, shouldAutoReloadOnChunkError, triggerGuardedReload } 
  * Wraps a dynamic module import with retry logic and automated recovery
  * for stale chunk 404s after new deployments.
  */
-export function lazyWithRetry<T extends ComponentType<any>>(
+export function lazyWithRetry<T extends ComponentType<never>>(
   componentImport: () => Promise<{ default: T }>,
   retries = 2,
   delayMs = 600

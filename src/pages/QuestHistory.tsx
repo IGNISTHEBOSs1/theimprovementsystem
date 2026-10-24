@@ -9,10 +9,11 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { cn } from "@/lib/utils";
-import type { Quest } from "@/types/quest";
+import { type Quest, getQuestRole } from "@/types/quest";
 
 function HistoryItem({ quest }: { quest: Quest }) {
   const isCompleted = quest.completed;
+  const role = getQuestRole(quest);
   const dateStr = quest.resolvedAt || quest.createdAt;
   const resolvedDate = dateStr
     ? new Date(dateStr).toLocaleDateString(undefined, {
@@ -69,19 +70,17 @@ function HistoryItem({ quest }: { quest: Quest }) {
           </div>
         )}
 
-        {/* Priority (Relational emphasis: only Important/elevated gets badge) */}
-        {quest.priority !== "Essential" ? (
-          <span
-            className={cn(
-              "inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium border",
-              quest.priority === "Important"
-                ? "bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700"
-                : "bg-neutral-50 text-neutral-600 border-neutral-200/60 dark:bg-neutral-900 dark:text-neutral-400 dark:border-neutral-800"
-            )}
-          >
-            {quest.priority}
-          </span>
-        ) : null}
+        {/* Commitment Role Badge */}
+        <span
+          className={cn(
+            "inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border",
+            role === "focus"
+              ? "bg-primary/10 text-primary border-primary/25 font-semibold"
+              : "bg-muted/60 text-muted-foreground border-border/60"
+          )}
+        >
+          {role === "focus" ? "Primary Focus" : "Routine"}
+        </span>
 
         <span className="font-mono text-xs text-muted-foreground/80">{resolvedDate}</span>
 
@@ -138,7 +137,7 @@ export default function QuestHistory() {
   }, [resolved, activeTab, search]);
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-8 sm:px-8 sm:py-10 sm:pb-12">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 sm:pb-12">
       <PageHeader
         eyebrow="Archive"
         title="Quest history."

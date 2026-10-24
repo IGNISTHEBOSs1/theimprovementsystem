@@ -35,7 +35,6 @@ export function ViewportNavDiagnostic() {
       const desktopRailActive = mql.matches;
       const navMode = desktopRailActive ? "desktop" : "mobile";
 
-      // eslint-disable-next-line no-console
       console.log(
         `[nav-diagnostic] ${width}x${height} — nav mode: ${navMode} (matchMedia "${MD_BREAKPOINT_QUERY}" = ${desktopRailActive})`,
       );
@@ -45,7 +44,6 @@ export function ViewportNavDiagnostic() {
       // is intentionally excluded — right at the boundary isn't a
       // contradiction, it's just which side of it the browser rounds to.
       if (width < 768 && desktopRailActive) {
-        // eslint-disable-next-line no-console
         console.error(
           `[nav-diagnostic] MISMATCH: viewport is ${width}px wide (phone-width) but the desktop nav rail is active ` +
           `(matchMedia("${MD_BREAKPOINT_QUERY}").matches = true despite window.innerWidth = ${width}). ` +

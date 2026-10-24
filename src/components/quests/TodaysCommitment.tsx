@@ -1,62 +1,78 @@
 import { FormEvent, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Settings2, Target } from "lucide-react";
+import { ArrowRight, Check, Repeat, Settings2, Sparkles, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { TIS_SPRINGS } from "@/lib/motion-tokens";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import type { QuestPriority } from "@/types/quest";
+import { cn } from "@/lib/utils";
+import type { QuestPriority, QuestRole } from "@/types/quest";
 import type { CadencePreset } from "@/hooks/useDashboardData";
 
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const PRIORITIES: QuestPriority[] = ["Essential", "Important", "Optional"];
-const DEFAULT_PRIORITY: QuestPriority = "Essential";
 const CADENCE_PRESETS: CadencePreset[] = ["Once", "Daily", "Weekdays", "Weekends", "Weekly", "Custom"];
-const DEFAULT_CADENCE: CadencePreset = "Once";
 
 interface TodaysCommitmentProps {
   committing: boolean;
-  onCommit: (commitment: string, linkedToGoal: boolean, cadence: CadencePreset, customDays: number[], priority: QuestPriority) => void;
+  onCommit: (
+    commitment: string,
+    linkedToGoal: boolean,
+    cadence: CadencePreset,
+    customDays: number[],
+    priority: QuestPriority,
+    role: QuestRole,
+  ) => void;
   onCancel?: () => void;
-  // The account's primary goal, if one is set.
   goalLabel?: string;
-  initialValues?: { title: string; priority: QuestPriority; linkedToGoal: boolean };
-  // Current count of completed goal quests for showing next anchor number #{n}/90
+  initialRole?: QuestRole;
+  initialValues?: { title: string; priority: QuestPriority; linkedToGoal: boolean; role?: QuestRole };
   completedGoalQuests?: number;
+  focusAvailable?: boolean;
+  routineAvailable?: boolean;
 }
 
-// Milestone 2 - First Mission. This is not a "create Quest" form. It is
-// the physical expression of a deliberate commitment the user is already
-// making: Direction -> Choice -> Commitment. The input carries the user's
-// own words -- the System does not suggest, generate, or pre-fill them,
-// preserving the autonomy the Quest definition requires. Goal linkage
-// (Chunk 3) is the same principle applied to relevance: explicit and
-// user-set, never guessed from what they typed.
-//
-// Founder Decision (Quest defaults chunk): the normal path uses common
-// system defaults (priority: Essential, cadence: Once) and stays within
-// a 1-3 interaction budget -- type + Commit is 1 click; adding the
-// goal-link checkbox is 2. Priority and cadence are gated behind an
-// explicit "Custom" toggle rather than always shown.
-//
-// Cadence resolution (which actual weekdays "Weekly" means, etc.)
-// deliberately does NOT happen in this component — this component only
-// passes the chosen preset up. Resolution happens in
-// useDashboardData.commitToTodaysQuest, the one place that has
-// server-authoritative "today" available, so "Weekly" is never resolved
-// against the client's own clock.
-export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, initialValues, completedGoalQuests = 0 }: TodaysCommitmentProps) {
+export function TodaysCommitment({
+  committing,
+  onCommit,
+  onCancel,
+  goalLabel,
+  initialRole,
+  initialValues,
+  completedGoalQuests = 0,
+  focusAvailable = true,
+  routineAvailable = true,
+}: TodaysCommitmentProps) {
   const [commitment, setCommitment] = useState(initialValues?.title ?? "");
+  const defaultRole: QuestRole =
+    initialRole ?? initialValues?.role ?? (focusAvailable ? "focus" : "routine");
+  const [role, setRole] = useState<QuestRole>(defaultRole);
   const [linkedToGoal, setLinkedToGoal] = useState(initialValues?.linkedToGoal ?? Boolean(goalLabel));
-  const [showOptions, setShowOptions] = useState(Boolean(initialValues && initialValues.priority !== DEFAULT_PRIORITY));
-  const [cadence, setCadence] = useState<CadencePreset>(DEFAULT_CADENCE);
+  const [showOptions, setShowOptions] = useState(Boolean(initialValues && initialValues.priority !== "Essential"));
+
+  const [cadence, setCadence] = useState<CadencePreset>(
+    defaultRole === "routine" ? "Daily" : "Once",
+  );
   const [customDays, setCustomDays] = useState<number[]>([]);
-  const [priority, setPriority] = useState<QuestPriority>(initialValues?.priority ?? DEFAULT_PRIORITY);
+  const [priority, setPriority] = useState<QuestPriority>(
+    initialValues?.priority ?? (defaultRole === "focus" ? "Essential" : "Important"),
+  );
+
+  const handleRoleChange = (newRole: QuestRole) => {
+    setRole(newRole);
+    if (newRole === "focus") {
+      setCadence("Once");
+      setPriority("Essential");
+    } else {
+      setCadence("Daily");
+      setPriority("Important");
+    }
+  };
 
   const toggleCustomDay = (day: number) => {
-    setCustomDays((prev) => prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort());
+    setCustomDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day].sort()));
   };
 
   const cadenceInvalid = showOptions && cadence === "Custom" && customDays.length === 0;
@@ -65,11 +81,12 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
     event.preventDefault();
     if (!commitment.trim() || committing || cadenceInvalid) return;
     onCommit(
-      commitment,
+      commitment.trim(),
       linkedToGoal,
-      showOptions ? cadence : DEFAULT_CADENCE,
+      showOptions ? cadence : role === "routine" ? "Daily" : "Once",
       showOptions ? customDays : [],
-      showOptions ? priority : DEFAULT_PRIORITY,
+      showOptions ? priority : role === "focus" ? "Essential" : "Important",
+      role,
     );
   };
 
@@ -93,37 +110,116 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
       </div>
 
       <h2 id="todays-commitment-heading" className="mt-1.5 text-base sm:text-lg font-semibold tracking-tight text-foreground">
-        What are you committing to today?
+        What are you committing to?
       </h2>
 
-      <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
-        {/* INPUT & COMMIT AXIS */}
-        <div className="flex flex-col gap-2.5 sm:flex-row">
+      <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
+        {/* STEP 1: NAME THE COMMITMENT */}
+        <div>
+          <Label htmlFor="commitment-title" className="text-xs font-medium text-foreground block mb-1.5">
+            1. Name your commitment
+          </Label>
           <Input
+            id="commitment-title"
             value={commitment}
             onChange={(event) => setCommitment(event.target.value)}
-            placeholder="Name your commitment..."
+            placeholder="e.g. Master system architecture or 20-min daily run..."
             aria-label="Your commitment"
             disabled={committing}
-            className="min-h-11 flex-1 bg-background"
+            className="min-h-11 bg-background"
             autoFocus
           />
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              type="submit"
-              className="min-h-11 shrink-0 px-5"
-              disabled={committing || !commitment.trim() || cadenceInvalid}
+        </div>
+
+        {/* STEP 2: CHOOSE ROLE: PRIMARY FOCUS OR ROUTINE */}
+        <div>
+          <Label className="text-xs font-medium text-foreground block mb-1.5">
+            2. Choose commitment role
+          </Label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {/* Primary Focus Option */}
+            <button
+              type="button"
+              disabled={committing || (!focusAvailable && role !== "focus")}
+              onClick={() => handleRoleChange("focus")}
+              className={cn(
+                "flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer relative",
+                role === "focus"
+                  ? "border-primary bg-primary/10 shadow-xs"
+                  : "border-border/80 bg-background/60 hover:bg-muted/40",
+                !focusAvailable && role !== "focus" && "opacity-50 cursor-not-allowed hover:bg-background/60",
+              )}
             >
-              {committing ? "Committing…" : "Commit"}
-              {!committing && <ArrowRight className="size-4" aria-hidden="true" />}
-            </Button>
+              <div className={cn(
+                "size-8 rounded-lg flex items-center justify-center shrink-0 border mt-0.5",
+                role === "focus" ? "border-primary bg-primary text-white" : "border-border bg-muted/40 text-muted-foreground"
+              )}>
+                <Sparkles className="size-4" aria-hidden="true" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-semibold text-foreground">Primary Focus</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-muted text-muted-foreground">
+                    1 slot
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                  Your dominant, non-negotiable action for today.
+                </p>
+                {!focusAvailable && role !== "focus" && (
+                  <span className="text-[10px] text-amber-500 font-medium mt-1 inline-block">
+                    Slot currently occupied
+                  </span>
+                )}
+              </div>
+            </button>
+
+            {/* Supporting Routine Option */}
+            <button
+              type="button"
+              disabled={committing || (!routineAvailable && role !== "routine")}
+              onClick={() => handleRoleChange("routine")}
+              className={cn(
+                "flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer relative",
+                role === "routine"
+                  ? "border-primary bg-primary/10 shadow-xs"
+                  : "border-border/80 bg-background/60 hover:bg-muted/40",
+                !routineAvailable && role !== "routine" && "opacity-50 cursor-not-allowed hover:bg-background/60",
+              )}
+            >
+              <div className={cn(
+                "size-8 rounded-lg flex items-center justify-center shrink-0 border mt-0.5",
+                role === "routine" ? "border-primary bg-primary text-white" : "border-border bg-muted/40 text-muted-foreground"
+              )}>
+                <Repeat className="size-4" aria-hidden="true" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-semibold text-foreground">Supporting Routine</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-muted text-muted-foreground">
+                    Max 2
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                  A regular repeating practice that protects momentum.
+                </p>
+                {!routineAvailable && role !== "routine" && (
+                  <span className="text-[10px] text-amber-500 font-medium mt-1 inline-block">
+                    Both routine slots occupied
+                  </span>
+                )}
+              </div>
+            </button>
           </div>
         </div>
 
-        {/* METADATA TOGGLES: Pinned Left Goal Chip, Pinned Right Custom Toggle */}
-        <div className="flex items-center justify-between gap-3 pt-1">
-          {goalLabel ? (
-            <div className="flex items-center gap-2">
+        {/* STEP 3: LINK TO CURRENT GOAL */}
+        {goalLabel && (
+          <div className="pt-1">
+            <Label className="text-xs font-medium text-foreground block mb-1.5">
+              3. Link to North Star goal
+            </Label>
+            <div className="flex items-center gap-2 p-3 rounded-xl border border-border/70 bg-background/60">
               <Checkbox
                 id="linked-to-goal"
                 checked={linkedToGoal}
@@ -133,48 +229,51 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
               />
               <Label
                 htmlFor="linked-to-goal"
-                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer select-none font-medium"
+                className="flex items-center gap-1.5 text-xs text-foreground cursor-pointer select-none font-medium flex-1 truncate"
               >
                 <Target className="size-3.5 text-primary shrink-0" aria-hidden="true" />
-                <span className="truncate max-w-[220px] sm:max-w-[340px]">{goalLabel}</span>
+                <span className="truncate">{goalLabel}</span>
               </Label>
             </div>
-          ) : (
-            <div />
-          )}
-
-          <button
-            type="button"
-            onClick={() => setShowOptions((v) => !v)}
-            disabled={committing}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground shrink-0"
-            aria-expanded={showOptions}
-          >
-            <Settings2 className="size-3.5" aria-hidden="true" />
-            <span>{showOptions ? "Fewer options" : "Custom options"}</span>
-          </button>
-        </div>
-
-        {/* Prominent North Star Accordance Pill */}
-        {goalLabel && linkedToGoal && (
-          <div className="flex items-center gap-2 rounded-xl border border-primary/25 bg-primary/10 px-3.5 py-2 text-xs font-mono text-primary animate-in fade-in duration-200">
-            <Target className="size-3.5 text-primary shrink-0" aria-hidden="true" />
-            <span className="truncate">🎯 In Accordance with 90d North Star • +1.1% Trajectory Lift (Anchor #{completedGoalQuests + 1}/90)</span>
+            {linkedToGoal && (
+              <div className="mt-2 flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-mono text-primary animate-in fade-in duration-200">
+                <Check className="size-3 text-primary shrink-0" aria-hidden="true" />
+                <span className="truncate">
+                  In Accordance with North Star • Anchor #{completedGoalQuests + 1} of 90
+                </span>
+              </div>
+            )}
           </div>
         )}
 
-        {/* EXPANDABLE OPTIONS: Clean Structured Grid */}
-        <AnimatePresence initial={false}>
-          {showOptions && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={TIS_SPRINGS.settle}
-              className="overflow-hidden"
+        {/* STEP 4: OPTIONAL SETTINGS (PROGRESSIVE DISCLOSURE) */}
+        <div className="pt-1">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">
+              4. Cadence & Priority
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowOptions((v) => !v)}
+              disabled={committing}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground shrink-0"
+              aria-expanded={showOptions}
             >
-              <div className="pt-2">
-                <div className="flex flex-col gap-3.5 rounded-xl border border-border/70 bg-muted/20 p-3.5 sm:p-4 text-xs">
+              <Settings2 className="size-3.5" aria-hidden="true" />
+              <span>{showOptions ? "Hide options" : "Custom cadence & priority"}</span>
+            </button>
+          </div>
+
+          <AnimatePresence initial={false}>
+            {showOptions && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={TIS_SPRINGS.settle}
+                className="overflow-hidden"
+              >
+                <div className="pt-3 space-y-3 rounded-xl border border-border/70 bg-muted/20 p-3.5 sm:p-4 text-xs mt-2">
                   <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
                     <span className="w-16 font-medium text-muted-foreground shrink-0">Priority</span>
                     <ToggleGroup
@@ -201,7 +300,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
                   </div>
 
                   <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
-                    <span className="w-16 font-medium text-muted-foreground shrink-0">Repeats</span>
+                    <span className="w-16 font-medium text-muted-foreground shrink-0">Cadence</span>
                     <ToggleGroup
                       type="single"
                       value={cadence}
@@ -210,7 +309,7 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
                       }}
                       disabled={committing}
                       className="flex-wrap justify-start gap-1.5"
-                      aria-label="Repeats"
+                      aria-label="Cadence"
                     >
                       {CADENCE_PRESETS.map((preset) => (
                         <ToggleGroupItem
@@ -250,10 +349,22 @@ export function TodaysCommitment({ committing, onCommit, onCancel, goalLabel, in
                     </div>
                   )}
                 </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* SUBMIT BUTTON */}
+        <div className="pt-2 flex justify-end">
+          <Button
+            type="submit"
+            className="min-h-11 px-6 font-semibold"
+            disabled={committing || !commitment.trim() || cadenceInvalid}
+          >
+            {committing ? "Committing…" : `Commit to ${role === "focus" ? "Primary Focus" : "Supporting Routine"}`}
+            {!committing && <ArrowRight className="size-4 ml-1.5" aria-hidden="true" />}
+          </Button>
+        </div>
       </form>
     </section>
   );

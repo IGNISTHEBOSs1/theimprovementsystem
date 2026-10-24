@@ -52,7 +52,7 @@ const comparisons: ComparisonRow[] = [
     basis: "Privacy & cost",
     subBasis: "Data sovereignty & paywalls",
     otherText: "Paywalled streaks & cloud data harvesting",
-    kineticText: "100% Free forever & local encrypted vault",
+    kineticText: "100% Free forever & local-first data privacy",
   },
 ];
 

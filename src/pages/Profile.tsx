@@ -6,7 +6,6 @@ import {
   Settings as SettingsIcon,
   Target,
   CheckCircle2,
-  Compass,
   History,
   ChevronRight,
   Calendar,
@@ -88,11 +87,6 @@ export default function Profile() {
 
   const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
   const followThrough = deriveFollowThroughStats(safeQuests);
-  const completionRate =
-    followThrough.total > 0
-      ? Math.round((followThrough.completed / followThrough.total) * 100)
-      : 0;
-
   const goalStats = deriveGoalStats(safeQuests, profile?.primary_goal);
   const goalCompletionRate =
     goalStats.linked > 0
@@ -113,11 +107,11 @@ export default function Profile() {
     : null;
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-24 sm:px-8 sm:py-10 space-y-6">
+    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-28 sm:px-8 sm:py-10 space-y-6">
       <PageHeader
         eyebrow="Profile"
-        title="Your cockpit."
-        description="Manage your identity, North Star goal, and long-term momentum ledger."
+        title="Operator profile."
+        description="Identity, North Star horizon, and historical audit ledger."
       />
 
       {/* ── 1. Operator Identity & Command Header ── */}
@@ -240,6 +234,28 @@ export default function Profile() {
                   <span>Edit Goal</span>
                 </Button>
               </div>
+
+              {/* Goal Evidence */}
+              <div className="pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <CheckCircle2 className="size-4 text-emerald-500 shrink-0" aria-hidden="true" />
+                  <span>
+                    <strong className="text-foreground font-semibold font-mono">{goalStats.completed}</strong> verified {goalStats.completed === 1 ? "anchor" : "anchors"} completed toward this goal
+                    {goalStats.linked > 0 && (
+                      <span className="font-mono text-muted-foreground ml-1">
+                        ({goalCompletionRate}% follow-through)
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <Link
+                  to="/profile/history"
+                  className="font-medium text-xs text-primary hover:underline flex items-center gap-1 transition-colors"
+                >
+                  <span>View audit log</span>
+                  <ChevronRight className="size-3.5" aria-hidden="true" />
+                </Link>
+              </div>
             </div>
           ) : (
             <div className="mt-4 space-y-3">
@@ -355,73 +371,7 @@ export default function Profile() {
         )}
       </section>
 
-      {/* ── 3. Unified Performance Telemetry Console ── */}
-      <section
-        aria-label="Standing and Momentum Telemetry"
-        className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-6 shadow-[var(--shadow-card)]"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-            Performance Telemetry
-          </span>
-          <span className="font-mono text-[11px] text-muted-foreground">
-            All-Time Records
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-          {/* Pillar 1: Reliability */}
-          <div className="col-span-1 rounded-2xl border border-border/80 bg-muted/40 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
-            <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
-                Completion Rate
-              </span>
-              <CheckCircle2 className="size-4 text-emerald-500 shrink-0" aria-hidden="true" />
-            </div>
-            <div className="mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-2xl sm:text-3xl font-bold font-mono text-foreground">{completionRate}%</span>
-              <span className="text-xs font-mono text-muted-foreground">
-                ({followThrough.completed}/{followThrough.total})
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-2 line-clamp-1">Commitment follow-through</p>
-          </div>
-
-          {/* Pillar 2: Goal Focus */}
-          <div className="col-span-1 rounded-2xl border border-border/80 bg-muted/40 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
-            <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
-                Goal Focus
-              </span>
-              <Target className="size-4 text-primary shrink-0" aria-hidden="true" />
-            </div>
-            <div className="mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-2xl sm:text-3xl font-bold font-mono text-foreground">{goalCompletionRate}%</span>
-              <span className="text-xs font-mono text-muted-foreground">
-                ({goalStats.completed}/{goalStats.linked})
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-2 line-clamp-1">North Star follow-through</p>
-          </div>
-
-          {/* Pillar 3: Volume */}
-          <div className="col-span-2 sm:col-span-1 rounded-2xl border border-border/80 bg-muted/40 p-4 sm:p-5 flex flex-col justify-between shadow-xs">
-            <div className="flex items-center justify-between text-muted-foreground">
-              <span className="text-[11px] font-mono font-medium uppercase tracking-wider">
-                Honored Commitments
-              </span>
-              <Compass className="size-4 text-foreground shrink-0" aria-hidden="true" />
-            </div>
-            <div className="mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-              <span className="text-2xl sm:text-3xl font-bold font-mono text-foreground">{followThrough.completed}</span>
-              <span className="text-xs sm:text-sm font-mono text-muted-foreground">of {followThrough.total} total</span>
-            </div>
-            <p className="text-[11px] text-muted-foreground mt-2 line-clamp-1">Verified execution proof</p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 4. System & Audit Operations Hub ── */}
+      {/* ── 3. Operations & Audit Ledger ── */}
       <div className="space-y-3">
         <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground px-1">
           Operations & Audit Ledger
@@ -479,7 +429,7 @@ export default function Profile() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                  Theme mode, timezone calibration, and data controls.
+                  Theme mode, audio feedback, timezone calibration, and data privacy.
                 </p>
               </div>
             </div>

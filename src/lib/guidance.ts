@@ -318,37 +318,51 @@ export function deriveGuidance(quests: Quest[], timezone: string): GuidanceMessa
   try {
     const repeated = repeatedCommitmentGuidance(safeQuests);
     if (repeated) messages.push(repeated);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   try {
     const weekday = weekdayMissPatternGuidance(safeQuests, safeTz);
     if (weekday) messages.push(weekday);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   try {
     const seriesReliability = seriesReliabilityGuidance(safeQuests);
     if (seriesReliability) messages.push(seriesReliability);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   try {
     const goalLinkage = goalLinkageGapGuidance(safeQuests);
     if (goalLinkage) messages.push(goalLinkage);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   try {
     const recovery = recoveryAfterMissGuidance(safeQuests);
     if (recovery) messages.push(recovery);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   try {
     const trajectoryPosition = trajectoryPositionGuidance(safeQuests);
     if (trajectoryPosition) messages.push(trajectoryPosition);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   try {
     const priorityCompletion = priorityCompletionGuidance(safeQuests);
     if (priorityCompletion) messages.push(priorityCompletion);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
 
   return messages;
 }

@@ -141,7 +141,9 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
               <CircleDot className="size-4 text-primary" aria-hidden="true" />
               <span>{quest.timeFrame}</span>
-              <Badge variant="outline" className={PRIORITY_BADGE_CLASSES[quest.priority] || PRIORITY_BADGE_CLASSES.Optional}>{quest.priority}</Badge>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-medium border border-primary/40 bg-primary/10 text-primary">
+                Primary Focus
+              </span>
             </div>
             <h2 id="focus-heading" className={cn("mt-2 text-2xl font-semibold tracking-tight text-foreground transition-all line-clamp-2 break-words leading-snug", completionStage !== "idle" && "line-through text-muted-foreground")}>
               {quest.title}
@@ -155,7 +157,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
                 )}
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-mono font-medium text-primary shadow-xs">
                   <Check className="size-3 text-primary shrink-0" aria-hidden="true" />
-                  <span>✓ North Star Accordance • Advances 90d Trajectory (+1.1% → Anchor #{completedGoalQuests + 1}/90)</span>
+                  <span>✓ North Star Accordance · Advances to Anchor #{completedGoalQuests + 1} of 90</span>
                 </span>
               </div>
             ) : (

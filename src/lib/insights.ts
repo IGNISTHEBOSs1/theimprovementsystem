@@ -232,18 +232,26 @@ export function deriveInsights(quests: Quest[]): Insight[] {
   try {
     const momentum = momentumInsight(safeQuests);
     if (momentum) insights.push(momentum);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
   try {
     const followThrough = followThroughInsight(safeQuests);
     if (followThrough) insights.push(followThrough);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
   try {
     const friction = recurringFrictionInsight(safeQuests);
     if (friction) insights.push(friction);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
   try {
     const alignment = goalAlignmentInsight(safeQuests);
     if (alignment) insights.push(alignment);
-  } catch {}
+  } catch {
+    /* ignore */
+  }
   return insights;
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { MessageSquare, Sprout, Compass, RotateCcw, Sparkles, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { MessageSquare, RotateCcw, Sparkles, ArrowRight, Pause, CheckCircle2 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -14,6 +14,8 @@ import { deriveInsights } from "@/lib/insights";
 import { deriveGoalPace, deriveTrajectory } from "@/lib/trajectory";
 import { computeRebalanceProposal } from "@/lib/rebalance";
 import { TIS_SPRINGS } from "@/lib/motion-tokens";
+import { toast } from "@/hooks/use-toast";
+import { soundEngine } from "@/hooks/useSoundEffects";
 
 const GUIDANCE_CATEGORY_LABELS: Record<string, string> = {
   "repeated-commitment": "Repeating habit",
@@ -52,23 +54,35 @@ interface RankedItem {
   observation: string;
   evidence?: string;
   interpretation?: string;
-  adjustment?: string;
+  adjustment: string;
+  actionLabel: string;
+  actionDestination?: string;
+  onAction?: () => void;
   strength: number;
 }
 
 const MAX_SURFACED_INSIGHTS = 4;
 
 export default function Mentor() {
+  const navigate = useNavigate();
   const { profile } = useAuth();
-  const { state, loading, error, reload } = useDashboardDataContext();
+  const {
+    state,
+    loading,
+    error,
+    reload,
+    updateSeriesRecurrence,
+    pauseSeries,
+  } = useDashboardDataContext();
+
   const [rebalanceOpen, setRebalanceOpen] = useState(false);
-  const [showTelemetryDetails, setShowTelemetryDetails] = useState(false);
   const [showAllDynamics, setShowAllDynamics] = useState(false);
+  const [pausingSeriesId, setPausingSeriesId] = useState<string | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
+      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
         <div className="h-40 animate-pulse rounded-2xl bg-muted" aria-label="Loading your mentor" />
       </div>
     );
@@ -76,16 +90,12 @@ export default function Mentor() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
+      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
         <section className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7" aria-label="Mentor unavailable">
           <p className="text-label text-muted-foreground">Mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
           <p className="mt-2 text-body-md text-muted-foreground">This is usually temporary. You can try again now.</p>
-          <Button
-            size="lg"
-            onClick={() => void reload()}
-            className="mt-4 min-h-11"
-          >
+          <Button size="lg" onClick={() => void reload()} className="mt-4 min-h-11">
             Try again
           </Button>
         </section>
@@ -93,16 +103,16 @@ export default function Mentor() {
     );
   }
 
-  const guidance = deriveGuidance(state.quests, profile?.timezone || "UTC");
-  const insights = deriveInsights(state.quests);
-  const trajectory = deriveTrajectory(state.quests, profile?.primary_goal);
-  const pace = deriveGoalPace(state.quests, profile?.primary_goal_target_date, undefined, profile?.primary_goal);
+  const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
+  const guidance = deriveGuidance(safeQuests, profile?.timezone || "UTC");
+  const insights = deriveInsights(safeQuests);
+  const trajectory = deriveTrajectory(safeQuests, profile?.primary_goal);
+  const pace = deriveGoalPace(safeQuests, profile?.primary_goal_target_date, undefined, profile?.primary_goal);
 
   const recurring = insights.find((i) => i.id === "recurring-friction");
   const momentum = insights.find((i) => i.id === "momentum");
   const recovery = guidance.find((g) => g.id === "recovery-after-miss");
-  const hasTrajectory = trajectory.actual.length > 0;
-  const rebalanceProposal = computeRebalanceProposal(state.quests, profile?.timezone || "UTC");
+  const rebalanceProposal = computeRebalanceProposal(safeQuests, profile?.timezone || "UTC");
 
   const currentHour = new Date().getHours();
   const isEvening = currentHour >= 18 || currentHour < 4;
@@ -111,68 +121,193 @@ export default function Mentor() {
   const isRecurringHero = Boolean(recurring);
   const isRecoveryHero = !isRecurringHero && leadWithRecovery && Boolean(recovery);
   const isMomentumHero = !isRecurringHero && !isRecoveryHero && Boolean(momentum);
-
-  const showTrajectoryCard = hasTrajectory;
-  const showRecoveryCard = Boolean(recovery) && !isRecoveryHero;
-  const showMomentumCard = Boolean(momentum) && !isMomentumHero;
-
-  const signalCardsCount = (showTrajectoryCard ? 1 : 0) + (showRecoveryCard ? 1 : 0) + (showMomentumCard ? 1 : 0);
   const hasHero = isRecurringHero || isRecoveryHero || isMomentumHero;
-  const anyGridSlot = hasHero || signalCardsCount > 0;
 
-  const usedInGrid = new Set([
-    isRecurringHero ? "insight-recurring-friction" : null,
-    isRecurringHero ? "guidance-series-reliability" : null,
-    isRecurringHero ? "guidance-repeated-commitment" : null,
-    isRecoveryHero || showRecoveryCard ? "guidance-recovery-after-miss" : null,
-    isMomentumHero || showMomentumCard ? "insight-momentum" : null,
-    showTrajectoryCard ? "guidance-trajectory-position" : null,
-    // If richer insight-goal-alignment exists, suppress the single-line guidance-goal-linkage-gap duplicate
-    insights.some((i) => i.id === "goal-alignment") ? "guidance-goal-linkage-gap" : null,
-  ].filter(Boolean));
+  const usedInGrid = new Set(
+    [
+      isRecurringHero ? "insight-recurring-friction" : null,
+      isRecurringHero ? "guidance-series-reliability" : null,
+      isRecurringHero ? "guidance-repeated-commitment" : null,
+      isRecoveryHero ? "guidance-recovery-after-miss" : null,
+      isMomentumHero ? "insight-momentum" : null,
+      insights.some((i) => i.id === "goal-alignment") ? "guidance-goal-linkage-gap" : null,
+    ].filter(Boolean),
+  );
+
+  const getGuidanceDetails = (gId: string): { evidence: string; adjustment: string; actionLabel: string; actionDestination?: string; onAction?: () => void } => {
+    switch (gId) {
+      case "repeated-commitment":
+        return {
+          evidence: "Multiple separate one-shot commitments logged with the exact same title.",
+          adjustment: "Convert this repeating commitment into a scheduled daily or weekly routine.",
+          actionLabel: "Add Routine",
+          actionDestination: "/quests",
+        };
+      case "weekday-miss-pattern":
+        return {
+          evidence: "Completion history shows failures concentrated on a specific weekday.",
+          adjustment: "Rebalance your weekly routine schedule to avoid overload on friction-heavy days.",
+          actionLabel: rebalanceProposal ? `Rebalance (${rebalanceProposal.fromDayLabel} → ${rebalanceProposal.toDayLabel})` : "Adjust Schedule",
+          onAction: rebalanceProposal ? () => setRebalanceOpen(true) : undefined,
+          actionDestination: rebalanceProposal ? undefined : "/quests",
+        };
+      case "series-reliability":
+        return {
+          evidence: "This routine completes at a rate significantly below your baseline.",
+          adjustment: "Reduce frequency or pause this routine to protect your trajectory buffer.",
+          actionLabel: rebalanceProposal ? "Rebalance Routine" : "Manage Routines",
+          onAction: rebalanceProposal ? () => setRebalanceOpen(true) : undefined,
+          actionDestination: rebalanceProposal ? undefined : "/quests",
+        };
+      case "goal-linkage-gap":
+        return {
+          evidence: "Completion rates between goal-linked commitments and unlinked tasks diverge noticeably.",
+          adjustment: "Review your North Star goal and link all daily commitments to your primary objective.",
+          actionLabel: "Review North Star",
+          actionDestination: "/profile",
+        };
+      case "recovery-after-miss":
+        return {
+          evidence: "A missed commitment was followed by another miss, indicating avoidance friction.",
+          adjustment: "Commit to one manageable primary focus today to rebuild deterministic momentum.",
+          actionLabel: "Commit to Focus",
+          actionDestination: "/quests",
+        };
+      case "trajectory-position":
+        return {
+          evidence: "Completions have fallen below the lower boundary of the ±10% buffer corridor.",
+          adjustment: "Complete your anchor commitments this week to restore nominal velocity.",
+          actionLabel: "View Trajectory",
+          actionDestination: "/journey",
+        };
+      case "priority-completion-pattern":
+        return {
+          evidence: "Significant variance in follow-through across different commitment priorities.",
+          adjustment: "Focus execution strictly on your single primary focus before routine commitments.",
+          actionLabel: "Focus Commitments",
+          actionDestination: "/quests",
+        };
+      default:
+        return {
+          evidence: "Verified from your logged commitment timestamps.",
+          adjustment: "Anchor this habit to a consistent daily trigger.",
+          actionLabel: "Adjust in Quests",
+          actionDestination: "/quests",
+        };
+    }
+  };
+
+  const getInsightAction = (i: typeof insights[0]): { actionLabel: string; actionDestination?: string; onAction?: () => void } => {
+    switch (i.category) {
+      case "recurring-friction":
+        return {
+          actionLabel: rebalanceProposal ? `Rebalance (${rebalanceProposal.fromDayLabel} → ${rebalanceProposal.toDayLabel})` : "Manage Routines",
+          onAction: rebalanceProposal ? () => setRebalanceOpen(true) : undefined,
+          actionDestination: rebalanceProposal ? undefined : "/quests",
+        };
+      case "goal-alignment":
+        return {
+          actionLabel: "Review North Star",
+          actionDestination: "/profile",
+        };
+      case "momentum":
+        return {
+          actionLabel: "View Trajectory",
+          actionDestination: "/journey",
+        };
+      case "follow-through":
+      default:
+        return {
+          actionLabel: "Commit to Focus",
+          actionDestination: "/quests",
+        };
+    }
+  };
 
   const pool: RankedItem[] = [
-    ...guidance.map((g): RankedItem => ({
-      key: `guidance-${g.id}`,
-      categoryLabel: GUIDANCE_CATEGORY_LABELS[g.id] ?? "Pattern",
-      observation: g.text,
-      strength: g.strength,
-    })),
-    ...insights.map((i): RankedItem => ({
-      key: `insight-${i.id}`,
-      categoryLabel: i.categoryLabel,
-      observation: i.observation,
-      evidence: i.evidence,
-      interpretation: i.interpretation,
-      adjustment: i.adjustment,
-      strength: i.strength,
-    })),
+    ...guidance.map((g): RankedItem => {
+      const details = getGuidanceDetails(g.id);
+      return {
+        key: `guidance-${g.id}`,
+        categoryLabel: GUIDANCE_CATEGORY_LABELS[g.id] ?? "Pattern",
+        observation: g.text,
+        evidence: details.evidence,
+        adjustment: details.adjustment,
+        actionLabel: details.actionLabel,
+        actionDestination: details.actionDestination,
+        onAction: details.onAction,
+        strength: g.strength,
+      };
+    }),
+    ...insights.map((i): RankedItem => {
+      const action = getInsightAction(i);
+      return {
+        key: `insight-${i.id}`,
+        categoryLabel: i.categoryLabel,
+        observation: i.observation,
+        evidence: i.evidence,
+        interpretation: i.interpretation,
+        adjustment: i.adjustment || "Maintain consistent execution within your buffer.",
+        actionLabel: action.actionLabel,
+        actionDestination: action.actionDestination,
+        onAction: action.onAction,
+        strength: i.strength,
+      };
+    }),
   ].filter((item) => !usedInGrid.has(item.key));
+
   const surfaced = [...pool].sort((a, b) => b.strength - a.strength).slice(0, MAX_SURFACED_INSIGHTS);
 
-  if (!anyGridSlot && surfaced.length === 0) {
+  if (!hasHero && surfaced.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-[calc(112px+env(safe-area-inset-bottom,0px))] sm:px-8 sm:py-10 sm:pb-12">
+      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
         <PlaceholderExperience
           icon={MessageSquare}
-          title="No clear pattern yet."
-          message="As you complete and miss more quests, your mentor will point out what's happening."
+          title="No clear behavioral pattern yet."
+          message="As you complete and miss more commitments, your mentor will diagnose friction and propose actionable adjustments."
         />
       </div>
     );
   }
 
-  type TelemetryTileId = "trajectory" | "recovery" | "momentum";
-  const activeTelemetryTiles: TelemetryTileId[] = [
-    showTrajectoryCard ? ("trajectory" as const) : null,
-    showRecoveryCard && recovery ? ("recovery" as const) : null,
-    showMomentumCard && momentum ? ("momentum" as const) : null,
-  ].filter(Boolean) as TelemetryTileId[];
+  const handleApplyProposal = async (seriesId: string, targetDays: number[]) => {
+    soundEngine.playConfirmation();
+    const { error: err } = await updateSeriesRecurrence(seriesId, targetDays);
+    if (err) {
+      toast({
+        title: "Could not update routine days",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+      throw err;
+    } else {
+      toast({
+        title: "Routine schedule updated",
+        description: "Successfully rebalanced your routine cadence.",
+      });
+    }
+  };
 
-  const primaryTile = activeTelemetryTiles[0];
-  const secondaryTiles = activeTelemetryTiles.slice(1);
+  const handlePauseRoutine = async (seriesId: string) => {
+    setPausingSeriesId(seriesId);
+    soundEngine.playTap();
+    const { error: err } = await pauseSeries(seriesId);
+    setPausingSeriesId(null);
+    if (err) {
+      toast({
+        title: "Could not pause routine",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+      throw err;
+    } else {
+      toast({
+        title: "Routine paused",
+        description: "Paused this recurring routine for the current cycle.",
+      });
+    }
+  };
 
-  const hasExpandableDynamics = surfaced.length > 3 || surfaced.some((item) => Boolean(item.evidence));
   const visibleDynamics = showAllDynamics ? surfaced : surfaced.slice(0, 3);
 
   return (
@@ -180,15 +315,15 @@ export default function Mentor() {
       variants={shouldReduceMotion ? undefined : containerVariants}
       initial={shouldReduceMotion ? false : "hidden"}
       animate="visible"
-      className="mx-auto w-full max-w-4xl px-4 py-6 pb-24 sm:px-8 sm:py-10"
+      className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10"
     >
       <PageHeader
-        eyebrow="Mentor"
-        title="Your patterns."
-        description="What works and where you get stuck, based on what you actually do."
+        eyebrow="Behavioral Diagnostics"
+        title="Your mentor."
+        description="Deterministic behavioral observations paired with immediate treatments to eliminate friction."
       />
 
-      {/* ── 1. Executive Advisory Briefing ── */}
+      {/* ── 1. PRIMARY ADVISORY DIAGNOSIS (THE HERO ACTION ENGINE) ── */}
       {hasHero && (
         <motion.div variants={shouldReduceMotion ? undefined : itemVariants} className="mt-6">
           {recurring && (
@@ -196,115 +331,84 @@ export default function Mentor() {
               aria-labelledby="primary-insight-heading"
               className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground block">
-                    Executive Briefing • Primary Pattern
-                  </span>
-                </div>
-                <span className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">
-                  Behavioral Analysis
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground block font-semibold">
+                  DIAGNOSIS · RECURRING FRICTION
+                </span>
+                <span className="text-xs font-mono text-muted-foreground">
+                  Action Engine
                 </span>
               </div>
 
-              <h2
-                id="primary-insight-heading"
-                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground leading-snug"
-              >
-                {recurring.observation}
-              </h2>
+              {/* 1. Observation */}
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-wider text-primary font-semibold block mb-1">
+                  1. Observation
+                </span>
+                <h2
+                  id="primary-insight-heading"
+                  className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug"
+                >
+                  {recurring.observation}
+                </h2>
+              </div>
 
-              {/* Supporting Evidence — Clean 2-Tone Ratio Bar */}
-              {recurring.ratio ? (
-                (() => {
-                  const recurringMissed = recurring.ratio.value;
-                  const totalMissed = recurring.ratio.total;
-                  const oneOffMissed = Math.max(0, totalMissed - recurringMissed);
-                  const recurringPct = totalMissed > 0 ? Math.round((recurringMissed / totalMissed) * 100) : 0;
-                  const oneOffPct = 100 - recurringPct;
-
-                  return (
-                    <div className="pt-2 space-y-2.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-medium text-foreground">Where misses happen</span>
-                        <span className="text-muted-foreground font-mono">{totalMissed} total misses</span>
-                      </div>
-
-                      {/* 2-Tone Segmented Ratio Bar */}
-                      <div
-                        className="h-2.5 w-full overflow-hidden rounded-full bg-muted flex"
-                        role="progressbar"
-                        aria-valuenow={recurringPct}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-label={`Miss breakdown: ${recurringPct}% repeating, ${oneOffPct}% one-time`}
-                      >
-                        <div
-                          className="bg-primary transition-[width] duration-500 rounded-l-full"
-                          style={{ width: `${recurringPct}%` }}
-                          title={`Repeating: ${recurringPct}%`}
-                        />
-                        <div
-                          className="bg-muted-foreground/30 transition-[width] duration-500 rounded-r-full"
-                          style={{ width: `${oneOffPct}%` }}
-                          title={`One-time: ${oneOffPct}%`}
-                        />
-                      </div>
-
-                      {/* Legend */}
-                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                        <div className="flex items-center gap-1.5">
-                          <span className="size-2 rounded-full bg-primary shrink-0" aria-hidden="true" />
-                          <span className="font-semibold text-foreground">Repeating series</span>
-                          <span className="text-muted-foreground font-mono">({recurringMissed} • {recurringPct}%)</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="size-2 rounded-full bg-muted-foreground/40 shrink-0" aria-hidden="true" />
-                          <span className="text-muted-foreground">One-time quests</span>
-                          <span className="text-muted-foreground font-mono">({oneOffMissed} • {oneOffPct}%)</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()
-              ) : (
-                <div className="text-xs sm:text-sm text-muted-foreground">
+              {/* 2. Evidence */}
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-1">
+                  2. Evidence
+                </span>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   {recurring.evidence}
-                </div>
-              )}
+                </p>
+              </div>
 
-              {/* Seamless Recommendation Accent (No Nested Card Box) */}
+              {/* 3. Recommendation */}
               {recurring.adjustment && (
-                <div className="flex items-start gap-3 rounded-2xl bg-muted/40 p-4 border-l-2 border-primary text-xs sm:text-sm">
-                  <Sparkles className="size-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
-                  <div>
-                    <span className="font-semibold text-foreground">Recommended adjustment: </span>
-                    <span className="text-muted-foreground">{recurring.adjustment}</span>
-                  </div>
+                <div className="rounded-xl bg-muted/40 p-4 border border-border/60 text-xs sm:text-sm">
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-foreground font-semibold block mb-1">
+                    3. Recommended Adjustment
+                  </span>
+                  <p className="text-foreground/90 leading-relaxed font-medium">
+                    {recurring.adjustment}
+                  </p>
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
-                {rebalanceProposal ? (
-                  <>
-                    <Button
-                      size="sm"
-                      className="w-full sm:w-auto min-h-11"
-                      onClick={() => setRebalanceOpen(true)}
-                    >
-                      <RotateCcw className="mr-1.5 size-3.5" aria-hidden="true" />
-                      Change days
+              {/* 4. Action Treatment Controls */}
+              <div className="pt-2 border-t border-border/50">
+                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-2.5">
+                  4. Apply Treatment
+                </span>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {rebalanceProposal ? (
+                    <>
+                      <Button
+                        size="sm"
+                        className="min-h-10 px-4 text-xs font-semibold gap-1.5"
+                        onClick={() => setRebalanceOpen(true)}
+                      >
+                        <RotateCcw className="size-3.5" aria-hidden="true" />
+                        <span>Move from {rebalanceProposal.fromDayLabel} to {rebalanceProposal.toDayLabel}</span>
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={pausingSeriesId === rebalanceProposal.seriesId}
+                        onClick={() => void handlePauseRoutine(rebalanceProposal.seriesId)}
+                        className="min-h-10 px-4 text-xs font-medium gap-1.5"
+                      >
+                        <Pause className="size-3.5" aria-hidden="true" />
+                        <span>{pausingSeriesId === rebalanceProposal.seriesId ? "Pausing…" : "Pause Routine"}</span>
+                      </Button>
+                    </>
+                  ) : (
+                    <Button asChild size="sm" className="min-h-10 px-4 text-xs font-semibold">
+                      <Link to="/quests">Manage repeating routines →</Link>
                     </Button>
-                    <Button asChild size="sm" variant="outline" className="w-full sm:w-auto min-h-11">
-                      <Link to="/quests">Manage quests</Link>
-                    </Button>
-                  </>
-                ) : (
-                  <Button asChild size="sm" className="w-full sm:w-auto min-h-11">
-                    <Link to="/quests">See repeating quests</Link>
-                  </Button>
-                )}
+                  )}
+                </div>
               </div>
             </section>
           )}
@@ -315,19 +419,51 @@ export default function Mentor() {
               className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
-                  Your focus right now • Bouncing back
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-primary">
+                  DIAGNOSIS · BOUNCING BACK
                 </span>
               </div>
-              <h2
-                id="primary-insight-heading"
-                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground leading-snug"
-              >
-                {recovery.text}
-              </h2>
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                <Button asChild size="sm" className="w-full sm:w-auto min-h-11">
-                  <Link to="/quests">Commit to today's focus →</Link>
+
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-wider text-primary font-semibold block mb-1">
+                  1. Observation
+                </span>
+                <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
+                  {recovery.text}
+                </h2>
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-1">
+                  2. Evidence
+                </span>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  A missed commitment creates friction only when followed by avoidance. Immediate resumption restores mathematical velocity within the buffer.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-muted/40 p-3.5 border border-border/60 text-xs">
+                <span className="text-[10px] uppercase font-mono tracking-wider text-foreground font-semibold block mb-1">
+                  3. Recommended Adjustment
+                </span>
+                <p className="text-foreground/90 font-medium">
+                  Commit to one clear, manageable primary focus for today to lock momentum.
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-border/50">
+                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-2">
+                  4. Action
+                </span>
+                <Button
+                  size="sm"
+                  className="min-h-10 px-4 text-xs font-semibold"
+                  onClick={() => {
+                    soundEngine.playTap();
+                    navigate("/quests");
+                  }}
+                >
+                  Commit to Today's Focus →
                 </Button>
               </div>
             </section>
@@ -339,76 +475,57 @@ export default function Mentor() {
               className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
-                  Executive Briefing • Momentum
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-emerald-500">
+                  DIAGNOSIS · MOMENTUM ACCELERATION
                 </span>
                 {momentum.comparison && (
-                  <span className={cn(
-                    "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-mono font-medium",
-                    momentum.comparison.delta >= 0
-                      ? "bg-success/15 text-success border border-success/30"
-                      : "bg-warning/15 text-warning border border-warning/30"
-                  )}>
-                    {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}% shift
+                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                    +{Math.round(momentum.comparison.delta * 100)}% shift
                   </span>
                 )}
               </div>
-              <h2
-                id="primary-insight-heading"
-                className="text-xl sm:text-2xl font-bold tracking-tight text-foreground leading-snug"
-              >
-                {momentum.observation}
-              </h2>
-              {momentum.comparison && (
-                <div className="pt-2 space-y-2.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-foreground">Goal quest finish rate</span>
-                    <span className="text-muted-foreground font-mono">
-                      {momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal} recent
-                    </span>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-foreground">Recent</span>
-                      <span className="text-foreground font-semibold font-mono">
-                        {Math.round(momentum.comparison.recentRate * 100)}%
-                      </span>
-                    </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full bg-primary rounded-full transition-[width] duration-500"
-                        style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Earlier</span>
-                      <span className="text-muted-foreground font-mono">
-                        {Math.round(momentum.comparison.previousRate * 100)}%
-                      </span>
-                    </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
-                        style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-              {momentum.adjustment && (
-                <div className="flex items-start gap-3 rounded-2xl bg-muted/40 p-4 border-l-2 border-primary text-xs sm:text-sm">
-                  <Sparkles className="size-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
-                  <div>
-                    <span className="font-semibold text-foreground">Recommended adjustment: </span>
-                    <span className="text-muted-foreground">{momentum.adjustment}</span>
-                  </div>
-                </div>
-              )}
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                <Button asChild size="sm" className="w-full sm:w-auto min-h-11">
-                  <Link to="/journey">View trajectory →</Link>
+
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-wider text-emerald-500 font-semibold block mb-1">
+                  1. Observation
+                </span>
+                <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
+                  {momentum.observation}
+                </h2>
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-1">
+                  2. Evidence
+                </span>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {momentum.evidence}
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-muted/40 p-3.5 border border-border/60 text-xs">
+                <span className="text-[10px] uppercase font-mono tracking-wider text-foreground font-semibold block mb-1">
+                  3. Recommended Adjustment
+                </span>
+                <p className="text-foreground/90 font-medium">
+                  {momentum.adjustment || "Maintain your current cadence within the ±10% buffer zone without overextending."}
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-border/50">
+                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-2">
+                  4. Action
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="min-h-10 px-4 text-xs font-medium"
+                  onClick={() => {
+                    soundEngine.playTap();
+                    navigate("/journey");
+                  }}
+                >
+                  Verify on Journey Path →
                 </Button>
               </div>
             </section>
@@ -416,405 +533,104 @@ export default function Mentor() {
         </motion.div>
       )}
 
-      {/* ── 2. Unified Telemetry Band (Reduced Density: First tile visible, other 2 collapsable) ── */}
-      {activeTelemetryTiles.length > 0 && (
-        <motion.div
-          variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card overflow-hidden shadow-[var(--shadow-card)]"
-        >
-          <div className="grid grid-cols-1">
-            {/* Primary Tile (First available) — Always Visible */}
-            {primaryTile === "trajectory" && (
-              <div className="p-5 sm:p-6 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                      <Compass className="size-4 text-primary" aria-hidden="true" />
-                      <span>Momentum Score</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      <span className="font-mono">{trajectory.actual.length}</span> events
-                    </span>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                    <span className="text-3xl font-bold font-mono tracking-tight text-foreground">
-                      {trajectory.currentPosition}
-                    </span>
-                    <span className="text-xs text-muted-foreground">anchors locked</span>
-                    {pace && (
-                      <span className="text-xs font-mono text-emerald-500 font-medium">
-                        (🛡 {pace.bufferDaysRemaining}/9 flex days intact)
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Recent Step Events */}
-                  <div className="mt-4 space-y-1.5">
-                    <span className="text-[11px] text-muted-foreground">Recent outcomes (10% Buffer absorbs misses):</span>
-                    <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" aria-label="Recent outcomes">
-                      {trajectory.actual.slice(-7).map((pt, idx) => (
-                        <span
-                          key={pt.quest.id || idx}
-                          className={cn(
-                            "inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-mono font-semibold transition-transform active:scale-95",
-                            pt.outcome === "completed"
-                              ? "bg-primary/10 text-primary border border-primary/25"
-                              : "bg-muted text-muted-foreground border border-border/60"
-                          )}
-                          title={`${pt.quest.title}: ${pt.outcome}`}
-                        >
-                          {pt.outcome === "completed" ? "+1" : "±0"}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-5 pt-3 border-t border-border/50">
-                  <Link
-                    to="/journey"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                  >
-                    <span>Explore trajectory</span>
-                    <ArrowRight className="size-3" />
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {primaryTile === "recovery" && recovery && (
-              <div className="p-5 sm:p-6 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                    <Sprout className="size-4 text-primary" aria-hidden="true" />
-                    <span>Bouncing Back</span>
-                  </div>
-                  <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-foreground">
-                    {recovery.text}
-                  </p>
-                </div>
-                <div className="mt-5 pt-3 border-t border-border/50">
-                  <Link
-                    to="/quests"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                  >
-                    <span>Commit to today's focus</span>
-                    <ArrowRight className="size-3" />
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {primaryTile === "momentum" && momentum && (
-              <div className="p-5 sm:p-6 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                      <RotateCcw className="size-4 text-primary" aria-hidden="true" />
-                      <span>Velocity Momentum</span>
-                    </div>
-                    {momentum.comparison && (
-                      <span className={cn(
-                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-mono font-medium",
-                        momentum.comparison.delta >= 0
-                          ? "bg-primary/10 text-primary border border-primary/20"
-                          : "bg-destructive/10 text-destructive border border-destructive/20"
-                      )}>
-                        {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}% shift
-                      </span>
-                    )}
-                  </div>
-
-                  {momentum.comparison ? (
-                    <div className="mt-3 space-y-2">
-                      <p className="text-xs text-muted-foreground">Goal quest finish rate</p>
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-foreground font-medium">Recent</span>
-                          <span className="text-foreground font-semibold font-mono">
-                            {Math.round(momentum.comparison.recentRate * 100)}%{" "}
-                            <span className="text-muted-foreground font-normal">
-                              ({momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal})
-                            </span>
-                          </span>
-                        </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full bg-primary rounded-full transition-[width] duration-500"
-                            style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Earlier</span>
-                          <span className="text-muted-foreground font-mono">
-                            {Math.round(momentum.comparison.previousRate * 100)}%{" "}
-                            <span>
-                              ({momentum.comparison.previousCompleted}/{momentum.comparison.previousTotal})
-                            </span>
-                          </span>
-                        </div>
-                        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                          <div
-                            className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
-                            style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="mt-3 text-sm text-foreground">{momentum.observation}</p>
-                  )}
-                </div>
-                <div className="mt-5 pt-3 border-t border-border/50">
-                  <Link
-                    to="/journey"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                  >
-                    <span>View trajectory telemetry</span>
-                    <ArrowRight className="size-3" />
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {/* Collapsed Secondary Tiles */}
-            {secondaryTiles.length > 0 && showTelemetryDetails && (
-              <div className={cn(
-                "border-t border-border/60 grid grid-cols-1 divide-y divide-border/60",
-                secondaryTiles.length === 2 && "md:grid-cols-2 md:divide-y-0 md:divide-x"
-              )}>
-                {secondaryTiles.includes("recovery") && recovery && (
-                  <div className="p-5 sm:p-6 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                        <Sprout className="size-4 text-primary" aria-hidden="true" />
-                        <span>Bouncing Back</span>
-                      </div>
-                      <p className="mt-3 text-sm sm:text-base font-medium leading-relaxed text-foreground">
-                        {recovery.text}
-                      </p>
-                    </div>
-                    <div className="mt-5 pt-3 border-t border-border/50">
-                      <Link
-                        to="/quests"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                      >
-                        <span>Commit to today's focus</span>
-                        <ArrowRight className="size-3" />
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-                {secondaryTiles.includes("momentum") && momentum && (
-                  <div className="p-5 sm:p-6 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                          <RotateCcw className="size-4 text-primary" aria-hidden="true" />
-                          <span>Velocity Momentum</span>
-                        </div>
-                        {momentum.comparison && (
-                          <span className={cn(
-                            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-mono font-medium",
-                            momentum.comparison.delta >= 0
-                              ? "bg-primary/10 text-primary border border-primary/20"
-                              : "bg-destructive/10 text-destructive border border-destructive/20"
-                          )}>
-                            {momentum.comparison.delta >= 0 ? "+" : ""}{Math.round(momentum.comparison.delta * 100)}% shift
-                          </span>
-                        )}
-                      </div>
-
-                      {momentum.comparison ? (
-                        <div className="mt-3 space-y-2">
-                          <p className="text-xs text-muted-foreground">Goal quest finish rate</p>
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-foreground font-medium">Recent</span>
-                              <span className="text-foreground font-semibold font-mono">
-                                {Math.round(momentum.comparison.recentRate * 100)}%{" "}
-                                <span className="text-muted-foreground font-normal">
-                                  ({momentum.comparison.recentCompleted}/{momentum.comparison.recentTotal})
-                                </span>
-                              </span>
-                            </div>
-                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                              <div
-                                className="h-full bg-primary rounded-full transition-[width] duration-500"
-                                style={{ width: `${Math.round(momentum.comparison.recentRate * 100)}%` }}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="text-muted-foreground">Earlier</span>
-                              <span className="text-muted-foreground font-mono">
-                                {Math.round(momentum.comparison.previousRate * 100)}%{" "}
-                                <span>
-                                  ({momentum.comparison.previousCompleted}/{momentum.comparison.previousTotal})
-                                </span>
-                              </span>
-                            </div>
-                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                              <div
-                                className="h-full bg-muted-foreground/40 rounded-full transition-[width] duration-500"
-                                style={{ width: `${Math.round(momentum.comparison.previousRate * 100)}%` }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="mt-3 text-sm text-foreground">{momentum.observation}</p>
-                      )}
-                    </div>
-                    <div className="mt-5 pt-3 border-t border-border/50">
-                      <Link
-                        to="/journey"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                      >
-                        <span>View trajectory telemetry</span>
-                        <ArrowRight className="size-3" />
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-                {secondaryTiles.includes("trajectory") && (
-                  <div className="p-5 sm:p-6 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                          <Compass className="size-4 text-primary" aria-hidden="true" />
-                          <span>Momentum Score</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          <span className="font-mono">{trajectory.actual.length}</span> events
-                        </span>
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                        <span className="text-3xl font-bold font-mono tracking-tight text-foreground">
-                          {trajectory.currentPosition}
-                        </span>
-                        <span className="text-xs text-muted-foreground">anchors locked</span>
-                        {pace && (
-                          <span className="text-xs font-mono text-emerald-500 font-medium">
-                            (🛡 {pace.bufferDaysRemaining}/9 flex days intact)
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="mt-5 pt-3 border-t border-border/50">
-                      <Link
-                        to="/journey"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
-                      >
-                        <span>Explore trajectory</span>
-                        <ArrowRight className="size-3" />
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Show Details Toggle */}
-            {secondaryTiles.length > 0 && (
-              <div className="p-3 border-t border-border/50 bg-muted/10 text-center">
-                <button
-                  type="button"
-                  onClick={() => setShowTelemetryDetails((prev) => !prev)}
-                  className="text-xs font-semibold text-primary hover:underline cursor-pointer"
-                >
-                  {showTelemetryDetails ? "Hide details" : "Show details"}
-                </button>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      )}
-
-      {/* ── 3. Open Behavioral Pattern Ledger ── */}
+      {/* ── 2. BEHAVIORAL PATTERN LEDGER (STRUCTURED OBSERVATION -> ACTION) ── */}
       {surfaced.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card overflow-hidden shadow-[var(--shadow-card)]"
+          className="mt-7 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card overflow-hidden shadow-[var(--shadow-card)]"
         >
           <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
-              Observed Behavioral Dynamics
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+              Pattern Ledger & Actionable Adjustments
             </span>
-            <span className="text-xs text-muted-foreground">
-              <span className="font-mono">{surfaced.length}</span> signals tracked
+            <span className="text-xs font-mono text-muted-foreground">
+              {surfaced.length} signals
             </span>
           </div>
 
           <div className="divide-y divide-border/40">
             {visibleDynamics.map((item) => (
-              <div key={item.key} className="p-5 sm:p-6 space-y-2.5">
+              <div key={item.key} className="p-5 sm:p-6 space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-semibold text-primary">
+                  <span className="text-xs font-semibold font-mono text-primary uppercase">
                     {item.categoryLabel}
                   </span>
-                  {showAllDynamics && item.evidence && (
-                    <span className="inline-flex items-center rounded-md bg-muted/60 px-2 py-0.5 text-[11px] text-muted-foreground border border-border/50">
-                      {item.evidence}
+                  {item.evidence && (
+                    <span className="text-[11px] font-mono text-muted-foreground">
+                      Evidence verified
                     </span>
                   )}
                 </div>
 
-                <p className="text-sm sm:text-base font-semibold text-foreground leading-snug">
-                  {item.observation}
-                </p>
+                {/* 1. Observation */}
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground block mb-0.5">
+                    Observation
+                  </span>
+                  <p className="text-sm sm:text-base font-semibold text-foreground leading-snug">
+                    {item.observation}
+                  </p>
+                </div>
 
-                {item.adjustment && (
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm text-muted-foreground pt-1">
-                    <div className="flex items-start sm:items-center gap-2">
-                      <span className="font-semibold text-primary shrink-0">Recommendation:</span>
-                      <span className="text-foreground/90">{item.adjustment}</span>
-                    </div>
-                    <Link
-                      to="/quests"
-                      className="inline-flex items-center gap-1 font-semibold text-primary hover:underline text-xs shrink-0 self-start sm:self-auto"
-                    >
-                      <span>Apply adjustment</span>
-                      <ArrowRight className="size-3" />
-                    </Link>
-                  </div>
+                {/* 2. Evidence */}
+                {item.evidence && (
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    <span className="font-semibold text-foreground">Evidence: </span>
+                    {item.evidence}
+                  </p>
                 )}
+
+                {/* 3 & 4. Recommendation + Action */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-border/40 text-xs">
+                  <div className="min-w-0 flex-1">
+                    <span className="font-semibold text-primary">Recommendation: </span>
+                    <span className="text-foreground/90 font-medium">
+                      {item.adjustment || "Maintain consistent execution on scheduled days."}
+                    </span>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      soundEngine.playTap();
+                      if (item.onAction) {
+                        item.onAction();
+                      } else if (item.actionDestination) {
+                        navigate(item.actionDestination);
+                      }
+                    }}
+                    className="h-8 px-3 text-xs shrink-0 self-start sm:self-auto gap-1 font-medium"
+                  >
+                    <span>{item.actionLabel}</span>
+                    <ArrowRight className="size-3" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
 
-          {hasExpandableDynamics && (
-            <div className="p-3.5 border-t border-border/40 text-center bg-muted/10">
+          {surfaced.length > 3 && (
+            <div className="p-3 border-t border-border/40 text-center bg-muted/10">
               <button
                 type="button"
                 onClick={() => setShowAllDynamics((prev) => !prev)}
                 className="text-xs font-semibold text-primary hover:underline cursor-pointer"
               >
-                {showAllDynamics ? "Show less" : "Show more"}
+                {showAllDynamics ? "Show fewer patterns" : "Show all patterns"}
               </button>
             </div>
           )}
         </motion.div>
       )}
 
-      {/* Safety spacer ensuring clean scroll buffer above mobile SystemBar */}
-      <div className="h-6 sm:h-0" aria-hidden="true" />
-
       {rebalanceProposal && (
         <AutoRebalanceModal
           open={rebalanceOpen}
           onOpenChange={setRebalanceOpen}
           proposal={rebalanceProposal}
+          onApplyProposal={handleApplyProposal}
+          onPauseRoutine={handlePauseRoutine}
         />
       )}
     </motion.div>

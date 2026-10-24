@@ -197,7 +197,7 @@ export default function Settings() {
     setExporting(true);
     try {
       const exportPayload = {
-        application: "Kinetic",
+        application: "The Improvement System",
         version: "2.0.0",
         exportedAt: new Date().toISOString(),
         profile: {
@@ -211,7 +211,7 @@ export default function Settings() {
         systemPreferences: {
           themeMode: mode,
           deviceDetectedTimezone: detectedTz,
-          vaultStatus: "encrypted-offline-ready",
+          privacyStatus: "zero-third-party-tracking",
         },
       };
 
@@ -221,7 +221,7 @@ export default function Settings() {
       const url = URL.createObjectURL(dataBlob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `kinetic-vault-export-${new Date().toISOString().slice(0, 10)}.json`;
+      link.download = `improvement-system-data-export-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -232,11 +232,11 @@ export default function Settings() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-24 sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
       <PageHeader
         eyebrow="Preferences"
         title="Settings & system controls."
-        description="Configure appearance, cadence engine, local security enclave, and account lifecycle."
+        description="Configure appearance, cadence engine, data privacy, and account lifecycle."
       >
         <Button variant="ghost" asChild className="shrink-0 gap-1.5">
           <Link to="/profile">
@@ -496,10 +496,10 @@ export default function Settings() {
           )}
         </section>
 
-        {/* -- SECTION 3: DATA SOVEREIGNTY & LOCAL ENCLAVE -- */}
+        {/* -- SECTION 3: DATA SOVEREIGNTY & PRIVACY -- */}
         <section
           className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
-          aria-labelledby="enclave-heading"
+          aria-labelledby="privacy-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2.5">
@@ -507,16 +507,16 @@ export default function Settings() {
                 <ShieldCheck className="size-4" aria-hidden="true" />
               </div>
               <div>
-                <h2 id="enclave-heading" className="text-sm font-semibold tracking-tight text-foreground">
-                  Data Sovereignty & Offline Enclave
+                <h2 id="privacy-heading" className="text-sm font-semibold tracking-tight text-foreground">
+                  Data Sovereignty & Privacy
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Local-first architecture. Kinetic never monetizes, rents, or shares your personal progress.
+                  Local-first architecture. We never monetize, rent, or share your personal progress.
                 </p>
               </div>
             </div>
             <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
-              Vault Enclave
+              Data Privacy
             </Badge>
           </div>
 
@@ -524,10 +524,10 @@ export default function Settings() {
             <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
               <div className="flex items-center gap-2 text-xs font-semibold text-foreground mb-1">
                 <Lock className="size-3.5 text-foreground" />
-                <span>Local-First Enclave</span>
+                <span>Local-First Storage</span>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Encrypted browser storage keeps your commitments private and responsive even with zero network connectivity.
+                Browser-persisted state keeps your commitments private, secure, and responsive with zero network lag.
               </p>
             </div>
 
@@ -537,7 +537,7 @@ export default function Settings() {
                 <span>Zero Third-Party Trackers</span>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                No third-party ad telemetry or behavioral pixel scripts. Only pure mathematical trajectory computation.
+                Zero third-party trackers, advertising pixels, or data broking. Only deterministic personal trajectory computation.
               </p>
             </div>
           </div>
@@ -546,7 +546,7 @@ export default function Settings() {
             <div>
               <p className="text-xs font-medium text-foreground">Export Personal Trajectory Data</p>
               <p className="text-[11px] text-muted-foreground">
-                Download a complete JSON snapshot of your profile, timezone, and commitment configurations.
+                Download a complete JSON snapshot of your profile, timezone, and commitment records.
               </p>
             </div>
             <Button
@@ -558,7 +558,7 @@ export default function Settings() {
               className="min-h-10 px-4 text-xs font-medium gap-2 active:scale-[0.98] shrink-0"
             >
               <Download className="size-3.5" />
-              <span>{exporting ? "Generating Snapshot…" : "Export Vault (JSON)"}</span>
+              <span>{exporting ? "Generating Snapshot…" : "Export Data (JSON)"}</span>
             </Button>
           </div>
         </section>
@@ -578,7 +578,7 @@ export default function Settings() {
                   Active Session
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Currently authenticated with the Kinetic trajectory network.
+                  Currently authenticated with The Improvement System.
                 </p>
               </div>
             </div>
