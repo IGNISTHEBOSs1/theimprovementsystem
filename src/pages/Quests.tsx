@@ -64,6 +64,12 @@ export default function Quests() {
   const [formTargetRole, setFormTargetRole] = useState<QuestRole | undefined>(recommitPrefill?.role);
   const [showCommitForm, setShowCommitForm] = useState(Boolean(recommitPrefill || locationState?.openNewCommitment));
 
+  const focusQuest = activeQuests.find((q) => getQuestRole(q) === "focus");
+  const routineQuests = activeQuests.filter((q) => getQuestRole(q) === "routine");
+  const focusAvailable = !focusQuest && !completedFocusToday;
+  const routineAvailable = routineQuests.length < 2;
+  const canAddAny = focusAvailable || routineAvailable;
+
   // Dynamically respond to incoming navigation state
   useEffect(() => {
     const s = location.state as { prefill?: RecommitPrefill; openNewCommitment?: boolean } | null;
@@ -125,13 +131,6 @@ export default function Quests() {
             toServerLocalDate(new Date(mostRecent.createdAt), profile?.timezone || "UTC").dateStr !== serverLocal.dateStr,
         )
     : [];
-
-  const focusQuest = activeQuests.find((q) => getQuestRole(q) === "focus");
-  const routineQuests = activeQuests.filter((q) => getQuestRole(q) === "routine");
-
-  const focusAvailable = !focusQuest && !completedFocusToday;
-  const routineAvailable = routineQuests.length < 2;
-  const canAddAny = focusAvailable || routineAvailable;
 
   const handleCommit = async (
     commitment: string,
@@ -214,21 +213,21 @@ export default function Quests() {
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
       <PageHeader
-        eyebrow="Commitment Architecture"
-        title="Your commitments."
+        eyebrow="Quest Architecture"
+        title="Your quests."
         description="Strictly constrained to 1 Primary Focus + 2 Supporting Routines to eliminate cognitive diffusion."
       />
 
       <div className="mt-8 space-y-7">
         {loading ? (
-          <div className="space-y-3" aria-label="Loading commitments">
+          <div className="space-y-3" aria-label="Loading quests">
             <div className="h-24 animate-pulse rounded-2xl bg-muted" />
             <div className="h-24 animate-pulse rounded-2xl bg-muted" />
           </div>
         ) : error ? (
-          <section className="rounded-2xl border border-border bg-card p-7" aria-label="Commitments unavailable">
-            <p className="text-label text-muted-foreground">Your commitments</p>
-            <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your commitments.</h2>
+          <section className="rounded-2xl border border-border bg-card p-7" aria-label="Quests unavailable">
+            <p className="text-label text-muted-foreground">Your quests</p>
+            <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your quests.</h2>
             <p className="mt-2 text-body-md text-muted-foreground">This is usually temporary. You can try again now.</p>
             <Button size="lg" className="mt-4" onClick={() => void reload()}>
               Try again
@@ -262,7 +261,7 @@ export default function Quests() {
             <div className="flex flex-wrap items-center justify-between gap-3 px-1 border-b border-border/60 pb-3">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
-                  Commitment Capacity
+                  Quest Capacity
                 </span>
                 {/* Structural capacity pill */}
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/80 bg-muted/40 text-xs font-mono">
@@ -285,7 +284,7 @@ export default function Quests() {
                   }}
                 >
                   <Plus className="size-3.5" aria-hidden="true" />
-                  <span>Add commitment</span>
+                  <span>Add quest</span>
                 </Button>
               )}
             </div>

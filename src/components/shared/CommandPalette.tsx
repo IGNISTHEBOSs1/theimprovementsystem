@@ -84,7 +84,7 @@ export function CommandPalette({ open: controlledOpen, onOpenChange: controlledO
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate("/quests"))}>
             <CheckSquare className="mr-2 size-4 text-muted-foreground" />
-            <span>Commitments</span>
+            <span>Quests</span>
             <CommandShortcut>G Q</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={() => runCommand(() => navigate("/journey"))}>
@@ -128,7 +128,7 @@ export function CommandPalette({ open: controlledOpen, onOpenChange: controlledO
             }
           >
             <Plus className="mr-2 size-4 text-primary" />
-            <span>Make a New Commitment</span>
+            <span>Create New Quest</span>
             <CommandShortcut>C</CommandShortcut>
           </CommandItem>
         </CommandGroup>
