@@ -17,7 +17,7 @@ function CompletionRing({ completed, total = 90 }: { completed: number; total?: 
   const circumference = 2 * Math.PI * radius;
   const fraction = total > 0 ? Math.min(1, completed / total) : 0;
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={`${completed} of ${total} 90-day anchors completed`}>
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={`${completed} of ${total} anchors completed`}>
       <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--foreground) / 0.15)" strokeWidth={stroke} />
       <circle
         cx={size / 2}
@@ -56,15 +56,16 @@ export function DirectionCard({ name, goalStats, bufferDaysRemaining = 9, elapse
             <div className="mt-4 flex flex-wrap items-center gap-4 rounded-xl bg-muted/40 p-3.5 border border-border/60">
               <CompletionRing completed={goalStats.completed} total={90} />
               <div className="space-y-1">
+                {/* Fix 10: "90 90-Day" had "90" twice — machine-generated tell.
+                    Also removed the rounded-full border pill wrapper (fake-button
+                    anti-pattern — non-clickable element that looked interactive). */}
                 <p className="text-body-sm font-semibold text-foreground">
-                  {goalStats.completed} of 90 90-Day Anchors Honored
+                  {goalStats.completed} of 90 anchors honored
                 </p>
-                <div className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-background/80 px-2.5 py-0.5 text-xs font-mono text-muted-foreground">
-                  <span className="text-emerald-500">🛡</span>
-                  <span>
-                    <strong className="text-foreground">{bufferDaysRemaining}</strong>/9 Flex Days Intact • Day {elapsedDays} of 90
-                  </span>
-                </div>
+                <p className="text-xs font-mono text-muted-foreground">
+                  <span className="text-emerald-500 mr-1">🛡</span>
+                  <strong className="text-foreground">{bufferDaysRemaining}</strong>/9 flex days · Day {elapsedDays}
+                </p>
               </div>
             </div>
           )}

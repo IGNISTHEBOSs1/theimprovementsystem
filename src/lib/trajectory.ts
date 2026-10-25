@@ -291,8 +291,16 @@ export function deriveFollowThroughStats(quests: Quest[]): FollowThroughStats {
   };
 }
 
+// Fix 3: Four-state velocity signal — replaces the boolean isOnTrack for pace reporting.
+// "establishing"  — fewer than 3 days elapsed, no reliable signal yet
+// "ahead"         — 7-day trailing pace > 1.1/day
+// "nominal"       — pace within 0.9–1.1/day
+// "behind"        — pace < 0.9/day, buffer still absorbing misses
+// "critical"      — buffer exhausted (horizonExtensionDays > 0) AND below nominal
+export type PaceStatus = "establishing" | "ahead" | "nominal" | "behind" | "critical";
+
 export interface GoalPaceResult {
-  targetDate: string;
+  targetDate: string | null | undefined;
   targetDateFormatted: string;
   daysRemaining: number;
   isHorizonExpired: boolean;
@@ -300,6 +308,7 @@ export interface GoalPaceResult {
   requiredDailyPace: number;
   actualDailyPace: number;
   paceRatio: number;
+  paceStatus: PaceStatus;
   isOnTrack: boolean;
   daysObserved: number;
   recentGoalCompleted: number;
@@ -315,6 +324,8 @@ export interface GoalPaceResult {
   projectedTotalDays: number;
   isEarlyArrival: boolean;
   projectedFinishDateFormatted: string;
+  // Fix 6: true when no real target date was set — Journey shows a soft banner
+  isVirtualHorizon: boolean;
 }
 
 // Dynamic Anchor-Locked 90-Anchor Quota & 9-Day Buffer Bank Derivation.
@@ -331,17 +342,29 @@ export function deriveGoalPace(
   nowMs?: number,
   activeGoalName?: string | null,
 ): GoalPaceResult | null {
-  if (!targetDateStr) return null;
-
-  const targetDate = new Date(
-    targetDateStr.includes("T") ? targetDateStr : `${targetDateStr}T23:59:59`
-  );
-  if (isNaN(targetDate.getTime())) return null;
-
+  // Fix 6: No longer returns null when targetDateStr is absent.
+  // Previously a missing date caused Journey to fall back to arbitrary values
+  // (pace?.elapsedDays ?? 1) — chart looked authoritative but used fabricated
+  // coordinates. Now we synthesise a virtual 90-day horizon and set
+  // isVirtualHorizon = true so the UI can show a soft non-blocking banner.
   const now = typeof nowMs === "number" ? new Date(nowMs) : new Date();
+  const safeQuests = Array.isArray(quests) ? quests.filter(Boolean) : [];
+  const trimmedTargetDate = typeof targetDateStr === "string" ? targetDateStr.trim() : targetDateStr;
+  const isVirtualHorizon = !trimmedTargetDate;
 
-  const completedGoalQuests = quests.filter((q) => isLinkedToActiveGoal(q, activeGoalName) && q.completed).length;
-  const failedGoalQuests = quests.filter((q) => isLinkedToActiveGoal(q, activeGoalName) && q.failed).length;
+  let targetDate: Date;
+  if (trimmedTargetDate) {
+    targetDate = new Date(
+      trimmedTargetDate.includes("T") ? trimmedTargetDate : `${trimmedTargetDate}T23:59:59`
+    );
+    if (isNaN(targetDate.getTime())) return null;
+  } else {
+    // Virtual horizon: 90 calendar days from today
+    targetDate = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+  }
+
+  const completedGoalQuests = safeQuests.filter((q) => isLinkedToActiveGoal(q, activeGoalName) && q.completed).length;
+  const failedGoalQuests = safeQuests.filter((q) => isLinkedToActiveGoal(q, activeGoalName) && q.failed).length;
 
   const targetCycleQuests = 90;
   const bufferDaysTotal = 9;
@@ -358,21 +381,14 @@ export function deriveGoalPace(
   // Allow daysRemaining to reach 0 when diffMs <= 0
   const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 
-  // Anchor cycle start timestamp from earliest timestamp among active-goal-linked quests,
-  // falling back to targetMs - 90 * 86400000 only if no quests exist yet
-  const linkedQuests = quests.filter((q) => isLinkedToActiveGoal(q, activeGoalName));
-  const validStartTimestamps = linkedQuests
-    .map((q) => Date.parse(deriveResolvedAt(q) || q.createdAt))
-    .filter((t) => !isNaN(t));
-  const cycleStartMs = validStartTimestamps.length > 0
-    ? Math.min(...validStartTimestamps)
-    : targetDate.getTime() - 90 * 86400000;
-
-  // Compute elapsedDays forward from cycleStartMs to now
-  const elapsedDays = Math.max(
-    1,
-    Math.min(cycleTotalDays, Math.floor((now.getTime() - cycleStartMs) / (1000 * 60 * 60 * 24)) + 1),
-  );
+  // Fix 1: Cycle start derived deterministically from user intent (targetDate),
+  // not from resolved quest timestamps. The old approach meant a new user with
+  // zero resolved quests got cycleStartMs = targetDate - 90 days, so
+  // elapsedDays = 90 on Day 1 of their cycle. New: always stable, independent
+  // of quest activity. If now < cycleStart (far-future target), clamps to Day 1.
+  const cycleStartMs = targetDate.getTime() - cycleTotalDays * 24 * 60 * 60 * 1000;
+  const rawElapsed = Math.floor((now.getTime() - cycleStartMs) / (1000 * 60 * 60 * 24)) + 1;
+  const elapsedDays = Math.max(1, Math.min(cycleTotalDays, rawElapsed));
 
   const remainingGoalQuests = Math.max(0, targetCycleQuests - completedGoalQuests);
 
@@ -381,28 +397,46 @@ export function deriveGoalPace(
     ? Number(Math.min(3.0, Math.max(0.1, remainingGoalQuests / daysRemaining)).toFixed(2))
     : (remainingGoalQuests > 0 ? remainingGoalQuests : 0);
 
-  // Compute actualDailyPace against observed window (up to 14 days, bounded by elapsedDays)
-  const observedDays = Math.max(1, Math.min(14, elapsedDays));
-  const windowStart = now.getTime() - observedDays * 24 * 60 * 60 * 1000;
+  // Fix 2: Honest 7-day trailing average — no burst flattery.
+  // Old: max(overallPace, windowPace) meant 3 quests in one day = 3.0/day forever.
+  // New: strict 7-day window only. Before 3 days elapsed, report 0.0 (not enough
+  // signal) so the UI shows "Establishing baseline" rather than inflated confidence.
+  const TRAILING_WINDOW_DAYS = 7;
+  const MIN_OBSERVATION_DAYS = 3;
+  const observedDays = TRAILING_WINDOW_DAYS;
+  const windowStart = now.getTime() - TRAILING_WINDOW_DAYS * 24 * 60 * 60 * 1000;
 
-  const recentGoalCompletedQuests = quests.filter((q) => {
+  const recentGoalCompletedQuests = safeQuests.filter((q) => {
     if (!isLinkedToActiveGoal(q, activeGoalName) || !q.completed) return false;
     const resolved = new Date(deriveResolvedAt(q)).getTime();
     return !isNaN(resolved) && resolved >= windowStart;
   });
   const recentGoalCompleted = recentGoalCompletedQuests.length;
 
-  // Actual daily pace: max of overall completed pace and recent window pace
-  const overallDailyPace = completedGoalQuests / Math.max(1, elapsedDays);
-  const windowDailyPace = recentGoalCompleted / observedDays;
-  const actualDailyPace = Number(Math.max(overallDailyPace, windowDailyPace).toFixed(2));
+  const hasEnoughData = elapsedDays >= MIN_OBSERVATION_DAYS;
+  const actualDailyPace = Number(
+    (hasEnoughData ? recentGoalCompleted / TRAILING_WINDOW_DAYS : 0).toFixed(2)
+  );
 
-  // Nominal daily pace baseline is 1.0 anchor/day
   const nominalDailyPace = 1.0;
   const paceRatio = Number((actualDailyPace / nominalDailyPace).toFixed(2));
 
-  // On track if: all done, or within 10% buffer tolerance without active horizon slip
-  const isOnTrack = remainingGoalQuests === 0 || (paceRatio >= 0.9 && horizonExtensionDays === 0);
+  // Fix 3a: isOnTrack is now purely buffer-based — decoupled from velocity.
+  // "On track" = the horizon hasn't slipped yet (buffer hasn't overflowed).
+  // Old formula merged velocity and buffer into one boolean, producing false
+  // positives (paceRatio=0.9 + buffer exhausted = "on track") and false
+  // negatives (paceRatio=0.8 + 8 buffer days left = "off track").
+  const isOnTrack = remainingGoalQuests === 0 || horizonExtensionDays === 0;
+
+  // Fix 3b: Four-state paceStatus — honest velocity signal separate from buffer.
+  const paceStatus: PaceStatus = (() => {
+    if (!hasEnoughData)              return "establishing";
+    if (remainingGoalQuests === 0)   return "ahead";
+    if (paceRatio > 1.1)             return "ahead";
+    if (paceRatio >= 0.9)            return "nominal";
+    if (horizonExtensionDays > 0)    return "critical";
+    return "behind";
+  })();
 
   // Projected finish under current velocity
   const effectiveVelocity = Math.max(0.2, actualDailyPace > 0 ? actualDailyPace : 1.0);
@@ -433,6 +467,7 @@ export function deriveGoalPace(
     requiredDailyPace,
     actualDailyPace,
     paceRatio,
+    paceStatus,
     isOnTrack,
     daysObserved: observedDays,
     recentGoalCompleted,
@@ -447,6 +482,7 @@ export function deriveGoalPace(
     projectedTotalDays,
     isEarlyArrival,
     projectedFinishDateFormatted,
+    isVirtualHorizon,
   };
 }
 

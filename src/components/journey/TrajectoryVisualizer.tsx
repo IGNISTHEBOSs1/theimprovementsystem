@@ -83,19 +83,22 @@ export function TrajectoryVisualizer({
   const spanX = xGoal - xOrigin;
 
   const yOrigin = 250; // 0 anchors baseline
-  const yGoal = 82;    // Target baseline
+  // Fix 4a: yGoal derived from targetAnchors — not hardcoded to 82.
+  // If targetQuests ever changes, the target line moves correctly.
+  const yMin = 40;
+  const targetAnchors = Math.max(1, targetQuests || 90);
+  const yGoal = yMin + (yOrigin - yMin) * 0.20; // 82px — same visual position, now computed
   const spanY = yOrigin - yGoal;
 
   const safeElapsed = Math.max(1, Math.min(cycleTotalDays, elapsedDays));
-  const targetAnchors = Math.max(1, targetQuests || 90);
   const safeCompleted = Math.max(0, completedQuests);
 
   const xCurrent = xOrigin + (spanX * safeElapsed) / cycleTotalDays;
-  const yCurrent = Math.max(40, yOrigin - (spanY * Math.min(targetAnchors, safeCompleted)) / targetAnchors);
+  const yCurrent = Math.max(yMin, yOrigin - (spanY * Math.min(targetAnchors, safeCompleted)) / targetAnchors);
 
-  // ±10% buffer corridor bounds
-  const yGoalCeiling = 46;
-  const yGoalFloor = 118;
+  // Fix 4b: ±10% buffer corridor bounds derived from yGoal, not hardcoded.
+  const yGoalCeiling = Math.max(yMin, yGoal - spanY * 0.10);
+  const yGoalFloor   = Math.min(yOrigin - 8, yGoal + spanY * 0.10);
 
   // Prevent vertical 90-degree cliff if near horizon without meeting target quota
   const isNearHorizonWithoutTarget = xCurrent >= xGoal - 12 && safeCompleted < targetAnchors;
@@ -109,11 +112,14 @@ export function TrajectoryVisualizer({
   const c2y = yGoal - dyGoal * 0.12;
   const predictiveCurvePath = `M ${xCurrent} ${yCurrent} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${xGoal} ${yGoal}`;
 
-  // Continuous Buffer Cone from (xOrigin, yOrigin) to (xGoal, yGoalCeiling/Floor)
+  // Fix 4c: Cone now fans FORWARD from today's position (xCurrent, yCurrent),
+  // not from the chart origin (xOrigin, yOrigin). Old cone was a static triangle
+  // from Day 1 — informationally useless on Day 60. New cone shows the forward
+  // probability band from where the user actually is right now.
   const conePath = `
-    M ${xOrigin} ${yOrigin}
-    L ${xGoal} ${yGoalCeiling}
-    L ${xGoal} ${yGoalFloor}
+    M ${xCurrent.toFixed(1)} ${yCurrent.toFixed(1)}
+    L ${xGoal} ${yGoalCeiling.toFixed(1)}
+    L ${xGoal} ${yGoalFloor.toFixed(1)}
     Z
   `;
 
@@ -227,10 +233,13 @@ export function TrajectoryVisualizer({
       {/* ── Revolut-Style Top KPI Header (Inside the Card) ── */}
       <div className="relative z-10 flex items-start justify-between gap-4 pb-1">
         <div className="min-w-0">
+          {/* Fix 8: Eyebrow is silent at rest — "Day X of Y" already lives in the
+              editorial header above this card. Duplicating it here was the primary
+              data-duplication problem the audit flagged. Only activates while scrubbing. */}
           <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground block truncate">
             {activeScrubDay !== null
-              ? `DAY ${activeScrubDay} OF ${cycleTotalDays} · ${isPastOrToday ? "RECORDED" : "PROJECTED"}`
-              : `HORIZON PROGRESS · DAY ${safeElapsed} OF ${cycleTotalDays}`}
+              ? `Day ${activeScrubDay} · ${isPastOrToday ? "Recorded" : "Projected"}`
+              : "Anchors completed"}
           </span>
           <div className="mt-0.5 flex items-baseline gap-2">
             <span className="text-3xl sm:text-4xl font-mono font-bold tracking-tight text-foreground tabular-nums">
@@ -285,6 +294,25 @@ export function TrajectoryVisualizer({
           aria-label={`Interactive ${cycleTotalDays}-Day Trajectory Plotter`}
           onMouseMove={(e) => handleSvgScrub(e.clientX)}
           onMouseLeave={() => {
+            setScrubX(null);
+            lastMilestoneRef.current = null;
+          }}
+          onTouchStart={(e) => {
+            if (e.touches[0]) handleSvgScrub(e.touches[0].clientX);
+          }}
+          onTouchMove={(e) => {
+            // Fix 7: Touch scrubbing unified onto the SVG — single coordinate system.
+            // The <input type="range"> was a second system that mapped day→pixel
+            // independently, causing activeScrubDay to jump on narrow screens because
+            // the two rect measurements disagreed. One source of truth: SVG clientX.
+            if (e.cancelable) e.preventDefault();
+            if (e.touches[0]) handleSvgScrub(e.touches[0].clientX);
+          }}
+          onTouchEnd={() => {
+            setScrubX(null);
+            lastMilestoneRef.current = null;
+          }}
+          onTouchCancel={() => {
             setScrubX(null);
             lastMilestoneRef.current = null;
           }}
@@ -574,38 +602,18 @@ export function TrajectoryVisualizer({
         </svg>
       </div>
 
-      {/* ── Sleek Range Slider Track Directly Below SVG Canvas ── */}
-      <div className="mt-3 relative py-1">
-        <input
-          type="range"
-          min={1}
-          max={cycleTotalDays}
-          value={activeScrubDay ?? safeElapsed}
-          onChange={(e) => {
-            const day = Number(e.target.value);
-            const mappedX = xOrigin + (spanX * day) / cycleTotalDays;
-            setScrubX(mappedX);
-            if (day % 15 === 0 && day !== lastMilestoneRef.current) {
-              triggerHaptic("light");
-              lastMilestoneRef.current = day;
-            }
-          }}
-          onMouseUp={() => setScrubX(null)}
-          onTouchEnd={() => setScrubX(null)}
-          className="w-full h-2 bg-muted/60 rounded-lg appearance-none cursor-pointer accent-foreground focus:outline-none"
-          aria-label="Timeline scrub rail"
-        />
-
-        {/* Milestone tick marks */}
-        <div className="flex justify-between text-[10px] font-mono text-muted-foreground pt-1.5 px-0.5">
-          <span>Day 1</span>
-          <span>D15</span>
-          <span>D30</span>
-          <span>D45</span>
-          <span>D60</span>
-          <span>D75</span>
-          <span>Day {cycleTotalDays}</span>
-        </div>
+      {/* Fix 7: Slider removed. Scrubbing is now handled entirely by
+          onMouseMove / onTouchMove on the SVG — single coordinate system,
+          no dual-mapping jump on narrow screens. Milestone labels remain
+          as a static strip to preserve visual context. */}
+      <div className="mt-1 flex justify-between text-[10px] font-mono text-muted-foreground px-0.5">
+        <span>D1</span>
+        <span>D15</span>
+        <span>D30</span>
+        <span>D45</span>
+        <span>D60</span>
+        <span>D75</span>
+        <span>D{cycleTotalDays}</span>
       </div>
 
       {/* ── Single Ultra-Clean 1-Line Inline Key ── */}

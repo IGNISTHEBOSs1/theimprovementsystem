@@ -17,7 +17,7 @@ import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
-import { deriveFollowThroughStats, deriveGoalStats } from "@/lib/trajectory";
+import { deriveFollowThroughStats, deriveGoalStats, deriveGoalPace, isLinkedToActiveGoal } from "@/lib/trajectory";
 
 export default function Profile() {
   const { profile, updateProfile } = useAuth();
@@ -29,6 +29,8 @@ export default function Profile() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  // Fix 5: count of quests that would be detached on a goal rename — drives warning
+  const [goalRenameWarning, setGoalRenameWarning] = useState<number | null>(null);
 
   useEffect(() => {
     setGoal(profile?.primary_goal ?? "");
@@ -49,16 +51,40 @@ export default function Profile() {
     setGoal(profile?.primary_goal ?? "");
     setTargetDate(profile?.primary_goal_target_date ?? "");
     setSaveError(false);
+    setGoalRenameWarning(null);
     setEditingGoal(false);
   };
 
+  const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    setSaving(true);
     setSaveError(false);
     setSaveSuccess(false);
+
     const trimmedGoal = goal.trim();
     const trimmedDate = targetDate.trim();
+    const existingGoal = profile?.primary_goal ?? "";
+    const isRename =
+      trimmedGoal.length > 0 &&
+      existingGoal.length > 0 &&
+      trimmedGoal.toLowerCase() !== existingGoal.toLowerCase();
+
+    // Fix 5: Before saving a rename, count linked quests that will be silently
+    // detached from trajectory. First submit shows the warning; second confirms.
+    if (isRename && goalRenameWarning === null) {
+      const detachedCount = safeQuests.filter(
+        (q) => isLinkedToActiveGoal(q, existingGoal)
+      ).length;
+      if (detachedCount > 0) {
+        setGoalRenameWarning(detachedCount);
+        return;
+      }
+    }
+
+    setGoalRenameWarning(null);
+    setSaving(true);
+
     const { error, profile: saved } = await updateProfile({
       primary_goal: trimmedGoal || null,
       primary_goal_target_date: trimmedDate || null,
@@ -85,26 +111,21 @@ export default function Profile() {
     playTap();
   };
 
-  const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
   const followThrough = deriveFollowThroughStats(safeQuests);
   const goalStats = deriveGoalStats(safeQuests, profile?.primary_goal);
   const goalCompletionRate =
     goalStats.linked > 0
       ? Math.round((goalStats.completed / goalStats.linked) * 100)
       : 0;
-  const daysRemaining = profile?.primary_goal_target_date
-    ? Math.max(
-        0,
-        Math.ceil(
-          (new Date(
-            profile.primary_goal_target_date.includes("T")
-              ? profile.primary_goal_target_date
-              : `${profile.primary_goal_target_date}T23:59:59`
-          ).getTime() - Date.now()) /
-            (1000 * 60 * 60 * 24)
-        )
-      )
+
+  // Fix 9: Replace independent Date.now() calculation with deriveGoalPace.
+  // Previously Profile and Journey could show different daysRemaining values for
+  // the same user when horizonExtensionDays > 0 — the buffer-slip extension was
+  // applied in Journey but not in Profile. Single source of truth now.
+  const profilePace = profile?.primary_goal
+    ? deriveGoalPace(safeQuests, profile.primary_goal_target_date ?? null, undefined, profile.primary_goal)
     : null;
+  const daysRemaining = profilePace?.daysRemaining ?? null;
 
   return (
     <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-28 sm:px-8 sm:py-10 space-y-6">
@@ -298,7 +319,10 @@ export default function Profile() {
                   name="goal"
                   autoComplete="off"
                   value={goal}
-                  onChange={(event) => setGoal(event.target.value)}
+                  onChange={(event) => {
+                    setGoal(event.target.value);
+                    if (goalRenameWarning !== null) setGoalRenameWarning(null);
+                  }}
                   placeholder="e.g. Master system architecture & ship production MVP"
                   aria-label="Primary goal"
                   disabled={saving}
@@ -354,9 +378,25 @@ export default function Profile() {
                 />
               </div>
             </div>
+            {/* Fix 5: Rename detachment warning — shown on first Save when the
+                new name would silently drop linked quests from trajectory.
+                Second Save click confirms and proceeds. */}
+            {goalRenameWarning !== null && goalRenameWarning > 0 && (
+              <div
+                className="rounded-xl border border-amber-500/30 bg-amber-500/[0.08] px-3.5 py-2.5 text-xs text-amber-700 dark:text-amber-400"
+                role="alert"
+              >
+                <span className="font-semibold">Heads up:</span> Renaming your goal will detach{" "}
+                <span className="font-mono font-bold">{goalRenameWarning}</span> linked quest
+                {goalRenameWarning === 1 ? "" : "s"} from your trajectory — those anchors will
+                no longer count toward your progress. Click Save again to confirm, or Cancel to
+                keep the current name.
+              </div>
+            )}
+
             <div className="flex gap-2.5 pt-1">
               <Button type="submit" className="min-h-10 rounded-xl px-5 text-xs font-semibold" disabled={saving}>
-                {saving ? "Saving…" : "Save Goal"}
+                {saving ? "Saving…" : goalRenameWarning !== null ? "Confirm Rename" : "Save Goal"}
               </Button>
               <Button
                 type="button"

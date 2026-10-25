@@ -77,9 +77,12 @@ export default function Journey() {
 
   const goalStats = deriveGoalStats(state.quests, profile?.primary_goal);
   const trajectory = deriveTrajectory(state.quests, profile?.primary_goal);
+  // Fix 6: deriveGoalPace now synthesises a virtual 90-day horizon when
+  // targetDate is absent — no longer returns null for missing dates.
+  // pace.isVirtualHorizon flags whether to show the soft banner below.
   const pace = deriveGoalPace(
     state.quests,
-    profile?.primary_goal_target_date,
+    profile?.primary_goal_target_date ?? null,
     undefined,
     profile?.primary_goal,
   );
@@ -101,10 +104,11 @@ export default function Journey() {
     }
   };
 
-  // Plain-Language Status Derivation:
-  // "On pace" / "Slightly behind" / "Needs adjustment"
-  type PaceStatus = "on-pace" | "slightly-behind" | "needs-adjustment";
-  let paceStatus: PaceStatus = "on-pace";
+  // Plain-Language Status Derivation for Journey's own 3-state UI signal.
+  // This is separate from trajectory.ts's PaceStatus (4-state velocity enum).
+  // Journey uses a simpler 3-state model driven by buffer + horizon expiry.
+  type JourneyPaceStatus = "on-pace" | "slightly-behind" | "needs-adjustment";
+  let paceStatus: JourneyPaceStatus = "on-pace";
   let paceExplanation = "Your buffer is intact: one missed day will not change your plan.";
 
   const buffer = pace?.bufferDaysRemaining ?? 9;
@@ -219,6 +223,25 @@ export default function Journey() {
         </div>
       </section>
 
+      {/* Fix 6: Virtual horizon banner — non-blocking, shown only when no target
+          date is set. Chart still renders with estimated 90-day coordinates. */}
+      {pace?.isVirtualHorizon && (
+        <div
+          className="flex items-start gap-2.5 rounded-xl border border-border/60 bg-muted/40 px-3.5 py-2.5 text-xs font-sans text-muted-foreground"
+          role="status"
+        >
+          <span className="mt-0.5 shrink-0">📍</span>
+          <span>
+            No target date set — showing a{" "}
+            <span className="font-medium text-foreground">90-day estimate</span> from today.{" "}
+            <Link to="/profile" className="underline underline-offset-2 hover:text-foreground transition-colors">
+              Set a date in Profile
+            </Link>{" "}
+            for accurate tracking.
+          </span>
+        </div>
+      )}
+
       {/* ── 3. THE VISUAL TRAJECTORY (THE VISUAL PROOF) ── */}
       <section aria-label="Visual Trajectory Chart">
         <TrajectoryVisualizer
@@ -250,7 +273,7 @@ export default function Journey() {
         {activeGoalQuest ? (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <span className="text-xs text-emerald-500 font-medium">Today’s Goal Anchor Queued:</span>
+              <span className="text-xs text-emerald-500 font-medium">Today's Goal Anchor Queued:</span>
               <p className="text-base font-semibold text-foreground mt-0.5 truncate">
                 {activeGoalQuest.title}
               </p>
@@ -266,7 +289,7 @@ export default function Journey() {
               className="rounded-xl px-5 h-11 bg-foreground text-background hover:bg-foreground/90 font-medium text-xs shrink-0 active:scale-[0.98] transition-all"
             >
               <Check className="size-4 mr-1.5" />
-              {completingId === activeGoalQuest.id ? "Recording completion…" : "Complete Today’s Focus"}
+              {completingId === activeGoalQuest.id ? "Recording completion..." : "Complete Today's Focus"}
             </Button>
           </div>
         ) : (
@@ -276,7 +299,7 @@ export default function Journey() {
                 No commitment linked to your goal today.
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Commit to today&apos;s primary focus to log evidence toward your 90-anchor horizon.
+                Commit to today's primary focus to log evidence toward your 90-anchor horizon.
               </p>
             </div>
             <Button
@@ -286,7 +309,7 @@ export default function Journey() {
             >
               <Link to="/quests">
                 <Plus className="size-4 mr-1.5" />
-                Commit to Today’s Focus →
+                Commit to Today's Focus →
               </Link>
             </Button>
           </div>
@@ -298,7 +321,7 @@ export default function Journey() {
         <button
           type="button"
           onClick={() => setShowTechnicalTelemetry((v) => !v)}
-          className="flex items-center justify-between w-full p-4 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
+          className="flex items-center justify-between w-full p-4 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors text-xs text-muted-foreground"
           aria-expanded={showTechnicalTelemetry}
         >
           <span className="font-mono font-medium text-foreground">
