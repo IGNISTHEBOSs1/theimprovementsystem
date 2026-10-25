@@ -463,7 +463,7 @@ export default function Mentor() {
                     navigate("/quests");
                   }}
                 >
-                  Commit to Today's Focus →
+                  Commit to Today’s Focus →
                 </Button>
               </div>
             </section>
@@ -615,7 +615,8 @@ export default function Mentor() {
               <button
                 type="button"
                 onClick={() => setShowAllDynamics((prev) => !prev)}
-                className="text-xs font-semibold text-primary hover:underline cursor-pointer"
+                className="text-xs font-semibold text-primary hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2 py-1"
+                aria-expanded={showAllDynamics}
               >
                 {showAllDynamics ? "Show fewer patterns" : "Show all patterns"}
               </button>

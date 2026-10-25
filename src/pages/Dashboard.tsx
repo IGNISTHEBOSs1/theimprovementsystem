@@ -538,7 +538,8 @@ export default function Dashboard() {
             <button
               type="button"
               onClick={() => setShowTelemetryDetails((v) => !v)}
-              className="text-xs text-primary hover:underline font-medium"
+              className="text-xs text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm px-1 py-0.5 cursor-pointer"
+              aria-expanded={showTelemetryDetails}
             >
               {showTelemetryDetails ? "Less" : "Details"}
             </button>

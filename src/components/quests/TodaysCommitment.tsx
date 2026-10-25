@@ -94,6 +94,12 @@ export function TodaysCommitment({
     <section
       className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[var(--shadow-card)]"
       aria-labelledby="todays-commitment-heading"
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && onCancel && !committing) {
+          e.preventDefault();
+          onCancel();
+        }
+      }}
     >
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">New commitment</p>
@@ -102,7 +108,7 @@ export function TodaysCommitment({
             type="button"
             onClick={onCancel}
             disabled={committing}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-1.5 py-0.5 cursor-pointer"
           >
             Cancel
           </button>
@@ -121,9 +127,11 @@ export function TodaysCommitment({
           </Label>
           <Input
             id="commitment-title"
+            name="title"
+            autoComplete="off"
             value={commitment}
             onChange={(event) => setCommitment(event.target.value)}
-            placeholder="e.g. Master system architecture or 20-min daily run..."
+            placeholder="e.g. Master system architecture or 20-min daily run…"
             aria-label="Your commitment"
             disabled={committing}
             className="min-h-11 bg-background"
@@ -143,7 +151,7 @@ export function TodaysCommitment({
               disabled={committing || (!focusAvailable && role !== "focus")}
               onClick={() => handleRoleChange("focus")}
               className={cn(
-                "flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer relative",
+                "flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.99]",
                 role === "focus"
                   ? "border-primary bg-primary/10 shadow-xs"
                   : "border-border/80 bg-background/60 hover:bg-muted/40",
@@ -180,7 +188,7 @@ export function TodaysCommitment({
               disabled={committing || (!routineAvailable && role !== "routine")}
               onClick={() => handleRoleChange("routine")}
               className={cn(
-                "flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer relative",
+                "flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.99]",
                 role === "routine"
                   ? "border-primary bg-primary/10 shadow-xs"
                   : "border-border/80 bg-background/60 hover:bg-muted/40",
@@ -256,7 +264,7 @@ export function TodaysCommitment({
               type="button"
               onClick={() => setShowOptions((v) => !v)}
               disabled={committing}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground shrink-0"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-1.5 py-0.5 cursor-pointer"
               aria-expanded={showOptions}
             >
               <Settings2 className="size-3.5" aria-hidden="true" />

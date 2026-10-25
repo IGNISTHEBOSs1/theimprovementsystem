@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
 import { Suspense } from "react";
 import { useAuth } from "./hooks/useAuth";
 import { AuthProvider } from "./providers/AuthProvider";
@@ -104,7 +104,10 @@ const App = () => (
                   <Route path="/mentor" element={<RenderProfiler id="Mentor"><Mentor /></RenderProfiler>} />
                   <Route path="/profile" element={<RenderProfiler id="Profile"><Profile /></RenderProfiler>} />
                   <Route path="/profile/history" element={<RenderProfiler id="QuestHistory"><QuestHistory /></RenderProfiler>} />
+                  <Route path="/history" element={<Navigate to="/profile/history" replace />} />
+                  <Route path="/quests/history" element={<Navigate to="/profile/history" replace />} />
                   <Route path="/profile/settings" element={<RenderProfiler id="Settings"><Settings /></RenderProfiler>} />
+                  <Route path="/settings" element={<Navigate to="/profile/settings" replace />} />
                 </Route>
 
                 <Route path="*" element={

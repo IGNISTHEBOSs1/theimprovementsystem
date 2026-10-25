@@ -142,7 +142,11 @@ export function AutoRebalanceModal({
         </div>
 
         {appliedMessage ? (
-          <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+          <div
+            role="status"
+            aria-live="polite"
+            className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-2"
+          >
             <Check className="size-4 shrink-0" />
             <span>{appliedMessage}</span>
           </div>

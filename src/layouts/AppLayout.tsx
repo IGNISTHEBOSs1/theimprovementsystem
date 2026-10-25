@@ -9,6 +9,7 @@ import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
 import { triggerHaptic } from "@/lib/haptics";
+import { useGlobalShortcuts } from "@/hooks/useGlobalShortcuts";
 
 const NAV_ROUTES = ["/", "/journey", "/quests", "/mentor", "/profile"] as const;
 
@@ -28,6 +29,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: ReturnType<typeof useAuth>['profile'] }) {
   const location = useLocation();
   const navigate = useNavigate();
+  useGlobalShortcuts();
   const { state, activeQuests } = useDashboardDataContext();
   const guidance = deriveGuidance(state?.quests || [], profile?.timezone || "UTC");
   const insights = deriveInsights(state?.quests || []);
@@ -122,6 +124,12 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:rounded-xl focus:bg-background focus:text-foreground focus:border focus:border-border focus:shadow-2xl focus:ring-2 focus:ring-primary focus:outline-none text-xs font-semibold"
+      >
+        Skip to content
+      </a>
       <div className="env-light-layer" aria-hidden="true" />
       <ViewportNavDiagnostic />
       <CommandPalette />
@@ -134,9 +142,11 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
 
       {/* ── Content area with attentive swipe-to-navigate ─────────── */}
       <main
+        id="main-content"
+        tabIndex={-1}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className="flex-1 min-w-0 overflow-y-auto pb-[calc(108px+env(safe-area-inset-bottom,0px))] md:pb-0 material-surface material-workspace"
+        className="flex-1 min-w-0 overflow-y-auto pb-[calc(108px+env(safe-area-inset-bottom,0px))] md:pb-0 material-surface material-workspace focus:outline-none"
       >
         {children}
       </main>

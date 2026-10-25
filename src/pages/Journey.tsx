@@ -250,7 +250,7 @@ export default function Journey() {
         {activeGoalQuest ? (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <span className="text-xs text-emerald-500 font-medium">Today's Goal Anchor Queued:</span>
+              <span className="text-xs text-emerald-500 font-medium">Today’s Goal Anchor Queued:</span>
               <p className="text-base font-semibold text-foreground mt-0.5 truncate">
                 {activeGoalQuest.title}
               </p>
@@ -266,7 +266,7 @@ export default function Journey() {
               className="rounded-xl px-5 h-11 bg-foreground text-background hover:bg-foreground/90 font-medium text-xs shrink-0 active:scale-[0.98] transition-all"
             >
               <Check className="size-4 mr-1.5" />
-              {completingId === activeGoalQuest.id ? "Recording completion..." : "Complete Today's Focus"}
+              {completingId === activeGoalQuest.id ? "Recording completion…" : "Complete Today’s Focus"}
             </Button>
           </div>
         ) : (
@@ -276,7 +276,7 @@ export default function Journey() {
                 No commitment linked to your goal today.
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Commit to today's primary focus to log evidence toward your 90-anchor horizon.
+                Commit to today&apos;s primary focus to log evidence toward your 90-anchor horizon.
               </p>
             </div>
             <Button
@@ -286,7 +286,7 @@ export default function Journey() {
             >
               <Link to="/quests">
                 <Plus className="size-4 mr-1.5" />
-                Commit to Today's Focus →
+                Commit to Today’s Focus →
               </Link>
             </Button>
           </div>
@@ -298,7 +298,7 @@ export default function Journey() {
         <button
           type="button"
           onClick={() => setShowTechnicalTelemetry((v) => !v)}
-          className="flex items-center justify-between w-full p-4 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors text-xs text-muted-foreground"
+          className="flex items-center justify-between w-full p-4 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors text-xs text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
           aria-expanded={showTechnicalTelemetry}
         >
           <span className="font-mono font-medium text-foreground">

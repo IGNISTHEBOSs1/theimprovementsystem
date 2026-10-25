@@ -184,7 +184,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
                 onCancel!(quest.id);
               }}
               disabled={cancelling || completing}
-              className="size-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer"
+              className="size-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               title="Cancel commitment"
               aria-label={`Cancel commitment "${quest.title}"`}
             >
@@ -251,9 +251,9 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
                 onCancel!(quest.id);
               }}
               disabled={cancelling || completing || isCompleted}
-              className="size-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer"
+              className="size-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               title="Cancel commitment"
-              aria-label="Cancel commitment"
+              aria-label={`Cancel commitment "${quest.title}"`}
             >
               <X className="size-4" aria-hidden="true" />
             </button>

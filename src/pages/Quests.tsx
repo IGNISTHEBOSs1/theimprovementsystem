@@ -57,18 +57,37 @@ export default function Quests() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const [recommitPrefill] = useState<RecommitPrefill | undefined>(
-    () => (location.state as { prefill?: RecommitPrefill } | null)?.prefill,
+  const locationState = location.state as { prefill?: RecommitPrefill; openNewCommitment?: boolean } | null;
+  const [recommitPrefill, setRecommitPrefill] = useState<RecommitPrefill | undefined>(
+    () => locationState?.prefill,
   );
   const [formTargetRole, setFormTargetRole] = useState<QuestRole | undefined>(recommitPrefill?.role);
-  const [showCommitForm, setShowCommitForm] = useState(Boolean(recommitPrefill));
+  const [showCommitForm, setShowCommitForm] = useState(Boolean(recommitPrefill || locationState?.openNewCommitment));
 
+  // Dynamically respond to incoming navigation state
   useEffect(() => {
-    if (recommitPrefill) {
+    const s = location.state as { prefill?: RecommitPrefill; openNewCommitment?: boolean } | null;
+    if (s?.openNewCommitment || s?.prefill) {
+      if (s.prefill) {
+        setRecommitPrefill(s.prefill);
+        setFormTargetRole(s.prefill.role);
+      } else {
+        setFormTargetRole(focusAvailable ? "focus" : "routine");
+      }
+      setShowCommitForm(true);
       navigate(location.pathname, { replace: true, state: null });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [location.state, navigate, location.pathname, focusAvailable]);
+
+  // Fast-path listener when user triggers commitment shortcut while already on /quests
+  useEffect(() => {
+    const handleOpenCommitment = () => {
+      setFormTargetRole(focusAvailable ? "focus" : "routine");
+      setShowCommitForm(true);
+    };
+    window.addEventListener("tis:open-commitment", handleOpenCommitment);
+    return () => window.removeEventListener("tis:open-commitment", handleOpenCommitment);
+  }, [focusAvailable]);
 
   const [serverLocal, setServerLocal] = useState<ServerLocalDate | null>(null);
   const goalStats = deriveGoalStats(state.quests, profile?.primary_goal);

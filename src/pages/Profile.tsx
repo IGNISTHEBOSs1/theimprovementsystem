@@ -275,7 +275,16 @@ export default function Profile() {
             </div>
           )
         ) : (
-          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="mt-5 space-y-4"
+            onKeyDown={(e) => {
+              if (e.key === "Escape" && !saving) {
+                e.preventDefault();
+                cancelEditing();
+              }
+            }}
+          >
             <div className="space-y-3.5">
               <div>
                 <label
@@ -286,6 +295,8 @@ export default function Profile() {
                 </label>
                 <Input
                   id="goal-input"
+                  name="goal"
+                  autoComplete="off"
                   value={goal}
                   onChange={(event) => setGoal(event.target.value)}
                   placeholder="e.g. Master system architecture & ship production MVP"
@@ -309,7 +320,7 @@ export default function Profile() {
                     type="button"
                     onClick={() => setDaysFromToday(90)}
                     disabled={saving}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 hover:bg-primary/15 px-3 py-1 font-mono text-xs text-primary transition-all active:scale-[0.98]"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 hover:bg-primary/15 px-3 py-1 font-mono text-xs text-primary transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     <span>★ Lock 90-Day Horizon (Recommended)</span>
                   </button>
@@ -317,7 +328,7 @@ export default function Profile() {
                     type="button"
                     onClick={() => setDaysFromToday(60)}
                     disabled={saving}
-                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-all active:scale-[0.98]"
+                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <span>60-Day Sprint</span>
                   </button>
@@ -325,7 +336,7 @@ export default function Profile() {
                     type="button"
                     onClick={() => setDaysFromToday(30)}
                     disabled={saving}
-                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-all active:scale-[0.98]"
+                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <span>30-Day Calibration</span>
                   </button>
@@ -333,6 +344,7 @@ export default function Profile() {
 
                 <Input
                   id="target-date-input"
+                  name="targetDate"
                   type="date"
                   value={targetDate}
                   onChange={(event) => setTargetDate(event.target.value)}
@@ -381,7 +393,7 @@ export default function Profile() {
           {/* Quest History Entry */}
           <Link
             to="/profile/history"
-            className="group flex items-center justify-between p-4 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card hover:bg-muted/40 transition-all shadow-xs"
+            className="group flex items-center justify-between p-4 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card hover:bg-muted/40 transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="flex items-start gap-3.5 min-w-0">
               <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">
@@ -413,7 +425,7 @@ export default function Profile() {
           {/* System Settings Entry */}
           <Link
             to="/profile/settings"
-            className="group flex items-center justify-between p-4 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card hover:bg-muted/40 transition-all shadow-xs"
+            className="group flex items-center justify-between p-4 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card hover:bg-muted/40 transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="flex items-start gap-3.5 min-w-0">
               <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">

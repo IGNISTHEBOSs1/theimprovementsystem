@@ -276,9 +276,12 @@ export default function QuestHistory() {
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" aria-hidden="true" />
                 <Input
+                  name="search"
+                  type="search"
+                  autoComplete="off"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Filter by title or goal..."
+                  placeholder="Filter by title or goal…"
                   className="pl-8 text-xs h-9 bg-background"
                   aria-label="Filter quests"
                 />

@@ -461,13 +461,15 @@ export default function Settings() {
           <form onSubmit={handleTimezoneSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <Input
+                name="timezone"
+                autoComplete="off"
                 value={timezone}
                 onChange={(event) => {
                   setTimezone(event.target.value);
                   setTzSuccess(false);
                   setTzError(null);
                 }}
-                placeholder="e.g. Asia/Kolkata or America/New_York"
+                placeholder="e.g. Asia/Kolkata or America/New_York…"
                 aria-label="Timezone"
                 disabled={tzSaving}
                 className="min-h-11 font-tech-mono text-xs sm:text-sm pl-3.5 bg-background/60"

@@ -6,6 +6,7 @@ import {
   CheckSquare,
   MessageSquare,
   User,
+  History,
   Settings as SettingsIcon,
   Plus,
   Moon,
@@ -53,8 +54,16 @@ export function CommandPalette({ open: controlledOpen, onOpenChange: controlledO
       }
     };
 
+    const handleToggle = () => {
+      setOpen(!open);
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("tis:toggle-command-palette", handleToggle);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("tis:toggle-command-palette", handleToggle);
+    };
   }, [open, setOpen]);
 
   const runCommand = (command: () => void) => {
@@ -64,7 +73,7 @@ export function CommandPalette({ open: controlledOpen, onOpenChange: controlledO
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <CommandInput placeholder="Type a command or search..." />
+      <CommandInput placeholder="Type a command or search…" />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Navigation">
@@ -93,7 +102,12 @@ export function CommandPalette({ open: controlledOpen, onOpenChange: controlledO
             <span>Profile</span>
             <CommandShortcut>G P</CommandShortcut>
           </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => navigate("/settings"))}>
+          <CommandItem onSelect={() => runCommand(() => navigate("/profile/history"))}>
+            <History className="mr-2 size-4 text-muted-foreground" />
+            <span>Quest History</span>
+            <CommandShortcut>G H</CommandShortcut>
+          </CommandItem>
+          <CommandItem onSelect={() => runCommand(() => navigate("/profile/settings"))}>
             <SettingsIcon className="mr-2 size-4 text-muted-foreground" />
             <span>Settings</span>
             <CommandShortcut>G S</CommandShortcut>
@@ -103,7 +117,16 @@ export function CommandPalette({ open: controlledOpen, onOpenChange: controlledO
         <CommandSeparator />
 
         <CommandGroup heading="Quick Actions">
-          <CommandItem onSelect={() => runCommand(() => navigate("/quests"))}>
+          <CommandItem
+            onSelect={() =>
+              runCommand(() => {
+                window.dispatchEvent(new CustomEvent("tis:open-commitment"));
+                if (window.location.pathname !== "/quests") {
+                  navigate("/quests", { state: { openNewCommitment: true } });
+                }
+              })
+            }
+          >
             <Plus className="mr-2 size-4 text-primary" />
             <span>Make a New Commitment</span>
             <CommandShortcut>C</CommandShortcut>

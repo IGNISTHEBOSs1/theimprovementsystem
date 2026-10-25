@@ -14,6 +14,7 @@ import { SystemLogo } from "@/components/branding/Logo";
 import { triggerHaptic } from "@/lib/haptics";
 import { soundEngine } from "@/hooks/useSoundEffects";
 import { TIS_SPRINGS } from "@/lib/motion-tokens";
+import { Kbd } from "@/components/ui/kbd";
 
 const NAV_ITEMS = [
   {
@@ -119,7 +120,7 @@ export default function SystemBar({
                 onClick={() => {
                   if (!active) soundEngine.playNavigation();
                 }}
-                className="relative flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-md text-sm transition-colors duration-150"
+                className="relative flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-md text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {/* Active indicator */}
                 {active && (
@@ -181,7 +182,7 @@ export default function SystemBar({
             onClick={() => soundEngine.playNavigation()}
             className={({ isActive: active }) =>
               cn(
-                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors",
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 active
                   ? "bg-accent text-accent-foreground font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
@@ -196,18 +197,19 @@ export default function SystemBar({
             type="button"
             onClick={() => {
               soundEngine.playTap();
-              window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
+              window.dispatchEvent(new CustomEvent("tis:toggle-command-palette"));
             }}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border/70 bg-card/60 hover:bg-accent hover:text-accent-foreground text-xs text-muted-foreground transition-colors group cursor-pointer"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border/70 bg-card/60 hover:bg-accent hover:text-accent-foreground text-xs text-muted-foreground transition-colors group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
             title="Open Command Palette (⌘K / Ctrl+K)"
+            aria-label="Open command palette"
           >
             <span className="flex items-center gap-2">
               <Search className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
-              <span>Commands...</span>
+              <span>Commands…</span>
             </span>
-            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border border-border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+            <Kbd>
               <span className="text-xs">⌘</span>K
-            </kbd>
+            </Kbd>
           </button>
         </div>
       </aside>
@@ -262,7 +264,11 @@ export default function SystemBar({
                   justify-center
                   min-w-[44px]
                   min-h-[44px]
+                  rounded-full
                   touch-manipulation
+                  focus-visible:outline-none
+                  focus-visible:ring-2
+                  focus-visible:ring-ring
                   group
                 "
               >

@@ -374,7 +374,12 @@ const Auth = () => {
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input
-                        id="username" type="text" value={username}
+                        id="username"
+                        name="username"
+                        type="text"
+                        autoComplete="name"
+                        spellCheck={false}
+                        value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="Enter your name"
                         className="pl-10 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground h-10 text-xs sm:text-sm shadow-2xs"
@@ -390,7 +395,13 @@ const Auth = () => {
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    id="email" type="email" value={email}
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    spellCheck={false}
+                    inputMode="email"
+                    value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     className="pl-10 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground h-10 text-xs sm:text-sm shadow-2xs"
@@ -413,13 +424,17 @@ const Auth = () => {
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
-                      id="password" type={showPassword ? 'text' : 'password'} value={password}
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                      value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       className="pl-10 pr-10 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground h-10 text-xs sm:text-sm shadow-2xs"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1 cursor-pointer"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1 cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       aria-label={showPassword ? 'Hide password' : 'Show password'}
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -436,7 +451,9 @@ const Auth = () => {
                 size="default"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                {!loading && (mode === 'signin' ? 'Log In' : mode === 'reset' ? 'Send Reset Link' : 'Initialize Account')}
+                {loading
+                  ? (mode === 'signin' ? 'Logging in…' : mode === 'reset' ? 'Sending link…' : 'Initializing…')
+                  : (mode === 'signin' ? 'Log In' : mode === 'reset' ? 'Send Reset Link' : 'Initialize Account')}
               </Button>
 
               {mode === 'reset' && (

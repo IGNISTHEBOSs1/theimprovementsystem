@@ -374,12 +374,18 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
       className={cn(
-        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none transition-colors duration-300 border glass-slider-track",
+        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none transition-colors duration-300 border glass-slider-track focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         isDone
           ? "border-emerald-500/50 bg-emerald-500/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
           : ""
       )}
-      aria-label={isDone ? "Quest completed" : completing ? "Marking Quest complete" : "Mark this Quest complete"}
+      aria-label={
+        isDone
+          ? "Primary focus completed"
+          : completing
+          ? "Saving primary focus completion…"
+          : "Complete today’s primary focus"
+      }
     >
       <span
         ref={handleRef}

@@ -176,7 +176,7 @@ function TactileThemeToggle() {
         "border border-black/[0.08] dark:border-white/15",
         "bg-zinc-200/95 dark:bg-zinc-900/95",
         "shadow-[inset_0_2px_4px_rgba(0,0,0,0.18),0_1px_2px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_2px_5px_rgba(0,0,0,0.6),0_1px_1px_rgba(255,255,255,0.08)]",
-        "hover:border-foreground/40 active:scale-[0.96] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-foreground",
+        "hover:border-foreground/40 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground",
         isDark ? "justify-end" : "justify-start"
       )}
     >
@@ -504,7 +504,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                   onClick={handlePrev}
                   aria-label="Previous Stage"
                   data-cuelume-press="press"
-                  className="p-1.5 rounded-lg border border-border bg-card/60 hover:bg-card text-foreground transition-colors active:scale-95"
+                  className="p-1.5 rounded-lg border border-border bg-card/60 hover:bg-card text-foreground transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                 >
                   <ChevronLeft className="size-3.5" />
                 </button>
@@ -513,7 +513,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                   onClick={() => setIsPlaying(!isPlaying)}
                   aria-label={isPlaying ? 'Pause Cadence' : 'Play Cadence'}
                   data-cuelume-press="press"
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-card/60 hover:bg-card text-xs text-foreground transition-colors active:scale-95"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-card/60 hover:bg-card text-xs text-foreground transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                 >
                   {isPlaying ? (
                     <>
@@ -532,7 +532,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                   onClick={handleNext}
                   aria-label="Next Stage"
                   data-cuelume-press="press"
-                  className="p-1.5 rounded-lg border border-border bg-card/60 hover:bg-card text-foreground transition-colors active:scale-95"
+                  className="p-1.5 rounded-lg border border-border bg-card/60 hover:bg-card text-foreground transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                 >
                   <ChevronRight className="size-3.5" />
                 </button>
@@ -547,7 +547,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                     onClick={() => selectStep(i)}
                     aria-label={`Jump to stage ${i + 1}`}
                     className={cn(
-                      "h-1.5 rounded-full transition-all duration-300",
+                      "h-1.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                       i === activeStep ? "w-6 bg-foreground" : "w-2 bg-muted hover:bg-muted-foreground/50"
                     )}
                   />
