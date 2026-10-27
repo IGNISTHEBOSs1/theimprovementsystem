@@ -17,7 +17,13 @@ import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
-import { deriveFollowThroughStats, deriveGoalStats, deriveGoalPace, isLinkedToActiveGoal } from "@/lib/trajectory";
+import {
+  deriveFollowThroughStats,
+  deriveFollowThroughRate,
+  deriveGoalStats,
+  deriveGoalPace,
+  isLinkedToActiveGoal,
+} from "@/lib/trajectory";
 
 export default function Profile() {
   const { profile, updateProfile } = useAuth();
@@ -112,6 +118,7 @@ export default function Profile() {
   };
 
   const followThrough = deriveFollowThroughStats(safeQuests);
+  const overallFollowThroughRate = deriveFollowThroughRate(safeQuests);
   const goalStats = deriveGoalStats(safeQuests, profile?.primary_goal);
   const goalCompletionRate =
     goalStats.linked > 0
@@ -264,7 +271,7 @@ export default function Profile() {
                     <strong className="text-foreground font-semibold font-mono">{goalStats.completed}</strong> verified {goalStats.completed === 1 ? "anchor" : "anchors"} completed toward this goal
                     {goalStats.linked > 0 && (
                       <span className="font-mono text-muted-foreground ml-1">
-                        ({goalCompletionRate}% follow-through)
+                        ({goalCompletionRate}% goal commitment rate · {goalStats.completed}/{goalStats.linked})
                       </span>
                     )}
                   </span>
@@ -448,7 +455,7 @@ export default function Profile() {
                     Quest History
                   </span>
                   <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-semibold">
-                    {followThrough.completed} Done
+                    {overallFollowThroughRate !== null ? `${overallFollowThroughRate}% Follow-Through · ` : ""}{followThrough.completed} Done
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">

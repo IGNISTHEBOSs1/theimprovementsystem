@@ -291,13 +291,92 @@ export function deriveFollowThroughStats(quests: Quest[]): FollowThroughStats {
   };
 }
 
-// Fix 3: Four-state velocity signal — replaces the boolean isOnTrack for pace reporting.
+export function deriveFollowThroughRate(quests: Quest[]): number | null {
+  const stats = deriveFollowThroughStats(quests);
+  return stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : null;
+}
+
+// Fix 3: Five-state velocity signal — authoritative pace reporting.
 // "establishing"  — fewer than 3 days elapsed, no reliable signal yet
-// "ahead"         — 7-day trailing pace > 1.1/day
+// "ahead"         — 7-day trailing pace > 1.1/day or all 90 anchors complete
 // "nominal"       — pace within 0.9–1.1/day
 // "behind"        — pace < 0.9/day, buffer still absorbing misses
-// "critical"      — buffer exhausted (horizonExtensionDays > 0) AND below nominal
+// "critical"      — buffer exhausted (horizonExtensionDays > 0 or bufferDaysRemaining <= 0)
 export type PaceStatus = "establishing" | "ahead" | "nominal" | "behind" | "critical";
+
+export interface JourneyPaceDetails {
+  status: PaceStatus;
+  label: string;
+  badgeLabel: string;
+  explanation: string;
+  badgeVariant: "neutral" | "success" | "warning" | "destructive";
+}
+
+export function deriveJourneyPaceDetails(pace: GoalPaceResult | null): JourneyPaceDetails {
+  if (!pace || pace.paceStatus === "establishing") {
+    return {
+      status: "establishing",
+      label: "Establishing Baseline",
+      badgeLabel: "Establishing",
+      explanation: "Baseline pace is calibrating (3 days of history required). One missed day will not change your plan.",
+      badgeVariant: "neutral",
+    };
+  }
+
+  if (pace.remainingGoalQuests === 0) {
+    return {
+      status: "ahead",
+      label: "Goal Achieved",
+      badgeLabel: "Goal Completed",
+      explanation: "You have completed all 90 goal anchors! Your trajectory is fully accomplished.",
+      badgeVariant: "success",
+    };
+  }
+
+  if (
+    pace.paceStatus === "critical" ||
+    pace.isHorizonExpired ||
+    pace.daysRemaining <= 0 ||
+    pace.bufferDaysRemaining <= 0
+  ) {
+    return {
+      status: "critical",
+      label: "Needs Adjustment",
+      badgeLabel: "Thrust Required",
+      explanation: "Your target date is too close or buffer is depleted. Adjust your milestone date in Profile or rebalance your daily commitments.",
+      badgeVariant: "destructive",
+    };
+  }
+
+  if (pace.paceStatus === "behind") {
+    const neededThisWeek = Math.max(1, Math.min(7, Math.ceil(pace.requiredDailyPace * 7) - 6));
+    return {
+      status: "behind",
+      label: "Slightly Behind",
+      badgeLabel: "Buffer Active",
+      explanation: `Velocity is below nominal, but your flex buffer is currently absorbing the variance. You need ${neededThisWeek} goal-linked ${neededThisWeek === 1 ? "completion" : "completions"} this week to return to nominal pace.`,
+      badgeVariant: "warning",
+    };
+  }
+
+  if (pace.paceStatus === "ahead") {
+    return {
+      status: "ahead",
+      label: "Ahead of Pace",
+      badgeLabel: "Ahead of Target",
+      explanation: "Your velocity is exceeding the nominal target pace. Strong momentum maintained.",
+      badgeVariant: "success",
+    };
+  }
+
+  return {
+    status: "nominal",
+    label: "On Pace",
+    badgeLabel: "Trajectory Nominal",
+    explanation: "Your buffer is intact: one missed day will not change your plan.",
+    badgeVariant: "success",
+  };
+}
 
 export interface GoalPaceResult {
   targetDate: string | null | undefined;
@@ -422,19 +501,25 @@ export function deriveGoalPace(
   const paceRatio = Number((actualDailyPace / nominalDailyPace).toFixed(2));
 
   // Fix 3a: isOnTrack is now purely buffer-based — decoupled from velocity.
-  // "On track" = the horizon hasn't slipped yet (buffer hasn't overflowed).
-  // Old formula merged velocity and buffer into one boolean, producing false
-  // positives (paceRatio=0.9 + buffer exhausted = "on track") and false
-  // negatives (paceRatio=0.8 + 8 buffer days left = "off track").
-  const isOnTrack = remainingGoalQuests === 0 || horizonExtensionDays === 0;
+  // "On track" = the horizon hasn't slipped yet and buffer is not exhausted.
+  const isOnTrack =
+    remainingGoalQuests === 0 ||
+    (horizonExtensionDays === 0 && bufferDaysRemaining > 0 && !isHorizonExpired && daysRemaining > 0);
 
-  // Fix 3b: Four-state paceStatus — honest velocity signal separate from buffer.
+  // Fix 3b: Five-state paceStatus — authoritative velocity & buffer signal aligned with decision table.
   const paceStatus: PaceStatus = (() => {
     if (!hasEnoughData)              return "establishing";
     if (remainingGoalQuests === 0)   return "ahead";
+    if (
+      horizonExtensionDays > 0 ||
+      bufferDaysRemaining <= 0 ||
+      isHorizonExpired ||
+      daysRemaining <= 0
+    ) {
+      return "critical";
+    }
     if (paceRatio > 1.1)             return "ahead";
     if (paceRatio >= 0.9)            return "nominal";
-    if (horizonExtensionDays > 0)    return "critical";
     return "behind";
   })();
 

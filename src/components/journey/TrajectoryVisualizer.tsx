@@ -3,7 +3,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { TIS_SPRINGS, TIS_EASINGS } from "@/lib/motion-tokens";
 import { triggerHaptic } from "@/lib/haptics";
-import type { TrajectoryPoint } from "@/lib/trajectory";
+import type { TrajectoryPoint, PaceStatus } from "@/lib/trajectory";
 
 interface TrajectoryVisualizerProps {
   completedQuests: number;
@@ -15,6 +15,7 @@ interface TrajectoryVisualizerProps {
   bufferDaysRemaining?: number; // out of 9 flex days
   paceRatio?: number;
   isOnTrack: boolean;
+  paceStatus?: PaceStatus;
   goalLabel?: string;
   className?: string;
   // Total days in cycle (defaults to 90 + horizonExtensionDays)
@@ -27,28 +28,24 @@ const WIDTH = 760;
 const HEIGHT = 320;
 
 /**
- * Maps an actual TrajectoryPoint to an SVG x coordinate using its real
- * timestamp relative to cycle start (first evidence point = Day 1 proxy).
+ * Maps an actual TrajectoryPoint to its day index within the cycle (1..safeElapsed)
+ * using its recorded timestamp relative to the current evaluation moment.
  */
-function pointToX(
+function getPointDay(
   pt: TrajectoryPoint,
   index: number,
   total: number,
   safeElapsed: number,
-  xOrigin: number,
-  spanX: number,
-  cycleTotalDays: number,
-  firstTimestamp: string | null,
+  nowMs: number,
 ): number {
-  if (firstTimestamp && pt.timestamp) {
-    const startMs = new Date(firstTimestamp).getTime();
+  if (pt.timestamp) {
     const ptMs = new Date(pt.timestamp).getTime();
-    const daysSinceStart = Math.max(0, (ptMs - startMs) / (1000 * 60 * 60 * 24));
-    const ptDay = Math.min(safeElapsed, Math.max(1, 1 + daysSinceStart));
-    return xOrigin + (spanX * ptDay) / cycleTotalDays;
+    if (!isNaN(ptMs)) {
+      const daysAgo = Math.max(0, (nowMs - ptMs) / (1000 * 60 * 60 * 24));
+      return Math.min(safeElapsed, Math.max(1, safeElapsed - daysAgo));
+    }
   }
-  const ptDay = Math.min(safeElapsed, Math.max(1, ((index + 1) / total) * safeElapsed));
-  return xOrigin + (spanX * ptDay) / cycleTotalDays;
+  return Math.min(safeElapsed, Math.max(1, ((index + 1) / total) * safeElapsed));
 }
 
 export function TrajectoryVisualizer({
@@ -61,6 +58,7 @@ export function TrajectoryVisualizer({
   bufferDaysRemaining = 9,
   paceRatio = 1.0,
   isOnTrack,
+  paceStatus,
   goalLabel,
   className,
   cycleTotalDays = 90,
@@ -77,6 +75,8 @@ export function TrajectoryVisualizer({
   const [scrubX, setScrubX] = useState<number | null>(null);
   const lastMilestoneRef = useRef<number | null>(null);
 
+  const nowMs = useMemo(() => Date.now(), []);
+
   // Coordinate geometry
   const xOrigin = 48;
   const xGoal = 688;
@@ -87,7 +87,7 @@ export function TrajectoryVisualizer({
   // If targetQuests ever changes, the target line moves correctly.
   const yMin = 40;
   const targetAnchors = Math.max(1, targetQuests || 90);
-  const yGoal = yMin + (yOrigin - yMin) * 0.20; // 82px — same visual position, now computed
+  const yGoal = yMin + (yOrigin - yMin) * 0.20; // 82px — computed
   const spanY = yOrigin - yGoal;
 
   const safeElapsed = Math.max(1, Math.min(cycleTotalDays, elapsedDays));
@@ -103,19 +103,17 @@ export function TrajectoryVisualizer({
   // Prevent vertical 90-degree cliff if near horizon without meeting target quota
   const isNearHorizonWithoutTarget = xCurrent >= xGoal - 12 && safeCompleted < targetAnchors;
 
-  // Predictive curve control points
-  const dx = xGoal - xCurrent;
-  const dyGoal = yGoal - yCurrent;
-  const c1x = xCurrent + dx * 0.40;
-  const c1y = yCurrent + dyGoal * 0.22;
-  const c2x = xCurrent + dx * 0.75;
-  const c2y = yGoal - dyGoal * 0.12;
-  const predictiveCurvePath = `M ${xCurrent} ${yCurrent} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${xGoal} ${yGoal}`;
+  // Pace baseline status: fewer than 3 days of data is establishing
+  const isEstablishing = (paceStatus ?? (safeElapsed < 3 ? "establishing" : "nominal")) === "establishing";
+
+  // Honest projected forecast vector based on current velocity (when not establishing)
+  const effectiveDailyPace = typeof paceRatio === "number" && !isNaN(paceRatio) && paceRatio >= 0 ? paceRatio : 1.0;
+  const remainingDaysInCycle = Math.max(0, cycleTotalDays - safeElapsed);
+  const projectedAnchors = Math.min(targetAnchors, Math.max(0, safeCompleted + effectiveDailyPace * remainingDaysInCycle));
+  const yForecast = Math.max(yMin, yOrigin - (spanY * Math.min(targetAnchors, projectedAnchors)) / targetAnchors);
 
   // Fix 4c: Cone now fans FORWARD from today's position (xCurrent, yCurrent),
-  // not from the chart origin (xOrigin, yOrigin). Old cone was a static triangle
-  // from Day 1 — informationally useless on Day 60. New cone shows the forward
-  // probability band from where the user actually is right now.
+  // not from the chart origin (xOrigin, yOrigin).
   const conePath = `
     M ${xCurrent.toFixed(1)} ${yCurrent.toFixed(1)}
     L ${xGoal} ${yGoalCeiling.toFixed(1)}
@@ -130,8 +128,6 @@ export function TrajectoryVisualizer({
     );
   }, [actualPoints]);
 
-  const firstTimestamp = sortedPoints.length > 0 ? sortedPoints[0].timestamp : null;
-
   const { historicTrailPath, trailDots } = useMemo(() => {
     const dots: Array<{ x: number; y: number; outcome: "completed" | "failed" }> = [];
     let path = "";
@@ -139,19 +135,18 @@ export function TrajectoryVisualizer({
     if (sortedPoints.length > 0) {
       path = `M ${xOrigin} ${yOrigin}`;
       sortedPoints.forEach((pt, i) => {
-        const px = pointToX(pt, i, sortedPoints.length, safeElapsed, xOrigin, spanX, cycleTotalDays, firstTimestamp);
-        const py = Math.max(40, yOrigin - (spanY * Math.min(targetAnchors, pt.position)) / targetAnchors);
+        const ptDay = getPointDay(pt, i, sortedPoints.length, safeElapsed, nowMs);
+        const px = xOrigin + (spanX * ptDay) / cycleTotalDays;
+        const py = Math.max(yMin, yOrigin - (spanY * Math.min(targetAnchors, pt.position)) / targetAnchors);
         path += ` L ${px.toFixed(1)} ${py.toFixed(1)}`;
         dots.push({ x: px, y: py, outcome: pt.outcome });
       });
       path += ` L ${xCurrent.toFixed(1)} ${yCurrent.toFixed(1)}`;
     } else {
-      const trailC1x = xOrigin + (xCurrent - xOrigin) * 0.5;
-      const trailC2x = xOrigin + (xCurrent - xOrigin) * 0.75;
-      path = `M ${xOrigin} ${yOrigin} C ${trailC1x} ${yOrigin}, ${trailC2x} ${yCurrent + (yOrigin - yCurrent) * 0.2}, ${xCurrent} ${yCurrent}`;
+      path = `M ${xOrigin} ${yOrigin} L ${xCurrent.toFixed(1)} ${yCurrent.toFixed(1)}`;
     }
     return { historicTrailPath: path, trailDots: dots };
-  }, [sortedPoints, safeElapsed, xOrigin, yOrigin, spanX, spanY, cycleTotalDays, firstTimestamp, targetAnchors, xCurrent, yCurrent]);
+  }, [sortedPoints, safeElapsed, xOrigin, yOrigin, spanX, spanY, cycleTotalDays, targetAnchors, xCurrent, yCurrent, yMin, nowMs]);
 
   // Scrubbing coordinate computation
   const updateScrubFromClientX = useCallback(
@@ -184,28 +179,84 @@ export function TrajectoryVisualizer({
     scrubX !== null ? Math.round(((scrubX - xOrigin) / spanX) * cycleTotalDays) : null;
   const isPastOrToday = activeScrubDay !== null && activeScrubDay <= safeElapsed;
 
-  const scrubAnchors =
-    activeScrubDay !== null
-      ? isPastOrToday
-        ? Math.min(
-            safeCompleted,
-            Math.round((activeScrubDay / safeElapsed) * safeCompleted),
-          )
-        : Math.min(
-            targetAnchors,
-            Math.round(
-              safeCompleted +
-                ((targetAnchors - safeCompleted) /
-                  Math.max(1, cycleTotalDays - safeElapsed)) *
-                  (activeScrubDay - safeElapsed),
-            ),
-          )
-      : null;
+  const scrubAnchors = useMemo(() => {
+    if (activeScrubDay === null) return null;
+    if (activeScrubDay === safeElapsed) {
+      return safeCompleted;
+    }
+    if (activeScrubDay < safeElapsed) {
+      if (sortedPoints.length === 0) return 0;
+      let recorded = 0;
+      for (let i = 0; i < sortedPoints.length; i++) {
+        const pt = sortedPoints[i];
+        const day = Math.floor(getPointDay(pt, i, sortedPoints.length, safeElapsed, nowMs));
+        if (day <= activeScrubDay) {
+          recorded = pt.position;
+        }
+      }
+      return recorded;
+    }
+    // Future day (activeScrubDay > safeElapsed): Planned target anchors
+    return Math.min(
+      targetAnchors,
+      Math.round((activeScrubDay / cycleTotalDays) * targetAnchors)
+    );
+  }, [activeScrubDay, safeElapsed, safeCompleted, sortedPoints, targetAnchors, cycleTotalDays, nowMs]);
 
   // Milestones: 15, 30, 45, 60, 75
   const milestoneDays = useMemo(() => {
     return [15, 30, 45, 60, 75];
   }, []);
+
+  const badgeConfig = useMemo(() => {
+    if (safeCompleted >= targetAnchors) {
+      return {
+        label: "Goal Completed",
+        containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+        dotClass: "bg-emerald-500",
+        ping: true,
+      };
+    }
+    const status = paceStatus ?? (isOnTrack ? "nominal" : "critical");
+    switch (status) {
+      case "establishing":
+        return {
+          label: "Establishing",
+          containerClass: "border border-border/80 bg-muted/40 text-muted-foreground",
+          dotClass: "bg-muted-foreground/60",
+          ping: false,
+        };
+      case "ahead":
+        return {
+          label: "Ahead of Target",
+          containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+          dotClass: "bg-emerald-500",
+          ping: true,
+        };
+      case "behind":
+        return {
+          label: "Buffer Active",
+          containerClass: "border border-amber-500/40 bg-amber-500/15 text-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.15)]",
+          dotClass: "bg-amber-500",
+          ping: true,
+        };
+      case "critical":
+        return {
+          label: "Thrust Required",
+          containerClass: "border border-rose-500/40 bg-rose-500/15 text-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.15)]",
+          dotClass: "bg-rose-500",
+          ping: true,
+        };
+      case "nominal":
+      default:
+        return {
+          label: "Trajectory Nominal",
+          containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+          dotClass: "bg-emerald-500",
+          ping: true,
+        };
+    }
+  }, [paceStatus, isOnTrack, safeCompleted, targetAnchors]);
 
   return (
     <div
@@ -233,12 +284,14 @@ export function TrajectoryVisualizer({
       {/* ── Revolut-Style Top KPI Header (Inside the Card) ── */}
       <div className="relative z-10 flex items-start justify-between gap-4 pb-1">
         <div className="min-w-0">
-          {/* Fix 8: Eyebrow is silent at rest — "Day X of Y" already lives in the
-              editorial header above this card. Duplicating it here was the primary
-              data-duplication problem the audit flagged. Only activates while scrubbing. */}
+          {/* Eyebrow: Clearly distinguish recorded history from planned target */}
           <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground block truncate">
             {activeScrubDay !== null
-              ? `Day ${activeScrubDay} · ${isPastOrToday ? "Recorded" : "Projected"}`
+              ? activeScrubDay === safeElapsed
+                ? `Today · Day ${safeElapsed}`
+                : activeScrubDay < safeElapsed
+                ? `Day ${activeScrubDay} · Recorded`
+                : `Day ${activeScrubDay} · Planned Target`
               : "Anchors completed"}
           </span>
           <div className="mt-0.5 flex items-baseline gap-2">
@@ -261,26 +314,26 @@ export function TrajectoryVisualizer({
         <div
           className={cn(
             "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-sans font-medium shrink-0 transition-all",
-            isOnTrack
-              ? "border border-success/40 bg-success/15 text-success shadow-[0_0_12px_rgba(16,185,129,0.15)]"
-              : "border border-warning/40 bg-warning/15 text-warning shadow-[0_0_12px_rgba(245,158,11,0.15)]",
+            badgeConfig.containerClass,
           )}
         >
           <span className="relative flex size-2">
-            <span
-              className={cn(
-                "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
-                isOnTrack ? "bg-success" : "bg-warning",
-              )}
-            />
+            {badgeConfig.ping && (
+              <span
+                className={cn(
+                  "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
+                  badgeConfig.dotClass,
+                )}
+              />
+            )}
             <span
               className={cn(
                 "relative inline-flex size-2 rounded-full",
-                isOnTrack ? "bg-success" : "bg-warning",
+                badgeConfig.dotClass,
               )}
             />
           </span>
-          <span>{isOnTrack ? "Trajectory Nominal" : "Thrust Required"}</span>
+          <span>{badgeConfig.label}</span>
         </div>
       </div>
 
@@ -498,7 +551,7 @@ export function TrajectoryVisualizer({
             />
           ))}
 
-          {/* 3. Predictive Pursuit Vector or Horizon Extension Indicator */}
+          {/* 3. Predictive Forecast Vector or Horizon Extension Indicator */}
           {isNearHorizonWithoutTarget ? (
             <g>
               <line
@@ -527,19 +580,22 @@ export function TrajectoryVisualizer({
                 Horizon Extension Required →
               </text>
             </g>
-          ) : (
-            <motion.path
-              d={predictiveCurvePath}
-              fill="none"
-              stroke={`url(#${gradientId})`}
-              strokeWidth={3}
+          ) : !isEstablishing ? (
+            <motion.line
+              x1={xCurrent}
+              y1={yCurrent}
+              x2={xGoal}
+              y2={yForecast}
+              stroke="hsl(var(--primary))"
+              strokeWidth={1.5}
+              strokeDasharray="4 4"
+              strokeOpacity={0.65}
               strokeLinecap="round"
-              filter={`url(#${glowFilterId})`}
-              initial={shouldReduceMotion ? false : { pathLength: 0, opacity: 0.2 }}
-              animate={{ pathLength: 1, opacity: 1 }}
+              initial={shouldReduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.65, ease: TIS_EASINGS.precisionInOut }}
             />
-          )}
+          ) : null}
 
           {/* Origin Marker (minimal dot without crushed labels) */}
           <circle cx={xOrigin} cy={yOrigin} r={3.5} fill="hsl(var(--muted-foreground))" opacity={0.6} />
@@ -584,16 +640,12 @@ export function TrajectoryVisualizer({
               />
               <circle
                 cx={scrubX}
-                cy={
-                  isPastOrToday
-                    ? Math.max(
-                        40,
-                        yOrigin -
-                          (spanY * Math.min(targetAnchors, scrubAnchors ?? 0)) /
-                            targetAnchors,
-                      )
-                    : yGoal
-                }
+                cy={Math.max(
+                  yMin,
+                  yOrigin -
+                    (spanY * Math.min(targetAnchors, scrubAnchors ?? 0)) /
+                      targetAnchors,
+                )}
                 r={4}
                 fill="hsl(var(--primary))"
               />
@@ -621,12 +673,18 @@ export function TrajectoryVisualizer({
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5">
             <span className="size-2 rounded-full bg-foreground" />
-            Actual
+            Actual Progress
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-muted-foreground/50" />
+            <span className="w-3 h-0.5 bg-primary/60" />
             1.0/d Target
           </span>
+          {!isEstablishing && !isNearHorizonWithoutTarget && (
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-3 h-0.5 border-t border-dashed border-primary/70" />
+              Projected Velocity
+            </span>
+          )}
           <span className="inline-flex items-center gap-1.5">
             <span className="size-2 rounded-xs bg-foreground/15 border border-border" />
             ±10% Buffer

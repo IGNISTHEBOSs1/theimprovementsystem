@@ -13,9 +13,13 @@ import { DailyClosureCard } from "@/components/dashboard/DailyClosureCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { isQuestResolvedToday } from "@/hooks/useDashboardData";
-import { PRIORITY_BADGE_CLASSES } from "@/lib/priority";
-import { deriveFollowThroughStats, deriveGoalPace, deriveGoalStats, deriveWeeklyCadence } from "@/lib/trajectory";
-import { deriveGuidance } from "@/lib/guidance";
+import {
+  deriveFollowThroughStats,
+  deriveFollowThroughRate,
+  deriveGoalPace,
+  deriveGoalStats,
+  deriveWeeklyCadence,
+} from "@/lib/trajectory";
 import { deriveInsights } from "@/lib/insights";
 import { triggerHaptic } from "@/lib/haptics";
 import { soundEngine } from "@/hooks/useSoundEffects";
@@ -288,9 +292,7 @@ export default function Dashboard() {
   const followThrough = deriveFollowThroughStats(safeQuests);
   const goalStats = deriveGoalStats(safeQuests, profile?.primary_goal);
   const pace = deriveGoalPace(safeQuests, profile?.primary_goal_target_date, undefined, profile?.primary_goal);
-  const completionRate = followThrough.total > 0
-    ? Math.round((followThrough.completed / followThrough.total) * 100)
-    : null;
+  const completionRate = deriveFollowThroughRate(safeQuests);
 
   const primaryGoal = profile?.primary_goal;
   const elapsedDays = pace?.elapsedDays ?? 1;

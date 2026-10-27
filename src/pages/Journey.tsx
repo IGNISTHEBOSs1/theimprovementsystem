@@ -12,6 +12,7 @@ import {
   deriveTrajectory,
   derivePriorityBreakdown,
   isLinkedToActiveGoal,
+  deriveJourneyPaceDetails,
 } from "@/lib/trajectory";
 import { triggerHaptic } from "@/lib/haptics";
 import { cn } from "@/lib/utils";
@@ -104,28 +105,10 @@ export default function Journey() {
     }
   };
 
-  // Plain-Language Status Derivation for Journey's own 3-state UI signal.
-  // This is separate from trajectory.ts's PaceStatus (4-state velocity enum).
-  // Journey uses a simpler 3-state model driven by buffer + horizon expiry.
-  type JourneyPaceStatus = "on-pace" | "slightly-behind" | "needs-adjustment";
-  let paceStatus: JourneyPaceStatus = "on-pace";
-  let paceExplanation = "Your buffer is intact: one missed day will not change your plan.";
-
+  // Authoritative pace details derived from trajectory.ts engine
+  const paceDetails = deriveJourneyPaceDetails(pace);
   const buffer = pace?.bufferDaysRemaining ?? 9;
-  const isHorizonExpired = pace?.isHorizonExpired ?? false;
   const daysLeft = pace?.daysRemaining ?? 90;
-
-  if (isHorizonExpired || daysLeft <= 0 || buffer <= 0) {
-    paceStatus = "needs-adjustment";
-    paceExplanation = "Your target date is too close for the current plan. Adjust your milestone date in Profile or rebalance your daily commitments.";
-  } else if (buffer < 6 || (pace?.paceRatio !== undefined && pace.paceRatio < 0.85)) {
-    paceStatus = "slightly-behind";
-    const neededThisWeek = Math.max(1, Math.min(7, Math.ceil((pace?.requiredDailyPace ?? 1.2) * 7) - 6));
-    paceExplanation = `You need ${neededThisWeek} goal-linked ${neededThisWeek === 1 ? "completion" : "completions"} this week to return to nominal pace.`;
-  } else {
-    paceStatus = "on-pace";
-    paceExplanation = "Your buffer is intact: one missed day will not change your plan.";
-  }
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 space-y-6">
@@ -136,11 +119,13 @@ export default function Journey() {
             <span
               className={cn(
                 "size-2 rounded-full",
-                paceStatus === "on-pace"
+                paceDetails.badgeVariant === "success"
                   ? "bg-emerald-500"
-                  : paceStatus === "slightly-behind"
+                  : paceDetails.badgeVariant === "warning"
                   ? "bg-amber-500"
-                  : "bg-rose-500",
+                  : paceDetails.badgeVariant === "destructive"
+                  ? "bg-rose-500"
+                  : "bg-muted-foreground",
               )}
             />
             <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground font-semibold">
@@ -173,21 +158,27 @@ export default function Journey() {
         aria-label="Pace status"
         className={cn(
           "rounded-2xl border p-5 sm:p-6 shadow-sm transition-all",
-          paceStatus === "on-pace"
+          paceDetails.badgeVariant === "success"
             ? "border-emerald-500/30 bg-emerald-500/[0.04]"
-            : paceStatus === "slightly-behind"
+            : paceDetails.badgeVariant === "warning"
             ? "border-amber-500/30 bg-amber-500/[0.04]"
-            : "border-destructive/30 bg-destructive/[0.04]",
+            : paceDetails.badgeVariant === "destructive"
+            ? "border-destructive/30 bg-destructive/[0.04]"
+            : "border-border/60 bg-muted/20",
         )}
       >
         <div className="flex items-center gap-2">
-          {paceStatus === "on-pace" ? (
+          {paceDetails.badgeVariant === "success" ? (
             <ShieldCheck className="size-5 text-emerald-500 shrink-0" aria-hidden="true" />
           ) : (
             <AlertCircle
               className={cn(
                 "size-5 shrink-0",
-                paceStatus === "slightly-behind" ? "text-amber-500" : "text-destructive",
+                paceDetails.badgeVariant === "warning"
+                  ? "text-amber-500"
+                  : paceDetails.badgeVariant === "destructive"
+                  ? "text-destructive"
+                  : "text-muted-foreground",
               )}
               aria-hidden="true"
             />
@@ -195,23 +186,21 @@ export default function Journey() {
           <span
             className={cn(
               "text-xs font-mono font-bold uppercase tracking-wider",
-              paceStatus === "on-pace"
+              paceDetails.badgeVariant === "success"
                 ? "text-emerald-500"
-                : paceStatus === "slightly-behind"
+                : paceDetails.badgeVariant === "warning"
                 ? "text-amber-500"
-                : "text-destructive",
+                : paceDetails.badgeVariant === "destructive"
+                ? "text-destructive"
+                : "text-muted-foreground",
             )}
           >
-            {paceStatus === "on-pace"
-              ? "On Pace"
-              : paceStatus === "slightly-behind"
-              ? "Slightly Behind"
-              : "Needs Adjustment"}
+            {paceDetails.label}
           </span>
         </div>
 
         <p className="text-base sm:text-lg font-semibold tracking-tight text-foreground mt-2 leading-snug">
-          {paceExplanation}
+          {paceDetails.explanation}
         </p>
 
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
@@ -254,6 +243,7 @@ export default function Journey() {
           bufferDaysRemaining={pace?.bufferDaysRemaining ?? 9}
           paceRatio={pace?.paceRatio ?? 1.0}
           isOnTrack={pace ? pace.isOnTrack : goalStats.failed === 0}
+          paceStatus={paceDetails.status}
           goalLabel={profile?.primary_goal || undefined}
           cycleTotalDays={pace?.cycleTotalDays ?? 90}
           horizonExtensionDays={pace?.horizonExtensionDays ?? 0}
