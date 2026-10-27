@@ -78,21 +78,21 @@ function MonochromaticMeshBackground() {
 
     const isDark = resolvedMode === 'dark';
 
-    // 5 Full-viewport harmonic trajectory waves (vividly visible on both dark & light modes)
+    // Harmonic trajectory waves - subtle, ambient, non-competing with foreground typography
     const waveLines = isDark
       ? [
-          { amp: 36, freq: 0.0011, speed: 0.65, color: 'rgba(255, 255, 255, 0.46)', yOffset: height * 0.18, lineWidth: 2.2 },
-          { amp: 48, freq: 0.0009, speed: 0.50, color: 'rgba(255, 255, 255, 0.52)', yOffset: height * 0.36, lineWidth: 2.6 },
-          { amp: 32, freq: 0.0013, speed: 0.75, color: 'rgba(228, 228, 231, 0.38)', yOffset: height * 0.54, lineWidth: 2.0 },
-          { amp: 42, freq: 0.0010, speed: 0.45, color: 'rgba(212, 212, 216, 0.34)', yOffset: height * 0.72, lineWidth: 2.0 },
-          { amp: 50, freq: 0.0007, speed: 0.35, color: 'rgba(161, 161, 170, 0.26)', yOffset: height * 0.88, lineWidth: 1.8 },
+          { amp: 26, freq: 0.0011, speed: 0.55, color: 'rgba(255, 255, 255, 0.20)', yOffset: height * 0.18, lineWidth: 1.4 },
+          { amp: 34, freq: 0.0009, speed: 0.42, color: 'rgba(255, 255, 255, 0.24)', yOffset: height * 0.36, lineWidth: 1.6 },
+          { amp: 24, freq: 0.0013, speed: 0.65, color: 'rgba(228, 228, 231, 0.16)', yOffset: height * 0.54, lineWidth: 1.3 },
+          { amp: 30, freq: 0.0010, speed: 0.38, color: 'rgba(212, 212, 216, 0.14)', yOffset: height * 0.72, lineWidth: 1.3 },
+          { amp: 36, freq: 0.0007, speed: 0.30, color: 'rgba(161, 161, 170, 0.10)', yOffset: height * 0.88, lineWidth: 1.2 },
         ]
       : [
-          { amp: 36, freq: 0.0011, speed: 0.65, color: 'rgba(0, 0, 0, 0.46)', yOffset: height * 0.18, lineWidth: 2.2 },
-          { amp: 48, freq: 0.0009, speed: 0.50, color: 'rgba(0, 0, 0, 0.52)', yOffset: height * 0.36, lineWidth: 2.6 },
-          { amp: 32, freq: 0.0013, speed: 0.75, color: 'rgba(0, 0, 0, 0.38)', yOffset: height * 0.54, lineWidth: 2.0 },
-          { amp: 42, freq: 0.0010, speed: 0.45, color: 'rgba(0, 0, 0, 0.34)', yOffset: height * 0.72, lineWidth: 2.0 },
-          { amp: 50, freq: 0.0007, speed: 0.35, color: 'rgba(0, 0, 0, 0.26)', yOffset: height * 0.88, lineWidth: 1.8 },
+          { amp: 26, freq: 0.0011, speed: 0.55, color: 'rgba(0, 0, 0, 0.16)', yOffset: height * 0.18, lineWidth: 1.4 },
+          { amp: 34, freq: 0.0009, speed: 0.42, color: 'rgba(0, 0, 0, 0.20)', yOffset: height * 0.36, lineWidth: 1.6 },
+          { amp: 24, freq: 0.0013, speed: 0.65, color: 'rgba(0, 0, 0, 0.14)', yOffset: height * 0.54, lineWidth: 1.3 },
+          { amp: 30, freq: 0.0010, speed: 0.38, color: 'rgba(0, 0, 0, 0.12)', yOffset: height * 0.72, lineWidth: 1.3 },
+          { amp: 36, freq: 0.0007, speed: 0.30, color: 'rgba(0, 0, 0, 0.08)', yOffset: height * 0.88, lineWidth: 1.2 },
         ];
 
     let time = 0;
@@ -134,14 +134,14 @@ function MonochromaticMeshBackground() {
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-      {/* Precision Trajectory Coordinate Grid (High-contrast definition in both light & dark mode) */}
+      {/* Precision Trajectory Coordinate Grid (Subtle watermark background, non-competing with typography) */}
       <div
-        className="absolute inset-0 opacity-[0.24] dark:opacity-[0.14] text-foreground transition-opacity"
+        className="absolute inset-0 opacity-[0.06] dark:opacity-[0.05] text-foreground transition-opacity"
         style={{
-          backgroundImage: `linear-gradient(currentColor 1.25px, transparent 1.25px), linear-gradient(90deg, currentColor 1.25px, transparent 1.25px)`,
+          backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
-          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 60%, rgba(0,0,0,0.3) 98%)',
-          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 60%, rgba(0,0,0,0.3) 98%)',
+          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.1) 75%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.1) 75%)',
         }}
       />
 
@@ -184,7 +184,7 @@ function TactileThemeToggle() {
       <div className="absolute inset-0 flex items-center justify-between px-2.5 pointer-events-none select-none">
         <span
           className={cn(
-            "text-[8px] sm:text-[9px] font-bold transition-opacity duration-200",
+            "text-[10px] font-semibold tracking-wider transition-opacity duration-200",
             isDark ? "opacity-100 text-zinc-400" : "opacity-0"
           )}
         >
@@ -192,7 +192,7 @@ function TactileThemeToggle() {
         </span>
         <span
           className={cn(
-            "text-[8px] sm:text-[9px] font-bold transition-opacity duration-200 ml-auto",
+            "text-[10px] font-semibold tracking-wider transition-opacity duration-200 ml-auto",
             !isDark ? "opacity-100 text-zinc-600" : "opacity-0"
           )}
         >
@@ -260,7 +260,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     {
       num: '01',
       title: 'Choose Direction',
-      tag: 'DAY 01 // HORIZON',
+      tag: 'Day 1 · Horizon Baseline',
       desc: 'Define the single meaningful objective you want to achieve over the next 90 days. We compute your nominal baseline trajectory.',
       metric: '1.00x Baseline Velocity',
       badge: 'Target Locked',
@@ -269,7 +269,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     {
       num: '02',
       title: "Lock Today's Focus",
-      tag: 'DAILY THRUST (+35%)',
+      tag: 'Daily Focus · +35% Thrust',
       desc: 'Each morning, select the one decisive needle-mover. Completing it generates +35% thrust, lifting your forward vector above baseline.',
       metric: '+35% Daily Thrust Added',
       badge: 'Needle-Mover Active',
@@ -278,7 +278,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     {
       num: '03',
       title: 'Anchor 2 Routines',
-      tag: 'CADENCE STABILIZERS',
+      tag: 'Cadence Stabilizers · 2 Routines',
       desc: 'Lock in two lightweight companion routines that stabilize your daily cadence. Together, they compound into peak 1.25x velocity.',
       metric: '1.25x Peak Velocity (+16d Margin)',
       badge: 'Dual Cadence Anchored',
@@ -287,7 +287,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     {
       num: '04',
       title: 'Trajectory Absorbs the Shock',
-      tag: '±10% BUFFER CONE',
+      tag: '±10% Buffer Cone · Shock Absorbed',
       desc: "When life interrupts, you don't lose 60 days. The ±10% mathematical buffer absorbs the deviation. Streaks reset; your trajectory continues.",
       metric: '1.08x Resilient Velocity (Protected)',
       badge: 'Shock Absorbed',
@@ -363,9 +363,9 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
       {/* Section Header with Clip Reveal & Atmospheric Lift */}
       <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-16">
         <AtmosphericLift yOffset={14} blurAmount={4}>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.08] mb-3 shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-border/80 mb-3 shadow-xs">
             <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
-            <span className="text-[10px] sm:text-[11px] font-medium text-foreground">
+            <span className="text-xs font-medium text-foreground">
               System Mechanics • 4-Stage Trajectory Engine
             </span>
           </div>
@@ -388,23 +388,23 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
       <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-stretch">
         {/* Left Column: Pinned Living HUD Console Display */}
         <div className="md:col-span-7 flex flex-col">
-          <div className="h-full relative rounded-2xl md:rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/85 backdrop-blur-2xl shadow-xl p-5 sm:p-6 overflow-hidden flex flex-col justify-between">
+          <div className="h-full relative rounded-2xl md:rounded-3xl border border-border/80 bg-card/85 backdrop-blur-2xl shadow-xl p-5 sm:p-6 overflow-hidden flex flex-col justify-between">
             <div>
               {/* Console HUD Bar */}
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-black/[0.08] dark:border-white/[0.08] text-xs">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-border/60 text-xs">
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-foreground animate-pulse" />
                   <span className="font-semibold text-foreground">
-                    STAGE <span className="font-tech-mono">{steps[activeStep].num}</span> // {steps[activeStep].tag}
+                    Stage <span className="font-mono font-bold">{steps[activeStep].num}</span> · <span className="font-sans font-medium text-muted-foreground">{steps[activeStep].tag}</span>
                   </span>
                 </div>
-                <div className="px-2.5 py-0.5 rounded-full bg-muted border border-border text-[10px] text-foreground font-semibold">
+                <div className="px-2.5 py-0.5 rounded-full bg-muted border border-border text-xs text-foreground font-medium">
                   {steps[activeStep].badge}
                 </div>
               </div>
 
               {/* Animated Graphic Display: Dynamically updates with activeStep */}
-              <div className="relative h-64 sm:h-72 w-full rounded-xl bg-background/80 border border-black/[0.08] dark:border-white/[0.08] p-4 flex flex-col justify-between overflow-hidden">
+              <div className="relative h-64 sm:h-72 w-full rounded-xl bg-background/80 border border-border/60 p-4 flex flex-col justify-between overflow-hidden">
                 {/* Background grid lines */}
                 <div
                   className="absolute inset-0 opacity-[0.08] pointer-events-none"
@@ -497,7 +497,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
             </div>
 
             {/* Interactive Cadence Controls & Progress Line */}
-            <div className="mt-4 pt-3 border-t border-black/[0.08] dark:border-white/[0.08] flex items-center justify-between gap-3">
+            <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -572,8 +572,8 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 className={cn(
                   "relative p-4 sm:p-4.5 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden",
                   isActive
-                    ? "bg-card/95 border-black/[0.08] dark:border-white/[0.08] scale-[1.01] opacity-100"
-                    : "bg-card/35 border-black/[0.08] dark:border-white/[0.08] opacity-55 hover:opacity-90 hover:bg-card/55 scale-[0.99]"
+                    ? "bg-card/95 border-border scale-[1.01] opacity-100 shadow-sm"
+                    : "bg-card/40 border-border/60 opacity-60 hover:opacity-90 hover:bg-card/60 scale-[0.99]"
                 )}
               >
                 {/* Active Step Cadence Progress Bar */}
@@ -588,7 +588,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                   <div className="flex items-center gap-2.5">
                     <div
                       className={cn(
-                        "size-6 sm:size-7 rounded-md flex items-center justify-center text-xs font-tech-mono font-bold transition-colors",
+                        "size-6 sm:size-7 rounded-md flex items-center justify-center text-xs font-mono font-bold transition-colors",
                         isActive ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
                       )}
                     >
@@ -634,7 +634,7 @@ export default function Landing() {
       {/* -- IMAGE 01: SCROLL SCRUB PROGRESS BAR (MOTION FOLLOWS SCROLL PROGRESS) -- */}
       <motion.div
         style={{ scaleX: scrollYProgress, transformOrigin: '0%' }}
-        className="fixed top-0 inset-x-0 h-[2.5px] bg-foreground z-[70] pointer-events-none opacity-90 shadow-[0_0_10px_rgba(255,255,255,0.6)] dark:shadow-[0_0_10px_rgba(255,255,255,0.35)]"
+        className="fixed top-0 inset-x-0 h-[2px] bg-foreground z-[70] pointer-events-none opacity-80"
       />
 
       {/* -- HIGH-CONTRAST MONOCHROMATIC KINETIC MESH BACKGROUND -- */}
@@ -648,12 +648,12 @@ export default function Landing() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-6 md:inset-x-8 max-w-5xl mx-auto z-50 kinetic-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300"
+        className="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-6 md:inset-x-8 max-w-5xl mx-auto z-50 kinetic-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300 border border-border/80"
       >
         <div className="flex items-center justify-between gap-3 sm:gap-4">
           {/* Brand Identity */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="p-1 rounded-xl bg-card/90 border border-black/[0.08] dark:border-white/10 shadow-xs shrink-0 backdrop-blur-md">
+            <div className="p-1 rounded-xl bg-card/90 border border-border/80 shadow-xs shrink-0 backdrop-blur-md">
               <SystemLogo size={22} className="sm:hidden" />
               <SystemLogo size={26} className="hidden sm:block" />
             </div>
@@ -661,7 +661,7 @@ export default function Landing() {
               <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight text-foreground truncate">
                 Kinetic
               </span>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-medium bg-muted/80 text-muted-foreground border border-border/80">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted/80 text-muted-foreground border border-border/80">
                 <span className="size-1.5 rounded-full bg-foreground" />
                 Local-First Privacy
               </span>
@@ -695,9 +695,9 @@ export default function Landing() {
       <section className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-24 sm:pt-32 pb-8 sm:pb-16 text-center">
         {/* Eyebrow with Atmospheric Lift */}
         <AtmosphericLift yOffset={16} blurAmount={6} duration={0.65} className="inline-block mb-4 sm:mb-5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-black/[0.08] dark:border-white/[0.08] shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-border/80 shadow-xs">
             <Sparkles className="size-3.5 text-foreground shrink-0" />
-            <span className="text-[10px] sm:text-[11px] font-medium text-foreground">
+            <span className="text-xs font-medium text-foreground">
               <span className="hidden sm:inline">Personal Trajectory Engine • Dynamic Vector, Not Static Streaks</span>
               <span className="sm:hidden">Dynamic Trajectory • ±10% Buffer</span>
             </span>
@@ -706,7 +706,7 @@ export default function Landing() {
 
         {/* Main Headline: Outcome-First with Monochromatic Gradient & Mysterious Clip Reveal */}
         <MysteriousClipReveal direction="horizontal" duration={0.9} delay={0.08} showLaserGlint={true} className="max-w-4xl mx-auto mb-3 sm:mb-5 px-2">
-          <h1 className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12] drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
+          <h1 className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12]">
             <span className="bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-950 dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-400 bg-clip-text text-transparent block sm:inline">
               You don't need to be perfect
             </span>{' '}
@@ -718,7 +718,7 @@ export default function Landing() {
 
         {/* Editorial Subline & Supporting Copy with Atmospheric Lift */}
         <AtmosphericLift yOffset={20} blurAmount={8} duration={0.7} delay={0.2} className="max-w-2xl mx-auto mb-6 sm:mb-8 px-2 space-y-2">
-          <p className="text-sm sm:text-lg font-medium text-foreground font-display drop-shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)]">
+          <p className="text-sm sm:text-lg font-medium text-foreground font-display">
             Streaks are static; trajectory is dynamic. One daily focus cushioned by a ±10% mathematical buffer.
           </p>
           <p className="text-xs sm:text-base text-muted-foreground leading-relaxed">
@@ -780,19 +780,19 @@ export default function Landing() {
       </section>
 
       {/* -- PRODUCT SNEAK PEEK CONSOLE -- */}
-      <section className="hidden md:block relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-4 sm:py-8">
+      <section className="hidden md:block relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-2 sm:py-5">
         <div
           id="sneak-peek-frame"
           className="relative max-w-5xl mx-auto text-left"
         >
           {/* Anchored Telemetry Chips */}
-          <div className="hidden md:flex absolute -top-5 left-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-card/70 backdrop-blur-xl text-[11px] text-muted-foreground shadow-sm pointer-events-none select-none z-20">
+          <div className="hidden md:flex absolute -top-5 left-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-border/70 bg-card/85 backdrop-blur-xl text-xs text-muted-foreground shadow-xs pointer-events-none select-none z-20">
             <span className="size-2 rounded-full bg-foreground animate-pulse" />
-            <span className="text-foreground font-semibold">Velocity: <span className="font-tech-mono">1.25x</span></span>
-            <span className="text-muted-foreground">• <span className="font-tech-mono">+16d</span> Margin</span>
+            <span className="text-foreground font-semibold">Velocity: <span className="font-mono">{1.25}x</span></span>
+            <span className="text-muted-foreground">• <span className="font-mono">+16d</span> Margin</span>
           </div>
 
-          <div className="hidden md:flex absolute -top-5 right-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-card/70 backdrop-blur-xl text-[11px] text-muted-foreground shadow-sm pointer-events-none select-none z-20">
+          <div className="hidden md:flex absolute -top-5 right-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-border/70 bg-card/85 backdrop-blur-xl text-xs text-muted-foreground shadow-xs pointer-events-none select-none z-20">
             <ShieldCheck className="size-3.5 text-foreground" />
             <span className="text-foreground font-semibold">±10% Safety Buffer</span>
             <span className="text-muted-foreground">• Drift Absorbed</span>
@@ -800,20 +800,20 @@ export default function Landing() {
 
           {/* Hardware Frame with Liquid Frosted Glass */}
           <MysteriousClipReveal direction="center-out" duration={0.9} delay={0.08} showLaserGlint={true} className="rounded-2xl md:rounded-3xl">
-            <div className="relative rounded-2xl md:rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card/85 backdrop-blur-2xl shadow-xl overflow-hidden">
+            <div className="relative rounded-2xl md:rounded-3xl border border-border/80 bg-card/80 backdrop-blur-2xl shadow-lg overflow-hidden">
               {/* Top Bar HUD */}
-              <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b border-black/[0.08] dark:border-white/[0.08] bg-muted/30 text-xs backdrop-blur-md">
+              <div className="flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 border-b border-border/60 bg-muted/20 text-xs backdrop-blur-md">
                 <div className="flex items-center gap-2">
                   <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
                   <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
                   <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
-                  <span className="ml-2 text-[11px] text-muted-foreground">
-                    Live Product Sneak Peek // Trajectory Visualizer
+                  <span className="ml-2 text-xs font-sans text-muted-foreground">
+                    Live Product Preview · Trajectory Visualizer
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/80 border border-border/80 text-[10px] text-muted-foreground backdrop-blur-sm shadow-xs">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-background/80 border border-border/80 text-xs text-muted-foreground backdrop-blur-sm shadow-xs">
                     <span className="size-1.5 rounded-full bg-foreground" />
                     <span>Preview</span>
                   </div>
@@ -821,11 +821,11 @@ export default function Landing() {
               </div>
 
               {/* Static Preview Image */}
-              <div className="p-3.5 sm:p-6 md:p-8">
+              <div className="p-3 sm:p-5 md:p-6 flex items-center justify-center">
                 <img
                   src="/assets/app-demo-fallback.png"
                   alt="Kinetic app preview"
-                  className="w-full h-auto object-cover max-h-[580px] rounded-xl border border-black/[0.08] dark:border-white/[0.08]"
+                  className="w-full h-auto object-cover max-h-[420px] rounded-xl"
                 />
               </div>
             </div>
@@ -857,7 +857,7 @@ export default function Landing() {
 
         <TelemetryStaggerContainer staggerDelay={0.08} className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
           <TelemetryStaggerItem>
-            <div className="p-4 sm:p-5 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+            <div className="p-4 sm:p-5 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
               <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <RotateCcw className="size-4" />
               </div>
@@ -873,7 +873,7 @@ export default function Landing() {
           </TelemetryStaggerItem>
 
           <TelemetryStaggerItem>
-            <div className="p-4 sm:p-5 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+            <div className="p-4 sm:p-5 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
               <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <Layers className="size-4" />
               </div>
@@ -889,7 +889,7 @@ export default function Landing() {
           </TelemetryStaggerItem>
 
           <TelemetryStaggerItem className={showAllWhoFor ? "block" : "hidden md:block"}>
-            <div className="p-4 sm:p-5 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+            <div className="p-4 sm:p-5 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
               <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <TrendingUp className="size-4" />
               </div>
@@ -905,7 +905,7 @@ export default function Landing() {
           </TelemetryStaggerItem>
 
           <TelemetryStaggerItem className={showAllWhoFor ? "block" : "hidden md:block"}>
-            <div className="p-4 sm:p-5 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
+            <div className="p-4 sm:p-5 rounded-2xl border border-border/70 bg-card/60 backdrop-blur-xl flex items-start gap-3 h-full">
               <div className="size-8 rounded-xl bg-muted/80 flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <ShieldCheck className="size-4" />
               </div>
@@ -960,10 +960,10 @@ export default function Landing() {
         <TelemetryStaggerContainer staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {/* Fragile Streak Card */}
           <TelemetryStaggerItem>
-            <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/50 dark:bg-card/30 p-5 sm:p-6 backdrop-blur-xl relative h-full flex flex-col justify-between">
+            <div className="rounded-2xl border border-border/70 bg-card/50 dark:bg-card/30 p-5 sm:p-6 backdrop-blur-xl relative h-full flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground border border-border font-medium">
                     Traditional Habit Apps
                   </span>
                   <span className="text-xs text-muted-foreground font-semibold">
@@ -975,17 +975,17 @@ export default function Landing() {
                 </h3>
 
                 {/* Visual Timeline Diagram */}
-                <div className="p-3 rounded-xl bg-background/80 text-[11px] mb-4 space-y-2">
+                <div className="p-3.5 rounded-xl bg-muted/40 border border-border/50 text-xs mb-4 space-y-2">
                   <div className="flex items-center justify-between text-muted-foreground">
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D1</span></span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-mono">D1</span></span>
                     <span>→</span>
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D2</span></span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-mono">D2</span></span>
                     <span>→</span>
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D3</span></span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-mono">D3</span></span>
                     <span>→</span>
-                    <span className="flex items-center gap-1 text-foreground font-bold underline"><XCircle className="size-3 text-foreground" /> MISS</span>
+                    <span className="flex items-center gap-1 text-foreground font-bold underline"><XCircle className="size-3 text-foreground" /> Miss</span>
                     <span>→</span>
-                    <span className="text-foreground font-bold">RESET (0)</span>
+                    <span className="text-foreground font-semibold">Reset (0)</span>
                   </div>
                 </div>
               </div>
@@ -998,10 +998,10 @@ export default function Landing() {
 
           {/* Protected Trajectory Card (Kinetic) */}
           <TelemetryStaggerItem>
-            <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/85 dark:bg-card/60 p-5 sm:p-6 backdrop-blur-xl relative h-full flex flex-col justify-between">
+            <div className="rounded-2xl border border-border/70 bg-card/85 dark:bg-card/60 p-5 sm:p-6 backdrop-blur-xl relative h-full flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-foreground text-background font-bold">
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-foreground text-background font-semibold">
                     Kinetic
                   </span>
                   <span className="text-xs text-foreground font-semibold">
@@ -1013,17 +1013,17 @@ export default function Landing() {
                 </h3>
 
                 {/* Visual Timeline Diagram */}
-                <div className="p-3 rounded-xl bg-background/90 text-[11px] mb-4 space-y-2">
+                <div className="p-3.5 rounded-xl bg-muted/40 border border-border/50 text-xs mb-4 space-y-2">
                   <div className="flex items-center justify-between text-foreground">
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D1</span></span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-mono">D1</span></span>
                     <span>→</span>
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D2</span></span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-mono">D2</span></span>
                     <span>→</span>
-                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-tech-mono">D3</span></span>
+                    <span className="flex items-center gap-1"><CheckCircle2 className="size-3 text-foreground" /> <span className="font-mono">D3</span></span>
                     <span>→</span>
-                    <span className="flex items-center gap-1 font-bold"><Zap className="size-3 text-foreground" /> BUFFER</span>
+                    <span className="flex items-center gap-1 font-bold text-primary"><Zap className="size-3" /> Buffer</span>
                     <span>→</span>
-                    <span className="text-foreground font-bold"><span className="font-tech-mono">D90</span> CONTINUES</span>
+                    <span className="text-foreground font-semibold"><span className="font-mono">D90</span> Continues</span>
                   </div>
                 </div>
               </div>
@@ -1045,7 +1045,7 @@ export default function Landing() {
       {/* -- FINAL CALL TO ACTION -- */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24 text-center">
         <MysteriousClipReveal direction="center-out" duration={0.9} showLaserGlint={true} className="rounded-2xl sm:rounded-3xl">
-          <div className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-black/[0.08] dark:border-white/[0.08] bg-card/80 backdrop-blur-2xl shadow-xl overflow-hidden">
+          <div className="relative rounded-2xl sm:rounded-3xl p-6 sm:p-12 md:p-14 border border-border/80 bg-card/80 backdrop-blur-2xl shadow-xl overflow-hidden">
             <AtmosphericLift yOffset={20} blurAmount={6} delay={0.15}>
               <div className="relative z-10 max-w-2xl mx-auto">
                 <span className="text-xs font-semibold text-muted-foreground">
@@ -1110,7 +1110,7 @@ export default function Landing() {
               <span className="font-display font-semibold text-sm text-foreground">
                 Kinetic
               </span>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Personal Trajectory Engine • Consistency Without Perfection
               </p>
             </div>

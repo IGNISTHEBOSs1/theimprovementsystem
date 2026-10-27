@@ -145,7 +145,7 @@ export default function Profile() {
       {/* ── 1. Operator Identity & Command Header ── */}
       <section
         aria-label="Operator Profile Card"
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-[var(--shadow-card)]"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-2xl border border-border/70 bg-card shadow-[var(--shadow-card)]"
       >
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -191,7 +191,7 @@ export default function Profile() {
 
       {/* ── 2. The North Star Mission Spotlight ── */}
       <section
-        className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-7 shadow-[var(--shadow-card)] relative overflow-hidden"
+        className="rounded-2xl border border-border/70 bg-card p-6 sm:p-7 shadow-[var(--shadow-card)] relative overflow-hidden"
         aria-labelledby="primary-goal-heading"
       >
         <div className="flex items-start justify-between gap-4">
@@ -201,7 +201,7 @@ export default function Profile() {
             </div>
             <span
               id="primary-goal-heading"
-              className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground block truncate"
+              className="text-xs font-sans font-medium text-muted-foreground block truncate"
             >
               Primary Goal · North Star
             </span>
@@ -432,7 +432,7 @@ export default function Profile() {
 
       {/* ── 3. Operations & Audit Ledger ── */}
       <div className="space-y-3">
-        <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted-foreground px-1">
+        <p className="text-xs font-sans font-semibold text-muted-foreground px-1">
           Operations & Audit Ledger
         </p>
 
@@ -440,7 +440,7 @@ export default function Profile() {
           {/* Quest History Entry */}
           <Link
             to="/profile/history"
-            className="group flex items-center justify-between p-4 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card hover:bg-muted/40 transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="group flex items-center justify-between p-4 rounded-2xl border border-border/70 bg-card hover:bg-muted/40 transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="flex items-start gap-3.5 min-w-0">
               <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">
@@ -454,7 +454,7 @@ export default function Profile() {
                   <span className="font-semibold text-sm text-foreground group-hover:underline">
                     Quest History
                   </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-semibold">
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-medium">
                     {overallFollowThroughRate !== null ? `${overallFollowThroughRate}% Follow-Through · ` : ""}{followThrough.completed} Done
                   </span>
                 </div>
@@ -472,7 +472,7 @@ export default function Profile() {
           {/* System Settings Entry */}
           <Link
             to="/profile/settings"
-            className="group flex items-center justify-between p-4 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card hover:bg-muted/40 transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="group flex items-center justify-between p-4 rounded-2xl border border-border/70 bg-card hover:bg-muted/40 transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="flex items-start gap-3.5 min-w-0">
               <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">

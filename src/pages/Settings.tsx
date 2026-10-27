@@ -197,7 +197,7 @@ export default function Settings() {
     setExporting(true);
     try {
       const exportPayload = {
-        application: "The Improvement System",
+        application: "Kinetic",
         version: "2.0.0",
         exportedAt: new Date().toISOString(),
         profile: {
@@ -249,7 +249,7 @@ export default function Settings() {
       <div className="space-y-6 sm:space-y-8">
         {/* -- SECTION 1: APPEARANCE & DISPLAY MATRIX -- */}
         <section
-          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
+          className="rounded-2xl border border-border/70 bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="appearance-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
@@ -266,7 +266,7 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="outline" className="text-xs font-sans font-medium hidden sm:inline-flex">
               Display Matrix
             </Badge>
           </div>
@@ -321,7 +321,7 @@ export default function Settings() {
 
         {/* -- SECTION: TACTILE SOUND & ACOUSTIC FEEDBACK -- */}
         <section
-          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
+          className="rounded-2xl border border-border/70 bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="audio-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
@@ -342,7 +342,7 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="outline" className="text-xs font-sans font-medium hidden sm:inline-flex">
               Audio Engine
             </Badge>
           </div>
@@ -360,7 +360,7 @@ export default function Settings() {
                 <p className="text-xs sm:text-sm font-semibold text-foreground">
                   {soundEnabled ? "Sound Feedback Active" : "Sound Feedback Muted"}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {soundEnabled
                     ? "Interactive audio enabled for buttons, switches, and trajectory completions."
                     : "All interface sounds are muted. Silent visual mode active."}
@@ -401,7 +401,7 @@ export default function Settings() {
 
         {/* -- SECTION 2: TEMPORAL ENGINE & SYSTEM CADENCE -- */}
         <section
-          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
+          className="rounded-2xl border border-border/70 bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="timezone-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
@@ -418,7 +418,7 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="outline" className="text-xs font-sans font-medium hidden sm:inline-flex">
               Temporal Engine
             </Badge>
           </div>
@@ -451,7 +451,7 @@ export default function Settings() {
               </Button>
             )}
             {isTimezoneSynced && (
-              <span className="text-[11px] font-tech-mono text-muted-foreground flex items-center gap-1">
+              <span className="text-xs font-sans text-muted-foreground flex items-center gap-1">
                 <CheckCircle2 className="size-3 text-emerald-500" />
                 Synchronized
               </span>
@@ -500,7 +500,7 @@ export default function Settings() {
 
         {/* -- SECTION 3: DATA SOVEREIGNTY & PRIVACY -- */}
         <section
-          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
+          className="rounded-2xl border border-border/70 bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="privacy-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
@@ -517,7 +517,7 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="outline" className="text-xs font-sans font-medium hidden sm:inline-flex">
               Data Privacy
             </Badge>
           </div>
@@ -528,7 +528,7 @@ export default function Settings() {
                 <Lock className="size-3.5 text-foreground" />
                 <span>Local-First Storage</span>
               </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Browser-persisted state keeps your commitments private, secure, and responsive with zero network lag.
               </p>
             </div>
@@ -538,7 +538,7 @@ export default function Settings() {
                 <Sliders className="size-3.5 text-foreground" />
                 <span>Zero Third-Party Trackers</span>
               </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Zero third-party trackers, advertising pixels, or data broking. Only deterministic personal trajectory computation.
               </p>
             </div>
@@ -547,7 +547,7 @@ export default function Settings() {
           <div className="mt-4 pt-4 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <p className="text-xs font-medium text-foreground">Export Personal Trajectory Data</p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Download a complete JSON snapshot of your profile, timezone, and commitment records.
               </p>
             </div>
@@ -567,7 +567,7 @@ export default function Settings() {
 
         {/* -- SECTION 4: ACTIVE SESSION & IDENTITY -- */}
         <section
-          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
+          className="rounded-2xl border border-border/70 bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="session-heading"
         >
           <div className="flex items-center justify-between gap-3 mb-4">
@@ -580,25 +580,25 @@ export default function Settings() {
                   Active Session
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Currently authenticated with The Improvement System.
+                  Currently authenticated with Kinetic.
                 </p>
               </div>
             </div>
-            <Badge variant="outline" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="outline" className="text-xs font-sans font-medium hidden sm:inline-flex">
               Session
             </Badge>
           </div>
 
           <div className="mt-4 p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span className="text-[11px] uppercase tracking-wider font-tech-mono text-muted-foreground">
+              <span className="text-xs font-sans font-medium text-muted-foreground">
                 Connected Identity
               </span>
               <p className="text-sm font-semibold text-foreground mt-0.5">
                 {user?.email || profile?.username || "Authenticated User"}
               </p>
               {profile?.created_at && (
-                <p className="text-[11px] font-tech-mono text-muted-foreground mt-0.5">
+                <p className="text-xs font-sans text-muted-foreground mt-0.5">
                   Member since {new Date(profile.created_at).toLocaleDateString()}
                 </p>
               )}
@@ -635,7 +635,7 @@ export default function Settings() {
                 </p>
               </div>
             </div>
-            <Badge variant="destructive" className="text-[10px] font-tech-mono uppercase tracking-wider hidden sm:inline-flex">
+            <Badge variant="destructive" className="text-xs font-sans font-medium hidden sm:inline-flex">
               Destructive
             </Badge>
           </div>

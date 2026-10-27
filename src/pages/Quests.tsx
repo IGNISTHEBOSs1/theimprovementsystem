@@ -260,7 +260,7 @@ export default function Quests() {
             {/* CAPACITY STRUCTURE HEADER */}
             <div className="flex flex-wrap items-center justify-between gap-3 px-1 border-b border-border/60 pb-3">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+                <span className="text-xs font-sans font-semibold text-muted-foreground">
                   Quest Capacity
                 </span>
                 {/* Structural capacity pill */}
@@ -294,11 +294,11 @@ export default function Quests() {
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-2">
                   <Sparkles className="size-4 text-primary" aria-hidden="true" />
-                  <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-foreground">
+                  <h2 className="text-xs font-sans font-semibold text-foreground">
                     Primary Focus (1 Slot)
                   </h2>
                 </div>
-                <span className="text-[11px] font-mono text-muted-foreground">
+                <span className="text-xs font-mono text-muted-foreground">
                   {focusQuest ? "1 of 1 committed" : completedFocusToday ? "1 of 1 completed" : "0 of 1 (Slot open)"}
                 </span>
               </div>
@@ -321,7 +321,7 @@ export default function Quests() {
                       <CheckSquare className="size-4" aria-hidden="true" />
                     </div>
                     <div className="min-w-0 text-left">
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-emerald-500 font-semibold block">
+                      <span className="text-xs font-sans font-semibold text-emerald-500 block">
                         Primary Focus Completed
                       </span>
                       <p className="text-sm font-semibold text-foreground mt-0.5 truncate">
@@ -339,7 +339,7 @@ export default function Quests() {
               ) : (
                 <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/[0.03] p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left transition-colors">
                   <div>
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-primary font-semibold">
+                    <span className="text-xs font-sans font-semibold text-primary">
                       Primary Focus Open
                     </span>
                     <p className="text-sm font-semibold text-foreground mt-0.5">
@@ -371,11 +371,11 @@ export default function Quests() {
               <div className="flex items-center justify-between px-1">
                 <div className="flex items-center gap-2">
                   <Repeat className="size-4 text-muted-foreground" aria-hidden="true" />
-                  <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-foreground">
+                  <h2 className="text-xs font-sans font-semibold text-foreground">
                     Supporting Routines (Max 2 Slots)
                   </h2>
                 </div>
-                <span className="text-[11px] font-mono text-muted-foreground">
+                <span className="text-xs font-mono text-muted-foreground">
                   {routineQuests.length} of 2 committed
                 </span>
               </div>
@@ -402,13 +402,13 @@ export default function Quests() {
               {routineQuests.length < 2 && (
                 <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
                   <div>
-                    <span className="text-[11px] font-mono text-muted-foreground font-medium">
+                    <span className="text-xs font-sans text-muted-foreground font-medium">
                       Routine Slot ({routineQuests.length + 1} of 2) · Open
                     </span>
                     <p className="text-xs text-foreground font-medium mt-0.5">
                       Supporting daily habits or recurring practices
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Protect momentum with quiet, predictable daily practice.
                     </p>
                   </div>
@@ -446,10 +446,10 @@ export default function Quests() {
             {upcoming.length > 0 && serverLocal && (
               <div className="mt-8 pt-4 border-t border-border/60">
                 <div className="flex items-center justify-between px-1 mb-2.5">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <h3 className="text-xs font-sans font-semibold text-muted-foreground">
                     Scheduled Recurring Routines
                   </h3>
-                  <span className="text-[11px] font-mono text-muted-foreground">
+                  <span className="text-xs font-mono text-muted-foreground">
                     {upcoming.length} active series
                   </span>
                 </div>
@@ -473,7 +473,7 @@ export default function Quests() {
                               {quest.title}
                             </span>
                             {quest.linkedToGoal && quest.goalName && (
-                              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-muted/50 px-2 py-0.5 text-[11px] text-muted-foreground border border-border/50 truncate max-w-[170px]">
+                              <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-muted/50 px-2 py-0.5 text-xs text-muted-foreground border border-border/50 truncate max-w-[170px]">
                                 <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
                                 <span className="truncate">{quest.goalName}</span>
                               </span>
@@ -481,7 +481,7 @@ export default function Quests() {
                           </div>
 
                           <div className="flex items-center gap-2.5 shrink-0 text-muted-foreground">
-                            <span className="font-mono text-[11px] bg-muted/40 px-2 py-0.5 rounded border border-border/40 text-foreground/80">
+                            <span className="font-mono text-xs bg-muted/40 px-2 py-0.5 rounded border border-border/40 text-foreground/80">
                               {dayLabel}
                             </span>
                             {quest.seriesId && (
@@ -489,7 +489,7 @@ export default function Quests() {
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => void handlePauseSeries(quest.seriesId!)}
-                                className="h-7 px-2 text-[11px] text-muted-foreground hover:text-foreground gap-1"
+                                className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
                                 title="Pause routine"
                               >
                                 <Pause className="size-3" />

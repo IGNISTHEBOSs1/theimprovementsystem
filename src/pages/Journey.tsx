@@ -128,7 +128,7 @@ export default function Journey() {
                   : "bg-muted-foreground",
               )}
             />
-            <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground font-semibold">
+            <span className="text-xs font-sans font-medium text-muted-foreground">
               North Star Path
             </span>
           </div>
@@ -185,7 +185,7 @@ export default function Journey() {
           )}
           <span
             className={cn(
-              "text-xs font-mono font-bold uppercase tracking-wider",
+              "text-xs font-sans font-semibold",
               paceDetails.badgeVariant === "success"
                 ? "text-emerald-500"
                 : paceDetails.badgeVariant === "warning"
@@ -256,7 +256,7 @@ export default function Journey() {
         aria-label="Next action for today"
         className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-sm"
       >
-        <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground font-semibold block mb-2">
+        <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2">
           Next Useful Move
         </span>
 
@@ -314,7 +314,7 @@ export default function Journey() {
           className="flex items-center justify-between w-full p-4 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors text-xs text-muted-foreground"
           aria-expanded={showTechnicalTelemetry}
         >
-          <span className="font-mono font-medium text-foreground">
+          <span className="text-xs font-sans font-medium text-foreground">
             {showTechnicalTelemetry ? "Hide Technical Telemetry" : "View Technical Telemetry & Distribution"}
           </span>
           {showTechnicalTelemetry ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
@@ -324,7 +324,7 @@ export default function Journey() {
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 animate-in fade-in duration-200">
             {/* Flex Buffer breakdown */}
             <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2">
-              <span className="font-mono uppercase text-[10px] tracking-wider text-muted-foreground block font-semibold">
+              <span className="text-xs font-sans font-semibold text-muted-foreground block">
                 Flex Buffer Slots
               </span>
               <div className="grid grid-cols-9 gap-1 pt-1">
@@ -344,14 +344,14 @@ export default function Journey() {
                   );
                 })}
               </div>
-              <p className="text-[11px] text-muted-foreground pt-1">
+              <p className="text-xs text-muted-foreground pt-1">
                 {buffer} of 9 safety margin days intact (±10% mathematical resilience cone).
               </p>
             </div>
 
             {/* Daily Pace */}
             <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2">
-              <span className="font-mono uppercase text-[10px] tracking-wider text-muted-foreground block font-semibold">
+              <span className="text-xs font-sans font-semibold text-muted-foreground block">
                 Daily Completion Velocity
               </span>
               <div className="flex items-baseline gap-1.5 pt-1">
@@ -360,7 +360,7 @@ export default function Journey() {
                 </span>
                 <span className="text-muted-foreground">completions / day</span>
               </div>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Target pace: 1.0/day. Catch-up required: {pace?.requiredDailyPace ?? 1.0}/day.
               </p>
             </div>
@@ -368,7 +368,7 @@ export default function Journey() {
             {/* Evidence Breakdown */}
             <div className="sm:col-span-2 rounded-xl border border-border/80 bg-card p-4 text-xs space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-mono uppercase text-[10px] tracking-wider text-muted-foreground font-semibold">
+                <span className="text-xs font-sans font-semibold text-muted-foreground">
                   Evidence Breakdown by Priority
                 </span>
                 <span className="font-mono text-muted-foreground">

@@ -328,7 +328,7 @@ export default function Dashboard() {
       {/* ── 1. GREETING & LOCATION (Attention Level: Context) ── */}
       <header className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-border/60">
         <div>
-          <p className="text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-xs font-sans font-medium text-muted-foreground">
             {todayDateFormatted}
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mt-0.5">
@@ -350,7 +350,7 @@ export default function Dashboard() {
 
         {/* Quiet Commitment Capacity Pill */}
         <div className="flex items-center gap-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-card text-xs font-mono font-medium text-foreground shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/80 bg-card text-xs font-mono font-medium text-foreground shadow-xs">
             <span
               className={cn(
                 "size-2 rounded-full",
@@ -370,7 +370,7 @@ export default function Dashboard() {
       {/* ── 2. TODAY’S PRIMARY FOCUS (Attention Level: Primary Action — The ONE dominant card) ── */}
       <div className="mt-6">
         {loading ? (
-          <section className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7" aria-label="Loading today’s focus">
+          <section className="rounded-2xl border border-border/80 bg-card p-7" aria-label="Loading today’s focus">
             <div className="h-3 w-24 animate-pulse rounded bg-muted" />
             <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
           </section>
@@ -410,7 +410,7 @@ export default function Dashboard() {
                   <span className="flex size-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                     <CheckCircle2 className="size-4" aria-hidden="true" />
                   </span>
-                  <p className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-500">
+                  <p className="text-xs font-sans font-semibold text-emerald-500">
                     Primary Focus Complete
                   </p>
                 </div>
@@ -431,7 +431,7 @@ export default function Dashboard() {
                 className="rounded-2xl border border-dashed border-primary/40 bg-primary/[0.03] p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <div>
-                  <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-primary">
+                  <span className="text-xs font-sans font-semibold text-primary">
                     Primary Focus Open
                   </span>
                   <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground mt-0.5">
@@ -471,7 +471,7 @@ export default function Dashboard() {
       {activeRoutines.length > 0 && (
         <section className="mt-6 pt-2" aria-labelledby="supporting-routines-heading">
           <div className="flex items-center justify-between mb-3 px-1">
-            <h2 id="supporting-routines-heading" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+            <h2 id="supporting-routines-heading" className="text-xs font-sans font-semibold text-muted-foreground">
               Supporting Routines ({activeRoutines.length} of 2)
             </h2>
             <Link to="/quests" className="text-xs font-medium text-primary hover:underline">
@@ -496,7 +496,7 @@ export default function Dashboard() {
       {/* ── 4. QUIET PROOF OF PROGRESS (Attention Level: Evidence — Subordinated below the action) ── */}
       <section
         aria-label="Trajectory and Momentum Evidence"
-        className="mt-8 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/60 p-4 sm:p-5 text-xs text-muted-foreground shadow-xs"
+        className="mt-8 rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 text-xs text-muted-foreground shadow-xs"
       >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex flex-wrap items-center gap-3">
@@ -559,32 +559,32 @@ export default function Dashboard() {
               className="overflow-hidden pt-3 mt-3 border-t border-border/50"
             >
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3 rounded-xl bg-muted/40 border border-border/60">
-                  <span className="text-[10px] uppercase font-mono tracking-wider block text-muted-foreground">Follow-Through</span>
+                <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
+                  <span className="text-xs font-sans font-semibold text-muted-foreground block">Follow-Through</span>
                   <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
                     {followThrough.completed} / {followThrough.total}
                   </span>
-                  <p className="text-[11px] text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {completionRate !== null ? `${completionRate}% of commitments honored` : "No resolved commitments yet"}
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-muted/40 border border-border/60">
-                  <span className="text-[10px] uppercase font-mono tracking-wider block text-muted-foreground">90-Day Anchors</span>
+                <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
+                  <span className="text-xs font-sans font-semibold text-muted-foreground block">90-Day Anchors</span>
                   <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
                     {goalStats.completed} / 90
                   </span>
-                  <p className="text-[11px] text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {Math.min(100, Math.round((goalStats.completed / 90) * 100))}% toward 90-day milestone
                   </p>
                 </div>
 
-                <div className="p-3 rounded-xl bg-muted/40 border border-border/60">
-                  <span className="text-[10px] uppercase font-mono tracking-wider block text-muted-foreground">Buffer Reserve</span>
+                <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
+                  <span className="text-xs font-sans font-semibold text-muted-foreground block">Buffer Reserve</span>
                   <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
                     {bufferDaysRemaining} / 9 days
                   </span>
-                  <p className="text-[11px] text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     ±10% mathematical safety margin
                   </p>
                 </div>
@@ -598,7 +598,7 @@ export default function Dashboard() {
       {topMentorSignal && (
         <section
           aria-label="Mentor Advisory Note"
-          className="mt-4 p-4 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card hover:bg-muted/30 transition-all shadow-xs"
+          className="mt-4 p-4 rounded-2xl border border-border/70 bg-card hover:bg-muted/30 transition-all shadow-xs"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 min-w-0">

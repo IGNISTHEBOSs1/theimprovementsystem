@@ -91,8 +91,8 @@ export default function Mentor() {
   if (error) {
     return (
       <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
-        <section className="rounded-3xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7" aria-label="Mentor unavailable">
-          <p className="text-label text-muted-foreground">Mentor</p>
+        <section className="rounded-2xl border border-border/70 bg-card p-7" aria-label="Mentor unavailable">
+          <p className="text-xs font-sans font-medium text-muted-foreground">Mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
           <p className="mt-2 text-body-md text-muted-foreground">This is usually temporary. You can try again now.</p>
           <Button size="lg" onClick={() => void reload()} className="mt-4 min-h-11">
@@ -329,11 +329,11 @@ export default function Mentor() {
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
+              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
               <div className="flex items-center justify-between gap-4">
-                <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground block font-semibold">
-                  DIAGNOSIS · RECURRING FRICTION
+                <span className="text-xs font-sans font-semibold text-muted-foreground block">
+                  Diagnosis · Recurring Friction
                 </span>
                 <span className="text-xs font-mono text-muted-foreground">
                   Action Engine
@@ -342,7 +342,7 @@ export default function Mentor() {
 
               {/* 1. Observation */}
               <div>
-                <span className="text-[10px] uppercase font-mono tracking-wider text-primary font-semibold block mb-1">
+                <span className="text-xs font-sans font-semibold text-primary block mb-1">
                   1. Observation
                 </span>
                 <h2
@@ -355,7 +355,7 @@ export default function Mentor() {
 
               {/* 2. Evidence */}
               <div>
-                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-1">
+                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-1">
                   2. Evidence
                 </span>
                 <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
@@ -366,7 +366,7 @@ export default function Mentor() {
               {/* 3. Recommendation */}
               {recurring.adjustment && (
                 <div className="rounded-xl bg-muted/40 p-4 border border-border/60 text-xs sm:text-sm">
-                  <span className="text-[10px] uppercase font-mono tracking-wider text-foreground font-semibold block mb-1">
+                  <span className="text-xs font-sans font-semibold text-foreground block mb-1">
                     3. Recommended Adjustment
                   </span>
                   <p className="text-foreground/90 leading-relaxed font-medium">
@@ -377,7 +377,7 @@ export default function Mentor() {
 
               {/* 4. Action Treatment Controls */}
               <div className="pt-2 border-t border-border/50">
-                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-2.5">
+                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2.5">
                   4. Apply Treatment
                 </span>
                 <div className="flex flex-wrap items-center gap-2.5">
@@ -416,16 +416,16 @@ export default function Mentor() {
           {isRecoveryHero && recovery && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
+              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-primary">
-                  DIAGNOSIS · BOUNCING BACK
+                <span className="text-xs font-sans font-semibold text-primary">
+                  Diagnosis · Bouncing Back
                 </span>
               </div>
 
               <div>
-                <span className="text-[10px] uppercase font-mono tracking-wider text-primary font-semibold block mb-1">
+                <span className="text-xs font-sans font-semibold text-primary block mb-1">
                   1. Observation
                 </span>
                 <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
@@ -434,7 +434,7 @@ export default function Mentor() {
               </div>
 
               <div>
-                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-1">
+                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-1">
                   2. Evidence
                 </span>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -443,7 +443,7 @@ export default function Mentor() {
               </div>
 
               <div className="rounded-xl bg-muted/40 p-3.5 border border-border/60 text-xs">
-                <span className="text-[10px] uppercase font-mono tracking-wider text-foreground font-semibold block mb-1">
+                <span className="text-xs font-sans font-semibold text-foreground block mb-1">
                   3. Recommended Adjustment
                 </span>
                 <p className="text-foreground/90 font-medium">
@@ -452,7 +452,7 @@ export default function Mentor() {
               </div>
 
               <div className="pt-2 border-t border-border/50">
-                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-2">
+                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2">
                   4. Action
                 </span>
                 <Button
@@ -472,11 +472,11 @@ export default function Mentor() {
           {isMomentumHero && momentum && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
+              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-emerald-500">
-                  DIAGNOSIS · MOMENTUM ACCELERATION
+                <span className="text-xs font-sans font-semibold text-emerald-500">
+                  Diagnosis · Momentum Acceleration
                 </span>
                 {momentum.comparison && (
                   <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
@@ -486,7 +486,7 @@ export default function Mentor() {
               </div>
 
               <div>
-                <span className="text-[10px] uppercase font-mono tracking-wider text-emerald-500 font-semibold block mb-1">
+                <span className="text-xs font-sans font-semibold text-emerald-500 block mb-1">
                   1. Observation
                 </span>
                 <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
@@ -495,7 +495,7 @@ export default function Mentor() {
               </div>
 
               <div>
-                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-1">
+                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-1">
                   2. Evidence
                 </span>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -504,7 +504,7 @@ export default function Mentor() {
               </div>
 
               <div className="rounded-xl bg-muted/40 p-3.5 border border-border/60 text-xs">
-                <span className="text-[10px] uppercase font-mono tracking-wider text-foreground font-semibold block mb-1">
+                <span className="text-xs font-sans font-semibold text-foreground block mb-1">
                   3. Recommended Adjustment
                 </span>
                 <p className="text-foreground/90 font-medium">
@@ -513,7 +513,7 @@ export default function Mentor() {
               </div>
 
               <div className="pt-2 border-t border-border/50">
-                <span className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground font-semibold block mb-2">
+                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2">
                   4. Action
                 </span>
                 <Button
@@ -537,10 +537,10 @@ export default function Mentor() {
       {surfaced.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-7 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card overflow-hidden shadow-[var(--shadow-card)]"
+          className="mt-7 rounded-2xl border border-border/70 bg-card overflow-hidden shadow-[var(--shadow-card)]"
         >
           <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider font-mono">
+            <span className="text-xs font-semibold text-muted-foreground">
               Pattern Ledger & Actionable Adjustments
             </span>
             <span className="text-xs font-mono text-muted-foreground">
@@ -552,11 +552,11 @@ export default function Mentor() {
             {visibleDynamics.map((item) => (
               <div key={item.key} className="p-5 sm:p-6 space-y-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold font-mono text-primary uppercase">
+                  <span className="text-xs font-semibold text-primary">
                     {item.categoryLabel}
                   </span>
                   {item.evidence && (
-                    <span className="text-[11px] font-mono text-muted-foreground">
+                    <span className="text-xs font-mono text-muted-foreground">
                       Evidence verified
                     </span>
                   )}
@@ -564,7 +564,7 @@ export default function Mentor() {
 
                 {/* 1. Observation */}
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground block mb-0.5">
+                  <span className="text-xs font-semibold text-muted-foreground block mb-0.5">
                     Observation
                   </span>
                   <p className="text-sm sm:text-base font-semibold text-foreground leading-snug">
