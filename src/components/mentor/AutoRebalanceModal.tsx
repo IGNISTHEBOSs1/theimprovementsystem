@@ -108,10 +108,10 @@ export function AutoRebalanceModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <RotateCcw className="size-4 text-primary" aria-hidden="true" />
-            Adjust Routine Cadence
+            Adjust Routine Schedule
           </DialogTitle>
           <DialogDescription>
-            Deterministic recommendation based on your verified completion history.
+            Schedule recommendation based on your recorded completion times.
           </DialogDescription>
         </DialogHeader>
 

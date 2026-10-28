@@ -17,7 +17,7 @@ function CompletionRing({ completed, total = 90 }: { completed: number; total?: 
   const circumference = 2 * Math.PI * radius;
   const fraction = total > 0 ? Math.min(1, completed / total) : 0;
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={`${completed} of ${total} anchors completed`}>
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0" role="img" aria-label={`${completed} of ${total} goal steps completed`}>
       <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="hsl(var(--foreground) / 0.15)" strokeWidth={stroke} />
       <circle
         cx={size / 2}
@@ -60,7 +60,7 @@ export function DirectionCard({ name, goalStats, bufferDaysRemaining = 9, elapse
                     Also removed the rounded-full border pill wrapper (fake-button
                     anti-pattern — non-clickable element that looked interactive). */}
                 <p className="text-body-sm font-semibold text-foreground">
-                  {goalStats.completed} of 90 anchors honored
+                  {goalStats.completed} of 90 goal steps completed
                 </p>
                 <p className="text-xs font-mono text-muted-foreground">
                   <span className="text-emerald-500 mr-1">🛡</span>

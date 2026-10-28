@@ -247,7 +247,7 @@ export function TodaysCommitment({
               <div className="mt-2 flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-mono text-primary animate-in fade-in duration-200">
                 <Check className="size-3 text-primary shrink-0" aria-hidden="true" />
                 <span className="truncate">
-                  In Accordance with North Star • Anchor #{completedGoalQuests + 1} of 90
+                  Counts toward North Star • Step #{completedGoalQuests + 1} of 90
                 </span>
               </div>
             )}
@@ -258,7 +258,7 @@ export function TodaysCommitment({
         <div className="pt-1">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">
-              4. Cadence & Priority
+              4. Schedule & Priority
             </span>
             <button
               type="button"

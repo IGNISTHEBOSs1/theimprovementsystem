@@ -232,11 +232,11 @@ export default function Settings() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10">
       <PageHeader
         eyebrow="Preferences"
         title="Settings & system controls."
-        description="Configure appearance, cadence engine, data privacy, and account lifecycle."
+        description="Configure appearance, daily reset timezone, sound, privacy, and account settings."
       >
         <Button variant="ghost" asChild className="shrink-0 gap-1.5">
           <Link to="/profile">
@@ -267,7 +267,7 @@ export default function Settings() {
               </div>
             </div>
             <Badge variant="outline" className="text-xs font-sans font-medium hidden sm:inline-flex">
-              Display Matrix
+              Appearance
             </Badge>
           </div>
 
@@ -343,7 +343,7 @@ export default function Settings() {
               </div>
             </div>
             <Badge variant="outline" className="text-xs font-sans font-medium hidden sm:inline-flex">
-              Audio Engine
+              Sound
             </Badge>
           </div>
 
@@ -399,7 +399,7 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* -- SECTION 2: TEMPORAL ENGINE & SYSTEM CADENCE -- */}
+        {/* -- SECTION 2: TIMEZONE & DAY SCHEDULE -- */}
         <section
           className="rounded-2xl border border-border/70 bg-card p-5 sm:p-7 shadow-[var(--shadow-card)] transition-all"
           aria-labelledby="timezone-heading"
@@ -411,15 +411,15 @@ export default function Settings() {
               </div>
               <div>
                 <h2 id="timezone-heading" className="text-sm font-semibold tracking-tight text-foreground">
-                  Timezone & Cadence Engine
+                  Timezone & Day Schedule
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Authoritative calendar day calculation for your daily primary focus and routine reset.
+                  Calendar day calculation for your daily primary focus and routine reset.
                 </p>
               </div>
             </div>
             <Badge variant="outline" className="text-xs font-sans font-medium hidden sm:inline-flex">
-              Temporal Engine
+              Timezone
             </Badge>
           </div>
 
@@ -518,7 +518,7 @@ export default function Settings() {
               </div>
             </div>
             <Badge variant="outline" className="text-xs font-sans font-medium hidden sm:inline-flex">
-              Data Privacy
+              Privacy
             </Badge>
           </div>
 
@@ -585,7 +585,7 @@ export default function Settings() {
               </div>
             </div>
             <Badge variant="outline" className="text-xs font-sans font-medium hidden sm:inline-flex">
-              Session
+              Account
             </Badge>
           </div>
 

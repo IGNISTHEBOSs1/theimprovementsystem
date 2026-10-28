@@ -292,14 +292,14 @@ export function TrajectoryVisualizer({
                 : activeScrubDay < safeElapsed
                 ? `Day ${activeScrubDay} · Recorded`
                 : `Day ${activeScrubDay} · Planned Target`
-              : "Anchors completed"}
+              : "Goal progress"}
           </span>
           <div className="mt-0.5 flex items-baseline gap-2">
             <span className="text-3xl sm:text-4xl font-mono font-bold tracking-tight text-foreground tabular-nums">
               {activeScrubDay !== null ? scrubAnchors : completedQuests}
             </span>
             <span className="text-sm font-sans text-muted-foreground">
-              / {targetAnchors} anchors (
+              / {targetAnchors} completed (
               {Math.round(
                 ((activeScrubDay !== null ? scrubAnchors : completedQuests) /
                   Math.max(1, targetAnchors)) *

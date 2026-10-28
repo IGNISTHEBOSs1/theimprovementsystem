@@ -192,7 +192,7 @@ export default function Dashboard() {
 
   if (profileLoading) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <section className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7" aria-label="Loading">
           <div className="h-3 w-24 animate-pulse rounded bg-muted" />
           <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
@@ -203,7 +203,7 @@ export default function Dashboard() {
 
   if (profileError || !profile) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <section
           className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7"
           aria-label="Profile unavailable"
@@ -233,7 +233,7 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-5 py-6 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <section
           className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7"
           aria-label="Progress unavailable"
@@ -321,7 +321,7 @@ export default function Dashboard() {
       initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="mx-auto w-full max-w-4xl px-5 py-6 pb-28 sm:px-8 sm:py-10"
+      className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10"
     >
       <AppTour />
 
@@ -435,7 +435,7 @@ export default function Dashboard() {
                     Primary Focus Open
                   </span>
                   <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground mt-0.5">
-                    Anchor today with one decisive commitment
+                    Focus today on one decisive commitment
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5 max-w-lg">
                     Your routines are active below. Set your single non-negotiable focus to guide today&apos;s momentum.
@@ -467,161 +467,169 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* ── 3. SUPPORTING ROUTINES (Attention Level: Secondary Action) ── */}
-      {activeRoutines.length > 0 && (
-        <section className="mt-6 pt-2" aria-labelledby="supporting-routines-heading">
-          <div className="flex items-center justify-between mb-3 px-1">
-            <h2 id="supporting-routines-heading" className="text-xs font-sans font-semibold text-muted-foreground">
-              Supporting Routines ({activeRoutines.length} of 2)
-            </h2>
-            <Link to="/quests" className="text-xs font-medium text-primary hover:underline">
-              Manage routines →
-            </Link>
-          </div>
-          <ul className="space-y-2.5">
-            <AnimatePresence mode="popLayout" initial={false}>
-              {activeRoutines.map((routine) => (
-                <SecondaryQuestItem
-                  key={routine.id}
-                  quest={routine}
-                  completing={saving}
-                  onComplete={handleComplete}
-                />
-              ))}
-            </AnimatePresence>
-          </ul>
-        </section>
-      )}
-
-      {/* ── 4. QUIET PROOF OF PROGRESS (Attention Level: Evidence — Subordinated below the action) ── */}
-      <section
-        aria-label="Trajectory and Momentum Evidence"
-        className="mt-8 rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 text-xs text-muted-foreground shadow-xs"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-1.5 font-medium text-foreground">
-              <Target className="size-3.5 text-primary" aria-hidden="true" />
-              <span>Goal Anchor #{goalStats.completed} of 90</span>
-            </div>
-            <span>·</span>
-            <div className="flex items-center gap-1.5 font-mono">
-              <span className="text-emerald-500 font-semibold">{bufferDaysRemaining}</span>/9 Flex Days Intact
-            </div>
-            {completionRate !== null && (
-              <>
-                <span>·</span>
-                <span className="font-mono">{completionRate}% Follow-Through</span>
-              </>
-            )}
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            {/* 7-Day Rhythm Cadence Indicator */}
-            {weeklyCadence.length === 7 && (
-              <div
-                className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-border/80 bg-background/80"
-                aria-label="7-day rhythm dots"
-                title="7-day completion cadence"
-              >
-                {weeklyCadence.map((day) => (
-                  <span
-                    key={day.dateStr}
-                    className={cn(
-                      "size-2 rounded-full transition-all",
-                      day.completed ? "bg-foreground" : "border border-border/80 bg-transparent",
-                    )}
-                  />
-                ))}
-                <span className="text-[10px] font-mono text-muted-foreground ml-1">7d</span>
+      {/* ── 3. BALANCED DESKTOP SECONDARY WORKSPACE (Routines + Evidence & Mentor) ── */}
+      <div className="mt-6 lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
+        {/* Left Column on Desktop: Supporting Routines */}
+        <div className={cn("space-y-6", activeRoutines.length > 0 ? "lg:col-span-7" : "lg:col-span-12")}>
+          {activeRoutines.length > 0 && (
+            <section aria-labelledby="supporting-routines-heading">
+              <div className="flex items-center justify-between mb-3 px-1">
+                <h2 id="supporting-routines-heading" className="text-xs font-sans font-semibold text-muted-foreground">
+                  Supporting Routines ({activeRoutines.length} of 2)
+                </h2>
+                <Link to="/quests" className="text-xs font-medium text-primary hover:underline">
+                  Manage routines →
+                </Link>
               </div>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setShowTelemetryDetails((v) => !v)}
-              className="text-xs text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm px-1 py-0.5 cursor-pointer"
-              aria-expanded={showTelemetryDetails}
-            >
-              {showTelemetryDetails ? "Less" : "Details"}
-            </button>
-          </div>
+              <ul className="space-y-2.5">
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {activeRoutines.map((routine) => (
+                    <SecondaryQuestItem
+                      key={routine.id}
+                      quest={routine}
+                      completing={saving}
+                      onComplete={handleComplete}
+                    />
+                  ))}
+                </AnimatePresence>
+              </ul>
+            </section>
+          )}
         </div>
 
-        {/* Progressive Disclosure: Expanded telemetry details */}
-        <AnimatePresence>
-          {showTelemetryDetails && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={TIS_SPRINGS.settle}
-              className="overflow-hidden pt-3 mt-3 border-t border-border/50"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
-                  <span className="text-xs font-sans font-semibold text-muted-foreground block">Follow-Through</span>
-                  <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
-                    {followThrough.completed} / {followThrough.total}
-                  </span>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {completionRate !== null ? `${completionRate}% of commitments honored` : "No resolved commitments yet"}
-                  </p>
+        {/* Right Column on Desktop: Momentum Progress + Mentor Advice */}
+        <div className={cn("space-y-4", activeRoutines.length > 0 ? "mt-6 lg:mt-0 lg:col-span-5" : "mt-6 lg:col-span-12")}>
+          {/* ── 4. QUIET PROOF OF PROGRESS ── */}
+          <section
+            aria-label="Progress and Momentum Summary"
+            className="rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 text-xs text-muted-foreground shadow-xs"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-1.5 font-medium text-foreground">
+                  <Target className="size-3.5 text-primary" aria-hidden="true" />
+                  <span>Goal Step #{goalStats.completed} of 90</span>
                 </div>
-
-                <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
-                  <span className="text-xs font-sans font-semibold text-muted-foreground block">90-Day Anchors</span>
-                  <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
-                    {goalStats.completed} / 90
-                  </span>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {Math.min(100, Math.round((goalStats.completed / 90) * 100))}% toward 90-day milestone
-                  </p>
+                <span>·</span>
+                <div className="flex items-center gap-1.5 font-mono">
+                  <span className="text-emerald-500 font-semibold">{bufferDaysRemaining}</span>/9 Flex Days Intact
                 </div>
-
-                <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
-                  <span className="text-xs font-sans font-semibold text-muted-foreground block">Buffer Reserve</span>
-                  <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
-                    {bufferDaysRemaining} / 9 days
-                  </span>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    ±10% mathematical safety margin
-                  </p>
-                </div>
+                {completionRate !== null && (
+                  <>
+                    <span>·</span>
+                    <span className="font-mono">{completionRate}% Follow-Through</span>
+                  </>
+                )}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </section>
 
-      {/* ── 5. MENTOR NOTE (Attention Level: Advisory Note) ── */}
-      {topMentorSignal && (
-        <section
-          aria-label="Mentor Advisory Note"
-          className="mt-4 p-4 rounded-2xl border border-border/70 bg-card hover:bg-muted/30 transition-all shadow-xs"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3 min-w-0">
-              <div className="size-8 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 text-primary mt-0.5">
-                <Sparkles className="size-4" aria-hidden="true" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-foreground">Mentor Signal</p>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
-                  {topMentorSignal}
-                </p>
+              <div className="flex items-center gap-3 shrink-0">
+                {/* 7-Day Rhythm Cadence Indicator */}
+                {weeklyCadence.length === 7 && (
+                  <div
+                    className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-border/80 bg-background/80"
+                    aria-label="7-day rhythm dots"
+                    title="7-day completion cadence"
+                  >
+                    {weeklyCadence.map((day) => (
+                      <span
+                        key={day.dateStr}
+                        className={cn(
+                          "size-2 rounded-full transition-all",
+                          day.completed ? "bg-foreground" : "border border-border/80 bg-transparent",
+                        )}
+                      />
+                    ))}
+                    <span className="text-[10px] font-mono text-muted-foreground ml-1">7d</span>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setShowTelemetryDetails((v) => !v)}
+                  className="text-xs text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm px-1 py-0.5 cursor-pointer"
+                  aria-expanded={showTelemetryDetails}
+                >
+                  {showTelemetryDetails ? "Less" : "Details"}
+                </button>
               </div>
             </div>
-            <Link
-              to="/mentor"
-              className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 shrink-0 self-center"
+
+            {/* Progressive Disclosure: Expanded progress details */}
+            <AnimatePresence>
+              {showTelemetryDetails && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={TIS_SPRINGS.settle}
+                  className="overflow-hidden pt-3 mt-3 border-t border-border/50"
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
+                      <span className="text-xs font-sans font-semibold text-muted-foreground block">Follow-Through</span>
+                      <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
+                        {followThrough.completed} / {followThrough.total}
+                      </span>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {completionRate !== null ? `${completionRate}% of commitments honored` : "No resolved commitments yet"}
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
+                      <span className="text-xs font-sans font-semibold text-muted-foreground block">Goal Progress</span>
+                      <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
+                        {goalStats.completed} / 90
+                      </span>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {Math.min(100, Math.round((goalStats.completed / 90) * 100))}% toward 90-day milestone
+                      </p>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
+                      <span className="text-xs font-sans font-semibold text-muted-foreground block">Buffer Reserve</span>
+                      <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
+                        {bufferDaysRemaining} / 9 days
+                      </span>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ±10% mathematical safety margin
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </section>
+
+          {/* ── 5. MENTOR ADVICE ── */}
+          {topMentorSignal && (
+            <section
+              aria-label="Mentor Advisory Note"
+              className="p-4 rounded-2xl border border-border/70 bg-card hover:bg-muted/30 transition-all shadow-xs"
             >
-              <span>View advice</span>
-              <ChevronRight className="size-3.5" aria-hidden="true" />
-            </Link>
-          </div>
-        </section>
-      )}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="size-8 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 text-primary mt-0.5">
+                    <Sparkles className="size-4" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">Mentor Advice</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
+                      {topMentorSignal}
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  to="/mentor"
+                  className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 shrink-0 self-center"
+                >
+                  <span>View advice</span>
+                  <ChevronRight className="size-3.5" aria-hidden="true" />
+                </Link>
+              </div>
+            </section>
+          )}
+        </div>
+      </div>
     </motion.div>
   );
 }

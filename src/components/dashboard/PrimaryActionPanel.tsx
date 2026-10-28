@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { ArrowRight, Check, ChevronRight, CircleDot, Loader2 } from "lucide-react";
+import { ArrowRight, Check, ChevronRight, CircleDot, Loader2, Target } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,7 +72,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
   if (!quest) {
     return (
       <section className="rounded-2xl border border-border bg-card p-5 sm:p-7" aria-labelledby="focus-heading">
-        <p className="text-label text-primary">Today&apos;s focus</p>
+        <p className="text-xs font-semibold text-primary">Today&apos;s focus</p>
         <h2 id="focus-heading" className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
           Begin with one meaningful action.
         </h2>
@@ -134,40 +134,39 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
           }}
         />
       )}
-      <p className="text-label text-primary">Today&apos;s focus</p>
-      <div className="mt-4 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3.5 min-w-0 flex-1">
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              <CircleDot className="size-4 text-primary" aria-hidden="true" />
-              <span>{quest.timeFrame}</span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-medium border border-primary/40 bg-primary/10 text-primary">
-                Primary Focus
+      <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+        <CircleDot className="size-3.5 text-primary shrink-0" aria-hidden="true" />
+        <span>Today&apos;s Focus {quest.timeFrame ? `· ${quest.timeFrame}` : ""}</span>
+      </div>
+
+      <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <h2
+            id="focus-heading"
+            className={cn(
+              "text-xl sm:text-2xl font-bold tracking-tight text-foreground transition-all line-clamp-3 break-words leading-snug",
+              completionStage !== "idle" && "line-through text-muted-foreground",
+            )}
+          >
+            {quest.title}
+          </h2>
+
+          {quest.linkedToGoal ? (
+            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Target className="size-3.5 text-primary shrink-0" aria-hidden="true" />
+              <span className="truncate">
+                Step <strong className="text-foreground font-semibold font-mono">{completedGoalQuests + 1}</strong> of 90 toward{" "}
+                <strong className="text-foreground font-medium">{quest.goalName || "North Star"}</strong>
               </span>
             </div>
-            <h2 id="focus-heading" className={cn("mt-2 text-2xl font-semibold tracking-tight text-foreground transition-all line-clamp-2 break-words leading-snug", completionStage !== "idle" && "line-through text-muted-foreground")}>
-              {quest.title}
-            </h2>
-            {quest.linkedToGoal ? (
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                {quest.goalName && (
-                  <span className="text-muted-foreground">
-                    Direct step toward <strong className="text-foreground font-medium">{quest.goalName}</strong>
-                  </span>
-                )}
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-mono font-medium text-primary shadow-xs">
-                  <Check className="size-3 text-primary shrink-0" aria-hidden="true" />
-                  <span>✓ North Star Accordance · Advances to Anchor #{completedGoalQuests + 1} of 90</span>
-                </span>
-              </div>
-            ) : (
-              <p className="mt-1.5 text-sm text-muted-foreground">
-                One clear step is enough. Start here.
-              </p>
-            )}
-          </div>
+          ) : (
+            <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+              One clear step is enough. Start here.
+            </p>
+          )}
         </div>
-        <div className="w-full sm:w-auto sm:shrink-0">
+
+        <div className="w-full sm:w-auto sm:shrink-0 mt-1 sm:mt-0">
           <SwipeToComplete key={quest.id} completing={Boolean(completing)} onComplete={handleActionComplete} />
         </div>
       </div>

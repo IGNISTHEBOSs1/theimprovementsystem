@@ -33,7 +33,7 @@ export default function Journey() {
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 space-y-6 animate-pulse">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10 space-y-6 animate-pulse">
         <div className="h-8 w-48 rounded-xl bg-muted/60" />
         <div className="h-80 rounded-3xl bg-muted/60" aria-label="Loading trajectory" />
         <div className="h-44 rounded-2xl bg-muted/60" />
@@ -43,7 +43,7 @@ export default function Journey() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10">
         <section
           className="rounded-3xl border border-border bg-card p-8 shadow-xs text-center"
           aria-label="Trajectory unavailable"
@@ -66,7 +66,7 @@ export default function Journey() {
   const hasGoal = Boolean(profile?.primary_goal);
   if (!hasGoal) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10">
         <PlaceholderExperience
           icon={Compass}
           title="No 90-Day North Star Set."
@@ -111,7 +111,7 @@ export default function Journey() {
   const daysLeft = pace?.daysRemaining ?? 90;
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10 space-y-6">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10 space-y-6">
       {/* ── 1. HEADER (IDENTITY & PURPOSE) ── */}
       <header className="space-y-2 pb-2 border-b border-border/60">
         <div className="flex items-center justify-between gap-3">
@@ -204,7 +204,7 @@ export default function Journey() {
         </p>
 
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-          <span>{goalStats.completed} of 90 anchors completed</span>
+          <span>{goalStats.completed} of 90 goal steps completed</span>
           <span>·</span>
           <span>{buffer} of 9 flex days intact</span>
           <span>·</span>
@@ -257,18 +257,18 @@ export default function Journey() {
         className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-sm"
       >
         <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2">
-          Next Useful Move
+          Today's Next Step
         </span>
 
         {activeGoalQuest ? (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <span className="text-xs text-emerald-500 font-medium">Today's Goal Anchor Queued:</span>
+              <span className="text-xs text-emerald-500 font-medium">Today's Goal Step Queued:</span>
               <p className="text-base font-semibold text-foreground mt-0.5 truncate">
                 {activeGoalQuest.title}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Completing this advances your trajectory into the safe buffer zone.
+                Completing this advances your progress safely within your buffer.
               </p>
             </div>
 
@@ -289,7 +289,7 @@ export default function Journey() {
                 No commitment linked to your goal today.
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Commit to today's primary focus to log evidence toward your 90-anchor horizon.
+                Commit to today's primary focus to make progress toward your 90-day goal.
               </p>
             </div>
             <Button
@@ -315,7 +315,7 @@ export default function Journey() {
           aria-expanded={showTechnicalTelemetry}
         >
           <span className="text-xs font-sans font-medium text-foreground">
-            {showTechnicalTelemetry ? "Hide Technical Telemetry" : "View Technical Telemetry & Distribution"}
+            {showTechnicalTelemetry ? "Hide Detailed Pace & Statistics" : "View Detailed Pace & Statistics"}
           </span>
           {showTechnicalTelemetry ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         </button>
@@ -352,7 +352,7 @@ export default function Journey() {
             {/* Daily Pace */}
             <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2">
               <span className="text-xs font-sans font-semibold text-muted-foreground block">
-                Daily Completion Velocity
+                Daily Completion Pace
               </span>
               <div className="flex items-baseline gap-1.5 pt-1">
                 <span className="text-2xl font-mono font-bold text-foreground">
@@ -369,7 +369,7 @@ export default function Journey() {
             <div className="sm:col-span-2 rounded-xl border border-border/80 bg-card p-4 text-xs space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-sans font-semibold text-muted-foreground">
-                  Evidence Breakdown by Priority
+                  Progress by Priority
                 </span>
                 <span className="font-mono text-muted-foreground">
                   {goalStats.completed} completed · {goalStats.failed} missed ({accuracyPct}%)

@@ -135,16 +135,16 @@ export default function Profile() {
   const daysRemaining = profilePace?.daysRemaining ?? null;
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-6 pb-28 sm:px-8 sm:py-10 space-y-6">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10 space-y-6">
       <PageHeader
         eyebrow="Profile"
-        title="Operator profile."
-        description="Identity, North Star horizon, and historical audit ledger."
+        title="Your profile."
+        description="Your identity, North Star goal, and quest history."
       />
 
-      {/* ── 1. Operator Identity & Command Header ── */}
+      {/* ── 1. Identity Header ── */}
       <section
-        aria-label="Operator Profile Card"
+        aria-label="Your Profile"
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-2xl border border-border/70 bg-card shadow-[var(--shadow-card)]"
       >
         <div className="flex items-center gap-4">
@@ -155,15 +155,15 @@ export default function Profile() {
             />
             <span
               className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full bg-emerald-500 border-2 border-background"
-              title="Operator Active"
-              aria-label="Operator Active"
+              title="Active"
+              aria-label="Active"
             />
           </div>
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="truncate text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                {profile?.username || "Operator"}
+                {profile?.username || "Member"}
               </h2>
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-2">
@@ -268,7 +268,7 @@ export default function Profile() {
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <CheckCircle2 className="size-4 text-emerald-500 shrink-0" aria-hidden="true" />
                   <span>
-                    <strong className="text-foreground font-semibold font-mono">{goalStats.completed}</strong> verified {goalStats.completed === 1 ? "anchor" : "anchors"} completed toward this goal
+                    <strong className="text-foreground font-semibold font-mono">{goalStats.completed}</strong> completed {goalStats.completed === 1 ? "goal step" : "goal steps"} toward this goal
                     {goalStats.linked > 0 && (
                       <span className="font-mono text-muted-foreground ml-1">
                         ({goalCompletionRate}% goal commitment rate · {goalStats.completed}/{goalStats.linked})
@@ -280,7 +280,7 @@ export default function Profile() {
                   to="/profile/history"
                   className="font-medium text-xs text-primary hover:underline flex items-center gap-1 transition-colors"
                 >
-                  <span>View audit log</span>
+                  <span>View history</span>
                   <ChevronRight className="size-3.5" aria-hidden="true" />
                 </Link>
               </div>
@@ -395,7 +395,7 @@ export default function Profile() {
               >
                 <span className="font-semibold">Heads up:</span> Renaming your goal will detach{" "}
                 <span className="font-mono font-bold">{goalRenameWarning}</span> linked quest
-                {goalRenameWarning === 1 ? "" : "s"} from your trajectory — those anchors will
+                {goalRenameWarning === 1 ? "" : "s"} from your trajectory — those steps will
                 no longer count toward your progress. Click Save again to confirm, or Cancel to
                 keep the current name.
               </div>
@@ -430,10 +430,10 @@ export default function Profile() {
         )}
       </section>
 
-      {/* ── 3. Operations & Audit Ledger ── */}
+      {/* ── 3. Activity & History ── */}
       <div className="space-y-3">
         <p className="text-xs font-sans font-semibold text-muted-foreground px-1">
-          Operations & Audit Ledger
+          Activity & History
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -459,7 +459,7 @@ export default function Profile() {
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                  Chronological audit log of all completed quests.
+                  Chronological record of all completed quests.
                 </p>
               </div>
             </div>

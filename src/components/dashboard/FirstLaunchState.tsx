@@ -59,11 +59,11 @@ export function FirstLaunchState({ name }: FirstLaunchStateProps) {
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-8 sm:py-12 space-y-8">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
       <PageHeader
-        eyebrow="Initial Orbit"
+        eyebrow="Welcome"
         title={`Welcome, ${name}.`}
-        description="Configure your 90-day North Star horizon to anchor your daily trajectory."
+        description="Set your 90-day North Star goal to guide your daily tasks."
       />
 
       <section
@@ -78,19 +78,19 @@ export function FirstLaunchState({ name }: FirstLaunchStateProps) {
             What is your single focus for the next 90 days?
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            One needle-moving outcome. Our engine calculates your nominal vector and cushions it with a 10% buffer bank (9 flex days).
+            One meaningful outcome. Kinetic calculates your pace and cushions it with a flexible 10% buffer (9 flex days).
           </p>
         </div>
 
-        {/* 90 / 90 / 9 Contract Summary Pill */}
+        {/* 90 / 90 / 9 Framework Summary Pill */}
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-xs font-mono text-foreground">
           <Target className="size-4 text-primary shrink-0" aria-hidden="true" />
-          <span className="font-semibold text-primary">The 90 / 90 / 9 Contract:</span>
+          <span className="font-semibold text-primary">The 90 / 90 / 9 Framework:</span>
           <span className="text-muted-foreground">90-Day Horizon</span>
           <span className="text-border">•</span>
-          <span className="text-muted-foreground">90 Target Anchors (1.0/day)</span>
+          <span className="text-muted-foreground">90 Goal Steps (1/day)</span>
           <span className="text-border">•</span>
-          <span className="text-emerald-500 font-medium">9 Buffer Flex Days (10% Tolerance)</span>
+          <span className="text-emerald-500 font-medium">9 Flexible Buffer Days (10% Tolerance)</span>
         </div>
 
         {/* Goal Input Field */}

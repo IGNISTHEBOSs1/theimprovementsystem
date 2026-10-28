@@ -82,7 +82,7 @@ export default function Mentor() {
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10">
         <div className="h-40 animate-pulse rounded-2xl bg-muted" aria-label="Loading your mentor" />
       </div>
     );
@@ -90,7 +90,7 @@ export default function Mentor() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10">
         <section className="rounded-2xl border border-border/70 bg-card p-7" aria-label="Mentor unavailable">
           <p className="text-xs font-sans font-medium text-muted-foreground">Mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
@@ -146,16 +146,16 @@ export default function Mentor() {
       case "weekday-miss-pattern":
         return {
           evidence: "Completion history shows failures concentrated on a specific weekday.",
-          adjustment: "Rebalance your weekly routine schedule to avoid overload on friction-heavy days.",
-          actionLabel: rebalanceProposal ? `Rebalance (${rebalanceProposal.fromDayLabel} → ${rebalanceProposal.toDayLabel})` : "Adjust Schedule",
+          adjustment: "Adjust your weekly routine schedule to avoid overload on friction-heavy days.",
+          actionLabel: rebalanceProposal ? `Move to ${rebalanceProposal.toDayLabel}` : "Adjust Schedule",
           onAction: rebalanceProposal ? () => setRebalanceOpen(true) : undefined,
           actionDestination: rebalanceProposal ? undefined : "/quests",
         };
       case "series-reliability":
         return {
           evidence: "This routine completes at a rate significantly below your baseline.",
-          adjustment: "Reduce frequency or pause this routine to protect your trajectory buffer.",
-          actionLabel: rebalanceProposal ? "Rebalance Routine" : "Manage Routines",
+          adjustment: "Reduce frequency or pause this routine to protect your buffer days.",
+          actionLabel: rebalanceProposal ? "Adjust Schedule" : "Manage Routines",
           onAction: rebalanceProposal ? () => setRebalanceOpen(true) : undefined,
           actionDestination: rebalanceProposal ? undefined : "/quests",
         };
@@ -169,15 +169,15 @@ export default function Mentor() {
       case "recovery-after-miss":
         return {
           evidence: "A missed commitment was followed by another miss, indicating avoidance friction.",
-          adjustment: "Commit to one manageable primary focus today to rebuild deterministic momentum.",
+          adjustment: "Commit to one manageable primary focus today to rebuild steady momentum.",
           actionLabel: "Commit to Focus",
           actionDestination: "/quests",
         };
       case "trajectory-position":
         return {
           evidence: "Completions have fallen below the lower boundary of the ±10% buffer corridor.",
-          adjustment: "Complete your anchor commitments this week to restore nominal velocity.",
-          actionLabel: "View Trajectory",
+          adjustment: "Complete your primary goal commitments this week to get back on track.",
+          actionLabel: "View Path",
           actionDestination: "/journey",
         };
       case "priority-completion-pattern":
@@ -189,8 +189,8 @@ export default function Mentor() {
         };
       default:
         return {
-          evidence: "Verified from your logged commitment timestamps.",
-          adjustment: "Anchor this habit to a consistent daily trigger.",
+          evidence: "Derived from your logged commitment timestamps.",
+          adjustment: "Attach this habit to a consistent daily trigger.",
           actionLabel: "Adjust in Quests",
           actionDestination: "/quests",
         };
@@ -201,7 +201,7 @@ export default function Mentor() {
     switch (i.category) {
       case "recurring-friction":
         return {
-          actionLabel: rebalanceProposal ? `Rebalance (${rebalanceProposal.fromDayLabel} → ${rebalanceProposal.toDayLabel})` : "Manage Routines",
+          actionLabel: rebalanceProposal ? `Move to ${rebalanceProposal.toDayLabel}` : "Manage Routines",
           onAction: rebalanceProposal ? () => setRebalanceOpen(true) : undefined,
           actionDestination: rebalanceProposal ? undefined : "/quests",
         };
@@ -260,7 +260,7 @@ export default function Mentor() {
 
   if (!hasHero && surfaced.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10">
         <PlaceholderExperience
           icon={MessageSquare}
           title="No clear behavioral pattern yet."
@@ -283,7 +283,7 @@ export default function Mentor() {
     } else {
       toast({
         title: "Routine schedule updated",
-        description: "Successfully rebalanced your routine cadence.",
+        description: "Successfully updated your routine schedule.",
       });
     }
   };
@@ -315,15 +315,15 @@ export default function Mentor() {
       variants={shouldReduceMotion ? undefined : containerVariants}
       initial={shouldReduceMotion ? false : "hidden"}
       animate="visible"
-      className="mx-auto w-full max-w-4xl px-4 py-6 pb-28 sm:px-8 sm:py-10"
+      className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10"
     >
       <PageHeader
-        eyebrow="Behavioral Diagnostics"
+        eyebrow="Guidance & Patterns"
         title="Your mentor."
-        description="Deterministic behavioral observations paired with immediate treatments to eliminate friction."
+        description="Helpful patterns from your habit history paired with practical steps to keep your momentum."
       />
 
-      {/* ── 1. PRIMARY ADVISORY DIAGNOSIS (THE HERO ACTION ENGINE) ── */}
+      {/* ── 1. PRIMARY ADVISORY INSIGHT ── */}
       {hasHero && (
         <motion.div variants={shouldReduceMotion ? undefined : itemVariants} className="mt-6">
           {recurring && (
@@ -333,10 +333,10 @@ export default function Mentor() {
             >
               <div className="flex items-center justify-between gap-4">
                 <span className="text-xs font-sans font-semibold text-muted-foreground block">
-                  Diagnosis · Recurring Friction
+                  Pattern · Repeating Obstacle
                 </span>
                 <span className="text-xs font-mono text-muted-foreground">
-                  Action Engine
+                  Suggested Next Step
                 </span>
               </div>
 
@@ -378,7 +378,7 @@ export default function Mentor() {
               {/* 4. Action Treatment Controls */}
               <div className="pt-2 border-t border-border/50">
                 <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2.5">
-                  4. Apply Treatment
+                  4. Suggested Action
                 </span>
                 <div className="flex flex-wrap items-center gap-2.5">
                   {rebalanceProposal ? (
@@ -420,7 +420,7 @@ export default function Mentor() {
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-sans font-semibold text-primary">
-                  Diagnosis · Bouncing Back
+                  Pattern · Bouncing Back
                 </span>
               </div>
 
@@ -453,7 +453,7 @@ export default function Mentor() {
 
               <div className="pt-2 border-t border-border/50">
                 <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2">
-                  4. Action
+                  4. Suggested Action
                 </span>
                 <Button
                   size="sm"
@@ -476,7 +476,7 @@ export default function Mentor() {
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-sans font-semibold text-emerald-500">
-                  Diagnosis · Momentum Acceleration
+                  Pattern · Steady Progress
                 </span>
                 {momentum.comparison && (
                   <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
@@ -514,7 +514,7 @@ export default function Mentor() {
 
               <div className="pt-2 border-t border-border/50">
                 <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2">
-                  4. Action
+                  4. Suggested Action
                 </span>
                 <Button
                   size="sm"
@@ -541,10 +541,10 @@ export default function Mentor() {
         >
           <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground">
-              Pattern Ledger & Actionable Adjustments
+              Observed Patterns & Suggested Actions
             </span>
             <span className="text-xs font-mono text-muted-foreground">
-              {surfaced.length} signals
+              {surfaced.length} patterns
             </span>
           </div>
 
@@ -556,8 +556,8 @@ export default function Mentor() {
                     {item.categoryLabel}
                   </span>
                   {item.evidence && (
-                    <span className="text-xs font-mono text-muted-foreground">
-                      Evidence verified
+                    <span className="text-xs font-sans text-muted-foreground">
+                      Based on logged activity
                     </span>
                   )}
                 </div>

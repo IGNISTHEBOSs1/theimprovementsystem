@@ -184,13 +184,13 @@ const Auth = () => {
             </div>
           </div>
 
-          {/* Telemetry Indicator */}
+          {/* System status Indicator */}
           <div className="pt-1">
             <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-card text-[11px] font-mono text-muted-foreground shadow-xs">
               <span className="size-2 rounded-full bg-foreground" />
-              <span className="text-foreground font-medium">Telemetry: Nominal</span>
-              <span>• Velocity 1.25x</span>
-              <span>• Vector Protected</span>
+              <span className="text-foreground font-medium">Local-first encrypted</span>
+              <span>• 10% flexible buffer</span>
+              <span>• Zero trackers</span>
             </div>
           </div>
         </div>
