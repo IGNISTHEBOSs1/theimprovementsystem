@@ -136,7 +136,7 @@ function MonochromaticMeshBackground() {
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
       {/* Precision Trajectory Coordinate Grid (Subtle watermark background, non-competing with typography) */}
       <div
-        className="absolute inset-0 opacity-[0.06] dark:opacity-[0.05] text-foreground transition-opacity"
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.025] text-foreground transition-opacity"
         style={{
           backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
@@ -184,19 +184,19 @@ function TactileThemeToggle() {
       <div className="absolute inset-0 flex items-center justify-between px-2.5 pointer-events-none select-none">
         <span
           className={cn(
-            "text-[10px] font-semibold tracking-wider transition-opacity duration-200",
+            "text-xs font-medium transition-opacity duration-200",
             isDark ? "opacity-100 text-zinc-400" : "opacity-0"
           )}
         >
-          LUNAR
+          Dark
         </span>
         <span
           className={cn(
-            "text-[10px] font-semibold tracking-wider transition-opacity duration-200 ml-auto",
+            "text-xs font-medium transition-opacity duration-200 ml-auto",
             !isDark ? "opacity-100 text-zinc-600" : "opacity-0"
           )}
         >
-          SOLAR
+          Light
         </span>
       </div>
 
@@ -477,7 +477,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 </svg>
 
                 {/* Bottom Console Telemetry Readout */}
-                <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[11px]">
+                <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
                   <span className="text-muted-foreground">Velocity Engine:</span>
                   <span className="text-foreground font-bold font-tech-mono">{steps[activeStep].metric}</span>
                 </div>
@@ -653,15 +653,15 @@ export default function Landing() {
         <div className="flex items-center justify-between gap-3 sm:gap-4">
           {/* Brand Identity */}
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="p-1 rounded-xl bg-card/90 border border-border/80 shadow-xs shrink-0 backdrop-blur-md">
-              <SystemLogo size={22} className="sm:hidden" />
-              <SystemLogo size={26} className="hidden sm:block" />
+            <div className="size-8 rounded-lg bg-card/90 border border-border/80 shadow-xs shrink-0 backdrop-blur-md flex items-center justify-center">
+              <SystemLogo size={20} className="sm:hidden" />
+              <SystemLogo size={22} className="hidden sm:block" />
             </div>
             <div className="min-w-0 flex items-center gap-2">
               <span className="font-display font-extrabold text-xs sm:text-sm tracking-tight text-foreground truncate">
                 Kinetic
               </span>
-              <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted/80 text-muted-foreground border border-border/80">
+              <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted/80 text-muted-foreground border border-border/80">
                 <span className="size-1.5 rounded-full bg-foreground" />
                 Local-First Privacy
               </span>
@@ -705,14 +705,9 @@ export default function Landing() {
         </AtmosphericLift>
 
         {/* Main Headline: Outcome-First with Monochromatic Gradient & Mysterious Clip Reveal */}
-        <MysteriousClipReveal direction="horizontal" duration={0.9} delay={0.08} showLaserGlint={true} className="max-w-4xl mx-auto mb-3 sm:mb-5 px-2">
-          <h1 className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12]">
-            <span className="bg-gradient-to-b from-zinc-900 via-zinc-800 to-zinc-950 dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-400 bg-clip-text text-transparent block sm:inline">
-              You don't need to be perfect
-            </span>{' '}
-            <span className="bg-gradient-to-b from-black via-zinc-950 to-black dark:from-white dark:via-zinc-50 dark:to-zinc-200 bg-clip-text text-transparent font-black block sm:inline">
-              to keep improving.
-            </span>
+        <MysteriousClipReveal direction="horizontal" duration={0.9} delay={0.08} showLaserGlint={false} className="max-w-4xl mx-auto mb-3 sm:mb-5 px-2">
+          <h1 className="font-display font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.12] text-foreground">
+            You don't need to be perfect to keep improving.
           </h1>
         </MysteriousClipReveal>
 
@@ -763,7 +758,7 @@ export default function Landing() {
           </div>
 
           {/* Prominent Trust Signal with Staggered entrance */}
-          <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] text-muted-foreground/90 mt-1">
+          <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground mt-1">
             <span className="flex items-center gap-1.5 font-medium text-foreground">
               <Check className="size-3.5 text-foreground" />
               Free Forever
@@ -785,17 +780,10 @@ export default function Landing() {
           id="sneak-peek-frame"
           className="relative max-w-5xl mx-auto text-left"
         >
-          {/* Anchored Telemetry Chips */}
-          <div className="hidden md:flex absolute -top-5 left-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-border/70 bg-card/85 backdrop-blur-xl text-xs text-muted-foreground shadow-xs pointer-events-none select-none z-20">
-            <span className="size-2 rounded-full bg-foreground animate-pulse" />
-            <span className="text-foreground font-semibold">Velocity: <span className="font-mono">{1.25}x</span></span>
-            <span className="text-muted-foreground">• <span className="font-mono">+16d</span> Margin</span>
-          </div>
-
-          <div className="hidden md:flex absolute -top-5 right-4 items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-border/70 bg-card/85 backdrop-blur-xl text-xs text-muted-foreground shadow-xs pointer-events-none select-none z-20">
-            <ShieldCheck className="size-3.5 text-foreground" />
-            <span className="text-foreground font-semibold">±10% Safety Buffer</span>
-            <span className="text-muted-foreground">• Drift Absorbed</span>
+          {/* Clean Top Status Chip */}
+          <div className="hidden md:flex absolute -top-4 left-4 items-center gap-2 px-3 py-1 rounded-full border border-border/70 bg-card/90 backdrop-blur-xl text-xs text-muted-foreground shadow-xs pointer-events-none select-none z-20">
+            <span className="size-2 rounded-full bg-primary" />
+            <span className="text-foreground font-semibold">Kinetic Trajectory Visualizer</span>
           </div>
 
           {/* Hardware Frame with Liquid Frosted Glass */}
@@ -1079,7 +1067,7 @@ export default function Landing() {
                   </Magnetic>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-4 text-[11px] text-muted-foreground mt-6 pt-4 border-t border-border/40">
+                <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground mt-6 pt-4 border-t border-border/40">
                   <span className="flex items-center gap-1 text-foreground font-medium">
                     <Check className="size-3 text-foreground" />
                     Free Forever (Zero Paywalls)

@@ -30,7 +30,7 @@ function HistoryItem({ quest }: { quest: Quest }) {
           className={cn(
             "flex size-6 shrink-0 items-center justify-center rounded-lg mt-0.5 sm:mt-0 border transition-colors",
             isCompleted
-              ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
               : "bg-muted/50 text-muted-foreground border-border/70"
           )}
           aria-hidden="true"
@@ -64,7 +64,7 @@ function HistoryItem({ quest }: { quest: Quest }) {
       <div className="flex items-center justify-between sm:justify-end gap-2.5 pl-9 sm:pl-0 shrink-0 text-xs">
         {/* Desktop Goal Pill */}
         {quest.linkedToGoal && quest.goalName && (
-          <div className="hidden sm:flex items-center gap-1 rounded-full bg-muted/40 px-2 py-0.5 text-[11px] text-muted-foreground border border-border/50 max-w-[150px] truncate">
+          <div className="hidden sm:flex items-center gap-1 rounded-full bg-muted/40 px-2 py-0.5 text-xs text-muted-foreground border border-border/50 max-w-[150px] truncate">
             <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
             <span className="truncate">{quest.goalName}</span>
           </div>
@@ -73,7 +73,7 @@ function HistoryItem({ quest }: { quest: Quest }) {
         {/* Commitment Role Badge */}
         <span
           className={cn(
-            "inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border",
+            "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border",
             role === "focus"
               ? "bg-primary/10 text-primary border-primary/25 font-semibold"
               : "bg-muted/60 text-muted-foreground border-border/60"
@@ -89,7 +89,7 @@ function HistoryItem({ quest }: { quest: Quest }) {
             "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border",
             isCompleted
               ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25"
-              : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700 font-mono"
+              : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700 font-sans"
           )}
         >
           {isCompleted ? "Completed" : "Missed"}
@@ -204,7 +204,7 @@ export default function QuestHistory() {
                     <Badge
                       variant="outline"
                       className={cn(
-                        "text-xs font-mono px-2.5 py-1 cursor-help transition-colors",
+                        "text-xs font-sans font-medium px-2.5 py-1 cursor-help transition-colors",
                         completionRate >= 80
                           ? "border-foreground/30 bg-foreground/10 text-foreground font-semibold"
                           : completionRate >= 60
@@ -217,7 +217,7 @@ export default function QuestHistory() {
                   </TooltipTrigger>
                   <TooltipContent side="bottom" align="end" className="max-w-xs p-3 text-xs space-y-1.5 bg-popover text-popover-foreground border border-border shadow-md">
                     <p className="font-semibold text-foreground">Follow-Through Momentum Tiers</p>
-                    <div className="space-y-1 font-mono text-[11px] text-muted-foreground">
+                    <div className="space-y-1 font-sans text-xs text-muted-foreground">
                       <div className={cn("flex justify-between gap-3", completionRate >= 80 && "text-foreground font-semibold")}>
                         <span>Strong Momentum (Above):</span>
                         <span>≥ 80%</span>
@@ -233,7 +233,7 @@ export default function QuestHistory() {
                     </div>
                   </TooltipContent>
                 </Tooltip>
-                <span className="text-[10px] font-mono text-muted-foreground">
+                <span className="text-xs font-sans text-muted-foreground">
                   {completionRate >= 80
                     ? "Tier: ≥80% follow-through"
                     : completionRate >= 60

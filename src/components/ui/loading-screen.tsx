@@ -11,7 +11,7 @@ export function LoadingScreen({ message }: { message?: string }) {
         <AtomDemo />
       </div>
       {message && (
-        <p className="text-xs font-tech-mono tracking-widest text-muted-foreground uppercase animate-pulse">
+        <p className="text-xs font-medium text-muted-foreground animate-pulse">
           {message}
         </p>
       )}

@@ -218,7 +218,7 @@ export default function Quests() {
         description="Commit to 1 primary focus and up to 2 supporting routines each day to protect your attention."
       />
 
-      <div className="mt-8 space-y-7">
+      <div className="mt-6 space-y-6">
         {loading ? (
           <div className="space-y-3" aria-label="Loading quests">
             <div className="h-24 animate-pulse rounded-2xl bg-muted" />
@@ -264,7 +264,7 @@ export default function Quests() {
                   Quest Capacity
                 </span>
                 {/* Structural capacity pill */}
-                <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full border border-border/80 bg-muted/40 text-[11px] sm:text-xs font-mono">
+                <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full border border-border/80 bg-muted/40 text-xs font-sans">
                   <span className={cn("size-2 rounded-full", focusQuest ? "bg-primary" : completedFocusToday ? "bg-emerald-500" : "bg-muted-foreground/30")} />
                   <span className="font-medium text-foreground">
                     1 Focus: {focusQuest ? "Committed" : completedFocusToday ? "Completed" : "Open"}
@@ -302,7 +302,7 @@ export default function Quests() {
                         Primary Focus (1 Slot)
                       </h2>
                     </div>
-                    <span className="text-xs font-mono text-muted-foreground">
+                    <span className="text-xs font-sans font-medium text-muted-foreground">
                       {focusQuest ? "1 of 1 committed" : completedFocusToday ? "1 of 1 completed" : "0 of 1 (Slot open)"}
                     </span>
                   </div>
@@ -321,11 +321,11 @@ export default function Quests() {
                   ) : completedFocusToday ? (
                     <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.04] p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left transition-colors">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="size-8 rounded-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                        <div className="size-8 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
                           <CheckSquare className="size-4" aria-hidden="true" />
                         </div>
                         <div className="min-w-0 text-left">
-                          <span className="text-xs font-sans font-semibold text-emerald-500 block">
+                          <span className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400 block">
                             Primary Focus Completed
                           </span>
                           <p className="text-sm font-semibold text-foreground mt-0.5 truncate">
@@ -336,7 +336,7 @@ export default function Quests() {
                           </p>
                         </div>
                       </div>
-                      <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 shrink-0">
+                      <span className="text-xs font-sans font-semibold px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 shrink-0">
                         ✓ Done for Today
                       </span>
                     </div>
@@ -379,7 +379,7 @@ export default function Quests() {
                         Supporting Routines (Max 2 Slots)
                       </h2>
                     </div>
-                    <span className="text-xs font-mono text-muted-foreground">
+                    <span className="text-xs font-sans font-medium text-muted-foreground">
                       {routineQuests.length} of 2 committed
                     </span>
                   </div>
@@ -454,7 +454,7 @@ export default function Quests() {
                     <h3 className="text-xs font-sans font-semibold text-muted-foreground">
                       Scheduled Recurring Routines
                     </h3>
-                    <span className="text-xs font-mono text-muted-foreground">
+                    <span className="text-xs font-sans font-medium text-muted-foreground">
                       {upcoming.length} scheduled
                     </span>
                   </div>
@@ -486,7 +486,7 @@ export default function Quests() {
                             </div>
 
                             <div className="flex items-center gap-2.5 shrink-0 text-muted-foreground">
-                              <span className="font-mono text-xs bg-muted/40 px-2 py-0.5 rounded border border-border/40 text-foreground/80">
+                              <span className="font-sans text-xs bg-muted/40 px-2 py-0.5 rounded border border-border/40 text-foreground/80">
                                 {dayLabel}
                               </span>
                               {quest.seriesId && (

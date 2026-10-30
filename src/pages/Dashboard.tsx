@@ -111,11 +111,11 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         </button>
 
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] sm:text-[11px] font-mono font-medium border border-border/70 bg-muted/40 text-muted-foreground shrink-0">
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-sans font-medium border border-border/70 bg-muted/40 text-muted-foreground shrink-0">
             Routine
           </span>
           {quest.linkedToGoal && quest.goalName && (
-            <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground border border-border/40 bg-muted/20 px-2 py-0.5 rounded-full truncate max-w-[160px]">
+            <span className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground border border-border/40 bg-muted/20 px-2 py-0.5 rounded-full truncate max-w-[160px]">
               <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
               <span className="truncate">{quest.goalName}</span>
             </span>
@@ -131,7 +131,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         variant="ghost"
         className={cn(
           "shrink-0 min-h-9 sm:min-h-10 px-2.5 sm:px-3 hover:bg-muted/80 text-xs font-medium transition-colors",
-          isCompleted ? "text-emerald-500 font-semibold" : "text-muted-foreground hover:text-foreground",
+          isCompleted ? "text-emerald-700 dark:text-emerald-400 font-semibold" : "text-muted-foreground hover:text-foreground",
         )}
         disabled={completing || isCompleted}
         onClick={handleMarkComplete}
@@ -350,7 +350,7 @@ export default function Dashboard() {
 
         {/* Quiet Commitment Capacity Pill */}
         <div className="flex items-center gap-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/80 bg-card text-xs font-mono font-medium text-foreground shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/80 bg-card text-xs font-sans font-medium text-foreground shadow-xs">
             <span
               className={cn(
                 "size-2 rounded-full",
@@ -407,10 +407,10 @@ export default function Dashboard() {
                 className="rounded-2xl glass-hero p-5 sm:p-7 shadow-[var(--shadow-card)]"
               >
                 <div className="flex items-center gap-2">
-                  <span className="flex size-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                     <CheckCircle2 className="size-4" aria-hidden="true" />
                   </span>
-                  <p className="text-xs font-sans font-semibold text-emerald-500">
+                  <p className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400">
                     Primary Focus Complete
                   </p>
                 </div>
@@ -512,7 +512,7 @@ export default function Dashboard() {
                 </div>
                 <span className="hidden sm:inline text-muted-foreground/50" aria-hidden="true">·</span>
                 <div className="flex items-center gap-1.5 font-mono">
-                  <span className="text-emerald-500 font-semibold">{bufferDaysRemaining}</span>/9 Flex Days Intact
+                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{bufferDaysRemaining}</span>/9 Flex Days Intact
                 </div>
                 {completionRate !== null && (
                   <>
@@ -539,7 +539,7 @@ export default function Dashboard() {
                         )}
                       />
                     ))}
-                    <span className="text-[10px] font-mono text-muted-foreground ml-1">7d</span>
+                    <span className="text-xs font-mono text-muted-foreground ml-1">7d</span>
                   </div>
                 )}
 

@@ -13,8 +13,8 @@ const NotFound = () => {
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-4 bg-background text-foreground">
       <main className="w-full max-w-md rounded-2xl border border-border/80 bg-card p-6 sm:p-8 shadow-xs text-center space-y-6 relative overflow-hidden" aria-labelledby="not-found-heading">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/80 bg-muted/60 text-[11px] font-mono text-muted-foreground">
-          <span className="size-2 rounded-full bg-warning animate-pulse" aria-hidden="true" />
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/80 bg-muted/60 text-xs font-medium text-muted-foreground">
+          <span className="size-2 rounded-full bg-warning" aria-hidden="true" />
           <span>Status 404 · Vector Diverged</span>
         </div>
 
@@ -31,9 +31,9 @@ const NotFound = () => {
           </p>
         </div>
 
-        <Button asChild size="default" className="w-full h-11 rounded-xl bg-foreground text-background hover:bg-foreground/90 font-medium text-xs sm:text-sm gap-2">
+        <Button asChild size="default" variant="default" className="w-full h-11 rounded-xl font-semibold text-xs sm:text-sm gap-2">
           <Link to="/">
-            <span>Return to Command Cockpit</span>
+            <span>Return to Dashboard</span>
             <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </Button>

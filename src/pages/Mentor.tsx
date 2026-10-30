@@ -329,13 +329,13 @@ export default function Mentor() {
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
+              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-4">
                 <span className="text-xs font-sans font-semibold text-muted-foreground block">
                   Pattern · Repeating Obstacle
                 </span>
-                <span className="text-xs font-mono text-muted-foreground">
+                <span className="text-xs font-medium text-muted-foreground">
                   Suggested Next Step
                 </span>
               </div>
@@ -475,7 +475,7 @@ export default function Mentor() {
               className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-sans font-semibold text-emerald-500">
+                <span className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400">
                   Pattern · Steady Progress
                 </span>
                 {momentum.comparison && (
@@ -486,7 +486,7 @@ export default function Mentor() {
               </div>
 
               <div>
-                <span className="text-xs font-sans font-semibold text-emerald-500 block mb-1">
+                <span className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400 block mb-1">
                   1. Observation
                 </span>
                 <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
@@ -537,13 +537,13 @@ export default function Mentor() {
       {surfaced.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-7 rounded-2xl border border-border/70 bg-card overflow-hidden shadow-[var(--shadow-card)]"
+          className="mt-6 rounded-2xl border border-border/70 bg-card overflow-hidden shadow-[var(--shadow-card)]"
         >
           <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground">
               Observed Patterns & Suggested Actions
             </span>
-            <span className="text-xs font-mono text-muted-foreground">
+            <span className="text-xs font-medium text-muted-foreground">
               {surfaced.length} patterns
             </span>
           </div>

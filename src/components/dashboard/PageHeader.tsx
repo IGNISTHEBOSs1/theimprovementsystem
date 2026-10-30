@@ -12,7 +12,7 @@ export function PageHeader({ eyebrow, title, description, children }: PageHeader
     <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
       <div className="max-w-2xl min-w-0 flex-1">
         {eyebrow && (
-          <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground mb-1">
+          <p className="text-xs font-semibold text-primary mb-1 tracking-normal">
             {eyebrow}
           </p>
         )}

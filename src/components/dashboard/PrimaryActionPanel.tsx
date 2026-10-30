@@ -405,7 +405,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       <span
         className={cn(
           "w-full text-center text-sm font-medium select-none pl-8 pr-3 transition-colors duration-300",
-          isDone ? "text-emerald-500 font-semibold" : "text-foreground"
+          isDone ? "text-emerald-700 dark:text-emerald-400 font-semibold" : "text-foreground"
         )}
       >
         {isDone ? "Done!" : completing ? "Saving…" : "Swipe to complete"}

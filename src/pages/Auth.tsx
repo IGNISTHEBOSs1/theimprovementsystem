@@ -138,7 +138,7 @@ const Auth = () => {
               </div>
               <div>
                 <span className="font-bold text-xl tracking-tight text-foreground block">Kinetic</span>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-mono">The Improvement System</span>
+                <span className="text-xs text-muted-foreground font-medium">The Improvement System</span>
               </div>
             </div>
 
@@ -186,7 +186,7 @@ const Auth = () => {
 
           {/* System status Indicator */}
           <div className="pt-1">
-            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-card text-[11px] font-mono text-muted-foreground shadow-xs">
+            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-black/[0.08] dark:border-white/[0.08] bg-card text-xs text-muted-foreground shadow-xs">
               <span className="size-2 rounded-full bg-foreground" />
               <span className="text-foreground font-medium">Local-first encrypted</span>
               <span>• 10% flexible buffer</span>
@@ -209,7 +209,7 @@ const Auth = () => {
               className="lg:hidden flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
-              <span>Home</span>
+              <span>Overview</span>
             </button>
             <div className="hidden lg:block" />
 
@@ -354,7 +354,7 @@ const Auth = () => {
                       <span className="w-full border-t border-border" />
                     </div>
                     <div className="relative flex justify-center">
-                      <span className="bg-card px-2.5 text-[11px] font-mono text-muted-foreground uppercase tracking-wider">or with email</span>
+                      <span className="bg-card px-2.5 text-xs text-muted-foreground font-medium">or with email</span>
                     </div>
                   </div>
                 </div>

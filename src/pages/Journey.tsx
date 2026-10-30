@@ -276,7 +276,7 @@ export default function Journey() {
               size="sm"
               disabled={completingId === activeGoalQuest.id}
               onClick={() => void handleCompleteAnchor(activeGoalQuest.id)}
-              className="rounded-xl px-5 h-11 bg-foreground text-background hover:bg-foreground/90 font-medium text-xs shrink-0 active:scale-[0.98] transition-all"
+              className="rounded-xl px-5 h-11 font-semibold text-xs shrink-0 active:scale-[0.98] transition-all"
             >
               <Check className="size-4 mr-1.5" />
               {completingId === activeGoalQuest.id ? "Recording completion..." : "Complete Today's Focus"}

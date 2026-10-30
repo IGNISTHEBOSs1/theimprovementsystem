@@ -145,7 +145,7 @@ export default function Profile() {
       {/* ── 1. Identity Header ── */}
       <section
         aria-label="Your Profile"
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-2xl border border-border/70 bg-card shadow-[var(--shadow-card)]"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-2xl border border-border/70 bg-card shadow-sm"
       >
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -169,7 +169,7 @@ export default function Profile() {
             <p className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-2">
               <span>Timezone: {profile?.timezone || "UTC"}</span>
               <span>•</span>
-              <span className="text-emerald-500 font-medium">Trajectory Active</span>
+              <span className="text-emerald-700 dark:text-emerald-400 font-medium">Trajectory Active</span>
             </p>
           </div>
         </div>
@@ -351,7 +351,7 @@ export default function Profile() {
                     type="button"
                     onClick={() => setDaysFromToday(90)}
                     disabled={saving}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 hover:bg-primary/15 px-3 py-1 font-mono text-xs text-primary transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 hover:bg-primary/15 px-3 py-1 font-sans text-xs font-medium text-primary transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     <span>★ Lock 90-Day Horizon (Recommended)</span>
                   </button>
@@ -359,7 +359,7 @@ export default function Profile() {
                     type="button"
                     onClick={() => setDaysFromToday(60)}
                     disabled={saving}
-                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-sans text-xs font-medium text-muted-foreground hover:text-foreground transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <span>60-Day Sprint</span>
                   </button>
@@ -381,7 +381,7 @@ export default function Profile() {
                   onChange={(event) => setTargetDate(event.target.value)}
                   aria-label="Goal target date"
                   disabled={saving}
-                  className="min-h-11 rounded-xl w-full sm:w-64 font-mono text-xs"
+                  className="min-h-11 rounded-xl w-full sm:w-64 font-sans text-xs"
                 />
               </div>
             </div>
@@ -424,7 +424,7 @@ export default function Profile() {
           </p>
         )}
         {saveSuccess && !saveError && !editingGoal && (
-          <p className="mt-3 text-xs text-emerald-500 font-medium" role="status">
+          <p className="mt-3 text-xs text-emerald-700 dark:text-emerald-400 font-medium" role="status">
             ✓ Goal updated successfully.
           </p>
         )}
@@ -454,7 +454,7 @@ export default function Profile() {
                   <span className="font-semibold text-sm text-foreground group-hover:underline">
                     Quest History
                   </span>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-500 font-medium">
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-medium">
                     {overallFollowThroughRate !== null ? `${overallFollowThroughRate}% Follow-Through · ` : ""}{followThrough.completed} Done
                   </span>
                 </div>

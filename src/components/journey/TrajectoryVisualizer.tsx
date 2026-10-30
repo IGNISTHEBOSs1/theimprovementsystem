@@ -285,7 +285,7 @@ export function TrajectoryVisualizer({
       <div className="relative z-10 flex items-start justify-between gap-4 pb-1">
         <div className="min-w-0">
           {/* Eyebrow: Clearly distinguish recorded history from planned target */}
-          <span className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground block truncate">
+          <span className="text-xs font-semibold text-primary block truncate">
             {activeScrubDay !== null
               ? activeScrubDay === safeElapsed
                 ? `Today · Day ${safeElapsed}`
@@ -658,7 +658,7 @@ export function TrajectoryVisualizer({
           onMouseMove / onTouchMove on the SVG — single coordinate system,
           no dual-mapping jump on narrow screens. Milestone labels remain
           as a static strip to preserve visual context. */}
-      <div className="mt-1 flex justify-between text-[10px] font-mono text-muted-foreground px-0.5">
+      <div className="mt-1 flex justify-between text-xs font-mono text-muted-foreground px-0.5">
         <span>D1</span>
         <span>D15</span>
         <span>D30</span>
@@ -669,7 +669,7 @@ export function TrajectoryVisualizer({
       </div>
 
       {/* ── Single Ultra-Clean 1-Line Inline Key ── */}
-      <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-2 text-[11px] font-sans text-muted-foreground">
+      <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-2 text-xs font-sans text-muted-foreground">
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5">
             <span className="size-2 rounded-full bg-foreground" />
@@ -690,7 +690,7 @@ export function TrajectoryVisualizer({
             ±10% Buffer
           </span>
         </div>
-        <span className="font-mono text-[11px] text-muted-foreground">
+        <span className="font-mono text-xs text-muted-foreground">
           {activeScrubDay !== null ? "Scrubbing active" : "Drag to inspect"}
         </span>
       </div>

@@ -71,7 +71,7 @@ export function FirstLaunchState({ name }: FirstLaunchStateProps) {
         aria-labelledby="first-launch-heading"
       >
         <div className="space-y-1.5">
-          <p className="text-xs font-mono font-semibold uppercase tracking-wider text-primary">
+          <p className="text-xs font-semibold text-primary">
             Step 1 of 1 • North Star Direction
           </p>
           <h2 id="first-launch-heading" className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
@@ -83,14 +83,14 @@ export function FirstLaunchState({ name }: FirstLaunchStateProps) {
         </div>
 
         {/* 90 / 90 / 9 Framework Summary Pill */}
-        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-xs font-mono text-foreground">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-xs font-sans text-foreground">
           <Target className="size-4 text-primary shrink-0" aria-hidden="true" />
           <span className="font-semibold text-primary">The 90 / 90 / 9 Framework:</span>
           <span className="text-muted-foreground">90-Day Horizon</span>
           <span className="text-border">•</span>
           <span className="text-muted-foreground">90 Goal Steps (1/day)</span>
           <span className="text-border">•</span>
-          <span className="text-emerald-500 font-medium">9 Flexible Buffer Days (10% Tolerance)</span>
+          <span className="text-emerald-700 dark:text-emerald-400 font-medium">9 Flexible Buffer Days (10% Tolerance)</span>
         </div>
 
         {/* Goal Input Field */}
@@ -109,8 +109,8 @@ export function FirstLaunchState({ name }: FirstLaunchStateProps) {
 
           {/* Inspirational Prompt Chips */}
           <div className="pt-1">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground block mb-2">
-              Inspirational Horizons:
+            <span className="text-xs font-medium text-muted-foreground block mb-2">
+              Suggested goals:
             </span>
             <div className="flex flex-wrap gap-2">
               {INSPIRATIONAL_CHIPS.map((chip) => (
@@ -155,7 +155,7 @@ export function FirstLaunchState({ name }: FirstLaunchStateProps) {
         </div>
 
         {error && (
-          <p className="text-xs font-mono text-destructive" role="alert">
+          <p className="text-xs font-medium text-destructive" role="alert">
             Could not initialize trajectory. Please try again.
           </p>
         )}

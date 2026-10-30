@@ -305,7 +305,7 @@ export default function Settings() {
               </TabsList>
             </Tabs>
 
-            <div className="mt-3.5 flex items-center gap-2 text-xs text-muted-foreground font-tech-mono">
+            <div className="mt-3.5 flex items-center gap-2 text-xs text-muted-foreground font-sans">
               <span className="size-1.5 rounded-full bg-foreground/60" />
               <span>
                 Active:{" "}
@@ -433,7 +433,7 @@ export default function Settings() {
               />
               <span className="text-muted-foreground">
                 Browser Detected Zone:{" "}
-                <strong className="text-foreground font-tech-mono font-medium">{detectedTz}</strong>
+                <strong className="text-foreground font-mono font-medium">{detectedTz}</strong>
               </span>
             </div>
 

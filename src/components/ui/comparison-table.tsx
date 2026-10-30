@@ -220,7 +220,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                       <span className="text-xs sm:text-sm font-display font-bold text-foreground">
                         Kinetic
                       </span>
-                      <span className="text-xs font-bold px-2 py-0.5 rounded bg-foreground text-background">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25">
                         Trajectory Engine
                       </span>
                     </div>
@@ -240,7 +240,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                         {row.basis}
                       </p>
                       {row.subBasis && (
-                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {row.subBasis}
                         </p>
                       )}
@@ -252,7 +252,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
                         <span className="flex size-4 sm:size-5 items-center justify-center rounded bg-muted/70 text-muted-foreground shrink-0 mt-0.5 shadow-xs">
                           <RiCloseLine className="size-3 sm:size-3.5" aria-hidden />
                         </span>
-                        <span className="text-[11px] sm:text-xs text-muted-foreground leading-snug">
+                        <span className="text-xs text-muted-foreground leading-snug">
                           {row.otherText}
                         </span>
                       </div>

@@ -153,7 +153,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 sm:hidden text-xs text-muted-foreground">
             <span
               className={cn(
-                "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium border",
+                "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border",
                 getQuestRole(quest) === "focus"
                   ? "border-primary/40 bg-primary/10 text-primary"
                   : "border-border/60 bg-muted/40 text-muted-foreground",
@@ -167,7 +167,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
                 <span className="truncate">{quest.goalName}</span>
               </span>
             )}
-            <span className="inline-flex items-center gap-1 font-mono text-[11px]">
+            <span className="inline-flex items-center gap-1 font-sans text-xs">
               {quest.seriesId ? <Repeat className="size-3 text-primary/70" /> : <Zap className="size-3 text-muted-foreground" />}
               {quest.seriesId ? "Daily" : "Today"}
             </span>
@@ -210,7 +210,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
         {/* Role Tag: Primary Focus or Routine */}
         <span
           className={cn(
-            "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border font-mono",
+            "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border font-sans",
             getQuestRole(quest) === "focus"
               ? "bg-primary/10 text-primary border-primary/30"
               : "bg-muted/40 text-muted-foreground border-border/50",
@@ -220,7 +220,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
         </span>
 
         {/* Cadence Tag */}
-        <div className="flex items-center gap-1 text-muted-foreground font-mono text-[11px] px-2 py-0.5 rounded-md bg-muted/40 border border-border/40">
+        <div className="flex items-center gap-1 text-muted-foreground font-sans text-xs px-2 py-0.5 rounded-md bg-muted/40 border border-border/40">
           {quest.seriesId ? (
             <>
               <Repeat className="size-3 text-primary/70" aria-hidden="true" />
@@ -236,7 +236,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
 
         {/* Status or Secondary Actions */}
         {isCompleted ? (
-          <div className="flex items-center gap-1.5 font-semibold text-emerald-500 text-xs pl-1">
+          <div className="flex items-center gap-1.5 font-semibold text-emerald-700 dark:text-emerald-400 text-xs pl-1">
             <Check className="size-3.5 stroke-[2.5]" aria-hidden="true" />
             <span>Done</span>
           </div>

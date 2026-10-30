@@ -167,7 +167,7 @@ export function TodaysCommitment({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm font-semibold text-foreground">Primary Focus</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-muted text-muted-foreground">
+                  <span className="text-xs font-medium px-2 py-0.5 rounded bg-muted text-muted-foreground">
                     1 slot
                   </span>
                 </div>
@@ -175,7 +175,7 @@ export function TodaysCommitment({
                   Your dominant, non-negotiable action for today.
                 </p>
                 {!focusAvailable && role !== "focus" && (
-                  <span className="text-[10px] text-amber-700 dark:text-amber-400 font-medium mt-1 inline-block">
+                  <span className="text-xs text-amber-700 dark:text-amber-400 font-medium mt-1 inline-block">
                     Slot currently occupied
                   </span>
                 )}
@@ -204,7 +204,7 @@ export function TodaysCommitment({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm font-semibold text-foreground">Supporting Routine</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-muted text-muted-foreground">
+                  <span className="text-xs font-medium px-2 py-0.5 rounded bg-muted text-muted-foreground">
                     Max 2
                   </span>
                 </div>
@@ -212,7 +212,7 @@ export function TodaysCommitment({
                   A regular repeating practice that protects momentum.
                 </p>
                 {!routineAvailable && role !== "routine" && (
-                  <span className="text-[10px] text-amber-700 dark:text-amber-400 font-medium mt-1 inline-block">
+                  <span className="text-xs text-amber-700 dark:text-amber-400 font-medium mt-1 inline-block">
                     Both routine slots occupied
                   </span>
                 )}
@@ -244,7 +244,7 @@ export function TodaysCommitment({
               </Label>
             </div>
             {linkedToGoal && (
-              <div className="mt-2 flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-mono text-primary animate-in fade-in duration-200">
+              <div className="mt-2 flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary animate-in fade-in duration-200">
                 <Check className="size-3 text-primary shrink-0" aria-hidden="true" />
                 <span className="truncate">
                   Counts toward North Star • Step #{completedGoalQuests + 1} of 90
