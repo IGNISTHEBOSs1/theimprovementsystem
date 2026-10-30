@@ -211,7 +211,7 @@ export default function Quests() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
       <PageHeader
         eyebrow="Daily Focus & Routines"
         title="Your quests."
@@ -258,13 +258,13 @@ export default function Quests() {
             )}
 
             {/* CAPACITY STRUCTURE HEADER */}
-            <div className="flex flex-wrap items-center justify-between gap-3 px-1 border-b border-border/60 pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-2.5 px-1 border-b border-border/60 pb-3">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-xs font-sans font-semibold text-muted-foreground">
                   Quest Capacity
                 </span>
                 {/* Structural capacity pill */}
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/80 bg-muted/40 text-xs font-mono">
+                <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full border border-border/80 bg-muted/40 text-[11px] sm:text-xs font-mono">
                   <span className={cn("size-2 rounded-full", focusQuest ? "bg-primary" : completedFocusToday ? "bg-emerald-500" : "bg-muted-foreground/30")} />
                   <span className="font-medium text-foreground">
                     1 Focus: {focusQuest ? "Committed" : completedFocusToday ? "Completed" : "Open"}

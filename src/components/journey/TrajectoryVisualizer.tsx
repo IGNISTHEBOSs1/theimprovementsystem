@@ -212,7 +212,7 @@ export function TrajectoryVisualizer({
     if (safeCompleted >= targetAnchors) {
       return {
         label: "Goal Completed",
-        containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+        containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
         dotClass: "bg-emerald-500",
         ping: true,
       };
@@ -229,21 +229,21 @@ export function TrajectoryVisualizer({
       case "ahead":
         return {
           label: "Ahead of Target",
-          containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+          containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
           dotClass: "bg-emerald-500",
           ping: true,
         };
       case "behind":
         return {
           label: "Buffer Active",
-          containerClass: "border border-amber-500/40 bg-amber-500/15 text-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.15)]",
+          containerClass: "border border-amber-500/40 bg-amber-500/15 text-amber-700 dark:text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)]",
           dotClass: "bg-amber-500",
           ping: true,
         };
       case "critical":
         return {
           label: "Thrust Required",
-          containerClass: "border border-rose-500/40 bg-rose-500/15 text-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.15)]",
+          containerClass: "border border-rose-500/40 bg-rose-500/15 text-rose-700 dark:text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.15)]",
           dotClass: "bg-rose-500",
           ping: true,
         };
@@ -251,7 +251,7 @@ export function TrajectoryVisualizer({
       default:
         return {
           label: "Trajectory Nominal",
-          containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+          containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
           dotClass: "bg-emerald-500",
           ping: true,
         };

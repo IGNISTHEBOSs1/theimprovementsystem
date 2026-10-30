@@ -33,7 +33,7 @@ export default function Journey() {
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10 space-y-6 animate-pulse">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 animate-pulse">
         <div className="h-8 w-48 rounded-xl bg-muted/60" />
         <div className="h-80 rounded-3xl bg-muted/60" aria-label="Loading trajectory" />
         <div className="h-44 rounded-2xl bg-muted/60" />
@@ -43,7 +43,7 @@ export default function Journey() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <section
           className="rounded-3xl border border-border bg-card p-8 shadow-xs text-center"
           aria-label="Trajectory unavailable"
@@ -66,11 +66,11 @@ export default function Journey() {
   const hasGoal = Boolean(profile?.primary_goal);
   if (!hasGoal) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
         <PlaceholderExperience
           icon={Compass}
           title="No 90-Day North Star Set."
-          message="Your Path plots deterministic trajectory toward a chosen milestone. Set your 90-day North Star goal in your Profile to initiate the trajectory."
+          message="Your Journey plots deterministic trajectory toward a chosen milestone. Set your 90-day North Star goal in your Profile to initiate the trajectory."
         />
       </div>
     );
@@ -111,7 +111,7 @@ export default function Journey() {
   const daysLeft = pace?.daysRemaining ?? 90;
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10 space-y-6">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
       {/* ── 1. HEADER (IDENTITY & PURPOSE) ── */}
       <header className="space-y-2 pb-2 border-b border-border/60">
         <div className="flex items-center justify-between gap-3">
@@ -129,7 +129,7 @@ export default function Journey() {
               )}
             />
             <span className="text-xs font-sans font-medium text-muted-foreground">
-              North Star Path
+              North Star Journey
             </span>
           </div>
 
@@ -169,13 +169,13 @@ export default function Journey() {
       >
         <div className="flex items-center gap-2">
           {paceDetails.badgeVariant === "success" ? (
-            <ShieldCheck className="size-5 text-emerald-500 shrink-0" aria-hidden="true" />
+            <ShieldCheck className="size-5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
           ) : (
             <AlertCircle
               className={cn(
                 "size-5 shrink-0",
                 paceDetails.badgeVariant === "warning"
-                  ? "text-amber-500"
+                  ? "text-amber-600 dark:text-amber-400"
                   : paceDetails.badgeVariant === "destructive"
                   ? "text-destructive"
                   : "text-muted-foreground",
@@ -187,9 +187,9 @@ export default function Journey() {
             className={cn(
               "text-xs font-sans font-semibold",
               paceDetails.badgeVariant === "success"
-                ? "text-emerald-500"
+                ? "text-emerald-700 dark:text-emerald-400"
                 : paceDetails.badgeVariant === "warning"
-                ? "text-amber-500"
+                ? "text-amber-700 dark:text-amber-400"
                 : paceDetails.badgeVariant === "destructive"
                 ? "text-destructive"
                 : "text-muted-foreground",
@@ -263,7 +263,7 @@ export default function Journey() {
         {activeGoalQuest ? (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <span className="text-xs text-emerald-500 font-medium">Today's Goal Step Queued:</span>
+              <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">Today's Goal Step Queued:</span>
               <p className="text-base font-semibold text-foreground mt-0.5 truncate">
                 {activeGoalQuest.title}
               </p>
@@ -367,7 +367,7 @@ export default function Journey() {
 
             {/* Evidence Breakdown */}
             <div className="sm:col-span-2 rounded-xl border border-border/80 bg-card p-4 text-xs space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="text-xs font-sans font-semibold text-muted-foreground">
                   Progress by Priority
                 </span>

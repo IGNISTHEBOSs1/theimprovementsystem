@@ -175,7 +175,7 @@ export function TodaysCommitment({
                   Your dominant, non-negotiable action for today.
                 </p>
                 {!focusAvailable && role !== "focus" && (
-                  <span className="text-[10px] text-amber-500 font-medium mt-1 inline-block">
+                  <span className="text-[10px] text-amber-700 dark:text-amber-400 font-medium mt-1 inline-block">
                     Slot currently occupied
                   </span>
                 )}
@@ -212,7 +212,7 @@ export function TodaysCommitment({
                   A regular repeating practice that protects momentum.
                 </p>
                 {!routineAvailable && role !== "routine" && (
-                  <span className="text-[10px] text-amber-500 font-medium mt-1 inline-block">
+                  <span className="text-[10px] text-amber-700 dark:text-amber-400 font-medium mt-1 inline-block">
                     Both routine slots occupied
                   </span>
                 )}

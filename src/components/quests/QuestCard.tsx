@@ -150,7 +150,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
           </div>
 
           {/* Mobile Secondary Baseline */}
-          <div className="mt-1 flex flex-wrap items-center gap-2 sm:hidden text-xs text-muted-foreground">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 sm:hidden text-xs text-muted-foreground">
             <span
               className={cn(
                 "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium border",
@@ -162,7 +162,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
               {getQuestRole(quest) === "focus" ? "Primary Focus" : "Routine"}
             </span>
             {quest.linkedToGoal && quest.goalName && (
-              <span className="inline-flex items-center gap-1 font-medium text-foreground/85 max-w-[170px] truncate">
+              <span className="inline-flex items-center gap-1 font-medium text-foreground/85 max-w-[130px] truncate">
                 <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
                 <span className="truncate">{quest.goalName}</span>
               </span>

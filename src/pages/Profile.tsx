@@ -135,7 +135,7 @@ export default function Profile() {
   const daysRemaining = profilePace?.daysRemaining ?? null;
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10 space-y-6">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
       <PageHeader
         eyebrow="Profile"
         title="Your profile."
@@ -213,7 +213,7 @@ export default function Profile() {
                 to="/journey"
                 className="font-semibold text-primary hover:underline flex items-center gap-1 transition-colors"
               >
-                <span>Track on Path</span>
+                <span>Track on Journey</span>
                 <ArrowRight className="size-3.5" aria-hidden="true" />
               </Link>
             </div>
@@ -264,7 +264,7 @@ export default function Profile() {
               </div>
 
               {/* Goal Evidence */}
-              <div className="pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="pt-3 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <CheckCircle2 className="size-4 text-emerald-500 shrink-0" aria-hidden="true" />
                   <span>

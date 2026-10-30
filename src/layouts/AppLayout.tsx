@@ -146,7 +146,7 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
         tabIndex={-1}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className="flex-1 min-w-0 overflow-y-auto pb-[calc(108px+env(safe-area-inset-bottom,0px))] md:pb-0 material-surface material-workspace focus:outline-none"
+        className="flex-1 min-w-0 overflow-y-auto pb-[calc(84px+env(safe-area-inset-bottom,0px))] md:pb-0 material-surface material-workspace focus:outline-none"
       >
         {children}
       </main>

@@ -84,7 +84,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         layout: TIS_SPRINGS.settle,
       }}
       className={cn(
-        "flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/80 px-4 py-3.5 text-body-sm transition-colors duration-250 overflow-hidden",
+        "flex items-center justify-between gap-3 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/80 px-3.5 sm:px-4 py-3 sm:py-3.5 text-body-sm transition-colors duration-250 overflow-hidden",
         completionStage !== "idle" && "bg-emerald-500/[0.12] border-emerald-500/50",
       )}
     >
@@ -110,8 +110,8 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
           )}
         </button>
 
-        <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
-          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono font-medium border border-border/70 bg-muted/40 text-muted-foreground shrink-0">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] sm:text-[11px] font-mono font-medium border border-border/70 bg-muted/40 text-muted-foreground shrink-0">
             Routine
           </span>
           {quest.linkedToGoal && quest.goalName && (
@@ -120,7 +120,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
               <span className="truncate">{quest.goalName}</span>
             </span>
           )}
-          <span className={cn("text-foreground font-medium line-clamp-2 break-words leading-snug", isCompleted && "line-through text-muted-foreground")}>
+          <span className={cn("text-foreground font-medium truncate sm:line-clamp-2 break-words leading-snug text-xs sm:text-sm", isCompleted && "line-through text-muted-foreground")}>
             {quest.title}
           </span>
         </div>
@@ -130,7 +130,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         size="sm"
         variant="ghost"
         className={cn(
-          "min-h-10 px-3 hover:bg-muted/80 text-xs font-medium transition-colors",
+          "shrink-0 min-h-9 sm:min-h-10 px-2.5 sm:px-3 hover:bg-muted/80 text-xs font-medium transition-colors",
           isCompleted ? "text-emerald-500 font-semibold" : "text-muted-foreground hover:text-foreground",
         )}
         disabled={completing || isCompleted}
@@ -321,7 +321,7 @@ export default function Dashboard() {
       initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:py-10"
+      className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10"
     >
       <AppTour />
 
@@ -335,11 +335,11 @@ export default function Dashboard() {
             {greeting}, {name}.
           </h1>
           {primaryGoal ? (
-            <p className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-1.5">
-              <span className="font-medium text-foreground truncate max-w-[280px] sm:max-w-md">{primaryGoal}</span>
-              <span>·</span>
+            <p className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+              <span className="font-medium text-foreground truncate max-w-[220px] sm:max-w-md">{primaryGoal}</span>
+              <span className="hidden sm:inline text-muted-foreground/50" aria-hidden="true">·</span>
               <span className="font-mono">Day {elapsedDays} of 90</span>
-              {daysRemaining !== null && <span>({daysRemaining}d left)</span>}
+              {daysRemaining !== null && <span className="font-mono text-muted-foreground">({daysRemaining}d left)</span>}
             </p>
           ) : (
             <Link to="/profile" className="text-xs text-primary hover:underline mt-1 inline-block">
@@ -505,18 +505,18 @@ export default function Dashboard() {
             className="rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 text-xs text-muted-foreground shadow-xs"
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                 <div className="flex items-center gap-1.5 font-medium text-foreground">
                   <Target className="size-3.5 text-primary" aria-hidden="true" />
                   <span>Goal Step #{goalStats.completed} of 90</span>
                 </div>
-                <span>·</span>
+                <span className="hidden sm:inline text-muted-foreground/50" aria-hidden="true">·</span>
                 <div className="flex items-center gap-1.5 font-mono">
                   <span className="text-emerald-500 font-semibold">{bufferDaysRemaining}</span>/9 Flex Days Intact
                 </div>
                 {completionRate !== null && (
                   <>
-                    <span>·</span>
+                    <span className="hidden sm:inline text-muted-foreground/50" aria-hidden="true">·</span>
                     <span className="font-mono">{completionRate}% Follow-Through</span>
                   </>
                 )}

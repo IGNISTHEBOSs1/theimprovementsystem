@@ -20,31 +20,26 @@ const NAV_ITEMS = [
   {
     to: "/",
     label: "Dashboard",
-    mobileLabel: "Home",
     icon: LayoutDashboard,
   },
   {
     to: "/journey",
     label: "Journey",
-    mobileLabel: "Path",
     icon: Compass,
   },
   {
     to: "/quests",
     label: "Quests",
-    mobileLabel: "Quests",
     icon: CheckSquare,
   },
   {
     to: "/mentor",
     label: "Mentor",
-    mobileLabel: undefined,
     icon: MessageSquare,
   },
   {
     to: "/profile",
     label: "Profile",
-    mobileLabel: "Me",
     icon: User,
   },
 ] as const;
@@ -231,7 +226,7 @@ export default function SystemBar({
           z-40
           flex
           items-stretch
-          h-[56px]
+          h-[52px]
           rounded-full
           isolate
           select-none
@@ -242,7 +237,7 @@ export default function SystemBar({
         aria-label="Primary navigation, mobile"
       >
         {NAV_ITEMS.map(
-          ({ to, label, mobileLabel, icon: Icon }) => {
+          ({ to, label, icon: Icon }) => {
             const active = isActive(to);
             const isProfile = to === "/profile";
 
@@ -280,7 +275,7 @@ export default function SystemBar({
                       absolute
                       inset-0
                       m-auto
-                      size-[44px]
+                      size-[40px]
                       rounded-full
                       glass-nav-pill
                       pointer-events-none
@@ -293,7 +288,7 @@ export default function SystemBar({
                 {/* 2. Icon + text subtle enlargement, bold, and understated time pop */}
                 <motion.div
                   className="relative z-10 flex flex-col items-center justify-center gap-0.5 pointer-events-none"
-                  animate={shouldReduceMotion ? { scale: 1 } : { scale: active ? 1.03 : 1 }}
+                  animate={{ scale: 1 }}
                   transition={
                     shouldReduceMotion
                       ? { duration: 0 }
@@ -320,7 +315,7 @@ export default function SystemBar({
                     ) : (
                       <Icon
                         size={19}
-                        strokeWidth={active ? 2.25 : 1.5}
+                        strokeWidth={active ? 2 : 1.5}
                         className={cn(
                           "size-[19px] transition-colors duration-150",
                           active
@@ -356,7 +351,7 @@ export default function SystemBar({
                         : "text-muted-foreground font-medium group-hover:text-foreground",
                     )}
                   >
-                    {mobileLabel ?? label}
+                    {label}
                   </span>
                 </motion.div>
               </NavLink>
