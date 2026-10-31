@@ -18,40 +18,9 @@ interface PrimaryActionPanelProps {
   completedGoalQuests?: number;
 }
 
-// Founder Decision (Kinetic visual toolkit chunk — USE: Spotlight Card,
-// adapted): the principle borrowed here is "draw the eye toward what
-// matters right now" — not the reference component's literal
-// implementation. Applied only to today's single active Quest (the one
-// surface the whole "priority areas" brief names first), not to any
-// other card. Desktop-only by construction: the pointer listener is
-// only ever attached when `(hover: hover) and (pointer: fine)` matches,
-// so touch devices get zero JS cost and zero visual difference — same
-// scoping the brief asks for on Tilt effects. Uses only the existing
-// --primary token at low opacity; no new color introduced. Purely
-// decorative (aria-hidden, pointer-events-none) — never affects layout,
-// tap targets, or content, and is capped as a fixed-size soft radius, not
-// a spreading glow, so it stays a focus cue rather than a light show.
-function useSpotlight() {
-  const ref = useRef<HTMLElement>(null);
-  const [enabled, setEnabled] = useState(false);
 
-  const bind = (node: HTMLElement | null) => {
-    ref.current = node;
-    if (!node || enabled) return;
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    setEnabled(true);
-    node.addEventListener("pointermove", (e) => {
-      const rect = node.getBoundingClientRect();
-      node.style.setProperty("--spotlight-x", `${e.clientX - rect.left}px`);
-      node.style.setProperty("--spotlight-y", `${e.clientY - rect.top}px`);
-    });
-  };
-
-  return { bind, enabled };
-}
 
 export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQuest, completedGoalQuests = 0 }: PrimaryActionPanelProps) {
-  const spotlight = useSpotlight();
   const shouldReduceMotion = useReducedMotion();
   const [completionStage, setCompletionStage] = useState<"idle" | "complete">("idle");
 
@@ -88,7 +57,6 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
 
   return (
     <motion.section
-      ref={spotlight.bind}
       layout
       initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
       animate={
@@ -125,18 +93,15 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
       )}
       aria-labelledby="focus-heading"
     >
-      {spotlight.enabled && (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
-          style={{
-            background: "radial-gradient(240px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), hsl(var(--primary) / 0.07), transparent 70%)",
-          }}
-        />
-      )}
-      <div className="flex items-center gap-2 text-xs font-semibold text-primary">
-        <CircleDot className="size-3.5 text-primary shrink-0" aria-hidden="true" />
-        <span>Today&apos;s Focus {quest.timeFrame ? `· ${quest.timeFrame}` : ""}</span>
+      
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+          <CircleDot className="size-3.5 text-primary shrink-0" aria-hidden="true" />
+          <span>Today&apos;s Focus {quest.timeFrame ? `· ${quest.timeFrame}` : ""}</span>
+        </div>
+        <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline-block">
+          Primary milestone · Slide or click to confirm
+        </span>
       </div>
 
       <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -168,6 +133,9 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
 
         <div className="w-full sm:w-auto sm:shrink-0 mt-1 sm:mt-0">
           <SwipeToComplete key={quest.id} completing={Boolean(completing)} onComplete={handleActionComplete} />
+          <p className="text-[11px] text-muted-foreground text-center sm:text-right mt-1.5 sm:mt-1">
+            Intentional confirmation for your main milestone.
+          </p>
         </div>
       </div>
     </motion.section>
@@ -383,7 +351,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
           ? "Primary focus completed"
           : completing
           ? "Saving primary focus completion…"
-          : "Complete today’s primary focus"
+          : "Complete today’s primary focus (swipe slider, click track, or press Enter)"
       }
     >
       <span
@@ -408,7 +376,7 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
           isDone ? "text-emerald-700 dark:text-emerald-400 font-semibold" : "text-foreground"
         )}
       >
-        {isDone ? "Done!" : completing ? "Saving…" : "Swipe to complete"}
+        {isDone ? "Done!" : completing ? "Saving…" : "Swipe or click to complete"}
       </span>
     </button>
   );

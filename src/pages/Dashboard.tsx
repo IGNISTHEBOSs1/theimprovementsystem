@@ -471,9 +471,12 @@ export default function Dashboard() {
           {/* Supporting Routines (Directly following today's primary focus) */}
           <section aria-labelledby="supporting-routines-heading" className="space-y-3">
             <div className="flex items-center justify-between px-1">
-              <h2 id="supporting-routines-heading" className="text-xs font-sans font-semibold text-muted-foreground">
-                Supporting Routines ({activeRoutines.length} of 2)
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 id="supporting-routines-heading" className="text-xs font-sans font-semibold text-muted-foreground">
+                  Supporting Routines ({activeRoutines.length} of 2)
+                </h2>
+                <span className="text-[11px] text-muted-foreground hidden sm:inline">· Tap to complete</span>
+              </div>
               <Link to="/quests" className="text-xs font-medium text-primary hover:underline">
                 Manage routines →
               </Link>

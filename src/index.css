@@ -5,35 +5,36 @@
 
 @layer base {
   :root {
-    --background: 220 13% 96%;
-    --foreground: 0 0% 9%;
+    /* P2-52: Clear light theme surface hierarchy — distinct background canvas, crisp cards, architectural insets */
+    --background: 220 16% 94%;
+    --foreground: 220 15% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card-foreground: 220 15% 10%;
     --card-elevated: 0 0% 100%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 220 15% 10%;
     --primary: 0 0% 9%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 0 0% 25%;
-    --secondary: 0 0% 20%;
+    --secondary: 220 10% 20%;
     --secondary-foreground: 0 0% 100%;
     --secondary-glow: 0 0% 30%;
-    --accent: 0 0% 93%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 220 14% 91%;
+    --accent-foreground: 220 15% 10%;
     --accent-glow: 0 0% 85%;
-    --muted: 220 13% 93%;
-    --muted-foreground: 0 0% 37%;
+    --muted: 220 14% 90%;
+    --muted-foreground: 220 12% 38%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
-    --warning: 0 0% 25%;
+    --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --border: 220 13% 89%;
-    --input: 0 0% 64%;
-    --ring: 0 0% 20%;
+    --border: 220 13% 86%;
+    --input: 220 13% 86%;
+    --ring: 220 15% 20%;
     --glass: 0 0% 100%;
-    --glass-border: 0 0% 86%;
+    --glass-border: 220 13% 84%;
     --radius: 0.75rem;
     --spacing-page: 1.5rem;
     --spacing-card: 1.5rem;
@@ -42,10 +43,10 @@
     --transition-base: 200ms cubic-bezier(0.16, 1, 0.3, 1);
     --transition-slow: 350ms cubic-bezier(0.16, 1, 0.3, 1);
 
-    /* Light Mode: Multi-layer diffused ambient shadows */
-    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
-    --shadow-elevated: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px -4px rgba(0, 0, 0, 0.07), 0 20px 32px -8px rgba(0, 0, 0, 0.04);
-    --shadow-glow-primary: 0 0 0 1px hsl(var(--primary) / 0.18), 0 4px 16px hsl(var(--primary) / 0.15);
+    /* Light Mode: Tactile multi-layer shadows with specular rim definition (P2-52, P2-53) */
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px -2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    --shadow-elevated: 0 2px 6px rgba(0, 0, 0, 0.05), 0 12px 28px -4px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    --shadow-glow-primary: 0 0 0 1px hsl(var(--primary) / 0.15), 0 4px 12px hsl(var(--primary) / 0.12);
 
     /* Environmental Light */
     --env-light-x: 22%;
@@ -421,13 +422,11 @@
 
   /* ── Liquid Glass Top Navbar (Optical Refraction & Specular Edge) ── */
   .liquid-glass-nav {
-    backdrop-filter: blur(24px) saturate(190%);
-    -webkit-backdrop-filter: blur(24px) saturate(190%);
-    background: linear-gradient(180deg, hsl(var(--background) / 0.88) 0%, hsl(var(--background) / 0.72) 100%);
-    border-bottom: 1px solid hsl(var(--border) / 0.7);
-    box-shadow:
-      inset 0 1px 1px 0 rgba(255, 255, 255, 0.4),
-      0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    background: hsl(var(--background) / 0.88);
+    border-bottom: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
   .dark .liquid-glass-nav {
     background: linear-gradient(180deg, rgba(12, 15, 20, 0.88) 0%, rgba(8, 10, 14, 0.74) 100%);
@@ -440,13 +439,11 @@
 
   /* ── Liquid Glass Card / Panel ── */
   .liquid-glass-card {
-    backdrop-filter: blur(24px) saturate(185%);
-    -webkit-backdrop-filter: blur(24px) saturate(185%);
-    background: linear-gradient(180deg, hsl(var(--card) / 0.82) 0%, hsl(var(--card) / 0.64) 100%);
-    border: 1px solid hsl(var(--border) / 0.7);
-    box-shadow:
-      inset 0 1px 1px 0 rgba(255, 255, 255, 0.25),
-      0 12px 36px -6px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    background: hsl(var(--card) / 0.9);
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-card);
   }
   .dark .liquid-glass-card {
     background: linear-gradient(180deg, rgba(16, 20, 28, 0.78) 0%, rgba(10, 12, 18, 0.62) 100%);
@@ -459,13 +456,11 @@
 
 
   .glass-dialog {
-    backdrop-filter: blur(28px) saturate(190%);
-    -webkit-backdrop-filter: blur(28px) saturate(190%);
-    background: hsl(var(--card) / 0.92);
-    border: 1px solid hsl(var(--border) / 0.85);
-    box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
-      0 24px 48px -12px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    background: hsl(var(--card) / 0.95);
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-elevated);
   }
   .dark .glass-dialog {
     background: hsl(var(--card) / 0.82);
