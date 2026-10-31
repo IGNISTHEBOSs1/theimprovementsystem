@@ -329,31 +329,46 @@ export default function Mentor() {
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-sm space-y-4"
+              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-sm space-y-5"
             >
               <div className="flex items-center justify-between gap-4">
                 <span className="text-xs font-sans font-semibold text-primary block">
                   Pattern · Repeating Obstacle
                 </span>
                 <span className="text-xs font-medium text-muted-foreground">
-                  Actionable Guidance
+                  Diagnostic Advisory
                 </span>
               </div>
 
-              {/* Context Observation */}
-              <h2
-                id="primary-insight-heading"
-                className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug"
-              >
-                {recurring.observation}
-              </h2>
+              {/* 1. Observed Evidence */}
+              <div className="rounded-xl bg-muted/40 p-4 border border-border/60 space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
+                  1. Observed Evidence
+                </span>
+                <p className="text-xs sm:text-sm text-foreground/90 font-medium leading-relaxed">
+                  {recurring.evidence}
+                </p>
+              </div>
 
-              {/* Primary Recommendation with integrated Action */}
+              {/* 2. Mentor Interpretation */}
+              <div className="space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-primary block">
+                  2. Mentor's Interpretation
+                </span>
+                <h2
+                  id="primary-insight-heading"
+                  className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-snug"
+                >
+                  {recurring.observation}
+                </h2>
+              </div>
+
+              {/* 3. Recommended Action with integrated CTA in natural final position */}
               {recurring.adjustment && (
                 <div className="rounded-xl bg-primary/5 p-4 sm:p-5 border border-primary/20 text-xs sm:text-sm space-y-3">
                   <div>
-                    <span className="text-xs font-semibold text-primary block mb-0.5">
-                      Recommended Next Step
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-primary block mb-1">
+                      3. Recommended Action
                     </span>
                     <p className="text-foreground font-medium leading-relaxed">
                       {recurring.adjustment}
@@ -391,39 +406,51 @@ export default function Mentor() {
                   </div>
                 </div>
               )}
-
-              {/* Supporting Evidence */}
-              <p className="text-xs text-muted-foreground leading-relaxed pt-0.5">
-                <span className="font-medium text-foreground">Observed pattern: </span>
-                {recurring.evidence}
-              </p>
             </section>
           )}
 
           {isRecoveryHero && recovery && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
+              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-sans font-semibold text-primary">
                   Pattern · Bouncing Back
                 </span>
                 <span className="text-xs font-medium text-muted-foreground">
-                  Actionable Guidance
+                  Diagnostic Advisory
                 </span>
               </div>
 
-              {/* Context Observation */}
-              <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
-                {recovery.text}
-              </h2>
+              {/* 1. Observed Evidence */}
+              <div className="rounded-xl bg-muted/40 p-4 border border-border/60 space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
+                  1. Observed Evidence
+                </span>
+                <p className="text-xs sm:text-sm text-foreground/90 font-medium leading-relaxed">
+                  Consecutive uncompleted commitments detected in your recent daily logs.
+                </p>
+              </div>
 
-              {/* Primary Recommendation with Action */}
+              {/* 2. Mentor Interpretation */}
+              <div className="space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-primary block">
+                  2. Mentor's Interpretation
+                </span>
+                <h2 id="primary-insight-heading" className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-snug">
+                  {recovery.text}
+                </h2>
+                <p className="text-xs text-muted-foreground leading-relaxed pt-0.5">
+                  A missed commitment creates friction only when followed by avoidance. Immediate resumption restores mathematical velocity within your buffer.
+                </p>
+              </div>
+
+              {/* 3. Recommended Action with CTA in natural position */}
               <div className="rounded-xl bg-primary/5 p-4 sm:p-5 border border-primary/20 text-xs sm:text-sm space-y-3">
                 <div>
-                  <span className="text-xs font-semibold text-primary block mb-0.5">
-                    Recommended Next Step
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-primary block mb-1">
+                    3. Recommended Action
                   </span>
                   <p className="text-foreground font-medium leading-relaxed">
                     Commit to one clear, manageable primary focus for today to lock momentum.
@@ -443,19 +470,13 @@ export default function Mentor() {
                   </Button>
                 </div>
               </div>
-
-              {/* Supporting Evidence */}
-              <p className="text-xs text-muted-foreground leading-relaxed pt-0.5">
-                <span className="font-medium text-foreground">Observed pattern: </span>
-                A missed commitment creates friction only when followed by avoidance. Immediate resumption restores mathematical velocity within the buffer.
-              </p>
             </section>
           )}
 
           {isMomentumHero && momentum && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-4"
+              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400">
@@ -468,16 +489,31 @@ export default function Mentor() {
                 )}
               </div>
 
-              {/* Context Observation */}
-              <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
-                {momentum.observation}
-              </h2>
+              {/* 1. Observed Evidence */}
+              <div className="rounded-xl bg-muted/40 p-4 border border-border/60 space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
+                  1. Observed Evidence
+                </span>
+                <p className="text-xs sm:text-sm text-foreground/90 font-medium leading-relaxed">
+                  {momentum.evidence}
+                </p>
+              </div>
 
-              {/* Primary Recommendation with Action */}
+              {/* 2. Mentor Interpretation */}
+              <div className="space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block">
+                  2. Mentor's Interpretation
+                </span>
+                <h2 id="primary-insight-heading" className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-snug">
+                  {momentum.observation}
+                </h2>
+              </div>
+
+              {/* 3. Recommended Action with CTA in natural position */}
               <div className="rounded-xl bg-emerald-500/5 p-4 sm:p-5 border border-emerald-500/20 text-xs sm:text-sm space-y-3">
                 <div>
-                  <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 block mb-0.5">
-                    Recommended Next Step
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-1">
+                    3. Recommended Action
                   </span>
                   <p className="text-foreground font-medium leading-relaxed">
                     {momentum.adjustment || "Maintain your current cadence within the ±10% buffer zone without overextending."}
@@ -498,12 +534,6 @@ export default function Mentor() {
                   </Button>
                 </div>
               </div>
-
-              {/* Supporting Evidence */}
-              <p className="text-xs text-muted-foreground leading-relaxed pt-0.5">
-                <span className="font-medium text-foreground">Observed pattern: </span>
-                {momentum.evidence}
-              </p>
             </section>
           )}
         </motion.div>
@@ -526,29 +556,48 @@ export default function Mentor() {
 
           <div className="divide-y divide-border/40">
             {visibleDynamics.map((item) => (
-              <div key={item.key} className="p-5 sm:p-6 space-y-3">
+              <div key={item.key} className="p-5 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs font-semibold text-primary">
                     {item.categoryLabel}
                   </span>
-                  {item.evidence && (
-                    <span className="text-xs font-sans text-muted-foreground">
-                      Based on logged activity
-                    </span>
-                  )}
+                  <span className="text-xs font-sans text-muted-foreground">
+                    Based on logged commitment history
+                  </span>
                 </div>
 
-                {/* Context Observation */}
-                <h3 className="text-sm sm:text-base font-semibold text-foreground leading-snug">
-                  {item.observation}
-                </h3>
+                {/* 1. Observed Evidence */}
+                {item.evidence && (
+                  <div className="rounded-lg bg-muted/40 p-3 border border-border/50 text-xs space-y-0.5">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
+                      1. Observed Evidence
+                    </span>
+                    <p className="text-foreground/90 font-medium leading-relaxed">
+                      {item.evidence}
+                    </p>
+                  </div>
+                )}
 
-                {/* Recommendation + Action */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 text-xs">
-                  <p className="text-foreground/90 font-medium min-w-0 flex-1">
-                    <span className="text-primary font-semibold">Recommendation: </span>
-                    {item.adjustment || "Maintain consistent execution on scheduled days."}
-                  </p>
+                {/* 2. Mentor's Interpretation */}
+                <div className="space-y-0.5">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-primary block">
+                    2. Mentor's Interpretation
+                  </span>
+                  <h3 className="text-sm sm:text-base font-semibold text-foreground leading-snug">
+                    {item.observation}
+                  </h3>
+                </div>
+
+                {/* 3. Recommended Action with CTA in natural position */}
+                <div className="rounded-xl bg-primary/5 p-3.5 border border-primary/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="min-w-0 flex-1">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-primary block mb-0.5">
+                      3. Recommended Action
+                    </span>
+                    <p className="text-foreground font-medium leading-relaxed">
+                      {item.adjustment || "Maintain consistent execution on scheduled days."}
+                    </p>
+                  </div>
 
                   <Button
                     size="sm"
@@ -561,20 +610,12 @@ export default function Mentor() {
                         navigate(item.actionDestination);
                       }
                     }}
-                    className="h-8 px-3 text-xs shrink-0 self-start sm:self-auto gap-1 font-medium"
+                    className="h-8 px-3 text-xs shrink-0 self-start sm:self-auto gap-1 font-semibold"
                   >
                     <span>{item.actionLabel}</span>
                     <ArrowRight className="size-3" />
                   </Button>
                 </div>
-
-                {/* Subordinated Evidence */}
-                {item.evidence && (
-                  <p className="text-xs text-muted-foreground pt-0.5">
-                    <span className="text-foreground/70 font-medium">Evidence: </span>
-                    {item.evidence}
-                  </p>
-                )}
               </div>
             ))}
           </div>

@@ -256,27 +256,29 @@ const Auth = () => {
 
           {/* Liquid Frosted Glass Authentication Card */}
           <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-[var(--shadow-card)] overflow-hidden">
-            {/* Header (Shows full brand on mobile, streamlined on PC) */}
+            {/* Header (Rich brand & product identity for all viewports) */}
             <div className="px-5 py-4 sm:py-5 text-center bg-muted/40 dark:bg-muted/20 border-b border-border/80 dark:border-white/10">
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ ...TIS_SPRINGS.settle, delay: 0.05 }}
-                className="flex items-center justify-center mb-1.5 lg:hidden"
+                className="flex flex-col items-center justify-center mb-2 lg:hidden"
               >
-                <div className="p-1.5 rounded-xl bg-card border border-border/80 dark:border-white/10 shadow-xs">
-                  <SystemLogo size={28} />
+                <div className="p-1.5 rounded-xl bg-card border border-border/80 dark:border-white/10 shadow-xs mb-1.5">
+                  <SystemLogo size={32} />
                 </div>
+                <span className="font-bold text-sm tracking-tight text-foreground block">Kinetic</span>
+                <span className="text-[11px] text-muted-foreground font-medium">The Improvement System</span>
               </motion.div>
               <h2 className="font-bold text-lg sm:text-xl text-foreground tracking-tight">
                 {mode === 'signin' ? 'Welcome Back' : mode === 'signup' ? 'Begin Trajectory' : 'Reset Password'}
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {mode === 'signin'
-                  ? 'Sign in to access your commitments'
+                  ? 'Sign in to continue your personal progress.'
                   : mode === 'signup'
-                  ? 'Set up your personal improvement plan'
-                  : 'Enter your email for recovery instructions'}
+                  ? 'Deterministic momentum with an elastic ±10% buffer.'
+                  : 'Enter your email for password reset instructions.'}
               </p>
             </div>
 
@@ -445,9 +447,8 @@ const Auth = () => {
 
               <Button
                 type="submit"
-                variant="default"
                 disabled={loading}
-                className="w-full font-semibold text-xs sm:text-sm h-10 sm:h-11 rounded-xl bg-foreground text-background hover:bg-foreground/90 active:scale-[0.98] shadow-xs cursor-pointer mt-1"
+                className="w-full font-semibold text-xs sm:text-sm h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-[var(--shadow-button)] active:scale-[0.98] cursor-pointer mt-1"
                 size="default"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}

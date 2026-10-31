@@ -263,27 +263,7 @@ export default function Profile() {
                 </Button>
               </div>
 
-              {/* Goal Evidence */}
-              <div className="pt-3 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <CheckCircle2 className="size-4 text-emerald-500 shrink-0" aria-hidden="true" />
-                  <span>
-                    <strong className="text-foreground font-semibold font-mono">{goalStats.completed}</strong> completed {goalStats.completed === 1 ? "goal step" : "goal steps"} toward this goal
-                    {goalStats.linked > 0 && (
-                      <span className="font-mono text-muted-foreground ml-1">
-                        ({goalCompletionRate}% goal commitment rate · {goalStats.completed}/{goalStats.linked})
-                      </span>
-                    )}
-                  </span>
-                </div>
-                <Link
-                  to="/profile/history"
-                  className="font-medium text-xs text-primary hover:underline flex items-center gap-1 transition-colors"
-                >
-                  <span>View history</span>
-                  <ChevronRight className="size-3.5" aria-hidden="true" />
-                </Link>
-              </div>
+              
             </div>
           ) : (
             <div className="mt-4 space-y-3">
@@ -430,75 +410,87 @@ export default function Profile() {
         )}
       </section>
 
-      {/* ── 3. Activity & History ── */}
-      <div className="space-y-3">
-        <p className="text-xs font-sans font-semibold text-muted-foreground px-1">
-          Activity & History
-        </p>
+      {/* ── 3. Personal Execution & History ── */}
+      <section
+        className="rounded-2xl border border-border/70 bg-card p-6 sm:p-7 shadow-[var(--shadow-card)] space-y-5"
+        aria-labelledby="execution-summary-heading"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 id="execution-summary-heading" className="text-base sm:text-lg font-bold text-foreground">
+              Personal Execution Record
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Verified daily focus commitments and routine completion history.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          {/* Quest History Entry */}
-          <Link
-            to="/profile/history"
-            className="group flex items-center justify-between p-4 rounded-2xl border border-border/70 bg-card hover:bg-muted/40 transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+            className="rounded-xl min-h-10 text-xs font-semibold gap-2 border-border/80 hover:bg-muted/60 self-start sm:self-auto shrink-0"
           >
-            <div className="flex items-start gap-3.5 min-w-0">
-              <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">
-                <History
-                  className="size-4 text-muted-foreground group-hover:text-foreground transition-colors"
-                  aria-hidden="true"
-                />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm text-foreground group-hover:underline">
-                    Quest History
-                  </span>
-                  <span className="text-xs font-mono px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-medium">
-                    {overallFollowThroughRate !== null ? `${overallFollowThroughRate}% Follow-Through · ` : ""}{followThrough.completed} Done
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                  Chronological record of all completed quests.
-                </p>
-              </div>
-            </div>
-            <ChevronRight
-              className="size-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 ml-2"
-              aria-hidden="true"
-            />
-          </Link>
-
-          {/* System Settings Entry */}
-          <Link
-            to="/profile/settings"
-            className="group flex items-center justify-between p-4 rounded-2xl border border-border/70 bg-card hover:bg-muted/40 transition-all shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <div className="flex items-start gap-3.5 min-w-0">
-              <div className="size-10 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 group-hover:border-foreground/40 transition-colors">
-                <SettingsIcon
-                  className="size-4 text-muted-foreground group-hover:text-foreground transition-colors"
-                  aria-hidden="true"
-                />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-sm text-foreground group-hover:underline">
-                    System Settings
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                  Theme mode, audio feedback, timezone calibration, and data privacy.
-                </p>
-              </div>
-            </div>
-            <ChevronRight
-              className="size-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all shrink-0 ml-2"
-              aria-hidden="true"
-            />
-          </Link>
+            <Link to="/profile/history">
+              <History className="size-3.5 text-primary" aria-hidden="true" />
+              <span>View Full History</span>
+              <ChevronRight className="size-3.5 ml-0.5" aria-hidden="true" />
+            </Link>
+          </Button>
         </div>
-      </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          {/* Metric 1: Overall Follow-Through */}
+          <div className="rounded-xl bg-muted/40 p-4 border border-border/60 flex items-start gap-3.5">
+            <div className="size-10 rounded-xl bg-background border border-border flex items-center justify-center shrink-0">
+              <CheckCircle2 className="size-5 text-emerald-500" aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-medium text-muted-foreground block">
+                Overall Follow-Through
+              </span>
+              <div className="flex items-baseline gap-2 mt-0.5">
+                <span className="text-xl sm:text-2xl font-bold font-mono text-foreground">
+                  {overallFollowThroughRate !== null ? `${overallFollowThroughRate}%` : "—"}
+                </span>
+                <span className="text-xs text-muted-foreground font-mono">
+                  ({followThrough.completed} of {followThrough.total} honored)
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
+                Ratio of completed commitments across all active days.
+              </p>
+            </div>
+          </div>
+
+          {/* Metric 2: North Star Goal Steps */}
+          <div className="rounded-xl bg-muted/40 p-4 border border-border/60 flex items-start gap-3.5">
+            <div className="size-10 rounded-xl bg-background border border-border flex items-center justify-center shrink-0">
+              <Target className="size-5 text-primary" aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-medium text-muted-foreground block">
+                Milestone Steps Completed
+              </span>
+              <div className="flex items-baseline gap-2 mt-0.5">
+                <span className="text-xl sm:text-2xl font-bold font-mono text-foreground">
+                  {goalStats.completed}
+                </span>
+                {goalStats.linked > 0 && (
+                  <span className="text-xs text-muted-foreground font-mono">
+                    ({goalCompletionRate}% goal commitment rate)
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-1 leading-snug">
+                {profile?.primary_goal
+                  ? `Steps linked directly to "${profile.primary_goal}".`
+                  : "Steps contributing to your active long-term goal."}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

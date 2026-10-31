@@ -19,77 +19,72 @@ function HistoryItem({ quest }: { quest: Quest }) {
     ? new Date(dateStr).toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
+        year: "numeric",
       })
     : "";
 
   return (
-    <li className="flex flex-col gap-2.5 px-4 py-3.5 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5 sm:py-3.5">
-      {/* LEFT AXIS: Hard-aligned status icon & task title (Receipt Left Edge) */}
+    <li className="flex flex-col gap-3 px-4 py-3.5 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-5 sm:py-4">
+      {/* LEFT: Status icon, task title, and goal connection */}
       <div className="flex min-w-0 items-start gap-3 sm:items-center flex-1">
         <div
           className={cn(
-            "flex size-6 shrink-0 items-center justify-center rounded-lg mt-0.5 sm:mt-0 border transition-colors",
+            "flex size-7 shrink-0 items-center justify-center rounded-lg mt-0.5 sm:mt-0 border transition-colors",
             isCompleted
               ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
-              : "bg-muted/50 text-muted-foreground border-border/70"
+              : "bg-muted/60 text-muted-foreground border-border/70"
           )}
           aria-hidden="true"
         >
-          {isCompleted ? <Check className="size-3.5 stroke-[2.5]" /> : <X className="size-3.5 stroke-[2]" />}
+          {isCompleted ? <Check className="size-4 stroke-[2.5]" /> : <X className="size-4 stroke-[2]" />}
         </div>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
             <span
               className={cn(
-                "text-sm font-medium text-foreground line-clamp-2 break-words leading-snug",
-                !isCompleted && "text-muted-foreground"
+                "text-sm sm:text-base font-semibold text-foreground line-clamp-2 break-words leading-snug",
+                !isCompleted && "text-muted-foreground font-normal line-through opacity-80"
               )}
             >
               {quest.title}
             </span>
           </div>
 
-          {/* Goal pill on mobile (Show, Don't Tell: no redundant 'Supports:' text) */}
-          {quest.linkedToGoal && quest.goalName && (
-            <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground sm:hidden truncate">
-              <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
-              <span className="truncate">{quest.goalName}</span>
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-2 pt-0.5">
+            {/* Clear Goal Connection (P2-46) */}
+            {quest.linkedToGoal && quest.goalName && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 truncate max-w-xs">
+                <Target className="size-3 shrink-0" aria-hidden="true" />
+                <span className="truncate">Contributed to: {quest.goalName}</span>
+              </span>
+            )}
+
+            {/* Commitment Role Badge */}
+            <span
+              className={cn(
+                "inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border",
+                role === "focus"
+                  ? "bg-primary/15 text-primary border-primary/30 font-semibold"
+                  : "bg-muted/80 text-muted-foreground border-border/70"
+              )}
+            >
+              {role === "focus" ? "Primary Focus" : "Routine"}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* RIGHT AXIS: Goal pill (desktop), Priority, Date & Status (Receipt Right Edge) */}
-      <div className="flex items-center justify-between sm:justify-end gap-2.5 pl-9 sm:pl-0 shrink-0 text-xs">
-        {/* Desktop Goal Pill */}
-        {quest.linkedToGoal && quest.goalName && (
-          <div className="hidden sm:flex items-center gap-1 rounded-full bg-muted/40 px-2 py-0.5 text-xs text-muted-foreground border border-border/50 max-w-[150px] truncate">
-            <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
-            <span className="truncate">{quest.goalName}</span>
-          </div>
-        )}
-
-        {/* Commitment Role Badge */}
-        <span
-          className={cn(
-            "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border",
-            role === "focus"
-              ? "bg-primary/10 text-primary border-primary/25 font-semibold"
-              : "bg-muted/60 text-muted-foreground border-border/60"
-          )}
-        >
-          {role === "focus" ? "Primary Focus" : "Routine"}
-        </span>
-
-        <span className="font-mono text-xs text-muted-foreground/80">{resolvedDate}</span>
+      {/* RIGHT: Date & Status Pill */}
+      <div className="flex items-center justify-between sm:justify-end gap-3 pl-10 sm:pl-0 shrink-0 text-xs">
+        <span className="font-mono text-xs text-muted-foreground">{resolvedDate}</span>
 
         <span
           className={cn(
             "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border",
             isCompleted
-              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25"
-              : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 border-neutral-200 dark:border-neutral-700 font-sans"
+              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
+              : "bg-muted text-muted-foreground border-border/70"
           )}
         >
           {isCompleted ? "Completed" : "Missed"}
@@ -139,11 +134,11 @@ export default function QuestHistory() {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10 sm:pb-12">
       <PageHeader
-        eyebrow="Archive"
-        title="Quest history."
-        description="Search and review your past commitments and outcomes."
+        eyebrow="Personal Record"
+        title="Commitment history."
+        description="Chronological record of completed daily focus commitments, routines, and North Star progress."
       >
-        <Button variant="ghost" asChild className="shrink-0">
+        <Button variant="ghost" asChild className="shrink-0 gap-1.5">
           <Link to="/profile">
             <ArrowLeft className="size-4" aria-hidden="true" />
             Back to profile
@@ -163,83 +158,55 @@ export default function QuestHistory() {
             className="rounded-2xl border border-border bg-card p-7"
             aria-label="Quest history unavailable"
           >
-            <p className="text-label text-muted-foreground">Your history</p>
+            <p className="text-xs font-semibold text-muted-foreground">Your history</p>
             <h2 className="mt-2 text-lg font-semibold text-foreground">
               We couldn't load your quest history.
             </h2>
             <p className="mt-2 text-body-md text-muted-foreground">
               This is usually temporary. You can try again now.
             </p>
-            <Button variant="neon" size="lg" className="mt-4" onClick={() => void reload()}>
+            <Button size="lg" className="mt-4" onClick={() => void reload()}>
               Try again
             </Button>
           </section>
         ) : resolved.length === 0 ? (
           <section className="rounded-2xl border border-border bg-card p-7 text-center" aria-label="No quest history yet">
             <p className="text-body-md text-muted-foreground">
-              Nothing here yet. Completed and missed quests will appear here as you resolve them.
+              Nothing here yet. Completed and missed commitments will appear here as you resolve them.
             </p>
           </section>
         ) : (
           <div className="space-y-4">
-            {/* Momentum & All-Time Completion Rate Anchor (Direct Cognitive Ratio) */}
-            <div className="rounded-2xl border border-border/80 bg-card/60 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+            {/* Grounded Personal Follow-Through Summary Card */}
+            <div className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 shadow-[var(--shadow-card)]">
               <div className="flex items-center gap-3.5 min-w-0">
-                <div className="size-11 shrink-0 flex items-center justify-center rounded-full bg-primary/10 border border-primary/20 text-primary font-mono font-bold text-xs">
+                <div className="size-12 shrink-0 flex items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary font-mono font-bold text-sm">
                   {completionRate}%
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {completionRate}% All-Time Completion Rate
+                  <h3 className="text-sm sm:text-base font-semibold text-foreground">
+                    {completionRate}% All-Time Follow-Through Rate
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    {completedCount} of {resolved.length} commitments honored to date
+                    {completedCount} of {resolved.length} total commitments honored to date
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-col items-end gap-1 shrink-0">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "text-xs font-sans font-medium px-2.5 py-1 cursor-help transition-colors",
-                        completionRate >= 80
-                          ? "border-foreground/30 bg-foreground/10 text-foreground font-semibold"
-                          : completionRate >= 60
-                          ? "border-border bg-muted/70 text-foreground/90 font-medium"
-                          : "border-border/60 bg-muted/40 text-muted-foreground"
-                      )}
-                    >
-                      {completionRate >= 80 ? "✓ Strong Momentum" : completionRate >= 60 ? "Steady Rhythm" : "Rebuilding Flow"}
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" align="end" className="max-w-xs p-3 text-xs space-y-1.5 bg-popover text-popover-foreground border border-border shadow-md">
-                    <p className="font-semibold text-foreground">Follow-Through Momentum Tiers</p>
-                    <div className="space-y-1 font-sans text-xs text-muted-foreground">
-                      <div className={cn("flex justify-between gap-3", completionRate >= 80 && "text-foreground font-semibold")}>
-                        <span>Strong Momentum (Above):</span>
-                        <span>≥ 80%</span>
-                      </div>
-                      <div className={cn("flex justify-between gap-3", completionRate >= 60 && completionRate < 80 && "text-foreground font-semibold")}>
-                        <span>Steady Rhythm (Current):</span>
-                        <span>60% – 79%</span>
-                      </div>
-                      <div className={cn("flex justify-between gap-3", completionRate < 60 && "text-foreground font-semibold")}>
-                        <span>Rebuilding Flow (Below):</span>
-                        <span>&lt; 60%</span>
-                      </div>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-                <span className="text-xs font-sans text-muted-foreground">
-                  {completionRate >= 80
-                    ? "Tier: ≥80% follow-through"
-                    : completionRate >= 60
-                    ? "Tier: 60–79% (Above: ≥80% | Below: <60%)"
-                    : "Tier: <60% (Above: ≥60%)"}
-                </span>
+              <div className="flex items-center gap-2 shrink-0">
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "text-xs font-medium px-3 py-1",
+                    completionRate >= 80
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold"
+                      : completionRate >= 60
+                      ? "border-border bg-muted text-foreground"
+                      : "border-border/60 bg-muted/50 text-muted-foreground"
+                  )}
+                >
+                  {completionRate >= 80 ? "✓ Strong Momentum" : completionRate >= 60 ? "Steady Rhythm" : "Rebuilding Flow"}
+                </Badge>
               </div>
             </div>
 
