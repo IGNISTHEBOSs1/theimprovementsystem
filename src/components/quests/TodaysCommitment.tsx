@@ -142,7 +142,7 @@ export function TodaysCommitment({
         {/* STEP 2: CHOOSE ROLE: PRIMARY FOCUS OR ROUTINE */}
         <div>
           <Label className="text-xs font-medium text-foreground block mb-1.5">
-            2. Choose commitment role
+            2. Choose type
           </Label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {/* Primary Focus Option */}
@@ -247,7 +247,7 @@ export function TodaysCommitment({
               <div className="mt-2 flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary animate-in fade-in duration-200">
                 <Check className="size-3 text-primary shrink-0" aria-hidden="true" />
                 <span className="truncate">
-                  Counts toward North Star • Step #{completedGoalQuests + 1} of 90
+                  Advances 90-day goal • Step #{completedGoalQuests + 1} of 90
                 </span>
               </div>
             )}

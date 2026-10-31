@@ -149,27 +149,17 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
             </h3>
           </div>
 
-          {/* Mobile Secondary Baseline */}
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 sm:hidden text-xs text-muted-foreground">
-            <span
-              className={cn(
-                "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border",
-                getQuestRole(quest) === "focus"
-                  ? "border-primary/40 bg-primary/10 text-primary"
-                  : "border-border/60 bg-muted/40 text-muted-foreground",
-              )}
-            >
-              {getQuestRole(quest) === "focus" ? "Primary Focus" : "Routine"}
-            </span>
+          {/* Metadata line */}
+          <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground">
             {quest.linkedToGoal && quest.goalName && (
-              <span className="inline-flex items-center gap-1 font-medium text-foreground/85 max-w-[130px] truncate">
+              <span className="inline-flex items-center gap-1 font-medium text-foreground/85 max-w-[160px] truncate">
                 <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
                 <span className="truncate">{quest.goalName}</span>
               </span>
             )}
-            <span className="inline-flex items-center gap-1 font-sans text-xs">
+            <span className="inline-flex items-center gap-1 text-xs">
               {quest.seriesId ? <Repeat className="size-3 text-primary/70" /> : <Zap className="size-3 text-muted-foreground" />}
-              {quest.seriesId ? "Daily" : "Today"}
+              <span>{quest.seriesId ? "Daily routine" : "Today"}</span>
             </span>
           </div>
         </div>
@@ -194,12 +184,12 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
         )}
       </div>
 
-      {/* RIGHT AXIS (Tablet/Desktop): Pinned hard-right metadata & actions */}
+      {/* RIGHT AXIS (Tablet/Desktop): Streamlined metadata & actions */}
       <div className="hidden sm:flex items-center gap-3 shrink-0 text-xs">
         {/* Goal Indicator */}
         {quest.linkedToGoal && quest.goalName && (
           <div
-            className="flex items-center gap-1.5 rounded-full bg-muted/50 px-2.5 py-1 text-muted-foreground border border-border/60 max-w-[180px] truncate"
+            className="flex items-center gap-1.5 text-muted-foreground max-w-[180px] truncate"
             title={`Goal: ${quest.goalName}`}
           >
             <Target className="size-3 text-primary shrink-0" aria-hidden="true" />
@@ -207,32 +197,10 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
           </div>
         )}
 
-        {/* Role Tag: Primary Focus or Routine */}
-        <span
-          className={cn(
-            "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border font-sans",
-            getQuestRole(quest) === "focus"
-              ? "bg-primary/10 text-primary border-primary/30"
-              : "bg-muted/40 text-muted-foreground border-border/50",
-          )}
-        >
-          {getQuestRole(quest) === "focus" ? "Primary Focus" : "Routine"}
-        </span>
-
         {/* Cadence Tag */}
-        <div className="flex items-center gap-1 text-muted-foreground font-sans text-xs px-2 py-0.5 rounded-md bg-muted/40 border border-border/40">
-          {quest.seriesId ? (
-            <>
-              <Repeat className="size-3 text-primary/70" aria-hidden="true" />
-              <span>Daily</span>
-            </>
-          ) : (
-            <>
-              <Zap className="size-3 text-muted-foreground" aria-hidden="true" />
-              <span>Today</span>
-            </>
-          )}
-        </div>
+        <span className="text-muted-foreground font-sans text-xs">
+          {quest.seriesId ? "Daily" : "Today"}
+        </span>
 
         {/* Status or Secondary Actions */}
         {isCompleted ? (
@@ -251,7 +219,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
                 onCancel!(quest.id);
               }}
               disabled={cancelling || completing || isCompleted}
-              className="size-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="size-9 flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               title="Cancel commitment"
               aria-label={`Cancel commitment "${quest.title}"`}
             >

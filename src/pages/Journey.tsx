@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Compass, ArrowRight, Check, Plus, ChevronDown, ChevronUp, ShieldCheck, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
 import { TrajectoryVisualizer } from "@/components/journey/TrajectoryVisualizer";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,7 +30,7 @@ export default function Journey() {
   } = useDashboardDataContext();
 
   const [completingId, setCompletingId] = useState<string | null>(null);
-  const [showTechnicalTelemetry, setShowTechnicalTelemetry] = useState(false);
+  const [showDetailedStats, setShowDetailedStats] = useState(false);
 
   if (loading) {
     return (
@@ -153,50 +154,41 @@ export default function Journey() {
         </p>
       </header>
 
-      {/* ── 2. PLAIN-LANGUAGE STATUS & EXPLANATION (DOMINANT ATTENTION BOX) ── */}
+      {/* ── 2. PLAIN-LANGUAGE STATUS & EXPLANATION (RESTRAINED STATUS CARD) ── */}
       <section
         aria-label="Pace status"
-        className={cn(
-          "rounded-2xl border p-5 sm:p-6 shadow-sm transition-all",
-          paceDetails.badgeVariant === "success"
-            ? "border-emerald-500/30 bg-emerald-500/[0.04]"
-            : paceDetails.badgeVariant === "warning"
-            ? "border-amber-500/30 bg-amber-500/[0.04]"
-            : paceDetails.badgeVariant === "destructive"
-            ? "border-destructive/30 bg-destructive/[0.04]"
-            : "border-border/60 bg-muted/20",
-        )}
+        className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all"
       >
         <div className="flex items-center gap-2">
-          {paceDetails.badgeVariant === "success" ? (
-            <ShieldCheck className="size-5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
-          ) : (
-            <AlertCircle
-              className={cn(
-                "size-5 shrink-0",
-                paceDetails.badgeVariant === "warning"
-                  ? "text-amber-600 dark:text-amber-400"
-                  : paceDetails.badgeVariant === "destructive"
-                  ? "text-destructive"
-                  : "text-muted-foreground",
-              )}
-              aria-hidden="true"
-            />
-          )}
-          <span
-            className={cn(
-              "text-xs font-sans font-semibold",
+          <Badge
+            variant={
               paceDetails.badgeVariant === "success"
-                ? "text-emerald-700 dark:text-emerald-400"
+                ? "success"
                 : paceDetails.badgeVariant === "warning"
-                ? "text-amber-700 dark:text-amber-400"
+                ? "warning"
                 : paceDetails.badgeVariant === "destructive"
-                ? "text-destructive"
-                : "text-muted-foreground",
-            )}
+                ? "destructive"
+                : "neutral"
+            }
+            className="gap-1.5 py-1 text-xs font-sans font-semibold"
           >
-            {paceDetails.label}
-          </span>
+            {paceDetails.badgeVariant === "success" ? (
+              <ShieldCheck className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
+            ) : (
+              <AlertCircle
+                className={cn(
+                  "size-3.5 shrink-0",
+                  paceDetails.badgeVariant === "warning"
+                    ? "text-amber-600 dark:text-amber-400"
+                    : paceDetails.badgeVariant === "destructive"
+                    ? "text-destructive"
+                    : "text-muted-foreground",
+                )}
+                aria-hidden="true"
+              />
+            )}
+            <span>{paceDetails.label}</span>
+          </Badge>
         </div>
 
         <p className="text-base sm:text-lg font-semibold tracking-tight text-foreground mt-2 leading-snug">
@@ -306,26 +298,26 @@ export default function Journey() {
         )}
       </section>
 
-      {/* ── 5. OPTIONAL TECHNICAL TELEMETRY (SUBORDINATED BELOW) ── */}
+      {/* ── 5. DETAILED PACE & BREAKDOWN (SUBORDINATED BELOW) ── */}
       <section className="pt-2">
         <button
           type="button"
-          onClick={() => setShowTechnicalTelemetry((v) => !v)}
+          onClick={() => setShowDetailedStats((v) => !v)}
           className="flex items-center justify-between w-full p-4 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors text-xs text-muted-foreground"
-          aria-expanded={showTechnicalTelemetry}
+          aria-expanded={showDetailedStats}
         >
           <span className="text-xs font-sans font-medium text-foreground">
-            {showTechnicalTelemetry ? "Hide Detailed Pace & Statistics" : "View Detailed Pace & Statistics"}
+            {showDetailedStats ? "Hide Pace & Priority Breakdown" : "View Pace & Priority Breakdown"}
           </span>
-          {showTechnicalTelemetry ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+          {showDetailedStats ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
         </button>
 
-        {showTechnicalTelemetry && (
+        {showDetailedStats && (
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 animate-in fade-in duration-200">
             {/* Flex Buffer breakdown */}
             <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2">
               <span className="text-xs font-sans font-semibold text-muted-foreground block">
-                Flex Buffer Slots
+                Flex Buffer Days
               </span>
               <div className="grid grid-cols-9 gap-1 pt-1">
                 {Array.from({ length: 9 }).map((_, i) => {

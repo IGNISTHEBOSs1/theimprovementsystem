@@ -215,7 +215,7 @@ export default function Quests() {
       <PageHeader
         eyebrow="Daily Focus & Routines"
         title="Your quests."
-        description="Commit to 1 primary focus and up to 2 supporting routines each day to protect your attention."
+        description="Select one primary focus for today and up to two supporting routines. Setting a clear daily limit protects your attention and builds steady momentum."
       />
 
       <div className="mt-6 space-y-6">
@@ -259,19 +259,15 @@ export default function Quests() {
 
             {/* CAPACITY STRUCTURE HEADER */}
             <div className="flex flex-wrap items-center justify-between gap-2.5 px-1 border-b border-border/60 pb-3">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-xs font-sans font-semibold text-muted-foreground">
-                  Quest Capacity
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/80 bg-card text-xs font-sans shadow-xs">
+                <span className={cn("size-2 rounded-full", focusQuest ? "bg-primary" : completedFocusToday ? "bg-emerald-500" : "bg-muted-foreground/30")} />
+                <span className="font-medium text-foreground">
+                  1 Focus ({focusQuest ? "Committed" : completedFocusToday ? "Completed" : "Open"})
                 </span>
-                {/* Structural capacity pill */}
-                <div className="inline-flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-full border border-border/80 bg-muted/40 text-xs font-sans">
-                  <span className={cn("size-2 rounded-full", focusQuest ? "bg-primary" : completedFocusToday ? "bg-emerald-500" : "bg-muted-foreground/30")} />
-                  <span className="font-medium text-foreground">
-                    1 Focus: {focusQuest ? "Committed" : completedFocusToday ? "Completed" : "Open"}
-                  </span>
-                  <span className="text-muted-foreground">·</span>
-                  <span className="text-muted-foreground">2 Routines: {routineQuests.length}/2</span>
-                </div>
+                <span className="text-muted-foreground/50">·</span>
+                <span className="text-muted-foreground font-medium">
+                  {routineQuests.length} of 2 Routines
+                </span>
               </div>
 
               {!showCommitForm && canAddAny && (
@@ -299,11 +295,11 @@ export default function Quests() {
                     <div className="flex items-center gap-2">
                       <Sparkles className="size-4 text-primary" aria-hidden="true" />
                       <h2 className="text-xs font-sans font-semibold text-foreground">
-                        Primary Focus (1 Slot)
+                        Primary Focus
                       </h2>
                     </div>
                     <span className="text-xs font-sans font-medium text-muted-foreground">
-                      {focusQuest ? "1 of 1 committed" : completedFocusToday ? "1 of 1 completed" : "0 of 1 (Slot open)"}
+                      {focusQuest ? "Committed" : completedFocusToday ? "Completed" : "Open"}
                     </span>
                   </div>
 
@@ -376,7 +372,7 @@ export default function Quests() {
                     <div className="flex items-center gap-2">
                       <Repeat className="size-4 text-muted-foreground" aria-hidden="true" />
                       <h2 className="text-xs font-sans font-semibold text-foreground">
-                        Supporting Routines (Max 2 Slots)
+                        Supporting Routines
                       </h2>
                     </div>
                     <span className="text-xs font-sans font-medium text-muted-foreground">
@@ -402,19 +398,21 @@ export default function Quests() {
                     </ul>
                   ) : null}
 
-                  {/* Open Routine Slot Prompt if < 2 routines */}
+                  {/* Open Routine Slot Prompt if < 2 routines (Unified with populated card family) */}
                   {routineQuests.length < 2 && (
-                    <div className="rounded-2xl border border-dashed border-border/80 bg-muted/20 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-                      <div>
-                        <span className="text-xs font-sans text-muted-foreground font-medium">
-                          Routine Slot ({routineQuests.length + 1} of 2) · Open
-                        </span>
-                        <p className="text-xs text-foreground font-medium mt-0.5">
-                          Supporting daily habits or recurring practices
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Build steady progress with predictable daily practice.
-                        </p>
+                    <div className="rounded-2xl border border-border/80 bg-card/60 p-4 sm:px-5 sm:py-4 flex items-center justify-between gap-3 shadow-xs">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="size-6 rounded-lg border border-border bg-muted/40 text-muted-foreground flex items-center justify-center shrink-0">
+                          <Plus className="size-3.5" aria-hidden="true" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            Open Routine Slot ({routineQuests.length + 1} of 2)
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            Add a supporting daily habit to reinforce steady momentum.
+                          </p>
+                        </div>
                       </div>
                       {!showCommitForm && (
                         <Button
@@ -424,7 +422,7 @@ export default function Quests() {
                             setFormTargetRole("routine");
                             setShowCommitForm(true);
                           }}
-                          className="rounded-xl px-3 h-9 text-xs shrink-0"
+                          className="rounded-xl px-3 h-9 text-xs shrink-0 font-medium"
                         >
                           <Plus className="size-3 mr-1" />
                           Add Routine
@@ -452,7 +450,7 @@ export default function Quests() {
                 <div className="lg:col-span-5 pt-2 lg:pt-0">
                   <div className="flex items-center justify-between px-1 mb-2.5">
                     <h3 className="text-xs font-sans font-semibold text-muted-foreground">
-                      Scheduled Recurring Routines
+                      Upcoming Routines
                     </h3>
                     <span className="text-xs font-sans font-medium text-muted-foreground">
                       {upcoming.length} scheduled

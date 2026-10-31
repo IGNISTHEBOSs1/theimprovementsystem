@@ -162,7 +162,6 @@ export default function Dashboard() {
 
   const name = profile?.username || "there";
   const [completeError, setCompleteError] = useState(false);
-  const [showTelemetryDetails, setShowTelemetryDetails] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   const chooseQuest = () => {
@@ -367,120 +366,120 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* ── 2. TODAY’S PRIMARY FOCUS (Attention Level: Primary Action — The ONE dominant card) ── */}
-      <div className="mt-6">
-        {loading ? (
-          <section className="rounded-2xl border border-border/80 bg-card p-7" aria-label="Loading today’s focus">
-            <div className="h-3 w-24 animate-pulse rounded bg-muted" />
-            <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
-          </section>
-        ) : (
-          <AnimatePresence mode="wait" initial={false}>
-            {activeFocus ? (
-              <motion.div
-                key={activeFocus.id}
-                initial={{ opacity: 0, y: 8, scale: 0.985 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -6, scale: 0.985 }}
-                transition={TIS_SPRINGS.settle}
-              >
-                <PrimaryActionPanel
-                  quest={activeFocus}
-                  completing={saving}
-                  onComplete={() => void handleComplete(activeFocus.id)}
-                  onChooseQuest={chooseQuest}
-                  completedGoalQuests={goalStats.completed}
-                />
-                {completeError && (
-                  <p className="mt-3 text-body-sm text-destructive" role="alert">
-                    That didn't go through. You can try again.
-                  </p>
-                )}
-              </motion.div>
-            ) : completedFocusToday ? (
-              <motion.div
-                key="focus-completed-card"
-                initial={{ opacity: 0, y: 8, scale: 0.985 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -6, scale: 0.985 }}
-                transition={TIS_SPRINGS.settle}
-                className="rounded-2xl glass-hero p-5 sm:p-7 shadow-[var(--shadow-card)]"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="flex size-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-                    <CheckCircle2 className="size-4" aria-hidden="true" />
-                  </span>
-                  <p className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400">
-                    Primary Focus Complete
-                  </p>
-                </div>
-                <h2 className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                  {completedFocusToday.title}
-                </h2>
-                <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground">
-                  Your primary focus for today is locked in. Continue with your supporting routines below or rest.
-                </p>
-              </motion.div>
-            ) : activeRoutines.length > 0 ? (
-              <motion.div
-                key="focus-slot-open-card"
-                initial={{ opacity: 0, y: 8, scale: 0.985 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -6, scale: 0.985 }}
-                transition={TIS_SPRINGS.settle}
-                className="rounded-2xl border border-dashed border-primary/40 bg-primary/[0.03] p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div>
-                  <span className="text-xs font-sans font-semibold text-primary">
-                    Primary Focus Open
-                  </span>
-                  <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground mt-0.5">
-                    Focus today on one decisive commitment
-                  </h2>
-                  <p className="text-xs text-muted-foreground mt-0.5 max-w-lg">
-                    Your routines are active below. Set your single non-negotiable focus to guide today&apos;s momentum.
-                  </p>
-                </div>
-                <Button
-                  onClick={chooseQuest}
-                  className="rounded-xl px-5 min-h-10 text-xs font-semibold shrink-0"
+      {/* ── 2. CONNECTED DAILY WORKSPACE (Workflow: Actions on Left / Context & Guidance on Right) ── */}
+      <div className="mt-6 lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start space-y-6 lg:space-y-0">
+        {/* Left Column: Today's Actions (Primary Focus + Supporting Routines) */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Primary Focus Slot */}
+          {loading ? (
+            <section className="rounded-2xl border border-border/80 bg-card p-7" aria-label="Loading today’s focus">
+              <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+              <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
+            </section>
+          ) : (
+            <AnimatePresence mode="wait" initial={false}>
+              {activeFocus ? (
+                <motion.div
+                  key={activeFocus.id}
+                  initial={{ opacity: 0, y: 8, scale: 0.985 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.985 }}
+                  transition={TIS_SPRINGS.settle}
                 >
-                  Commit to Focus
-                  <ChevronRight className="size-3.5 ml-1" />
-                </Button>
-              </motion.div>
-            ) : completedToday > 0 ? (
-              <DailyClosureCard
-                key="daily-closure"
-                completedToday={completedToday}
-                onChooseQuest={chooseQuest}
-              />
-            ) : (
-              <RecoveryState
-                key="recovery-state"
-                onChooseQuest={chooseQuest}
-                lastMissedQuest={lastMissedQuest}
-                onRecommit={handleRecommit}
-              />
-            )}
-          </AnimatePresence>
-        )}
-      </div>
+                  <PrimaryActionPanel
+                    quest={activeFocus}
+                    completing={saving}
+                    onComplete={() => void handleComplete(activeFocus.id)}
+                    onChooseQuest={chooseQuest}
+                    completedGoalQuests={goalStats.completed}
+                  />
+                  {completeError && (
+                    <p className="mt-3 text-body-sm text-destructive" role="alert">
+                      That didn't go through. You can try again.
+                    </p>
+                  )}
+                </motion.div>
+              ) : completedFocusToday ? (
+                <motion.div
+                  key="focus-completed-card"
+                  initial={{ opacity: 0, y: 8, scale: 0.985 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.985 }}
+                  transition={TIS_SPRINGS.settle}
+                  className="rounded-2xl glass-hero p-5 sm:p-7 shadow-[var(--shadow-card)]"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                      <CheckCircle2 className="size-4" aria-hidden="true" />
+                    </span>
+                    <p className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400">
+                      Primary Focus Complete
+                    </p>
+                  </div>
+                  <h2 className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+                    {completedFocusToday.title}
+                  </h2>
+                  <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground">
+                    Your primary focus for today is locked in. Continue with your supporting routines below or rest.
+                  </p>
+                </motion.div>
+              ) : activeRoutines.length > 0 ? (
+                <motion.div
+                  key="focus-slot-open-card"
+                  initial={{ opacity: 0, y: 8, scale: 0.985 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -6, scale: 0.985 }}
+                  transition={TIS_SPRINGS.settle}
+                  className="rounded-2xl border border-dashed border-primary/40 bg-primary/[0.03] p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <div>
+                    <span className="text-xs font-sans font-semibold text-primary">
+                      Primary Focus Open
+                    </span>
+                    <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground mt-0.5">
+                      Focus today on one decisive commitment
+                    </h2>
+                    <p className="text-xs text-muted-foreground mt-0.5 max-w-lg">
+                      Your routines are active below. Set your single non-negotiable focus to guide today&apos;s momentum.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={chooseQuest}
+                    className="rounded-xl px-5 min-h-10 text-xs font-semibold shrink-0"
+                  >
+                    Commit to Focus
+                    <ChevronRight className="size-3.5 ml-1" />
+                  </Button>
+                </motion.div>
+              ) : completedToday > 0 ? (
+                <DailyClosureCard
+                  key="daily-closure"
+                  completedToday={completedToday}
+                  onChooseQuest={chooseQuest}
+                />
+              ) : (
+                <RecoveryState
+                  key="recovery-state"
+                  onChooseQuest={chooseQuest}
+                  lastMissedQuest={lastMissedQuest}
+                  onRecommit={handleRecommit}
+                />
+              )}
+            </AnimatePresence>
+          )}
 
-      {/* ── 3. BALANCED DESKTOP SECONDARY WORKSPACE (Routines + Evidence & Mentor) ── */}
-      <div className="mt-6 lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
-        {/* Left Column on Desktop: Supporting Routines */}
-        <div className={cn("space-y-6", activeRoutines.length > 0 ? "lg:col-span-7" : "lg:col-span-12")}>
-          {activeRoutines.length > 0 && (
-            <section aria-labelledby="supporting-routines-heading">
-              <div className="flex items-center justify-between mb-3 px-1">
-                <h2 id="supporting-routines-heading" className="text-xs font-sans font-semibold text-muted-foreground">
-                  Supporting Routines ({activeRoutines.length} of 2)
-                </h2>
-                <Link to="/quests" className="text-xs font-medium text-primary hover:underline">
-                  Manage routines →
-                </Link>
-              </div>
+          {/* Supporting Routines (Directly following today's primary focus) */}
+          <section aria-labelledby="supporting-routines-heading" className="space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <h2 id="supporting-routines-heading" className="text-xs font-sans font-semibold text-muted-foreground">
+                Supporting Routines ({activeRoutines.length} of 2)
+              </h2>
+              <Link to="/quests" className="text-xs font-medium text-primary hover:underline">
+                Manage routines →
+              </Link>
+            </div>
+
+            {activeRoutines.length > 0 ? (
               <ul className="space-y-2.5">
                 <AnimatePresence mode="popLayout" initial={false}>
                   {activeRoutines.map((routine) => (
@@ -493,114 +492,103 @@ export default function Dashboard() {
                   ))}
                 </AnimatePresence>
               </ul>
-            </section>
-          )}
+            ) : activeFocus ? (
+              <div className="rounded-2xl border border-border/70 bg-card/60 p-4 flex items-center justify-between gap-3 text-xs shadow-xs">
+                <div>
+                  <p className="font-medium text-foreground">No supporting routines active today</p>
+                  <p className="text-muted-foreground mt-0.5">Add regular routines to reinforce daily habits alongside your focus.</p>
+                </div>
+                <Link to="/quests" className="text-primary font-semibold hover:underline shrink-0">
+                  Add routine →
+                </Link>
+              </div>
+            ) : null}
+          </section>
         </div>
 
-        {/* Right Column on Desktop: Momentum Progress + Mentor Advice */}
-        <div className={cn("space-y-4", activeRoutines.length > 0 ? "mt-6 lg:mt-0 lg:col-span-5" : "mt-6 lg:col-span-12")}>
-          {/* ── 4. QUIET PROOF OF PROGRESS ── */}
+        {/* Right Column: Context & Guidance (Progress Indicators + Mentor Signal) */}
+        <div className="lg:col-span-5 space-y-4">
+          {/* ── 3. PROGRESS & MOMENTUM (Clear, Interpretable Indicators) ── */}
           <section
             aria-label="Progress and Momentum Summary"
-            className="rounded-2xl border border-border/70 bg-card/60 p-4 sm:p-5 text-xs text-muted-foreground shadow-xs"
+            className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 text-xs shadow-xs space-y-3.5"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                <div className="flex items-center gap-1.5 font-medium text-foreground">
-                  <Target className="size-3.5 text-primary" aria-hidden="true" />
-                  <span>Goal Step #{goalStats.completed} of 90</span>
+            <div className="flex items-center justify-between gap-2 border-b border-border/50 pb-2.5">
+              <span className="font-sans font-semibold text-foreground">Progress & Momentum</span>
+              {/* 7-Day Completion Cadence */}
+              {weeklyCadence.length === 7 && (
+                <div
+                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-border/80 bg-background/80"
+                  aria-label="7-day completion rhythm"
+                  title="7-day completion cadence"
+                >
+                  {weeklyCadence.map((day) => (
+                    <span
+                      key={day.dateStr}
+                      className={cn(
+                        "size-1.5 rounded-full transition-all",
+                        day.completed ? "bg-primary" : "border border-border/80 bg-transparent",
+                      )}
+                    />
+                  ))}
+                  <span className="text-[11px] font-mono text-muted-foreground ml-0.5">7d</span>
                 </div>
-                <span className="hidden sm:inline text-muted-foreground/50" aria-hidden="true">·</span>
-                <div className="flex items-center gap-1.5 font-mono">
-                  <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{bufferDaysRemaining}</span>/9 Flex Days Intact
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2.5">
+              {/* Follow-Through Indicator */}
+              <div className="p-3 rounded-xl bg-muted/30 border border-border/60">
+                <div className="flex items-center justify-between">
+                  <span className="font-sans font-semibold text-muted-foreground">Follow-Through</span>
+                  <span className="font-mono text-xs font-semibold text-foreground">
+                    {completionRate !== null ? `${completionRate}%` : "—"}
+                  </span>
                 </div>
-                {completionRate !== null && (
-                  <>
-                    <span className="hidden sm:inline text-muted-foreground/50" aria-hidden="true">·</span>
-                    <span className="font-mono">{completionRate}% Follow-Through</span>
-                  </>
-                )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  {completionRate !== null
+                    ? `${followThrough.completed} of ${followThrough.total} commitments honored`
+                    : "No resolved commitments yet"}
+                </p>
               </div>
 
-              <div className="flex items-center gap-3 shrink-0">
-                {/* 7-Day Rhythm Cadence Indicator */}
-                {weeklyCadence.length === 7 && (
-                  <div
-                    className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-border/80 bg-background/80"
-                    aria-label="7-day rhythm dots"
-                    title="7-day completion cadence"
-                  >
-                    {weeklyCadence.map((day) => (
-                      <span
-                        key={day.dateStr}
-                        className={cn(
-                          "size-2 rounded-full transition-all",
-                          day.completed ? "bg-foreground" : "border border-border/80 bg-transparent",
-                        )}
-                      />
-                    ))}
-                    <span className="text-xs font-mono text-muted-foreground ml-1">7d</span>
-                  </div>
-                )}
+              {/* Goal Milestone Indicator */}
+              <div className="p-3 rounded-xl bg-muted/30 border border-border/60">
+                <div className="flex items-center justify-between">
+                  <span className="font-sans font-semibold text-muted-foreground">90-Day Milestone</span>
+                  <span className="font-mono text-xs font-semibold text-foreground">
+                    Step {goalStats.completed} of 90
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {Math.min(100, Math.round((goalStats.completed / 90) * 100))}% completed toward goal
+                </p>
+              </div>
 
-                <button
-                  type="button"
-                  onClick={() => setShowTelemetryDetails((v) => !v)}
-                  className="text-xs text-primary hover:underline font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm px-1 py-0.5 cursor-pointer"
-                  aria-expanded={showTelemetryDetails}
-                >
-                  {showTelemetryDetails ? "Less" : "Details"}
-                </button>
+              {/* Flex Buffer Indicator */}
+              <div className="p-3 rounded-xl bg-muted/30 border border-border/60">
+                <div className="flex items-center justify-between">
+                  <span className="font-sans font-semibold text-muted-foreground">Buffer Reserve</span>
+                  <span className="font-mono text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                    {bufferDaysRemaining} of 9 flex days
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  ±10% mathematical safety margin intact
+                </p>
               </div>
             </div>
 
-            {/* Progressive Disclosure: Expanded progress details */}
-            <AnimatePresence>
-              {showTelemetryDetails && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={TIS_SPRINGS.settle}
-                  className="overflow-hidden pt-3 mt-3 border-t border-border/50"
-                >
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
-                      <span className="text-xs font-sans font-semibold text-muted-foreground block">Follow-Through</span>
-                      <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
-                        {followThrough.completed} / {followThrough.total}
-                      </span>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {completionRate !== null ? `${completionRate}% of commitments honored` : "No resolved commitments yet"}
-                      </p>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
-                      <span className="text-xs font-sans font-semibold text-muted-foreground block">Goal Progress</span>
-                      <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
-                        {goalStats.completed} / 90
-                      </span>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {Math.min(100, Math.round((goalStats.completed / 90) * 100))}% toward 90-day milestone
-                      </p>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
-                      <span className="text-xs font-sans font-semibold text-muted-foreground block">Buffer Reserve</span>
-                      <span className="text-lg font-bold font-mono text-foreground mt-0.5 block">
-                        {bufferDaysRemaining} / 9 days
-                      </span>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        ±10% mathematical safety margin
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className="pt-1 flex items-center justify-between text-xs text-muted-foreground">
+              <span>Updated in real time</span>
+              <Link to="/journey" className="text-primary font-medium hover:underline flex items-center gap-0.5">
+                <span>View trajectory</span>
+                <ChevronRight className="size-3" aria-hidden="true" />
+              </Link>
+            </div>
           </section>
 
-          {/* ── 5. MENTOR ADVICE ── */}
+          {/* ── 4. MENTOR GUIDANCE ── */}
           {topMentorSignal && (
             <section
               aria-label="Mentor Advisory Note"

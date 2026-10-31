@@ -1,5 +1,6 @@
 import { useId, useRef, useState, useCallback, useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { TIS_SPRINGS, TIS_EASINGS } from "@/lib/motion-tokens";
 import { triggerHaptic } from "@/lib/haptics";
@@ -212,9 +213,8 @@ export function TrajectoryVisualizer({
     if (safeCompleted >= targetAnchors) {
       return {
         label: "Goal Completed",
-        containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+        variant: "success" as const,
         dotClass: "bg-emerald-500",
-        ping: true,
       };
     }
     const status = paceStatus ?? (isOnTrack ? "nominal" : "critical");
@@ -222,38 +222,33 @@ export function TrajectoryVisualizer({
       case "establishing":
         return {
           label: "Establishing",
-          containerClass: "border border-border/80 bg-muted/40 text-muted-foreground",
+          variant: "neutral" as const,
           dotClass: "bg-muted-foreground/60",
-          ping: false,
         };
       case "ahead":
         return {
           label: "Ahead of Target",
-          containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+          variant: "success" as const,
           dotClass: "bg-emerald-500",
-          ping: true,
         };
       case "behind":
         return {
-          label: "Buffer Active",
-          containerClass: "border border-amber-500/40 bg-amber-500/15 text-amber-700 dark:text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.15)]",
+          label: "Buffer In Use",
+          variant: "warning" as const,
           dotClass: "bg-amber-500",
-          ping: true,
         };
       case "critical":
         return {
-          label: "Thrust Required",
-          containerClass: "border border-rose-500/40 bg-rose-500/15 text-rose-700 dark:text-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.15)]",
+          label: "Needs Adjustment",
+          variant: "destructive" as const,
           dotClass: "bg-rose-500",
-          ping: true,
         };
       case "nominal":
       default:
         return {
-          label: "Trajectory Nominal",
-          containerClass: "border border-emerald-500/40 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+          label: "On Track",
+          variant: "success" as const,
           dotClass: "bg-emerald-500",
-          ping: true,
         };
     }
   }, [paceStatus, isOnTrack, safeCompleted, targetAnchors]);
@@ -310,31 +305,14 @@ export function TrajectoryVisualizer({
           </div>
         </div>
 
-        {/* Single Flight Status Badge */}
-        <div
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-sans font-medium shrink-0 transition-all",
-            badgeConfig.containerClass,
-          )}
+        {/* Single Restrained Status Badge */}
+        <Badge
+          variant={badgeConfig.variant}
+          className="gap-1.5 py-1 text-xs font-sans font-medium shrink-0"
         >
-          <span className="relative flex size-2">
-            {badgeConfig.ping && (
-              <span
-                className={cn(
-                  "absolute inline-flex h-full w-full animate-ping rounded-full opacity-75",
-                  badgeConfig.dotClass,
-                )}
-              />
-            )}
-            <span
-              className={cn(
-                "relative inline-flex size-2 rounded-full",
-                badgeConfig.dotClass,
-              )}
-            />
-          </span>
+          <span className={cn("size-2 rounded-full", badgeConfig.dotClass)} />
           <span>{badgeConfig.label}</span>
-        </div>
+        </Badge>
       </div>
 
       {/* ── SVG Flight Canvas ── */}
@@ -514,13 +492,13 @@ export function TrajectoryVisualizer({
             x={xGoal - 8}
             y={(yGoalCeiling + yGoalFloor) / 2 + 4}
             textAnchor="end"
-            fill="hsl(var(--foreground))"
+            fill="hsl(var(--muted-foreground))"
             fontSize="10"
-            fontWeight="600"
-            fontFamily="monospace"
-            opacity={0.7}
+            fontWeight="500"
+            fontFamily="sans-serif"
+            opacity={0.85}
           >
-            ±10% Buffer
+            ±10% Buffer Zone
           </text>
 
           {/* 2. Historical Evidence Trail */}
@@ -574,10 +552,10 @@ export function TrajectoryVisualizer({
                 textAnchor="end"
                 fill="hsl(var(--warning))"
                 fontSize="10"
-                fontWeight="700"
-                fontFamily="monospace"
+                fontWeight="600"
+                fontFamily="sans-serif"
               >
-                Horizon Extension Required →
+                Date Adjustment Recommended →
               </text>
             </g>
           ) : !isEstablishing ? (
@@ -668,30 +646,30 @@ export function TrajectoryVisualizer({
         <span>D{cycleTotalDays}</span>
       </div>
 
-      {/* ── Single Ultra-Clean 1-Line Inline Key ── */}
-      <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-2 text-xs font-sans text-muted-foreground">
-        <div className="flex items-center gap-3">
+      {/* ── Plain-Language Trajectory Key ── */}
+      <div className="mt-3 pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-3 text-xs font-sans text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-3.5">
           <span className="inline-flex items-center gap-1.5">
             <span className="size-2 rounded-full bg-foreground" />
-            Actual Progress
+            <span>Recorded History</span>
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="w-3 h-0.5 bg-primary/60" />
-            1.0/d Target
+            <span className="w-3 h-0.5 bg-primary/70" />
+            <span>Target Baseline (1.0/d)</span>
           </span>
           {!isEstablishing && !isNearHorizonWithoutTarget && (
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-3 h-0.5 border-t border-dashed border-primary/70" />
-              Projected Velocity
+              <span className="w-3 h-0.5 border-t border-dashed border-primary" />
+              <span>Projected Path</span>
             </span>
           )}
           <span className="inline-flex items-center gap-1.5">
-            <span className="size-2 rounded-xs bg-foreground/15 border border-border" />
-            ±10% Buffer
+            <span className="size-2 rounded-xs bg-primary/15 border border-primary/30" />
+            <span>Buffer Zone (±10%)</span>
           </span>
         </div>
-        <span className="font-mono text-xs text-muted-foreground">
-          {activeScrubDay !== null ? "Scrubbing active" : "Drag to inspect"}
+        <span className="text-xs text-muted-foreground">
+          {activeScrubDay !== null ? "Inspecting timeline" : "Touch or drag to inspect day"}
         </span>
       </div>
     </div>

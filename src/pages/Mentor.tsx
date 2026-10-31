@@ -332,84 +332,71 @@ export default function Mentor() {
               className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-sm space-y-4"
             >
               <div className="flex items-center justify-between gap-4">
-                <span className="text-xs font-sans font-semibold text-muted-foreground block">
+                <span className="text-xs font-sans font-semibold text-primary block">
                   Pattern · Repeating Obstacle
                 </span>
                 <span className="text-xs font-medium text-muted-foreground">
-                  Suggested Next Step
+                  Actionable Guidance
                 </span>
               </div>
 
-              {/* 1. Observation */}
-              <div>
-                <span className="text-xs font-sans font-semibold text-primary block mb-1">
-                  1. Observation
-                </span>
-                <h2
-                  id="primary-insight-heading"
-                  className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug"
-                >
-                  {recurring.observation}
-                </h2>
-              </div>
+              {/* Context Observation */}
+              <h2
+                id="primary-insight-heading"
+                className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug"
+              >
+                {recurring.observation}
+              </h2>
 
-              {/* 2. Evidence */}
-              <div>
-                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-1">
-                  2. Evidence
-                </span>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  {recurring.evidence}
-                </p>
-              </div>
-
-              {/* 3. Recommendation */}
+              {/* Primary Recommendation with integrated Action */}
               {recurring.adjustment && (
-                <div className="rounded-xl bg-muted/40 p-4 border border-border/60 text-xs sm:text-sm">
-                  <span className="text-xs font-sans font-semibold text-foreground block mb-1">
-                    3. Recommended Adjustment
-                  </span>
-                  <p className="text-foreground/90 leading-relaxed font-medium">
-                    {recurring.adjustment}
-                  </p>
+                <div className="rounded-xl bg-primary/5 p-4 sm:p-5 border border-primary/20 text-xs sm:text-sm space-y-3">
+                  <div>
+                    <span className="text-xs font-semibold text-primary block mb-0.5">
+                      Recommended Next Step
+                    </span>
+                    <p className="text-foreground font-medium leading-relaxed">
+                      {recurring.adjustment}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2.5 pt-1">
+                    {rebalanceProposal ? (
+                      <>
+                        <Button
+                          size="sm"
+                          className="min-h-10 px-4 text-xs font-semibold gap-1.5"
+                          onClick={() => setRebalanceOpen(true)}
+                        >
+                          <RotateCcw className="size-3.5" aria-hidden="true" />
+                          <span>Move from {rebalanceProposal.fromDayLabel} to {rebalanceProposal.toDayLabel}</span>
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={pausingSeriesId === rebalanceProposal.seriesId}
+                          onClick={() => void handlePauseRoutine(rebalanceProposal.seriesId)}
+                          className="min-h-10 px-4 text-xs font-medium gap-1.5"
+                        >
+                          <Pause className="size-3.5" aria-hidden="true" />
+                          <span>{pausingSeriesId === rebalanceProposal.seriesId ? "Pausing…" : "Pause Routine"}</span>
+                        </Button>
+                      </>
+                    ) : (
+                      <Button asChild size="sm" className="min-h-10 px-4 text-xs font-semibold">
+                        <Link to="/quests">Manage repeating routines →</Link>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* 4. Action Treatment Controls */}
-              <div className="pt-2 border-t border-border/50">
-                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2.5">
-                  4. Suggested Action
-                </span>
-                <div className="flex flex-wrap items-center gap-2.5">
-                  {rebalanceProposal ? (
-                    <>
-                      <Button
-                        size="sm"
-                        className="min-h-10 px-4 text-xs font-semibold gap-1.5"
-                        onClick={() => setRebalanceOpen(true)}
-                      >
-                        <RotateCcw className="size-3.5" aria-hidden="true" />
-                        <span>Move from {rebalanceProposal.fromDayLabel} to {rebalanceProposal.toDayLabel}</span>
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={pausingSeriesId === rebalanceProposal.seriesId}
-                        onClick={() => void handlePauseRoutine(rebalanceProposal.seriesId)}
-                        className="min-h-10 px-4 text-xs font-medium gap-1.5"
-                      >
-                        <Pause className="size-3.5" aria-hidden="true" />
-                        <span>{pausingSeriesId === rebalanceProposal.seriesId ? "Pausing…" : "Pause Routine"}</span>
-                      </Button>
-                    </>
-                  ) : (
-                    <Button asChild size="sm" className="min-h-10 px-4 text-xs font-semibold">
-                      <Link to="/quests">Manage repeating routines →</Link>
-                    </Button>
-                  )}
-                </div>
-              </div>
+              {/* Supporting Evidence */}
+              <p className="text-xs text-muted-foreground leading-relaxed pt-0.5">
+                <span className="font-medium text-foreground">Observed pattern: </span>
+                {recurring.evidence}
+              </p>
             </section>
           )}
 
@@ -422,50 +409,46 @@ export default function Mentor() {
                 <span className="text-xs font-sans font-semibold text-primary">
                   Pattern · Bouncing Back
                 </span>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Actionable Guidance
+                </span>
               </div>
 
-              <div>
-                <span className="text-xs font-sans font-semibold text-primary block mb-1">
-                  1. Observation
-                </span>
-                <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
-                  {recovery.text}
-                </h2>
+              {/* Context Observation */}
+              <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
+                {recovery.text}
+              </h2>
+
+              {/* Primary Recommendation with Action */}
+              <div className="rounded-xl bg-primary/5 p-4 sm:p-5 border border-primary/20 text-xs sm:text-sm space-y-3">
+                <div>
+                  <span className="text-xs font-semibold text-primary block mb-0.5">
+                    Recommended Next Step
+                  </span>
+                  <p className="text-foreground font-medium leading-relaxed">
+                    Commit to one clear, manageable primary focus for today to lock momentum.
+                  </p>
+                </div>
+
+                <div className="pt-1">
+                  <Button
+                    size="sm"
+                    className="min-h-10 px-4 text-xs font-semibold"
+                    onClick={() => {
+                      soundEngine.playTap();
+                      navigate("/quests");
+                    }}
+                  >
+                    Commit to Today’s Focus →
+                  </Button>
+                </div>
               </div>
 
-              <div>
-                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-1">
-                  2. Evidence
-                </span>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  A missed commitment creates friction only when followed by avoidance. Immediate resumption restores mathematical velocity within the buffer.
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-muted/40 p-3.5 border border-border/60 text-xs">
-                <span className="text-xs font-sans font-semibold text-foreground block mb-1">
-                  3. Recommended Adjustment
-                </span>
-                <p className="text-foreground/90 font-medium">
-                  Commit to one clear, manageable primary focus for today to lock momentum.
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-border/50">
-                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2">
-                  4. Suggested Action
-                </span>
-                <Button
-                  size="sm"
-                  className="min-h-10 px-4 text-xs font-semibold"
-                  onClick={() => {
-                    soundEngine.playTap();
-                    navigate("/quests");
-                  }}
-                >
-                  Commit to Today’s Focus →
-                </Button>
-              </div>
+              {/* Supporting Evidence */}
+              <p className="text-xs text-muted-foreground leading-relaxed pt-0.5">
+                <span className="font-medium text-foreground">Observed pattern: </span>
+                A missed commitment creates friction only when followed by avoidance. Immediate resumption restores mathematical velocity within the buffer.
+              </p>
             </section>
           )}
 
@@ -485,49 +468,42 @@ export default function Mentor() {
                 )}
               </div>
 
-              <div>
-                <span className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400 block mb-1">
-                  1. Observation
-                </span>
-                <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
-                  {momentum.observation}
-                </h2>
+              {/* Context Observation */}
+              <h2 id="primary-insight-heading" className="text-lg sm:text-xl font-bold tracking-tight text-foreground leading-snug">
+                {momentum.observation}
+              </h2>
+
+              {/* Primary Recommendation with Action */}
+              <div className="rounded-xl bg-emerald-500/5 p-4 sm:p-5 border border-emerald-500/20 text-xs sm:text-sm space-y-3">
+                <div>
+                  <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 block mb-0.5">
+                    Recommended Next Step
+                  </span>
+                  <p className="text-foreground font-medium leading-relaxed">
+                    {momentum.adjustment || "Maintain your current cadence within the ±10% buffer zone without overextending."}
+                  </p>
+                </div>
+
+                <div className="pt-1">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="min-h-10 px-4 text-xs font-medium"
+                    onClick={() => {
+                      soundEngine.playTap();
+                      navigate("/journey");
+                    }}
+                  >
+                    Verify on Journey →
+                  </Button>
+                </div>
               </div>
 
-              <div>
-                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-1">
-                  2. Evidence
-                </span>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {momentum.evidence}
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-muted/40 p-3.5 border border-border/60 text-xs">
-                <span className="text-xs font-sans font-semibold text-foreground block mb-1">
-                  3. Recommended Adjustment
-                </span>
-                <p className="text-foreground/90 font-medium">
-                  {momentum.adjustment || "Maintain your current cadence within the ±10% buffer zone without overextending."}
-                </p>
-              </div>
-
-              <div className="pt-2 border-t border-border/50">
-                <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2">
-                  4. Suggested Action
-                </span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="min-h-10 px-4 text-xs font-medium"
-                  onClick={() => {
-                    soundEngine.playTap();
-                    navigate("/journey");
-                  }}
-                >
-                  Verify on Journey →
-                </Button>
-              </div>
+              {/* Supporting Evidence */}
+              <p className="text-xs text-muted-foreground leading-relaxed pt-0.5">
+                <span className="font-medium text-foreground">Observed pattern: </span>
+                {momentum.evidence}
+              </p>
             </section>
           )}
         </motion.div>
@@ -562,32 +538,17 @@ export default function Mentor() {
                   )}
                 </div>
 
-                {/* 1. Observation */}
-                <div>
-                  <span className="text-xs font-semibold text-muted-foreground block mb-0.5">
-                    Observation
-                  </span>
-                  <p className="text-sm sm:text-base font-semibold text-foreground leading-snug">
-                    {item.observation}
-                  </p>
-                </div>
+                {/* Context Observation */}
+                <h3 className="text-sm sm:text-base font-semibold text-foreground leading-snug">
+                  {item.observation}
+                </h3>
 
-                {/* 2. Evidence */}
-                {item.evidence && (
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    <span className="font-semibold text-foreground">Evidence: </span>
-                    {item.evidence}
+                {/* Recommendation + Action */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1 text-xs">
+                  <p className="text-foreground/90 font-medium min-w-0 flex-1">
+                    <span className="text-primary font-semibold">Recommendation: </span>
+                    {item.adjustment || "Maintain consistent execution on scheduled days."}
                   </p>
-                )}
-
-                {/* 3 & 4. Recommendation + Action */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-border/40 text-xs">
-                  <div className="min-w-0 flex-1">
-                    <span className="font-semibold text-primary">Recommendation: </span>
-                    <span className="text-foreground/90 font-medium">
-                      {item.adjustment || "Maintain consistent execution on scheduled days."}
-                    </span>
-                  </div>
 
                   <Button
                     size="sm"
@@ -606,6 +567,14 @@ export default function Mentor() {
                     <ArrowRight className="size-3" />
                   </Button>
                 </div>
+
+                {/* Subordinated Evidence */}
+                {item.evidence && (
+                  <p className="text-xs text-muted-foreground pt-0.5">
+                    <span className="text-foreground/70 font-medium">Evidence: </span>
+                    {item.evidence}
+                  </p>
+                )}
               </div>
             ))}
           </div>
