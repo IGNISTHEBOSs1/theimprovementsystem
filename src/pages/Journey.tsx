@@ -200,7 +200,7 @@ export default function Journey() {
           <span>·</span>
           <span>{buffer} of 9 flex days intact</span>
           <span>·</span>
-          <span>{daysLeft} days remaining</span>
+          <span>{daysLeft === 0 ? "Target date reached (0d left)" : `${daysLeft} days remaining`}</span>
         </div>
       </section>
 

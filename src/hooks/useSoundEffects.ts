@@ -284,6 +284,83 @@ class SoundEngine {
   }
 
   /**
+   * Threshold Detent: Ultra-short, quiet mechanical detent.
+   * Plays once upon crossing the 65% commitment threshold.
+   */
+  public playDetent() {
+    if (!this.enabled) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1480, now);
+    osc.frequency.exponentialRampToValueAtTime(1820, now + 0.014);
+
+    gain.gain.setValueAtTime(0.035, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
+
+    osc.start(now);
+    osc.stop(now + 0.018);
+  }
+
+  /**
+   * Tactile Lock-In: Restrained, grounded mechanical confirmation.
+   * Low-frequency resonant body paired with pure harmonic tones.
+   * Plays upon valid release at/above threshold for Primary Focus completion.
+   */
+  public playLockIn() {
+    if (!this.enabled) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    // 1. Warm low-frequency body (grounded tactile weight)
+    const subOsc = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    subOsc.connect(subGain);
+    subGain.connect(ctx.destination);
+
+    subOsc.type = 'sine';
+    subOsc.frequency.setValueAtTime(160, now);
+    subOsc.frequency.exponentialRampToValueAtTime(95, now + 0.13);
+
+    subGain.gain.setValueAtTime(0.07, now);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+    subOsc.start(now);
+    subOsc.stop(now + 0.14);
+
+    // 2. Clean harmonic dual-tone (C5 523.25Hz -> G5 783.99Hz)
+    const tones = [
+      { freq: 523.25, time: 0, dur: 0.16, vol: 0.065 },
+      { freq: 783.99, time: 0.025, dur: 0.20, vol: 0.075 },
+    ];
+
+    tones.forEach(({ freq, time, dur, vol }) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + time);
+
+      gain.gain.setValueAtTime(0.001, now + time);
+      gain.gain.linearRampToValueAtTime(vol, now + time + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + time + dur);
+
+      osc.start(now + time);
+      osc.stop(now + time + dur);
+    });
+  }
+
+  /**
    * Destructive Action Tone: Low mechanical snap.
    */
   public playDestructive() {
@@ -381,6 +458,8 @@ export const useSoundEffects = () => {
   const playToggle = useCallback(() => soundEngine.playToggle(), []);
   const playNavigation = useCallback(() => soundEngine.playNavigation(), []);
   const playError = useCallback(() => soundEngine.playError(), []);
+  const playDetent = useCallback(() => soundEngine.playDetent(), []);
+  const playLockIn = useCallback(() => soundEngine.playLockIn(), []);
   const playDestructive = useCallback(() => soundEngine.playDestructive(), []);
   const playMilestone = useCallback(() => soundEngine.playMilestone(), []);
 
@@ -397,6 +476,8 @@ export const useSoundEffects = () => {
     playToggle,
     playNavigation,
     playError,
+    playDetent,
+    playLockIn,
     playDestructive,
     playMilestone,
   };

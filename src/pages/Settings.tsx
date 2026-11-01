@@ -232,7 +232,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-4 sm:space-y-6">
       <PageHeader
         eyebrow="Preferences"
         title="Settings."
@@ -246,16 +246,16 @@ export default function Settings() {
         </Button>
       </PageHeader>
 
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-5">
         {/* ── 1. EXPERIENCE & PREFERENCES (Unified Appearance + Sound) ── */}
         <section
-          className="rounded-2xl border border-border/70 bg-card p-5 sm:p-6 shadow-[var(--shadow-card)] space-y-5"
+          className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-[var(--shadow-card)] space-y-4"
           aria-labelledby="experience-heading"
         >
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground">
-                <Sparkles className="size-4" aria-hidden="true" />
+              <div className="size-7 sm:size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground shrink-0">
+                <Sparkles className="size-3.5 sm:size-4" aria-hidden="true" />
               </div>
               <div>
                 <h2 id="experience-heading" className="text-sm sm:text-base font-semibold tracking-tight text-foreground">
@@ -269,7 +269,7 @@ export default function Settings() {
           </div>
 
           {/* Subsection: Appearance Mode */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <span className="text-xs font-semibold text-foreground block">
               Color Theme
             </span>
@@ -281,24 +281,24 @@ export default function Settings() {
               }}
               className="w-full"
             >
-              <TabsList className="grid grid-cols-3 w-full max-w-md h-10 p-1 rounded-xl bg-muted/60 border border-border/80">
+              <TabsList className="grid grid-cols-3 w-full max-w-md h-9 sm:h-10 p-1 rounded-xl bg-muted/60 border border-border/80">
                 <TabsTrigger
                   value="light"
-                  className="flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-1.5 h-7 sm:h-8 rounded-lg text-xs font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
                 >
                   <Sun className="size-3.5" aria-hidden="true" />
                   <span>Light</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="dark"
-                  className="flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-1.5 h-7 sm:h-8 rounded-lg text-xs font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
                 >
                   <Moon className="size-3.5" aria-hidden="true" />
                   <span>Dark</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="system"
-                  className="flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-1.5 h-7 sm:h-8 rounded-lg text-xs font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
                 >
                   <Monitor className="size-3.5" aria-hidden="true" />
                   <span>Auto</span>
@@ -315,7 +315,7 @@ export default function Settings() {
           </div>
 
           {/* Subsection: Sound Effects */}
-          <div className="pt-4 border-t border-border/50 space-y-3">
+          <div className="pt-3 border-t border-border/50 space-y-2.5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <Switch
@@ -365,12 +365,12 @@ export default function Settings() {
 
         {/* ── 2. TIMEZONE & DAILY SCHEDULE ── */}
         <section
-          className="rounded-2xl border border-border/70 bg-card p-5 sm:p-6 shadow-[var(--shadow-card)] space-y-4"
+          className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-[var(--shadow-card)] space-y-3.5"
           aria-labelledby="timezone-heading"
         >
           <div className="flex items-center gap-2.5">
-            <div className="size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground">
-              <Clock className="size-4" aria-hidden="true" />
+            <div className="size-7 sm:size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground shrink-0">
+              <Clock className="size-3.5 sm:size-4" aria-hidden="true" />
             </div>
             <div>
               <h2 id="timezone-heading" className="text-sm sm:text-base font-semibold tracking-tight text-foreground">
@@ -382,7 +382,7 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="p-3 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
               <span
                 className={`size-2 rounded-full ${
@@ -456,12 +456,12 @@ export default function Settings() {
 
         {/* ── 3. DATA SOVEREIGNTY & PRIVACY ── */}
         <section
-          className="rounded-2xl border border-border/70 bg-card p-5 sm:p-6 shadow-[var(--shadow-card)] space-y-4"
+          className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-[var(--shadow-card)] space-y-3.5"
           aria-labelledby="privacy-heading"
         >
           <div className="flex items-center gap-2.5">
-            <div className="size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground">
-              <ShieldCheck className="size-4" aria-hidden="true" />
+            <div className="size-7 sm:size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground shrink-0">
+              <ShieldCheck className="size-3.5 sm:size-4" aria-hidden="true" />
             </div>
             <div>
               <h2 id="privacy-heading" className="text-sm sm:text-base font-semibold tracking-tight text-foreground">
@@ -473,9 +473,9 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
-              <div className="flex items-center gap-1.5 font-semibold text-foreground mb-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+            <div className="p-3 rounded-xl bg-muted/40 border border-border/60">
+              <div className="flex items-center gap-1.5 font-semibold text-foreground mb-0.5">
                 <Lock className="size-3.5 text-foreground" />
                 <span>Local-First Storage</span>
               </div>
@@ -484,8 +484,8 @@ export default function Settings() {
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
-              <div className="flex items-center gap-1.5 font-semibold text-foreground mb-1">
+            <div className="p-3 rounded-xl bg-muted/40 border border-border/60">
+              <div className="flex items-center gap-1.5 font-semibold text-foreground mb-0.5">
                 <Sliders className="size-3.5 text-foreground" />
                 <span>Zero Third-Party Trackers</span>
               </div>
@@ -495,7 +495,7 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="pt-2.5 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div>
               <p className="font-semibold text-foreground">Export Personal Trajectory Data</p>
               <p className="text-muted-foreground">
@@ -508,7 +508,7 @@ export default function Settings() {
               size="sm"
               onClick={handleExportVault}
               disabled={exporting}
-              className="min-h-10 px-4 text-xs font-semibold gap-2 active:scale-[0.98] shrink-0 rounded-xl"
+              className="min-h-9 px-4 text-xs font-semibold gap-2 active:scale-[0.98] shrink-0 rounded-xl"
             >
               <Download className="size-3.5" />
               <span>{exporting ? "Generating…" : "Export JSON"}</span>
@@ -518,12 +518,12 @@ export default function Settings() {
 
         {/* ── 4. ACCOUNT & SESSION ── */}
         <section
-          className="rounded-2xl border border-border/70 bg-card p-5 sm:p-6 shadow-[var(--shadow-card)]"
+          className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 shadow-[var(--shadow-card)]"
           aria-labelledby="session-heading"
         >
-          <div className="flex items-center gap-2.5 mb-4">
-            <div className="size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground">
-              <User className="size-4" aria-hidden="true" />
+          <div className="flex items-center gap-2.5 mb-3.5">
+            <div className="size-7 sm:size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground shrink-0">
+              <User className="size-3.5 sm:size-4" aria-hidden="true" />
             </div>
             <div>
               <h2 id="session-heading" className="text-sm sm:text-base font-semibold tracking-tight text-foreground">
@@ -535,7 +535,7 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
             <div>
               <span className="text-xs font-medium text-muted-foreground block">
                 Signed in as
@@ -552,7 +552,7 @@ export default function Settings() {
 
             <Button
               variant="outline"
-              className="min-h-10 px-4 text-xs font-medium gap-2 active:scale-[0.98] shrink-0 rounded-xl"
+              className="min-h-9 px-4 text-xs font-medium gap-2 active:scale-[0.98] shrink-0 rounded-xl"
               onClick={() => void handleSignOut()}
               disabled={signingOut}
             >
@@ -564,7 +564,7 @@ export default function Settings() {
 
         {/* ── 5. DATA RESET & ACCOUNT MANAGEMENT (Differentiated Destructive Actions - P2-44) ── */}
         <section
-          className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-[var(--shadow-card)] space-y-4"
+          className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-[var(--shadow-card)] space-y-3"
           aria-labelledby="account-management-heading"
         >
           <div>
@@ -576,10 +576,10 @@ export default function Settings() {
             </p>
           </div>
 
-          <div className="space-y-4 pt-1">
+          <div className="space-y-3 pt-0.5">
             {/* Level 1: Reset Trajectory Progress (Amber Warning Level) */}
-            <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/[0.04] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1 max-w-xl">
+            <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/[0.04] flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+              <div className="space-y-0.5 max-w-xl">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
                     Reset Trajectory Progress
@@ -595,7 +595,7 @@ export default function Settings() {
 
               <Button
                 variant="outline"
-                className="min-h-10 px-4 shrink-0 border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 font-semibold text-xs active:scale-[0.98] rounded-xl self-start sm:self-auto"
+                className="min-h-9 px-4 shrink-0 border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 font-semibold text-xs active:scale-[0.98] rounded-xl self-start sm:self-auto"
                 onClick={() => setResetDialogOpen(true)}
                 disabled={resetting}
               >
@@ -617,8 +617,8 @@ export default function Settings() {
             )}
 
             {/* Level 2: Permanently Delete Account (Critical Destructive Red Level) */}
-            <div className="p-4 rounded-xl border border-destructive/40 bg-destructive/[0.04] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1 max-w-xl">
+            <div className="p-3.5 rounded-xl border border-destructive/40 bg-destructive/[0.04] flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
+              <div className="space-y-0.5 max-w-xl">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-destructive">
                     Permanently Delete Account
@@ -634,7 +634,7 @@ export default function Settings() {
 
               <Button
                 variant="destructive"
-                className="min-h-10 px-4 shrink-0 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs active:scale-[0.98] rounded-xl self-start sm:self-auto"
+                className="min-h-9 px-4 shrink-0 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs active:scale-[0.98] rounded-xl self-start sm:self-auto"
                 onClick={() => setDeleteDialogOpen(true)}
                 disabled={deleting}
               >

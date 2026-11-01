@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { ArrowRight, Check, ChevronRight, CircleDot, Loader2, Target } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -26,8 +26,6 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
 
   const handleActionComplete = () => {
     if (completing || completionStage !== "idle") return;
-    triggerHaptic("success");
-    soundEngine.playSuccess();
     if (shouldReduceMotion) {
       onComplete();
       return;
@@ -117,12 +115,12 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
           </h2>
 
           {quest.linkedToGoal ? (
-            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Target className="size-3.5 text-primary shrink-0" aria-hidden="true" />
-              <span className="truncate">
+            <div className="mt-2.5 flex items-start gap-1.5 text-xs text-muted-foreground">
+              <Target className="size-3.5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+              <p className="leading-relaxed break-words">
                 Step <strong className="text-foreground font-semibold font-mono">{completedGoalQuests + 1}</strong> of 90 toward{" "}
                 <strong className="text-foreground font-medium">{quest.goalName || "North Star"}</strong>
-              </span>
+              </p>
             </div>
           ) : (
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
@@ -132,7 +130,14 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
         </div>
 
         <div className="w-full sm:w-auto sm:shrink-0 mt-1 sm:mt-0">
-          <SwipeToComplete key={quest.id} completing={Boolean(completing)} onComplete={handleActionComplete} />
+          <SwipeToComplete
+            key={quest.id}
+            completing={Boolean(completing)}
+            onComplete={handleActionComplete}
+            linkedToGoal={Boolean(quest.linkedToGoal)}
+            stepNumber={completedGoalQuests + 1}
+            totalSteps={90}
+          />
           <p className="text-[11px] text-muted-foreground text-center sm:text-right mt-1.5 sm:mt-1">
             Intentional confirmation for your main milestone.
           </p>
@@ -142,193 +147,272 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
   );
 }
 
-// Founder Decision (Visual override chunk — swipe-to-complete): replaces
-// the previous plain "Mark complete" button with a drag-to-confirm
-// track, by explicit Founder instruction. Still calls the exact same
-// onComplete() the button called — no change to what completing a Quest
-// actually does or persists, only how the action is triggered. Kept
-// keyboard/screen-reader accessible: this is a real <button>, so Enter/
-// Space/click activate it directly via onClick regardless of drag state —
-// swiping is an added interaction, not a replacement for a working
-// accessible control. Pointer events (not mouse-only), so touch and
-// desktop both work through one code path.
-// Founder Decision (Visual override chunk — swipe-to-complete, bug fix):
-// root cause of the reported "stuck" behavior — setPointerCapture was
-// called on e.target, which is whatever child element the drag actually
-// started on (e.g. the label text span), not the track. Capture should
-// always be set on the SAME element whose handlers process the drag
-// (the track itself); capturing on an arbitrary child is the standard
-// footgun with this pattern. If that child ever failed to deliver the
-// matching pointerup back correctly, `dragging` never reset, leaving the
-// handle frozen at its last dragged position. Rewritten to: (1) capture
-// on trackRef.current explicitly; (2) drive the handle's position via a
-// ref + direct style mutation during drag, not React state on every
-// pointermove — removes a full render cycle per move event, and removes
-// any dependency on a possibly-stale `dragging` state value; (3) a plain
-// tap (no real movement) still completes via onClick, but a real drag's
-// completion is handled exactly once, directly in finishDrag — the
-// previous version could double-fire onComplete after a real swipe
-// (finishDrag calling it, then the native click event calling it again).
-// Founder Decision (Visual override chunk — swipe-to-complete, feel pass & closure):
-// (1) Velocity-based completion — a fast flick that doesn't cross the
-//     65% distance threshold used to just snap back and do nothing,
-//     which reads as broken/unsatisfying on a confident swipe. Now a
-//     flick above ~0.9 px/ms completes even under threshold, the same
-//     momentum-dismissal pattern used by e.g. Sonner's toast swipe.
-// (2) Real-time visual feedback via setTrackFill as drag crosses the
-//     completion threshold without triggering browser intervention
-//     (navigator.vibrate requires user activation, blocked during pointermove).
-//     Completion haptics fire reliably on release via finishDrag.
-// (3) On success the handle animates to the END of the track (a
-//     real "completed" position, spring-eased) and morphs to a Check
-//     icon with success tokens. A 240ms cognitive closure delay holds
-//     the confirmed state before queue advance, providing clear task
-//     closure before the next quest appears with an auto-reset handle.
-function SwipeToComplete({ completing, onComplete }: { completing: boolean; onComplete: () => void }) {
+interface SwipeToCompleteProps {
+  completing: boolean;
+  onComplete: () => void;
+  linkedToGoal?: boolean;
+  stepNumber?: number;
+  totalSteps?: number;
+}
+
+function SwipeToComplete({
+  completing,
+  onComplete,
+  linkedToGoal = false,
+  stepNumber,
+  totalSteps = 90,
+}: SwipeToCompleteProps) {
+  const shouldReduceMotion = useReducedMotion();
   const trackRef = useRef<HTMLButtonElement>(null);
   const handleRef = useRef<HTMLSpanElement>(null);
+  const wavefrontRef = useRef<HTMLDivElement>(null);
+  const textMaskRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
   const dragXRef = useRef(0);
   const movedRef = useRef(false);
-  const crossedRef = useRef(false);
-  const startTimeRef = useRef(0);
+  const hasCrossedThresholdRef = useRef(false);
+  const samplesRef = useRef<Array<{ x: number; time: number }>>([]);
+  const activePointerIdRef = useRef<number | null>(null);
+  const rafIdRef = useRef<number | null>(null);
   const completeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isSubmittingRef = useRef(false);
+
+  const [thresholdMet, setThresholdMet] = useState(false);
   const [isDone, setIsDone] = useState(false);
+
   const HANDLE_SIZE = 40;
   const THRESHOLD = 0.65;
-  const FLICK_VELOCITY = 0.9; // px/ms — a confident flick completes even under the distance threshold
 
-  const maxDrag = () => (trackRef.current?.clientWidth ?? 0) - HANDLE_SIZE - 8;
+  const maxDrag = () => Math.max(0, (trackRef.current?.clientWidth ?? 0) - HANDLE_SIZE - 8);
 
-  // Direct 1:1 position during an active drag (handled entirely via ref
-  // + style mutation, still zero re-renders per move) — a slider's
-  // handle must track the finger exactly while it's actually under the
-  // finger, or it stops feeling "instant." The spring/eased motion
-  // below only ever applies AFTER release, never during.
-  const setHandleX = (x: number, mode: "instant" | "settle" | "snap") => {
-    const handle = handleRef.current;
-    if (!handle) return;
-    if (mode === "instant") {
-      handle.style.transition = "none";
-    } else if (mode === "settle") {
-      // Front-loaded ease-out curve for clean snap with zero overshoot.
-      handle.style.transition = "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)";
-    } else {
-      handle.style.transition = "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)";
+  const updateDOMPosition = (x: number) => {
+    if (handleRef.current) {
+      handleRef.current.style.transform = `translate3d(${x}px, -50%, 0)`;
     }
-    handle.style.transform = `translate3d(${x}px, -50%, 0)`;
+    if (wavefrontRef.current) {
+      const w = x > 0 ? x + HANDLE_SIZE : 0;
+      wavefrontRef.current.style.width = `${w}px`;
+    }
+    if (textMaskRef.current) {
+      const fadeStart = Math.max(0, x + 8);
+      const fadeEnd = x + 38;
+      textMaskRef.current.style.maskImage = `linear-gradient(to right, transparent 0px, transparent ${fadeStart}px, black ${fadeEnd}px, black 100%)`;
+      textMaskRef.current.style.webkitMaskImage = `linear-gradient(to right, transparent 0px, transparent ${fadeStart}px, black ${fadeEnd}px, black 100%)`;
+    }
   };
 
-  const setTrackFill = (progress: number, animate: boolean) => {
-    const track = trackRef.current;
-    if (!track) return;
-    track.style.transition = animate ? "background-color 220ms ease" : "none";
-    // Real-time visual feedback tied to actual drag progress, not just
-    // the handle moving — the track itself warms from neutral toward
-    // primary as you approach the threshold, so the track is telling
-    // you how close you are, not just the handle's raw position.
-    track.style.backgroundColor = `hsl(var(--primary) / ${(0.12 + progress * 0.28).toFixed(3)})`;
-  };
+  const animateSettling = useCallback(
+    (x0: number, xt: number, v0: number, onSettled?: () => void) => {
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+
+      if (shouldReduceMotion) {
+        updateDOMPosition(xt);
+        dragXRef.current = xt;
+        onSettled?.();
+        return;
+      }
+
+      const startTime = performance.now();
+      // Damped harmonic oscillator: near-critical damping (ζ ≈ 0.92)
+      // ω0 = 0.01844 rad/ms, ζ = 0.922, ωd = 0.00714 rad/ms
+      const omega0 = 0.01844;
+      const zeta = 0.922;
+      const omegaD = 0.00714;
+      const delta = x0 - xt;
+      const A = delta;
+      const B = (v0 + zeta * omega0 * delta) / omegaD;
+      const max = maxDrag();
+
+      const tick = (now: number) => {
+        const t = Math.max(0, now - startTime);
+        const decay = Math.exp(-zeta * omega0 * t);
+        const cosVal = Math.cos(omegaD * t);
+        const sinVal = Math.sin(omegaD * t);
+
+        const pos = xt + decay * (A * cosVal + B * sinVal);
+        const vel = decay * ((-zeta * omega0 * A + omegaD * B) * cosVal + (-zeta * omega0 * B - omegaD * A) * sinVal);
+
+        const clampedPos = Math.max(0, Math.min(max, pos));
+        updateDOMPosition(clampedPos);
+        dragXRef.current = clampedPos;
+
+        const isNearRest = Math.abs(pos - xt) < 0.4 && Math.abs(vel) < 0.03;
+        if ((t > 40 && isNearRest) || t > 450) {
+          updateDOMPosition(xt);
+          dragXRef.current = xt;
+          rafIdRef.current = null;
+          onSettled?.();
+        } else {
+          rafIdRef.current = requestAnimationFrame(tick);
+        }
+      };
+
+      rafIdRef.current = requestAnimationFrame(tick);
+    },
+    [shouldReduceMotion]
+  );
 
   useEffect(() => {
     return () => {
       if (completeTimerRef.current) {
         clearTimeout(completeTimerRef.current);
       }
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
     };
   }, []);
 
   useEffect(() => {
-    // If completing finished or errored and this component didn't unmount (e.g. network error),
-    // cleanly snap back the handle after a short grace period.
     if (!completing && isDone) {
       const timer = setTimeout(() => {
         setIsDone(false);
-        setHandleX(0, "snap");
-        if (trackRef.current) {
-          trackRef.current.style.backgroundColor = "";
-        }
+        setThresholdMet(false);
+        isSubmittingRef.current = false;
+        hasCrossedThresholdRef.current = false;
+        animateSettling(dragXRef.current, 0, 0);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [completing, isDone]);
+  }, [completing, isDone, animateSettling]);
 
-  const handlePointerDown = (e: PointerEvent) => {
-    if (completing || isDone) return;
+  const handlePointerDown = (e: PointerEvent<HTMLButtonElement>) => {
+    if (completing || isDone || isSubmittingRef.current) return;
+    if (rafIdRef.current) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
+    }
     trackRef.current?.setPointerCapture(e.pointerId);
+    activePointerIdRef.current = e.pointerId;
     draggingRef.current = true;
     movedRef.current = false;
-    crossedRef.current = false;
     dragXRef.current = 0;
-    startTimeRef.current = performance.now();
-    setHandleX(0, "instant");
+    samplesRef.current = [{ x: 0, time: performance.now() }];
+    updateDOMPosition(0);
   };
 
-  const handlePointerMove = (e: PointerEvent) => {
-    if (!draggingRef.current || completing || isDone) return;
+  const handlePointerMove = (e: PointerEvent<HTMLButtonElement>) => {
+    if (!draggingRef.current || completing || isDone || isSubmittingRef.current) return;
     const rect = trackRef.current?.getBoundingClientRect();
     if (!rect) return;
     const max = maxDrag();
     const x = Math.min(Math.max(e.clientX - rect.left - HANDLE_SIZE / 2, 0), max);
-    if (x > 2) movedRef.current = true;
+    if (x > 3) movedRef.current = true;
     dragXRef.current = x;
-    setHandleX(x, "instant");
+
+    const now = performance.now();
+    samplesRef.current.push({ x, time: now });
+    while (samplesRef.current.length > 1 && now - samplesRef.current[0].time > 100) {
+      samplesRef.current.shift();
+    }
+
+    updateDOMPosition(x);
+
     const progress = max > 0 ? x / max : 0;
-    setTrackFill(progress, false);
-    if (!crossedRef.current && progress >= THRESHOLD) {
-      crossedRef.current = true;
-    } else if (crossedRef.current && progress < THRESHOLD) {
-      // Dragged back below the line — let it re-trigger if crossed again
-      crossedRef.current = false;
+    if (!hasCrossedThresholdRef.current && progress >= THRESHOLD) {
+      hasCrossedThresholdRef.current = true;
+      triggerHaptic("selection");
+      soundEngine.playDetent();
+      setThresholdMet(true);
+    } else if (hasCrossedThresholdRef.current && progress < THRESHOLD) {
+      hasCrossedThresholdRef.current = false;
+      setThresholdMet(false);
     }
   };
 
   const finishDrag = () => {
     if (!draggingRef.current) return;
     draggingRef.current = false;
-    const max = maxDrag();
-    const elapsed = Math.max(performance.now() - startTimeRef.current, 1);
-    const velocity = dragXRef.current / elapsed;
-    const distanceMet = max > 0 && dragXRef.current / max >= THRESHOLD;
-    const flickMet = movedRef.current && velocity >= FLICK_VELOCITY && dragXRef.current > HANDLE_SIZE;
-    const success = distanceMet || flickMet;
 
-    if (success) {
-      setIsDone(true);
-      if (trackRef.current) {
-        trackRef.current.style.backgroundColor = "";
+    if (trackRef.current && activePointerIdRef.current !== null) {
+      try {
+        trackRef.current.releasePointerCapture(activePointerIdRef.current);
+      } catch {
+        // Safe no-op
       }
-      setHandleX(max, "settle");
-      triggerHaptic("success");
-      completeTimerRef.current = setTimeout(() => {
-        onComplete();
-      }, 280);
-    } else {
-      setTrackFill(0, true);
-      setHandleX(0, "snap");
+      activePointerIdRef.current = null;
     }
-    dragXRef.current = 0;
+
+    const max = maxDrag();
+    const currentX = dragXRef.current;
+    const progress = max > 0 ? currentX / max : 0;
+
+    // Calculate release velocity from recent window (px/ms)
+    const samples = samplesRef.current;
+    let velocity = 0;
+    if (samples.length >= 2) {
+      const oldest = samples[0];
+      const newest = samples[samples.length - 1];
+      const dt = newest.time - oldest.time;
+      if (dt > 4) {
+        velocity = (newest.x - oldest.x) / dt;
+      }
+    }
+    const cappedVelocity = Math.max(-2.0, Math.min(2.0, velocity));
+
+    // Completion occurs only after a valid release at or beyond the threshold
+    const isSuccess = progress >= THRESHOLD;
+
+    if (isSuccess && !isSubmittingRef.current && !completing && !isDone) {
+      isSubmittingRef.current = true;
+      setIsDone(true);
+      triggerHaptic("success");
+      soundEngine.playLockIn();
+
+      animateSettling(currentX, max, cappedVelocity, () => {
+        completeTimerRef.current = setTimeout(() => {
+          onComplete();
+        }, 280);
+      });
+    } else {
+      setThresholdMet(false);
+      hasCrossedThresholdRef.current = false;
+      animateSettling(currentX, 0, cappedVelocity);
+    }
   };
 
   const handleClick = () => {
-    // Only reached for a plain tap with no real movement — a genuine
-    // drag's completion is already handled in finishDrag above, once.
-    // This IS the tap-based fallback to the drag gesture: the whole
-    // track is a real <button>, so a plain tap, Enter, or Space all
-    // complete the Quest without requiring the drag motion at all.
-    if (!movedRef.current && !completing && !isDone) {
+    // Accessible fallback: tap, Enter, or Space directly confirms without dragging
+    if (!movedRef.current && !completing && !isDone && !isSubmittingRef.current) {
+      isSubmittingRef.current = true;
       setIsDone(true);
-      const max = maxDrag();
-      if (trackRef.current) {
-        trackRef.current.style.backgroundColor = "";
-      }
-      setHandleX(max, "settle");
+      setThresholdMet(true);
       triggerHaptic("success");
-      completeTimerRef.current = setTimeout(() => {
-        onComplete();
-      }, 280);
+      soundEngine.playLockIn();
+      const max = maxDrag();
+
+      animateSettling(0, max, 1.0, () => {
+        completeTimerRef.current = setTimeout(() => {
+          onComplete();
+        }, 280);
+      });
     }
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (completing || isDone || isSubmittingRef.current) return;
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
+  const handlePointerCancel = () => {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    activePointerIdRef.current = null;
+    setThresholdMet(false);
+    hasCrossedThresholdRef.current = false;
+    animateSettling(dragXRef.current, 0, 0);
+  };
+
+  const confirmationMessage =
+    linkedToGoal && stepNumber !== undefined
+      ? `Step ${stepNumber} of ${totalSteps} confirmed`
+      : "Completed";
 
   return (
     <button
@@ -336,47 +420,96 @@ function SwipeToComplete({ completing, onComplete }: { completing: boolean; onCo
       type="button"
       disabled={completing || isDone}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={finishDrag}
-      onPointerCancel={finishDrag}
+      onPointerCancel={handlePointerCancel}
+      onLostPointerCapture={handlePointerCancel}
       className={cn(
-        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none transition-colors duration-300 border glass-slider-track focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        isDone
-          ? "border-emerald-500/50 bg-emerald-500/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
-          : ""
+        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none select-none transition-all duration-200 border glass-slider-track focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        thresholdMet && !isDone && "glass-slider-track-ready",
+        isDone && "border-emerald-500/50 bg-emerald-500/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
       )}
       aria-label={
         isDone
-          ? "Primary focus completed"
+          ? `Primary focus confirmed: ${confirmationMessage}`
           : completing
           ? "Saving primary focus completion…"
+          : thresholdMet
+          ? "Threshold reached. Release to lock in primary focus"
           : "Complete today’s primary focus (swipe slider, click track, or press Enter)"
       }
     >
+      {/* Restrained Emerald Wavefront Fill */}
+      <div
+        ref={wavefrontRef}
+        className={cn(
+          "glass-slider-wavefront",
+          thresholdMet && "glass-slider-wavefront-ready"
+        )}
+        style={{ width: 0 }}
+        aria-hidden="true"
+      />
+
+      {/* Instruction text with dynamic handle opacity mask */}
+      {!isDone && (
+        <div
+          ref={textMaskRef}
+          className="pointer-events-none absolute inset-0 flex items-center justify-center pl-10 pr-4 select-none text-sm font-medium transition-colors duration-200"
+          style={{
+            maskImage: "linear-gradient(to right, transparent 0px, transparent 10px, black 38px, black 100%)",
+            WebkitMaskImage: "linear-gradient(to right, transparent 0px, transparent 10px, black 38px, black 100%)",
+          }}
+        >
+          <span
+            className={cn(
+              "truncate transition-colors duration-200",
+              thresholdMet
+                ? "text-emerald-600 dark:text-emerald-400 font-semibold"
+                : "text-foreground/90 font-medium"
+            )}
+          >
+            {completing
+              ? "Saving…"
+              : thresholdMet
+              ? "Release to lock in"
+              : "Slide to complete"}
+          </span>
+        </div>
+      )}
+
+      {/* Confirmed completion progress state */}
+      {isDone && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center pl-4 pr-12 select-none text-sm font-semibold text-emerald-700 dark:text-emerald-400 animate-in fade-in zoom-in-95 duration-200">
+          <span className="truncate">{confirmationMessage}</span>
+        </div>
+      )}
+
+      {/* Tactile Handle Puck */}
       <span
         ref={handleRef}
         className={cn(
-          "pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-300",
+          "pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.98]",
           isDone
             ? "glass-slider-handle-done"
+            : thresholdMet
+            ? "glass-slider-handle glass-slider-handle-ready"
             : "glass-slider-handle"
         )}
         style={{ transform: "translate3d(0px, -50%, 0)" }}
       >
         {isDone ? (
-          <Check className="size-4 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
+          <Check className="size-4 stroke-[3] text-white animate-in zoom-in-75 duration-200" aria-hidden="true" />
         ) : (
-          <ArrowRight className="size-4" aria-hidden="true" />
+          <ArrowRight
+            className={cn(
+              "size-4 transition-colors duration-200",
+              thresholdMet ? "text-emerald-600 dark:text-emerald-400 stroke-[2.5]" : "text-foreground"
+            )}
+            aria-hidden="true"
+          />
         )}
-      </span>
-      <span
-        className={cn(
-          "w-full text-center text-sm font-medium select-none pl-8 pr-3 transition-colors duration-300",
-          isDone ? "text-emerald-700 dark:text-emerald-400 font-semibold" : "text-foreground"
-        )}
-      >
-        {isDone ? "Done!" : completing ? "Saving…" : "Swipe or click to complete"}
       </span>
     </button>
   );

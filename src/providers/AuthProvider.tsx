@@ -91,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     date_of_birth: null,
     bio: 'Personal Trajectory System Operator.',
     primary_goal: 'Build consistent daily discipline & master systems',
-    primary_goal_target_date: '2026-10-30',
+    primary_goal_target_date: new Date(Date.now() + 75 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
     timezone: 'UTC',
     has_completed_first_launch: true,
     created_at: '2026-01-01T00:00:00Z',

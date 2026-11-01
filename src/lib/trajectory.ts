@@ -339,11 +339,22 @@ export function deriveJourneyPaceDetails(pace: GoalPaceResult | null): JourneyPa
     pace.daysRemaining <= 0 ||
     pace.bufferDaysRemaining <= 0
   ) {
+    let criticalExplanation = "Your target date is too close or buffer is depleted. Adjust your milestone date in Profile or rebalance your daily commitments.";
+    if (pace.isHorizonExpired || pace.daysRemaining <= 0) {
+      if (pace.bufferDaysRemaining > 0) {
+        criticalExplanation = "Target milestone date has arrived with steps remaining. Your flex buffer remains intact, but adjusting your target date in Profile is recommended to continue forward.";
+      } else {
+        criticalExplanation = "Target milestone date has arrived and your 9-day flex buffer is depleted. Adjust your milestone date in Profile to re-establish your trajectory.";
+      }
+    } else if (pace.bufferDaysRemaining <= 0) {
+      criticalExplanation = "Your 9-day flex buffer is depleted. Commit to your primary focus this week to rebuild your buffer corridor.";
+    }
+
     return {
       status: "critical",
       label: "Needs Adjustment",
-      badgeLabel: "Thrust Required",
-      explanation: "Your target date is too close or buffer is depleted. Adjust your milestone date in Profile or rebalance your daily commitments.",
+      badgeLabel: "Needs Adjustment",
+      explanation: criticalExplanation,
       badgeVariant: "destructive",
     };
   }
@@ -352,7 +363,7 @@ export function deriveJourneyPaceDetails(pace: GoalPaceResult | null): JourneyPa
     const neededThisWeek = Math.max(1, Math.min(7, Math.ceil(pace.requiredDailyPace * 7) - 6));
     return {
       status: "behind",
-      label: "Slightly Behind",
+      label: "Buffer Active",
       badgeLabel: "Buffer Active",
       explanation: `Velocity is below nominal, but your flex buffer is currently absorbing the variance. You need ${neededThisWeek} goal-linked ${neededThisWeek === 1 ? "completion" : "completions"} this week to return to nominal pace.`,
       badgeVariant: "warning",
@@ -371,8 +382,8 @@ export function deriveJourneyPaceDetails(pace: GoalPaceResult | null): JourneyPa
 
   return {
     status: "nominal",
-    label: "On Pace",
-    badgeLabel: "Trajectory Nominal",
+    label: "On Track",
+    badgeLabel: "On Track",
     explanation: "Your buffer is intact: one missed day will not change your plan.",
     badgeVariant: "success",
   };

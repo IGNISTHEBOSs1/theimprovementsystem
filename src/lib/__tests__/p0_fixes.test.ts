@@ -205,7 +205,7 @@ describe("P0 Fixes Verification Suite", () => {
       assert.equal(details.badgeVariant, "neutral");
     });
 
-    it("reports 'On Pace' / 'Trajectory Nominal' when paceRatio is within nominal corridor [0.9, 1.1]", () => {
+    it("reports 'On Track' when paceRatio is within nominal corridor [0.9, 1.1]", () => {
       const paceMock: GoalPaceResult = {
         targetDate: "2026-12-31",
         targetDateFormatted: "Dec 31, 2026",
@@ -235,12 +235,12 @@ describe("P0 Fixes Verification Suite", () => {
 
       const details = deriveJourneyPaceDetails(paceMock);
       assert.equal(details.status, "nominal");
-      assert.equal(details.label, "On Pace");
-      assert.equal(details.badgeLabel, "Trajectory Nominal");
+      assert.equal(details.label, "On Track");
+      assert.equal(details.badgeLabel, "On Track");
       assert.equal(details.badgeVariant, "success");
     });
 
-    it("reports 'Slightly Behind' / 'Buffer Active' when velocity is low (<0.9) but buffer is intact", () => {
+    it("reports 'Buffer Active' when velocity is low (<0.9) but buffer is intact", () => {
       const paceMock: GoalPaceResult = {
         targetDate: "2026-12-31",
         targetDateFormatted: "Dec 31, 2026",
@@ -270,15 +270,15 @@ describe("P0 Fixes Verification Suite", () => {
 
       const details = deriveJourneyPaceDetails(paceMock);
       assert.equal(details.status, "behind");
-      assert.equal(details.label, "Slightly Behind");
+      assert.equal(details.label, "Buffer Active");
       assert.equal(details.badgeLabel, "Buffer Active");
       assert.equal(details.badgeVariant, "warning");
 
-      // CRITICAL ASSERTION: The badge is "Buffer Active", NOT "Trajectory Nominal"
-      assert.notEqual(details.badgeLabel, "Trajectory Nominal");
+      // CRITICAL ASSERTION: The badge is "Buffer Active", NOT "On Track"
+      assert.notEqual(details.badgeLabel, "On Track");
     });
 
-    it("reports 'Needs Adjustment' / 'Thrust Required' when buffer is depleted or horizon slipped", () => {
+    it("reports 'Needs Adjustment' when buffer is depleted or horizon slipped", () => {
       const paceMock: GoalPaceResult = {
         targetDate: "2026-12-31",
         targetDateFormatted: "Dec 31, 2026",
@@ -309,7 +309,7 @@ describe("P0 Fixes Verification Suite", () => {
       const details = deriveJourneyPaceDetails(paceMock);
       assert.equal(details.status, "critical");
       assert.equal(details.label, "Needs Adjustment");
-      assert.equal(details.badgeLabel, "Thrust Required");
+      assert.equal(details.badgeLabel, "Needs Adjustment");
       assert.equal(details.badgeVariant, "destructive");
     });
 
@@ -387,19 +387,19 @@ describe("P0 Fixes Verification Suite", () => {
       // Lower nominal boundary (0.90)
       const nominalLow = deriveJourneyPaceDetails({ ...baseMock, paceRatio: 0.9, paceStatus: "nominal" });
       assert.equal(nominalLow.status, "nominal");
-      assert.equal(nominalLow.label, "On Pace");
-      assert.equal(nominalLow.badgeLabel, "Trajectory Nominal");
+      assert.equal(nominalLow.label, "On Track");
+      assert.equal(nominalLow.badgeLabel, "On Track");
 
       // Just below nominal (0.89)
       const behind = deriveJourneyPaceDetails({ ...baseMock, paceRatio: 0.89, paceStatus: "behind" });
       assert.equal(behind.status, "behind");
-      assert.equal(behind.label, "Slightly Behind");
+      assert.equal(behind.label, "Buffer Active");
       assert.equal(behind.badgeLabel, "Buffer Active");
 
       // Upper nominal boundary (1.10)
       const nominalHigh = deriveJourneyPaceDetails({ ...baseMock, paceRatio: 1.1, paceStatus: "nominal" });
       assert.equal(nominalHigh.status, "nominal");
-      assert.equal(nominalHigh.label, "On Pace");
+      assert.equal(nominalHigh.label, "On Track");
 
       // Ahead of pace (1.11)
       const ahead = deriveJourneyPaceDetails({ ...baseMock, paceRatio: 1.11, paceStatus: "ahead" });
@@ -450,7 +450,7 @@ describe("P0 Fixes Verification Suite", () => {
       const details = deriveJourneyPaceDetails(pace);
       assert.equal(details.status, "critical");
       assert.equal(details.label, "Needs Adjustment");
-      assert.equal(details.badgeLabel, "Thrust Required");
+      assert.equal(details.badgeLabel, "Needs Adjustment");
       assert.equal(details.badgeVariant, "destructive");
     });
 

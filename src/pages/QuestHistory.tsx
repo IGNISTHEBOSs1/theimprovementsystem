@@ -39,8 +39,8 @@ function HistoryItem({ quest }: { quest: Quest }) {
           {isCompleted ? <Check className="size-4 stroke-[2.5]" /> : <X className="size-4 stroke-[2]" />}
         </div>
 
-        <div className="min-w-0 flex-1 space-y-1">
-          <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <div className="flex flex-wrap items-center gap-2">
             <span
               className={cn(
                 "text-sm sm:text-base font-semibold text-foreground line-clamp-2 break-words leading-snug",
@@ -49,21 +49,11 @@ function HistoryItem({ quest }: { quest: Quest }) {
             >
               {quest.title}
             </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 pt-0.5">
-            {/* Clear Goal Connection (P2-46) */}
-            {quest.linkedToGoal && quest.goalName && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 truncate max-w-xs">
-                <Target className="size-3 shrink-0" aria-hidden="true" />
-                <span className="truncate">Contributed to: {quest.goalName}</span>
-              </span>
-            )}
 
             {/* Commitment Role Badge */}
             <span
               className={cn(
-                "inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border",
+                "inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border shrink-0",
                 role === "focus"
                   ? "bg-primary/15 text-primary border-primary/30 font-semibold"
                   : "bg-muted/80 text-muted-foreground border-border/70"
@@ -72,6 +62,19 @@ function HistoryItem({ quest }: { quest: Quest }) {
               {role === "focus" ? "Primary Focus" : "Routine"}
             </span>
           </div>
+
+          {/* Clear Goal Connection with Full Naturally Wrapping Name (P2 Final Refinement) */}
+          {quest.linkedToGoal && quest.goalName && (
+            <div className="flex items-start gap-1.5 text-xs text-muted-foreground pt-0.5">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-sans font-semibold border border-primary/20 bg-primary/10 text-primary shrink-0 mt-0.5">
+                <Target className="size-2.5 shrink-0" aria-hidden="true" />
+                <span>Goal contribution</span>
+              </span>
+              <p className="text-xs text-foreground/90 font-medium break-words leading-relaxed">
+                {quest.goalName}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
