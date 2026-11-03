@@ -399,9 +399,9 @@ export function TrajectoryVisualizer({
               />
               <text
                 x={38}
-                y={item.y + 4}
+                y={item.y + 7}
                 textAnchor="end"
-                fontSize="13"
+                fontSize="22"
                 fontFamily="monospace"
                 fontWeight="700"
                 fill="hsl(var(--foreground))"

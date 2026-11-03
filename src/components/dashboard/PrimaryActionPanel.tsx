@@ -365,7 +365,7 @@ function SwipeToComplete({
       animateSettling(currentX, max, cappedVelocity, () => {
         completeTimerRef.current = setTimeout(() => {
           onComplete();
-        }, 280);
+        }, 120);
       });
     } else {
       setThresholdMet(false);
@@ -387,7 +387,7 @@ function SwipeToComplete({
       animateSettling(0, max, 1.0, () => {
         completeTimerRef.current = setTimeout(() => {
           onComplete();
-        }, 280);
+        }, 120);
       });
     }
   };

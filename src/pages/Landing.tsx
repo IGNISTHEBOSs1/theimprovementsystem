@@ -134,14 +134,14 @@ function MonochromaticMeshBackground() {
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-      {/* Precision Trajectory Coordinate Grid (Subtle watermark background, non-competing with typography) */}
+      {/* Precision Trajectory Coordinate Grid */}
       <div
-        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.025] text-foreground transition-opacity"
+        className="absolute inset-0 opacity-[0.09] dark:opacity-[0.11] text-foreground transition-opacity pointer-events-none"
         style={{
           backgroundImage: `linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
-          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.1) 75%)',
-          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0.1) 75%)',
+          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 45%, rgba(0,0,0,0.2) 90%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 45%, rgba(0,0,0,0.2) 90%)',
         }}
       />
 

@@ -84,18 +84,18 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         layout: TIS_SPRINGS.settle,
       }}
       className={cn(
-        "flex items-center justify-between gap-3 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/80 px-3.5 sm:px-4 py-3 sm:py-3.5 text-body-sm transition-colors duration-250 overflow-hidden",
+        "flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/80 px-3.5 sm:px-4 py-3 sm:py-3.5 text-body-sm transition-colors duration-250 overflow-hidden",
         completionStage !== "idle" && "bg-emerald-500/[0.12] border-emerald-500/50",
       )}
     >
-      <div className="flex items-center gap-3 min-w-0 flex-1">
+      <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
         <button
           type="button"
           onClick={handleMarkComplete}
           disabled={completing || isCompleted}
           aria-label={`Mark "${quest.title}" as complete`}
           className={cn(
-            "size-6 shrink-0 rounded-lg border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer",
+            "size-6 shrink-0 rounded-lg border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer mt-0.5 sm:mt-0",
             isCompleted
               ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105"
               : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30 shadow-xs",
@@ -110,59 +110,38 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
           )}
         </button>
 
-        <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-          <button
-            type="button"
-            onClick={handleMarkComplete}
-            disabled={completing || isCompleted}
-            aria-label={`Mark "${quest.title}" as complete`}
-            className={cn(
-              "size-6 shrink-0 rounded-lg border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer mt-0.5 sm:mt-0",
-              isCompleted
-                ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105"
-                : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30 shadow-xs",
-            )}
-          >
-            {completing && !isCompleted ? (
-              <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
-            ) : isCompleted ? (
-              <Check className="size-3.5 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
-            ) : (
-              <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
-            )}
-          </button>
-
-          <div className="min-w-0 flex-1 space-y-1">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-sans font-medium border border-border/70 bg-muted/40 text-muted-foreground shrink-0">
-                Routine
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-sans font-medium border border-border/70 bg-muted/40 text-muted-foreground shrink-0">
+              Routine
+            </span>
+            {quest.linkedToGoal && quest.goalName && (
+              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground border border-border/40 bg-muted/20 px-2 py-0.5 rounded-full truncate max-w-[160px]">
+                <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
+                <span className="truncate">{quest.goalName}</span>
               </span>
-              {quest.linkedToGoal && quest.goalName && (
-                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground border border-border/40 bg-muted/20 px-2 py-0.5 rounded-full truncate max-w-[160px]">
-                  <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
-                  <span className="truncate">{quest.goalName}</span>
-                </span>
-              )}
-            </div>
-            <p className={cn("text-foreground font-medium line-clamp-2 break-words leading-snug text-xs sm:text-sm", isCompleted && "line-through text-muted-foreground")}>
-              {quest.title}
-            </p>
+            )}
           </div>
+          <p className={cn("text-foreground font-medium break-words leading-snug text-xs sm:text-sm", isCompleted && "line-through text-muted-foreground")}>
+            {quest.title}
+          </p>
         </div>
       </div>
 
-      <Button
-        size="sm"
-        variant="ghost"
-        className={cn(
-          "shrink-0 min-h-9 sm:min-h-10 px-2.5 sm:px-3 hover:bg-muted/80 text-xs font-medium transition-colors",
-          isCompleted ? "text-emerald-700 dark:text-emerald-400 font-semibold" : "text-muted-foreground hover:text-foreground",
-        )}
-        disabled={completing || isCompleted}
-        onClick={handleMarkComplete}
-      >
-        {isCompleted ? "Done!" : "Mark complete"}
-      </Button>
+      <div className="flex items-center justify-end sm:justify-end shrink-0 pl-9 sm:pl-0">
+        <Button
+          size="sm"
+          variant="ghost"
+          className={cn(
+            "min-h-8 sm:min-h-10 px-2.5 sm:px-3 hover:bg-muted/80 text-xs font-medium transition-colors",
+            isCompleted ? "text-emerald-700 dark:text-emerald-400 font-semibold" : "text-muted-foreground hover:text-foreground",
+          )}
+          disabled={completing || isCompleted}
+          onClick={handleMarkComplete}
+        >
+          {isCompleted ? "Done!" : "Mark complete"}
+        </Button>
+      </div>
     </motion.li>
   );
 }
