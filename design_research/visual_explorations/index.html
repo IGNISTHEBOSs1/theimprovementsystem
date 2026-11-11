@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kinetic — Phase 01 Visual Identity Explorations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset & Showcase Chrome */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #050507;
+      color: #E2E8F0;
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 80px;
+      overflow-x: hidden;
+    }
+
+    /* Showcase Controls Header */
+    .showcase-header {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 32px;
+    }
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      background: #10B981;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #040506;
+      font-weight: 800;
+      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .brand-text h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #FFF;
+    }
+    .brand-text p {
+      font-size: 12px;
+      color: #94A3B8;
+    }
+
+    .controls-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+    .control-pill {
+      background: #121316;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 4px;
+      display: flex;
+      gap: 4px;
+    }
+    .control-btn {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .control-btn:hover { color: #FFF; }
+    .control-btn.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #FFF;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .theme-btn.active {
+      background: #10B981;
+      color: #040506;
+      font-weight: 600;
+    }
+
+    /* Device Mockup Shell */
+    .device-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      width: 100%;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .device-viewport {
+      width: 390px;
+      height: 844px;
+      border-radius: 48px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 0 12px #18191E, 0 0 0 14px rgba(255, 255, 255, 0.08), 0 30px 60px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease;
+    }
+    .device-notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 30px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+    }
+    .device-notch-camera {
+      width: 10px;
+      height: 10px;
+      background: #111;
+      border-radius: 50%;
+      border: 1px solid #222;
+    }
+    .device-notch-sensor {
+      width: 8px;
+      height: 8px;
+      background: #0D1B2A;
+      border-radius: 50%;
+    }
+
+    .device-scroll-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 56px 20px 96px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      -webkit-overflow-scrolling: touch;
+    }
+    .device-scroll-content::-webkit-scrollbar { display: none; }
+
+    /* Bottom Floating Nav */
+    .mobile-dock {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      height: 56px;
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 12px;
+      z-index: 90;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    .dock-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 500;
+      transition: transform 0.15s ease;
+      cursor: pointer;
+    }
+    .dock-item:active { transform: scale(0.92); }
+    .dock-item svg { width: 18px; height: 18px; stroke-width: 2; }
+
+    /* =====================================================================
+       DIRECTION 01: CHRONICLE / EDITORIAL MONOGRAPH
+       ===================================================================== */
+    .theme-dark .dir-chronicle {
+      background: #0D0E10;
+      color: #EDEDED;
+    }
+    .theme-light .dir-chronicle {
+      background: #F7F5F0;
+      color: #1A1A1A;
+    }
+    .dir-chronicle .font-serif { font-family: 'Newsreader', serif; }
+    .dir-chronicle .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .dir-chronicle .masthead {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .theme-light .dir-chronicle .masthead { border-bottom-color: rgba(0, 0, 0, 0.1); }
+    .dir-chronicle .kicker {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #8B8C89;
+      margin-bottom: 6px;
+    }
+    .theme-light .dir-chronicle .kicker { color: #6B6964; }
+    .dir-chronicle .headline-serif {
+      font-size: 26px;
+      font-weight: 500;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+    .dir-chronicle .chronicle-section {
+      margin-bottom: 28px;
+    }
+    .dir-chronicle .margin-rule {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+    }
+    .theme-light .dir-chronicle .margin-rule { border-bottom-color: rgba(0,0,0,0.08); }
+    .dir-chronicle .margin-num {
+      font-size: 11px;
+      color: #E6C280;
+      font-weight: 600;
+    }
+    .theme-light .dir-chronicle .margin-num { color: #926A20; }
+    .dir-chronicle .margin-label {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8B8C89;
+    }
+    .dir-chronicle .monograph-slider {
+      height: 48px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      position: relative;
+      background: rgba(255, 255, 255, 0.02);
+      margin-top: 14px;
+      cursor: grab;
+    }
+    .theme-light .dir-chronicle .monograph-slider {
+      border-color: rgba(0,0,0,0.15);
+      background: rgba(0,0,0,0.02);
+    }
+    .dir-chronicle .slider-track-line {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .theme-light .dir-chronicle .slider-track-line { background: rgba(0,0,0,0.1); }
+    .dir-chronicle .slider-bead {
+      position: absolute;
+      left: 65%;
+      width: 16px;
+      height: 16px;
+      background: #E6C280;
+      border-radius: 2px;
+      transform: translateX(-50%);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .theme-light .dir-chronicle .slider-bead { background: #926A20; }
+    .dir-chronicle .routine-ledger-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .theme-light .dir-chronicle .routine-ledger-row { border-bottom-color: rgba(0,0,0,0.06); }
+    .dir-chronicle .routine-box {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #8B8C89;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+    .dir-chronicle .routine-box.done {
+      background: #E6C280;
+      border-color: #E6C280;
+      color: #0D0E10;
+      font-weight: 700;
+    }
+
+    /* =====================================================================
+       DIRECTION 02: MONOLITHIC OBSIDIAN / ARCHITECTURAL SPATIAL
+       ===================================================================== */
+    .theme-dark .dir-monolith {
+      background: #060708;
+      color: #F1F5F9;
+    }
+    .theme-light .dir-monolith {
+      background: #ECEAE5;
+      color: #0F172A;
+    }
+    .dir-monolith .plinth-card {
+      background: #121316;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 8px 24px -4px rgba(0, 0, 0, 0.7);
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .theme-light .dir-monolith .plinth-card {
+      background: #FFFFFF;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 20px -4px rgba(0, 0, 0, 0.08);
+      border-color: rgba(0, 0, 0, 0.06);
+    }
+    .dir-monolith .recessed-trench {
+      background: #090A0C;
+      border-radius: 8px;
+      height: 52px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.05);
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      margin-top: 16px;
+    }
+    .theme-light .dir-monolith .recessed-trench {
+      background: #E2DFD8;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.15), 0 1px 0 #FFF;
+    }
+    .dir-monolith .milled-thumb {
+      width: 40%;
+      height: 40px;
+      background: linear-gradient(180deg, #22242A 0%, #17181C 100%);
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #10B981;
+      letter-spacing: 0.04em;
+    }
+    .theme-light .dir-monolith .milled-thumb {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F1F1EF 100%);
+      border-color: rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      color: #059669;
+    }
+    .dir-monolith .split-bay {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .dir-monolith .bay-card {
+      background: #121316;
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .theme-light .dir-monolith .bay-card {
+      background: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      border-color: rgba(0,0,0,0.06);
+    }
+
+    /* =====================================================================
+       DIRECTION 03: KINETIC TELEMETRY / AEROSPACE VECTOR INSTRUMENT
+       ===================================================================== */
+    .theme-dark .dir-telemetry {
+      background: #040506;
+      color: #F8FAFC;
+    }
+    .theme-light .dir-telemetry {
+      background: #F4F6F8;
+      color: #0F172A;
+    }
+    .dir-telemetry {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .dir-telemetry .hud-box {
+      border: 1px solid #162024;
+      background: rgba(9, 11, 14, 0.85);
+      position: relative;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .theme-light .dir-telemetry .hud-box {
+      border-color: #CBD5E1;
+      background: #FFFFFF;
+    }
+    .dir-telemetry .hud-box::before,
+    .dir-telemetry .hud-box::after {
+      content: '+';
+      position: absolute;
+      font-size: 11px;
+      color: #64748B;
+      line-height: 1;
+    }
+    .dir-telemetry .hud-box::before { top: -6px; left: -5px; }
+    .dir-telemetry .hud-box::after { bottom: -6px; right: -5px; }
+    .dir-telemetry .hud-tag {
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #64748B;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dir-telemetry .phosphor { color: #10B981; }
+    .theme-light .dir-telemetry .phosphor { color: #0D9488; }
+    .dir-telemetry .amber { color: #F59E0B; }
+    .dir-telemetry .hud-ladder {
+      height: 24px;
+      border: 1px solid #162024;
+      background: #060709;
+      position: relative;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+    }
+    .theme-light .dir-telemetry .hud-ladder {
+      border-color: #CBD5E1;
+      background: #F1F5F9;
+    }
+    .dir-telemetry .hud-reticle-cone {
+      position: absolute;
+      left: 20%;
+      right: 20%;
+      height: 100%;
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 1px dashed rgba(16, 185, 129, 0.4);
+      border-right: 1px dashed rgba(16, 185, 129, 0.4);
+    }
+    .dir-telemetry .hud-vector-node {
+      position: absolute;
+      left: 54%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 8px;
+      height: 8px;
+      background: #10B981;
+      box-shadow: 0 0 8px #10B981;
+    }
+
+    /* =====================================================================
+       DIRECTION 04: ATMOSPHERIC HORIZON / MINIMALIST NEGATIVE SPACE
+       ===================================================================== */
+    .theme-dark .dir-horizon {
+      background: linear-gradient(180deg, #08090C 0%, #0E131F 100%);
+      color: #F8FAFC;
+    }
+    .theme-light .dir-horizon {
+      background: linear-gradient(180deg, #FBFBF9 0%, #F0EFEA 100%);
+      color: #1E293B;
+    }
+    .dir-horizon .font-space { font-family: 'Space Grotesk', sans-serif; }
+    .dir-horizon .floating-island {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .dir-horizon .aurora-bead-track {
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.08);
+      position: relative;
+      margin-top: 24px;
+    }
+    .theme-light .dir-horizon .aurora-bead-track { background: rgba(0,0,0,0.08); }
+    .dir-horizon .aurora-bead {
+      position: absolute;
+      left: 65%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #34D399;
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.6);
+      cursor: grab;
+    }
+    .dir-horizon .horizon-aura-bar {
+      margin-top: auto;
+      padding: 16px 20px;
+      border-radius: 20px;
+      background: rgba(14, 19, 31, 0.6);
+      backdrop-filter: blur(12px);
+      text-align: center;
+      font-size: 12px;
+      color: #94A3B8;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .theme-light .dir-horizon .horizon-aura-bar {
+      background: rgba(255, 255, 255, 0.7);
+      border-color: rgba(0,0,0,0.04);
+      color: #64748B;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Showcase Controls -->
+  <header class="showcase-header">
+    <div class="brand-title">
+      <div class="brand-logo">K</div>
+      <div class="brand-text">
+        <h1>Kinetic — Visual Identity Explorations</h1>
+        <p>Interactive Multi-Direction Matrix (Phase 01 Research)</p>
+      </div>
+    </div>
+
+    <div class="controls-group">
+      <!-- Art Direction Selector -->
+      <div class="control-pill" id="dirPills">
+        <button class="control-btn active" onclick="setDirection('chronicle')">01 Chronicle</button>
+        <button class="control-btn" onclick="setDirection('monolith')">02 Monolith</button>
+        <button class="control-btn" onclick="setDirection('telemetry')">03 Telemetry</button>
+        <button class="control-btn" onclick="setDirection('horizon')">04 Horizon</button>
+      </div>
+
+      <!-- Viewport Selector -->
+      <div class="control-pill" id="viewportPills">
+        <button class="control-btn" onclick="setViewport(375, 812)">375px</button>
+        <button class="control-btn active" onclick="setViewport(390, 844)">390px</button>
+        <button class="control-btn" onclick="setViewport(430, 932)">430px</button>
+      </div>
+
+      <!-- Theme Switcher -->
+      <div class="control-pill">
+        <button class="control-btn theme-btn active" id="btnDark" onclick="setTheme('dark')">Dark</button>
+        <button class="control-btn theme-btn" id="btnLight" onclick="setTheme('light')">Light</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Device Screen Viewport -->
+  <main class="device-container">
+    <div class="device-viewport theme-dark" id="deviceViewport">
+      <!-- Hardware Notch -->
+      <div class="device-notch">
+        <div class="device-notch-sensor"></div>
+        <div class="device-notch-camera"></div>
+      </div>
+
+      <!-- Scrollable Phone Content -->
+      <div class="device-scroll-content" id="scrollContent">
+        <!-- Injected via JavaScript based on chosen Direction -->
+      </div>
+
+      <!-- Mobile Dock Nav -->
+      <nav class="mobile-dock" id="mobileDock">
+        <!-- Injected via JavaScript -->
+      </nav>
+    </div>
+  </main>
+
+  <script>
+    let currentDir = 'chronicle';
+    let currentTheme = 'dark';
+
+    const directionTemplates = {
+      chronicle: {
+        cssClass: 'dir-chronicle',
+        render: () => `
+          <div class="masthead">
+            <div class="kicker font-mono">VOL. IV // KINETIC MONOGRAPH</div>
+            <h2 class="headline-serif font-serif">Day 14 of 90 North Star</h2>
+            <p style="font-size: 13px; color: #8B8C89; margin-top: 4px;">Build consistent daily discipline & mental clarity.</p>
+          </div>
+
+          <div class="chronicle-section">
+            <div class="margin-rule font-mono">
+              <span class="margin-num">01</span>
+              <span class="margin-label">PRIMARY FOCUS PROTOCOL</span>
+            </div>
+            <h3 class="font-serif" style="font-size: 20px; font-weight: 500; line-height: 1.35;">
+              Deep Work: Finish Core Trajectory Engine Architecture
+            </h3>
+            <p style="font-size: 13px; color: #8B8C89; margin-top: 6px; line-height: 1.5;">
+              Isolate state transducers, resolve recursive vector telemetry, and seal modular API contracts.
+            </p>
+
+            <div class="monograph-slider" title="Drag to lock in commitment">
+              <div class="slider-track-line"></div>
+              <div class="slider-bead"></div>
+              <span class="font-mono" style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; margin-left: auto; z-index: 2;">
+                65% Detent · Release to lock in
+              </span>
+            </div>
+          </div>
+
+          <div class="chronicle-section">
+            <div class="margin-rule font-mono">
+              <span class="margin-num">02</span>
+              <span class="margin-label">SUPPORTING ROUTINES</span>
+            </div>
+            <div class="routine-ledger-row">
+              <div>
+                <div style="font-size: 14px; font-weight: 500;">45 min Morning Conditioning</div>
+                <div class="font-mono" style="font-size: 10px; color: #8B8C89; margin-top: 2px;">LOGGED 06:45 // VO2 HYPOXIC INTERVALS</div>
+              </div>
+              <div class="routine-box done font-mono">✓</div>
+            </div>
+            <div class="routine-ledger-row">
+              <div>
+                <div style="font-size: 14px; font-weight: 500;">Read 20 pages Architecture</div>
+                <div class="font-mono" style="font-size: 10px; color: #8B8C89; margin-top: 2px;">CH. 04: STRUCTURAL TECTONICS (142/260)</div>
+              </div>
+              <div class="routine-box font-mono"></div>
+            </div>
+          </div>
+
+          <div class="chronicle-section" style="margin-top: 12px;">
+            <div class="margin-rule font-mono">
+              <span class="margin-num">03</span>
+              <span class="margin-label">LONGITUDINAL TRAJECTORY NOTE</span>
+            </div>
+            <p class="font-serif" style="font-size: 14px; font-style: italic; color: #8B8C89; line-height: 1.6;">
+              "Velocity vector remains at +0.82 rad. Buffer active: 8 of 9 allowed drift days preserved across the ±10% cone."
+            </p>
+          </div>
+        `,
+        dockBg: 'rgba(18, 19, 23, 0.9)',
+        dockBorder: '1px solid rgba(255, 255, 255, 0.08)',
+        dockItems: [
+          { label: '01 LEDGER', active: true },
+          { label: '02 FOCUS', active: false },
+          { label: '03 ROUTINES', active: false },
+          { label: '04 ARCHIVE', active: false }
+        ]
+      },
+
+      monolith: {
+        cssClass: 'dir-monolith',
+        render: () => `
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px;">
+            <div>
+              <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: #94A3B8; text-transform: uppercase;">CYCLE IV // DAY 14 OF 90</div>
+              <h2 style="font-size: 17px; font-weight: 700; margin-top: 2px;">Build consistent daily discipline</h2>
+            </div>
+            <span style="font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; background: rgba(16, 185, 129, 0.15); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3);">
+              8/9 BUFFER ACTIVE
+            </span>
+          </div>
+
+          <div class="plinth-card">
+            <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.08em;">
+              <span>01 // MONUMENTAL FOCUS</span>
+              <span style="color: #10B981;">3.5 / 5.0 HOURS</span>
+            </div>
+            <h3 style="font-size: 18px; font-weight: 700; line-height: 1.3; margin-top: 8px;">
+              Deep Work: Finish Core Trajectory Engine Architecture
+            </h3>
+            <p style="font-size: 12px; color: #94A3B8; margin-top: 6px;">
+              Isolate state transducers, resolve recursive vector telemetry, seal modular API contracts.
+            </p>
+
+            <div class="recessed-trench">
+              <div class="milled-thumb">
+                <span>65% DETENT</span>
+                <span style="font-size: 14px;">▶</span>
+              </div>
+              <span style="font-size: 10px; font-weight: 600; color: #64748B; margin-left: auto; padding-right: 12px;">
+                RELEASE TO LOCK
+              </span>
+            </div>
+          </div>
+
+          <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: #94A3B8; text-transform: uppercase; margin-bottom: 10px;">
+            02 // SUPPORTING ROUTINES BAY
+          </div>
+          <div class="split-bay">
+            <div class="bay-card">
+              <div style="font-size: 9px; font-weight: 700; color: #10B981;">[✓ EXECUTED 06:45]</div>
+              <div style="font-size: 13px; font-weight: 600; margin-top: 6px;">45 min Morning Conditioning</div>
+              <div style="font-size: 10px; color: #94A3B8; margin-top: 4px;">VO2 Intervals</div>
+            </div>
+            <div class="bay-card">
+              <div style="font-size: 9px; font-weight: 700; color: #F59E0B;">[PENDING 21:00]</div>
+              <div style="font-size: 13px; font-weight: 600; margin-top: 6px;">Read 20 pages Architecture</div>
+              <div style="font-size: 10px; color: #94A3B8; margin-top: 4px;">Ch. 04 (p. 142/260)</div>
+            </div>
+          </div>
+        `,
+        dockBg: 'rgba(18, 19, 22, 0.92)',
+        dockBorder: '1px solid rgba(255, 255, 255, 0.1)',
+        dockItems: [
+          { label: 'PLINTH', active: true },
+          { label: 'HORIZON', active: false },
+          { label: 'ROUTINES', active: false },
+          { label: 'SYSTEM', active: false }
+        ]
+      },
+
+      telemetry: {
+        cssClass: 'dir-telemetry',
+        render: () => `
+          <div class="hud-box">
+            <div class="hud-tag">
+              <span>// TIS.SYS.01 // VECTOR AZIMUTH: +0.82 rad</span>
+              <span class="phosphor">[ARMED // NOMINAL]</span>
+            </div>
+            <div style="font-size: 11px; color: #94A3B8; text-transform: uppercase;">NORTH STAR DIRECTIVE // 90D HORIZON</div>
+            <div style="font-size: 15px; font-weight: 700; color: #FFF; margin-top: 4px;">
+              "Build consistent daily discipline & mental clarity"
+            </div>
+            <div class="hud-ladder">
+              <div class="hud-reticle-cone"></div>
+              <div class="hud-vector-node"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 9px; color: #64748B; margin-top: 6px;">
+              <span>-10% CONE</span>
+              <span class="phosphor">CURRENT: +0.82</span>
+              <span>+10% CONE</span>
+            </div>
+          </div>
+
+          <div class="hud-box">
+            <div class="hud-tag">
+              <span>01 // TELEMETRY PRIMARY FOCUS</span>
+              <span class="phosphor">[LOCKED // 65%]</span>
+            </div>
+            <div style="font-size: 14px; font-weight: 700;">Deep Work: Finish Core Trajectory Engine Architecture</div>
+            <div style="font-size: 10px; color: #64748B; margin-top: 4px;">
+              TIME ALLOC: 3.5 / 5.0h | COGNITIVE: EXTREME
+            </div>
+            <div style="height: 18px; border: 1px solid #162024; background: #060709; margin-top: 10px; position: relative;">
+              <div style="width: 65%; height: 100%; background: #10B981;"></div>
+            </div>
+            <div style="font-size: 9px; color: #10B981; margin-top: 6px; text-align: right;">
+              [ENGAGE // 65% DETENT READY]
+            </div>
+          </div>
+
+          <div class="hud-box">
+            <div class="hud-tag">
+              <span>02 // ROUTINES TELEMETRY</span>
+              <span>2 PROTOCOLS</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0;">
+              <span>> 01: 45M CONDITIONING</span>
+              <span class="phosphor">[EXECUTED]</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; border-top: 1px dashed #162024;">
+              <span>> 02: READ 20P ARCH</span>
+              <span class="amber">[PENDING]</span>
+            </div>
+          </div>
+        `,
+        dockBg: 'rgba(9, 11, 14, 0.95)',
+        dockBorder: '1px solid #162024',
+        dockItems: [
+          { label: 'HUD', active: true },
+          { label: 'VECTOR', active: false },
+          { label: 'CADENCE', active: false },
+          { label: 'DIAG', active: false }
+        ]
+      },
+
+      horizon: {
+        cssClass: 'dir-horizon',
+        render: () => `
+          <div class="floating-island font-space" style="margin-top: 24px;">
+            <div style="font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: #64748B;">
+              DAY 14 OF 90
+            </div>
+            <h2 style="font-size: 20px; font-weight: 300; margin-top: 6px; max-width: 280px; line-height: 1.35;">
+              Build consistent daily discipline & mental clarity
+            </h2>
+          </div>
+
+          <div class="floating-island font-space">
+            <div style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #34D399;">
+              PRIMARY FOCUS
+            </div>
+            <h3 style="font-size: 22px; font-weight: 400; line-height: 1.3; margin-top: 8px;">
+              Deep Work: Finish Core Trajectory Engine Architecture
+            </h3>
+            <p style="font-size: 13px; color: #94A3B8; margin-top: 8px; line-height: 1.6; max-width: 300px;">
+              Isolate state transducers, resolve recursive vector telemetry, seal modular API contracts.
+            </p>
+
+            <div class="aurora-bead-track">
+              <div class="aurora-bead"></div>
+            </div>
+            <span style="font-size: 11px; color: #64748B; margin-top: 14px; letter-spacing: 0.05em;">
+              Slide to fulfill commitment
+            </span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 14px; padding: 0 10px; margin-bottom: 32px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+              <span>45 min Morning Conditioning</span>
+              <span style="font-size: 11px; color: #34D399; font-weight: 600;">[✓ Completed]</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; opacity: 0.6;">
+              <span>Read 20 pages Architecture</span>
+              <span style="font-size: 11px; color: #94A3B8;">[Pending]</span>
+            </div>
+          </div>
+
+          <div class="horizon-aura-bar">
+            Trajectory is resilient. +8% margin preserved in buffer.
+          </div>
+        `,
+        dockBg: 'rgba(14, 19, 31, 0.8)',
+        dockBorder: '1px solid rgba(255, 255, 255, 0.04)',
+        dockItems: [
+          { label: 'HORIZON', active: true },
+          { label: 'VECTOR', active: false },
+          { label: 'ROUTINES', active: false },
+          { label: 'REFLECT', active: false }
+        ]
+      }
+    };
+
+    function renderScreen() {
+      const template = directionTemplates[currentDir];
+      const scrollContent = document.getElementById('scrollContent');
+      const mobileDock = document.getElementById('mobileDock');
+      const viewport = document.getElementById('deviceViewport');
+
+      // Update classes on body and viewport
+      document.body.className = `theme-${currentTheme}`;
+      viewport.className = `device-viewport theme-${currentTheme} ${template.cssClass}`;
+
+      // Render content
+      scrollContent.innerHTML = template.render();
+
+      // Render dock
+      const isLight = currentTheme === 'light';
+      mobileDock.style.background = isLight ? 'rgba(255, 255, 255, 0.94)' : template.dockBg;
+      mobileDock.style.border = isLight ? '1px solid rgba(0, 0, 0, 0.08)' : template.dockBorder;
+      mobileDock.style.boxShadow = isLight ? '0 10px 30px rgba(0, 0, 0, 0.08)' : '0 10px 30px rgba(0, 0, 0, 0.6)';
+      mobileDock.innerHTML = template.dockItems.map(item => `
+        <div class="dock-item" style="color: ${item.active ? (isLight ? '#059669' : '#10B981') : (isLight ? '#64748B' : '#94A3B8')};">
+          <span style="font-weight: ${item.active ? '700' : '500'};">${item.label}</span>
+        </div>
+      `).join('');
+    }
+
+    function setDirection(dir) {
+      currentDir = dir;
+      document.querySelectorAll('#dirPills .control-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', ['chronicle', 'monolith', 'telemetry', 'horizon'][idx] === dir);
+      });
+      renderScreen();
+    }
+
+    function setViewport(w, h) {
+      const vp = document.getElementById('deviceViewport');
+      vp.style.width = w + 'px';
+      vp.style.height = h + 'px';
+      document.querySelectorAll('#viewportPills .control-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.innerText.includes(w + 'px'));
+      });
+    }
+
+    function setTheme(th) {
+      currentTheme = th;
+      document.getElementById('btnDark').classList.toggle('active', th === 'dark');
+      document.getElementById('btnLight').classList.toggle('active', th === 'light');
+      renderScreen();
+    }
+
+    // Initial render
+    renderScreen();
+  </script>
+</body>
+</html>
