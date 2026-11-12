@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Compass, ArrowRight, Check, Plus, ChevronDown, ChevronUp, ShieldCheck, AlertCircle } from "lucide-react";
+import { Compass, Check, Plus, ShieldCheck, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
@@ -30,7 +30,6 @@ export default function Journey() {
   } = useDashboardDataContext();
 
   const [completingId, setCompletingId] = useState<string | null>(null);
-  const [showDetailedStats, setShowDetailedStats] = useState(false);
 
   if (loading) {
     return (
@@ -115,32 +114,22 @@ export default function Journey() {
     <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
       {/* ── 1. HEADER (IDENTITY & PURPOSE) ── */}
       <header className="space-y-2 pb-2 border-b border-border/60">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span
-              className={cn(
-                "size-2 rounded-full",
-                paceDetails.badgeVariant === "success"
-                  ? "bg-emerald-500"
-                  : paceDetails.badgeVariant === "warning"
-                  ? "bg-amber-500"
-                  : paceDetails.badgeVariant === "destructive"
-                  ? "bg-rose-500"
-                  : "bg-muted-foreground",
-              )}
-            />
-            <span className="text-xs font-sans font-medium text-muted-foreground">
-              North Star Journey
-            </span>
-          </div>
-
-          <Link
-            to="/profile"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3 py-1 text-xs font-sans font-medium text-foreground hover:bg-muted/50 transition-colors shadow-xs"
-          >
-            <span>Goal details</span>
-            <ArrowRight className="size-3" />
-          </Link>
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              "size-2 rounded-full shrink-0",
+              paceDetails.badgeVariant === "success"
+                ? "bg-emerald-500"
+                : paceDetails.badgeVariant === "warning"
+                ? "bg-amber-500"
+                : paceDetails.badgeVariant === "destructive"
+                ? "bg-rose-500"
+                : "bg-muted-foreground",
+            )}
+          />
+          <span className="text-xs font-sans font-medium text-muted-foreground break-words">
+            Current Goal — {profile?.primary_goal}
+          </span>
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
@@ -298,106 +287,95 @@ export default function Journey() {
         )}
       </section>
 
-      {/* ── 5. DETAILED PACE & BREAKDOWN (SUBORDINATED BELOW) ── */}
-      <section className="pt-2">
-        <button
-          type="button"
-          onClick={() => setShowDetailedStats((v) => !v)}
-          className="flex items-center justify-between w-full p-4 rounded-xl border border-border/60 bg-muted/20 hover:bg-muted/40 transition-colors text-xs text-muted-foreground"
-          aria-expanded={showDetailedStats}
-        >
-          <span className="text-xs font-sans font-medium text-foreground">
-            {showDetailedStats ? "Hide Pace & Priority Breakdown" : "View Pace & Priority Breakdown"}
-          </span>
-          {showDetailedStats ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
-        </button>
+      {/* ── 5. PACE & PRIORITY TELEMETRY (SUBORDINATED METRICS) ── */}
+      <section className="pt-2 space-y-3" aria-label="Pace and Priority Breakdown">
+        <h2 className="text-xs font-sans font-semibold text-muted-foreground px-1">
+          Pace & Priority Breakdown
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Flex Buffer breakdown */}
+          <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2 shadow-xs">
+            <span className="text-xs font-sans font-semibold text-muted-foreground block">
+              Flex Buffer Days
+            </span>
+            <div className="grid grid-cols-9 gap-1 pt-1">
+              {Array.from({ length: 9 }).map((_, i) => {
+                const isIntact = i < buffer;
+                return (
+                  <div
+                    key={i}
+                    className={cn(
+                      "h-2.5 rounded-xs transition-all",
+                      isIntact
+                        ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.3)]"
+                        : "bg-muted-foreground/20 border border-border/50",
+                    )}
+                    title={`Flex Day ${i + 1}: ${isIntact ? "Intact" : "Used"}`}
+                  />
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground pt-1">
+              {buffer} of 9 safety margin days intact (±10% mathematical resilience cone).
+            </p>
+          </div>
 
-        {showDetailedStats && (
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 animate-in fade-in duration-200">
-            {/* Flex Buffer breakdown */}
-            <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2">
-              <span className="text-xs font-sans font-semibold text-muted-foreground block">
-                Flex Buffer Days
+          {/* Daily Pace */}
+          <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2 shadow-xs">
+            <span className="text-xs font-sans font-semibold text-muted-foreground block">
+              Daily Completion Pace
+            </span>
+            <div className="flex items-baseline gap-1.5 pt-1">
+              <span className="text-2xl font-mono font-bold text-foreground">
+                {pace?.actualDailyPace ?? 0}
               </span>
-              <div className="grid grid-cols-9 gap-1 pt-1">
-                {Array.from({ length: 9 }).map((_, i) => {
-                  const isIntact = i < buffer;
+              <span className="text-muted-foreground">completions / day</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Target pace: 1.0/day. Catch-up required: {pace?.requiredDailyPace ?? 1.0}/day.
+            </p>
+          </div>
+
+          {/* Evidence Breakdown */}
+          <div className="sm:col-span-2 rounded-xl border border-border/80 bg-card p-4 text-xs space-y-3 shadow-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs font-sans font-semibold text-muted-foreground">
+                Progress by Priority
+              </span>
+              <span className="font-mono text-muted-foreground">
+                {goalStats.completed} completed · {goalStats.failed} missed ({accuracyPct}%)
+              </span>
+            </div>
+
+            {priorityBreakdown.length > 0 ? (
+              <div className="space-y-2">
+                {priorityBreakdown.map(({ priority, completed, total }) => {
+                  const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
                   return (
-                    <div
-                      key={i}
-                      className={cn(
-                        "h-2.5 rounded-xs transition-all",
-                        isIntact
-                          ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.3)]"
-                          : "bg-muted-foreground/20 border border-border/50",
-                      )}
-                      title={`Flex Day ${i + 1}: ${isIntact ? "Intact" : "Used"}`}
-                    />
+                    <div key={priority} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-medium text-foreground">{priority}</span>
+                        <span className="font-mono text-muted-foreground">
+                          {completed} / {total} · {rate}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-foreground transition-all duration-500"
+                          style={{ width: `${rate}%` }}
+                        />
+                      </div>
+                    </div>
                   );
                 })}
               </div>
-              <p className="text-xs text-muted-foreground pt-1">
-                {buffer} of 9 safety margin days intact (±10% mathematical resilience cone).
-              </p>
-            </div>
-
-            {/* Daily Pace */}
-            <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2">
-              <span className="text-xs font-sans font-semibold text-muted-foreground block">
-                Daily Completion Pace
-              </span>
-              <div className="flex items-baseline gap-1.5 pt-1">
-                <span className="text-2xl font-mono font-bold text-foreground">
-                  {pace?.actualDailyPace ?? 0}
-                </span>
-                <span className="text-muted-foreground">completions / day</span>
-              </div>
+            ) : (
               <p className="text-xs text-muted-foreground">
-                Target pace: 1.0/day. Catch-up required: {pace?.requiredDailyPace ?? 1.0}/day.
+                Complete goal-linked commitments to populate priority evidence distribution.
               </p>
-            </div>
-
-            {/* Evidence Breakdown */}
-            <div className="sm:col-span-2 rounded-xl border border-border/80 bg-card p-4 text-xs space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="text-xs font-sans font-semibold text-muted-foreground">
-                  Progress by Priority
-                </span>
-                <span className="font-mono text-muted-foreground">
-                  {goalStats.completed} completed · {goalStats.failed} missed ({accuracyPct}%)
-                </span>
-              </div>
-
-              {priorityBreakdown.length > 0 ? (
-                <div className="space-y-2">
-                  {priorityBreakdown.map(({ priority, completed, total }) => {
-                    const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
-                    return (
-                      <div key={priority} className="space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-medium text-foreground">{priority}</span>
-                          <span className="font-mono text-muted-foreground">
-                            {completed} / {total} · {rate}%
-                          </span>
-                        </div>
-                        <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-foreground transition-all duration-500"
-                            style={{ width: `${rate}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  Complete goal-linked commitments to populate priority evidence distribution.
-                </p>
-              )}
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </section>
     </div>
   );

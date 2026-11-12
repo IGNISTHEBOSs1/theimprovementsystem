@@ -141,10 +141,10 @@ export default function QuestHistory() {
         title="Commitment history."
         description="Chronological record of completed daily focus commitments, routines, and North Star progress."
       >
-        <Button variant="ghost" asChild className="shrink-0 gap-1.5">
+        <Button variant="outline" size="sm" asChild className="shrink-0 gap-1.5 rounded-xl border-border/80 text-xs font-semibold">
           <Link to="/profile">
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            Back to profile
+            <ArrowLeft className="size-3.5" aria-hidden="true" />
+            <span>Back to profile</span>
           </Link>
         </Button>
       </PageHeader>

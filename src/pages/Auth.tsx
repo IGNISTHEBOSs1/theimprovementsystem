@@ -158,7 +158,7 @@ const Auth = () => {
                 <Target className="size-4" />
               </div>
               <div>
-                <h2 className="font-semibold text-xs text-foreground">1 Primary Focus + 2 Routines</h2>
+                <h2 className="font-semibold text-xs text-foreground">1 Primary Focus + 5 Routines</h2>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-snug">Strict daily constraint eliminates backlog guilt. Execute in under 90 seconds.</p>
               </div>
             </div>

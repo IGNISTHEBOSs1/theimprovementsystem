@@ -5,11 +5,11 @@ import { Json } from "@/integrations/supabase/types";
 import { getServerLocalDate, toServerLocalDate } from "@/lib/serverTime";
 import { comparePriorityThenCreatedAt } from "@/lib/priority";
 
-// Focus & Cadence Model (2026): allows up to 3 active quests at a time
-// strictly partitioned as: 1 Primary Focus + up to 2 Supporting Routines.
-export const MAX_ACTIVE_QUESTS = 3;
+// Focus & Cadence Model: allows up to 6 active quests at a time
+// strictly partitioned as: 1 Primary Focus + up to 5 Supporting Routines.
+export const MAX_ACTIVE_QUESTS = 6;
 export const MAX_FOCUS_SLOTS = 1;
-export const MAX_ROUTINE_SLOTS = 2;
+export const MAX_ROUTINE_SLOTS = 5;
 
 // Founder Decision (RPG removal / Trajectory finalization chunk):
 // DashboardState no longer carries level, currentXp, maxXp, credits,
@@ -665,7 +665,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
 
     const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
     const active = safeQuests.filter((q) => occupiesActiveSlot(q, serverLocal.dateStr, timezone || "UTC"));
-    if (active.length >= MAX_ACTIVE_QUESTS) return { error: new Error("Focus cap reached (3 active commitments max).") };
+    if (active.length >= MAX_ACTIVE_QUESTS) return { error: new Error("Commitment cap reached (6 active commitments max).") };
 
     const resolvedRole: QuestRole = role ?? (cadence === "Once" && priority === "Essential" ? "focus" : "routine");
     const activeFocus = active.filter((q) => getQuestRole(q) === "focus");
@@ -675,7 +675,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
       return { error: new Error("Primary focus slot is already occupied.") };
     }
     if (resolvedRole === "routine" && activeRoutines.length >= MAX_ROUTINE_SLOTS) {
-      return { error: new Error("Supporting routine slots are already full (max 2).") };
+      return { error: new Error("Supporting routine slots are already full (max 5).") };
     }
 
     const recurrenceDays = resolveRecurrenceDays(cadence, customDays, serverLocal.weekday);

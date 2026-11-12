@@ -277,11 +277,11 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     },
     {
       num: '03',
-      title: 'Anchor 2 Routines',
-      tag: 'Cadence Stabilizers · 2 Routines',
-      desc: 'Lock in two lightweight companion routines that stabilize your daily cadence. Together, they compound into peak 1.25x velocity.',
+      title: 'Anchor 5 Routines',
+      tag: 'Cadence Stabilizers · Up to 5 Routines',
+      desc: 'Lock in lightweight companion routines that stabilize your daily cadence. Together, they compound into peak 1.25x velocity.',
       metric: '1.25x Peak Velocity (+16d Margin)',
-      badge: 'Dual Cadence Anchored',
+      badge: 'Cadence Anchored',
       icon: Layers,
     },
     {
@@ -448,7 +448,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                     </g>
                   )}
 
-                  {/* Step 2: 2 Routines Anchored (Compounding Ascent) */}
+                  {/* Step 2: 5 Routines Anchored (Compounding Ascent) */}
                   {activeStep === 2 && (
                     <g className="transition-all duration-500">
                       <path d="M 30,120 C 130,110 200,60 370,22" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
@@ -488,7 +488,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 <span className="text-muted-foreground truncate mr-2">
                   {activeStep === 3
                     ? 'Streak Apps: Reset to 0 | Kinetic: Trajectory Absorbs Drift ✓'
-                    : 'Deterministic Trajectory • 1 Primary Focus + 2 Routines'}
+                    : 'Deterministic Trajectory • 1 Primary Focus + up to 5 Routines'}
                 </span>
                 <span className="text-foreground font-semibold shrink-0">
                   Step {activeStep + 1} of 4
@@ -721,7 +721,7 @@ export default function Landing() {
               Streaks are fragile binary counters—miss once and 60 days vanish into zero. Kinetic prioritizes Trajectory: a wholesome, velocity-based measure of real progress with a ±10% buffer that absorbs life's volatility so your 90-day momentum never dies.
             </span>
             <span className="sm:hidden">
-              Streaks are static and shatter on day one. We protect your 90-day trajectory with 1 focus, 2 routines, and an elastic ±10% buffer cone.
+              Streaks are static and shatter on day one. We protect your 90-day trajectory with 1 focus, up to 5 routines, and an elastic ±10% buffer cone.
             </span>
           </p>
         </AtmosphericLift>
@@ -902,7 +902,7 @@ export default function Landing() {
                   You want an execution system you can finish in 90 seconds
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  1 primary focus. 2 routines. Zero backlog. Open it, mark your anchor, and shut the screen to live your life.
+                  1 primary focus. Up to 5 routines. Zero backlog. Open it, mark your anchor, and shut the screen to live your life.
                 </p>
               </div>
             </div>

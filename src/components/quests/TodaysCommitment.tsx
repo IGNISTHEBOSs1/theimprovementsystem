@@ -92,7 +92,7 @@ export function TodaysCommitment({
 
   return (
     <section
-      className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-[var(--shadow-card)]"
+      className="rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-[var(--shadow-card)] space-y-6"
       aria-labelledby="todays-commitment-heading"
       onKeyDown={(e) => {
         if (e.key === "Escape" && onCancel && !committing) {
@@ -101,28 +101,33 @@ export function TodaysCommitment({
         }
       }}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pb-1 border-b border-border/50">
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">New commitment</p>
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             disabled={committing}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-1.5 py-0.5 cursor-pointer"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2 py-1 cursor-pointer"
           >
             Cancel
           </button>
         )}
       </div>
 
-      <h2 id="todays-commitment-heading" className="mt-1.5 text-base sm:text-lg font-semibold tracking-tight text-foreground">
-        What are you committing to?
-      </h2>
+      <div>
+        <h2 id="todays-commitment-heading" className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+          What are you committing to?
+        </h2>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Define your focus or choose a routine to protect steady momentum.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* STEP 1: NAME THE COMMITMENT */}
-        <div>
-          <Label htmlFor="commitment-title" className="text-xs font-medium text-foreground block mb-1.5">
+        <div className="space-y-1.5">
+          <Label htmlFor="commitment-title" className="text-xs font-semibold text-foreground block">
             1. Name your commitment
           </Label>
           <Input
@@ -134,44 +139,44 @@ export function TodaysCommitment({
             placeholder="e.g. Master system architecture or 20-min daily run…"
             aria-label="Your commitment"
             disabled={committing}
-            className="min-h-11 bg-background"
+            className="min-h-12 bg-background/80 text-sm px-4 rounded-xl border-border/80 focus-visible:ring-emerald-500/30"
             autoFocus
           />
         </div>
 
         {/* STEP 2: CHOOSE ROLE: PRIMARY FOCUS OR ROUTINE */}
-        <div>
-          <Label className="text-xs font-medium text-foreground block mb-1.5">
+        <div className="space-y-2">
+          <Label className="text-xs font-semibold text-foreground block">
             2. Choose type
           </Label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Primary Focus Option */}
             <button
               type="button"
               disabled={committing || (!focusAvailable && role !== "focus")}
               onClick={() => handleRoleChange("focus")}
               className={cn(
-                "flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.99]",
+                "flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 active:scale-[0.99]",
                 role === "focus"
-                  ? "border-primary bg-primary/10 shadow-xs"
-                  : "border-border/80 bg-background/60 hover:bg-muted/40",
-                !focusAvailable && role !== "focus" && "opacity-50 cursor-not-allowed hover:bg-background/60",
+                  ? "border-emerald-500/80 ring-1 ring-emerald-500/30 bg-background/90 shadow-xs"
+                  : "border-border/80 bg-background/50 hover:bg-muted/30",
+                !focusAvailable && role !== "focus" && "opacity-50 cursor-not-allowed hover:bg-background/50",
               )}
             >
               <div className={cn(
-                "size-8 rounded-lg flex items-center justify-center shrink-0 border mt-0.5",
-                role === "focus" ? "border-primary bg-primary text-white" : "border-border bg-muted/40 text-muted-foreground"
+                "size-8 rounded-lg flex items-center justify-center shrink-0 border mt-0.5 transition-colors",
+                role === "focus" ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "border-border bg-muted/40 text-muted-foreground"
               )}>
                 <Sparkles className="size-4" aria-hidden="true" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm font-semibold text-foreground">Primary Focus</span>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                     1 slot
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                <p className="text-xs text-muted-foreground mt-1 leading-snug">
                   Your dominant, non-negotiable action for today.
                 </p>
                 {!focusAvailable && role !== "focus" && (
@@ -188,32 +193,32 @@ export function TodaysCommitment({
               disabled={committing || (!routineAvailable && role !== "routine")}
               onClick={() => handleRoleChange("routine")}
               className={cn(
-                "flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.99]",
+                "flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 active:scale-[0.99]",
                 role === "routine"
-                  ? "border-primary bg-primary/10 shadow-xs"
-                  : "border-border/80 bg-background/60 hover:bg-muted/40",
-                !routineAvailable && role !== "routine" && "opacity-50 cursor-not-allowed hover:bg-background/60",
+                  ? "border-emerald-500/80 ring-1 ring-emerald-500/30 bg-background/90 shadow-xs"
+                  : "border-border/80 bg-background/50 hover:bg-muted/30",
+                !routineAvailable && role !== "routine" && "opacity-50 cursor-not-allowed hover:bg-background/50",
               )}
             >
               <div className={cn(
-                "size-8 rounded-lg flex items-center justify-center shrink-0 border mt-0.5",
-                role === "routine" ? "border-primary bg-primary text-white" : "border-border bg-muted/40 text-muted-foreground"
+                "size-8 rounded-lg flex items-center justify-center shrink-0 border mt-0.5 transition-colors",
+                role === "routine" ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "border-border bg-muted/40 text-muted-foreground"
               )}>
                 <Repeat className="size-4" aria-hidden="true" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <span className="text-sm font-semibold text-foreground">Supporting Routine</span>
-                  <span className="text-xs font-medium px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                    Max 2
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                    Max 5
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                <p className="text-xs text-muted-foreground mt-1 leading-snug">
                   A regular repeating practice that protects momentum.
                 </p>
                 {!routineAvailable && role !== "routine" && (
                   <span className="text-xs text-amber-700 dark:text-amber-400 font-medium mt-1 inline-block">
-                    Both routine slots occupied
+                    All 5 routine slots occupied
                   </span>
                 )}
               </div>
@@ -223,17 +228,17 @@ export function TodaysCommitment({
 
         {/* STEP 3: LINK TO CURRENT GOAL */}
         {goalLabel && (
-          <div className="pt-1">
-            <Label className="text-xs font-medium text-foreground block mb-1.5">
+          <div className="space-y-2">
+            <Label className="text-xs font-semibold text-foreground block">
               3. Link to North Star goal
             </Label>
-            <div className="flex items-center gap-2 p-3 rounded-xl border border-border/70 bg-background/60">
+            <div className="flex items-center gap-3 p-3.5 rounded-xl border border-border/80 bg-background/60 shadow-2xs">
               <Checkbox
                 id="linked-to-goal"
                 checked={linkedToGoal}
                 onCheckedChange={(checked) => setLinkedToGoal(checked === true)}
                 disabled={committing}
-                className="size-4"
+                className="size-4.5"
               />
               <Label
                 htmlFor="linked-to-goal"
@@ -244,8 +249,8 @@ export function TodaysCommitment({
               </Label>
             </div>
             {linkedToGoal && (
-              <div className="mt-2 flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary animate-in fade-in duration-200">
-                <Check className="size-3 text-primary shrink-0" aria-hidden="true" />
+              <div className="mt-2 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 animate-in fade-in duration-200">
+                <Check className="size-3 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
                 <span className="truncate">
                   Advances 90-day goal • Step #{completedGoalQuests + 1} of 90
                 </span>
@@ -255,16 +260,16 @@ export function TodaysCommitment({
         )}
 
         {/* STEP 4: OPTIONAL SETTINGS (PROGRESSIVE DISCLOSURE) */}
-        <div className="pt-1">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">
+        <div className="space-y-2 pt-1 border-t border-border/40">
+          <div className="flex items-center justify-between pt-2">
+            <span className="text-xs font-semibold text-muted-foreground">
               4. Schedule & Priority
             </span>
             <button
               type="button"
               onClick={() => setShowOptions((v) => !v)}
               disabled={committing}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-1.5 py-0.5 cursor-pointer"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2 py-1 cursor-pointer"
               aria-expanded={showOptions}
             >
               <Settings2 className="size-3.5" aria-hidden="true" />
@@ -281,7 +286,7 @@ export function TodaysCommitment({
                 transition={TIS_SPRINGS.settle}
                 className="overflow-hidden"
               >
-                <div className="pt-3 space-y-3 rounded-xl border border-border/70 bg-muted/20 p-3.5 sm:p-4 text-xs mt-2">
+                <div className="pt-3 space-y-3.5 rounded-xl border border-border/80 bg-muted/20 p-4 text-xs mt-2">
                   <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center">
                     <span className="w-16 font-medium text-muted-foreground shrink-0">Priority</span>
                     <ToggleGroup
@@ -299,7 +304,7 @@ export function TodaysCommitment({
                           key={level}
                           value={level}
                           size="sm"
-                          className="h-7 px-2.5 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
+                          className="h-8 px-3 text-xs data-[state=on]:bg-emerald-500/15 data-[state=on]:text-emerald-700 dark:data-[state=on]:text-emerald-400 data-[state=on]:border-emerald-500/40 font-medium"
                         >
                           {level}
                         </ToggleGroupItem>
@@ -324,7 +329,7 @@ export function TodaysCommitment({
                           key={preset}
                           value={preset}
                           size="sm"
-                          className="h-7 px-2.5 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
+                          className="h-8 px-3 text-xs data-[state=on]:bg-emerald-500/15 data-[state=on]:text-emerald-700 dark:data-[state=on]:text-emerald-400 data-[state=on]:border-emerald-500/40 font-medium"
                         >
                           {preset}
                         </ToggleGroupItem>
@@ -348,7 +353,7 @@ export function TodaysCommitment({
                             key={i}
                             value={String(i)}
                             size="sm"
-                            className="h-7 w-9 px-0 text-xs data-[state=on]:bg-primary/15 data-[state=on]:text-primary data-[state=on]:border-primary/40 font-medium"
+                            className="h-8 w-10 px-0 text-xs data-[state=on]:bg-emerald-500/15 data-[state=on]:text-emerald-700 dark:data-[state=on]:text-emerald-400 data-[state=on]:border-emerald-500/40 font-medium"
                           >
                             {label}
                           </ToggleGroupItem>
@@ -363,10 +368,10 @@ export function TodaysCommitment({
         </div>
 
         {/* SUBMIT BUTTON */}
-        <div className="pt-2 flex justify-end">
+        <div className="pt-2 flex justify-end border-t border-border/40">
           <Button
             type="submit"
-            className="min-h-11 px-6 font-semibold"
+            className="min-h-11 px-6 font-semibold rounded-xl text-xs sm:text-sm"
             disabled={committing || !commitment.trim() || cadenceInvalid}
           >
             {committing ? "Committing…" : `Commit to ${role === "focus" ? "Primary Focus" : "Supporting Routine"}`}

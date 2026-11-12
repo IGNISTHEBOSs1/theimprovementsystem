@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PageHeader } from "@/components/dashboard/PageHeader";
 import { IdentityAvatar } from "@/components/system-bar/IdentityAvatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
@@ -136,12 +135,6 @@ export default function Profile() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6">
-      <PageHeader
-        eyebrow="Profile"
-        title="Your profile."
-        description="Your identity, North Star goal, and quest history."
-      />
-
       {/* ── 1. Identity Header ── */}
       <section
         aria-label="Your Profile"

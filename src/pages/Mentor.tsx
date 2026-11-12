@@ -318,8 +318,7 @@ export default function Mentor() {
       className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10"
     >
       <PageHeader
-        eyebrow="Guidance & Patterns"
-        title="Your mentor."
+        title="Guidance & Patterns"
         description="Helpful patterns from your habit history paired with practical steps to keep your momentum."
       />
 

@@ -35,24 +35,21 @@ export function DailyClosureCard({
         You&apos;re done for today.
       </h2>
 
-      <p className="mt-2 max-w-xl text-body-md text-muted-foreground">
-        You completed your commitment. Your momentum is secure and your progress is logged.
-      </p>
-
-      <div className="mt-4 flex flex-wrap items-center gap-3">
+      <div className="mt-3 flex flex-wrap items-center gap-3">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-muted/60 border border-border/70 px-3 py-1 text-xs font-mono text-foreground font-medium">
           <CheckCircle2 className="size-3.5 text-success" aria-hidden="true" />
           {completedToday} {completedToday === 1 ? "quest" : "quests"} completed today
         </span>
       </div>
 
-      <div className="mt-6 pt-5 border-t border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <p className="text-body-xs text-muted-foreground">
-          Rest and recharge, or choose an additional quest if you wish to continue.
-        </p>
+      <p className="mt-2.5 max-w-xl text-body-sm text-muted-foreground">
+        Rest and recharge, or choose an additional quest if you wish to continue.
+      </p>
+
+      <div className="mt-6 pt-5 border-t border-border/50 flex justify-end">
         <Button
           variant="outline"
-          className="min-h-11 rounded-full px-5 text-xs font-medium self-start sm:self-auto"
+          className="min-h-11 rounded-full px-5 text-xs font-medium"
           onClick={onChooseQuest}
         >
           <span>Choose another quest</span>

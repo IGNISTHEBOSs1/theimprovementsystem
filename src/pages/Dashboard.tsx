@@ -331,40 +331,22 @@ export default function Dashboard() {
       {/* ── 1. GREETING & LOCATION (Attention Level: Context) ── */}
       <header className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-border/60">
         <div>
-          <p className="text-xs font-sans font-medium text-muted-foreground">
-            {todayDateFormatted}
-          </p>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground mt-0.5">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             {greeting}, {name}.
           </h1>
-          {primaryGoal ? (
-            <div className="mt-1.5 space-y-0.5">
-              <p className="text-xs sm:text-sm font-medium text-foreground leading-snug break-words max-w-2xl">
-                {primaryGoal}
-              </p>
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5 font-mono">
-                <span>Day {elapsedDays} of 90</span>
-                {daysRemaining !== null && (
-                  <>
-                    <span className="text-muted-foreground/40" aria-hidden="true">·</span>
-                    <span className="text-muted-foreground/80">{daysRemaining}d left</span>
-                  </>
-                )}
-              </p>
-            </div>
-          ) : (
-            <Link to="/profile" className="text-xs text-primary hover:underline mt-1 inline-block">
-              Set your 90-day North Star in Profile →
-            </Link>
-          )}
+          <p className="text-xs text-muted-foreground flex items-center gap-1.5 font-mono mt-1">
+            <span>{todayDateFormatted}</span>
+            <span className="text-muted-foreground/40" aria-hidden="true">·</span>
+            <span>Day {elapsedDays} of 90</span>
+          </p>
         </div>
 
         {/* Quiet Commitment Capacity Pill */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/80 bg-card text-xs font-sans font-medium text-foreground shadow-xs">
             <span
               className={cn(
-                "size-2 rounded-full",
+                "size-2 rounded-full shrink-0",
                 activeFocus ? "bg-primary" : completedFocusToday ? "bg-emerald-500" : "bg-muted-foreground/30",
               )}
               aria-hidden="true"
@@ -373,7 +355,7 @@ export default function Dashboard() {
               {activeFocus ? "1 Focus" : completedFocusToday ? "1 Focus (Done)" : "0 Focus"}
             </span>
             <span className="text-muted-foreground/60">·</span>
-            <span className="text-muted-foreground">{activeRoutines.length}/2 Routines</span>
+            <span className="text-muted-foreground">{activeRoutines.length}/5 Routines</span>
           </div>
         </div>
       </header>
@@ -485,7 +467,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <h2 id="supporting-routines-heading" className="text-xs font-sans font-semibold text-muted-foreground">
-                  Supporting Routines ({activeRoutines.length} of 2)
+                  Supporting Routines ({activeRoutines.length} of 5)
                 </h2>
                 <span className="text-[11px] text-muted-foreground hidden sm:inline">· Tap to complete</span>
               </div>
@@ -522,18 +504,65 @@ export default function Dashboard() {
         </div>
 
         {/* Right Column: Context & Guidance (Progress Indicators + Mentor Signal) */}
-        <div className="lg:col-span-5 space-y-4">
-          {/* ── 3. PROGRESS & MOMENTUM (Clear, Interpretable Indicators) ── */}
+        <div className="lg:col-span-5 space-y-3.5">
+          {/* Card 1: Follow-Through */}
           <section
-            aria-label="Progress and Momentum Summary"
-            className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5 text-xs shadow-xs space-y-3.5"
+            aria-label="Follow-Through Summary"
+            className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 text-xs shadow-xs space-y-1.5 transition-all"
           >
-            <div className="flex items-center justify-between gap-2 border-b border-border/50 pb-2.5">
-              <span className="font-sans font-semibold text-foreground">Progress & Momentum</span>
-              {/* 7-Day Completion Cadence */}
+            <div className="flex items-center justify-between">
+              <span className="font-sans font-semibold text-muted-foreground text-xs">Follow-Through</span>
+              <span className="font-mono text-sm font-bold text-foreground">
+                {completionRate !== null ? `${completionRate}%` : "—"}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-snug">
+              {completionRate !== null
+                ? `${followThrough.completed} of ${followThrough.total} commitments honored`
+                : "No resolved commitments yet"}
+            </p>
+          </section>
+
+          {/* Card 2: 90-Day Milestone */}
+          <section
+            aria-label="90-Day Milestone Summary"
+            className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 text-xs shadow-xs space-y-1.5 transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-sans font-semibold text-muted-foreground text-xs">90-Day Milestone</span>
+              <span className="font-mono text-sm font-bold text-foreground">
+                Step {goalStats.completed} of 90
+              </span>
+            </div>
+            <div className="flex items-center justify-between pt-0.5 gap-2">
+              <p className="text-xs text-muted-foreground truncate">
+                {Math.min(100, Math.round((goalStats.completed / 90) * 100))}% completed toward goal
+              </p>
+              <Link to="/journey" className="text-primary text-xs font-semibold hover:underline flex items-center gap-0.5 shrink-0">
+                <span>Journey</span>
+                <ChevronRight className="size-3" aria-hidden="true" />
+              </Link>
+            </div>
+          </section>
+
+          {/* Card 3: Buffer Reserve */}
+          <section
+            aria-label="Buffer Reserve Summary"
+            className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 text-xs shadow-xs space-y-1.5 transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <span className="font-sans font-semibold text-muted-foreground text-xs">Buffer Reserve</span>
+              <span className="font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                {bufferDaysRemaining} of 9 flex days
+              </span>
+            </div>
+            <div className="flex items-center justify-between pt-0.5 gap-2">
+              <p className="text-xs text-muted-foreground truncate">
+                ±10% mathematical safety margin intact
+              </p>
               {weeklyCadence.length === 7 && (
                 <div
-                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-border/80 bg-background/80"
+                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-border/80 bg-background/80 shrink-0"
                   aria-label="7-day completion rhythm"
                   title="7-day completion cadence"
                 >
@@ -546,60 +575,9 @@ export default function Dashboard() {
                       )}
                     />
                   ))}
-                  <span className="text-[11px] font-mono text-muted-foreground ml-0.5">7d</span>
+                  <span className="text-[10px] font-mono text-muted-foreground ml-0.5">7d</span>
                 </div>
               )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-2.5">
-              {/* Follow-Through Indicator */}
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/60">
-                <div className="flex items-center justify-between">
-                  <span className="font-sans font-semibold text-muted-foreground">Follow-Through</span>
-                  <span className="font-mono text-xs font-semibold text-foreground">
-                    {completionRate !== null ? `${completionRate}%` : "—"}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {completionRate !== null
-                    ? `${followThrough.completed} of ${followThrough.total} commitments honored`
-                    : "No resolved commitments yet"}
-                </p>
-              </div>
-
-              {/* Goal Milestone Indicator */}
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/60">
-                <div className="flex items-center justify-between">
-                  <span className="font-sans font-semibold text-muted-foreground">90-Day Milestone</span>
-                  <span className="font-mono text-xs font-semibold text-foreground">
-                    Step {goalStats.completed} of 90
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {Math.min(100, Math.round((goalStats.completed / 90) * 100))}% completed toward goal
-                </p>
-              </div>
-
-              {/* Flex Buffer Indicator */}
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/60">
-                <div className="flex items-center justify-between">
-                  <span className="font-sans font-semibold text-muted-foreground">Buffer Reserve</span>
-                  <span className="font-mono text-xs font-semibold text-emerald-700 dark:text-emerald-400">
-                    {bufferDaysRemaining} of 9 flex days
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  ±10% mathematical safety margin intact
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-1 flex items-center justify-between text-xs text-muted-foreground">
-              <span>Updated in real time</span>
-              <Link to="/journey" className="text-primary font-medium hover:underline flex items-center gap-0.5">
-                <span>View trajectory</span>
-                <ChevronRight className="size-3" aria-hidden="true" />
-              </Link>
             </div>
           </section>
 

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
-import { nextEligibleDayLabel, type CadencePreset } from "@/hooks/useDashboardData";
+import { nextEligibleDayLabel, MAX_ROUTINE_SLOTS, type CadencePreset } from "@/hooks/useDashboardData";
 import { getServerLocalDate, toServerLocalDate, type ServerLocalDate } from "@/lib/serverTime";
 import { soundEngine } from "@/hooks/useSoundEffects";
 import { toast } from "@/hooks/use-toast";
@@ -67,7 +67,7 @@ export default function Quests() {
   const focusQuest = activeQuests.find((q) => getQuestRole(q) === "focus");
   const routineQuests = activeQuests.filter((q) => getQuestRole(q) === "routine");
   const focusAvailable = !focusQuest && !completedFocusToday;
-  const routineAvailable = routineQuests.length < 2;
+  const routineAvailable = routineQuests.length < MAX_ROUTINE_SLOTS;
   const canAddAny = focusAvailable || routineAvailable;
 
   // Dynamically respond to incoming navigation state
@@ -213,9 +213,8 @@ export default function Quests() {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
       <PageHeader
-        eyebrow="Daily Focus & Routines"
-        title="Your quests."
-        description="Select one primary focus for today and up to two supporting routines. Setting a clear daily limit protects your attention and builds steady momentum."
+        title="Daily Focus & Routines"
+        description="Select one primary focus for today and up to five supporting routines."
       />
 
       <div className="mt-6 space-y-6">
@@ -257,20 +256,9 @@ export default function Quests() {
               </div>
             )}
 
-            {/* CAPACITY STRUCTURE HEADER */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 px-1 border-b border-border/60 pb-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/80 bg-card text-xs font-sans shadow-xs">
-                <span className={cn("size-2 rounded-full", focusQuest ? "bg-primary" : completedFocusToday ? "bg-emerald-500" : "bg-muted-foreground/30")} />
-                <span className="font-medium text-foreground">
-                  1 Focus ({focusQuest ? "Committed" : completedFocusToday ? "Completed" : "Open"})
-                </span>
-                <span className="text-muted-foreground/50">·</span>
-                <span className="text-muted-foreground font-medium">
-                  {routineQuests.length} of 2 Routines
-                </span>
-              </div>
-
-              {!showCommitForm && canAddAny && (
+            {/* Action Header */}
+            {!showCommitForm && canAddAny && (
+              <div className="flex items-center justify-end px-1 border-b border-border/60 pb-3">
                 <Button
                   size="sm"
                   className="h-8 gap-1.5 text-xs rounded-xl px-3 font-semibold"
@@ -282,91 +270,66 @@ export default function Quests() {
                   <Plus className="size-3.5" aria-hidden="true" />
                   <span>Add quest</span>
                 </Button>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* ── BALANCED DESKTOP WORKSPACE (Active Quests + Upcoming Schedule) ── */}
             <div className="lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start space-y-6 lg:space-y-0">
               {/* Left Column: Today's Active Quests (Focus + Routines) */}
               <div className={cn("space-y-6", upcoming.length > 0 && serverLocal ? "lg:col-span-7" : "lg:col-span-12")}>
                 {/* ── SECTION 1: PRIMARY FOCUS (THE DOMINANT SLOT) ── */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between px-1">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="size-4 text-primary" aria-hidden="true" />
-                      <h2 className="text-xs font-sans font-semibold text-foreground">
-                        Primary Focus
-                      </h2>
-                    </div>
-                    <span className="text-xs font-sans font-medium text-muted-foreground">
-                      {focusQuest ? "Committed" : completedFocusToday ? "Completed" : "Open"}
-                    </span>
-                  </div>
-
-                  {focusQuest ? (
-                    <ul className="space-y-2.5">
-                      <QuestCard
-                        key={focusQuest.id}
-                        quest={focusQuest}
-                        completing={saving}
-                        onComplete={handleComplete}
-                        onCancel={handleCancel}
-                        cancelling={cancelling}
-                      />
-                    </ul>
-                  ) : completedFocusToday ? (
-                    <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.04] p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="size-8 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                          <CheckSquare className="size-4" aria-hidden="true" />
-                        </div>
-                        <div className="min-w-0 text-left">
-                          <span className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400 block">
-                            Primary Focus Completed
-                          </span>
-                          <p className="text-sm font-semibold text-foreground mt-0.5 truncate">
-                            {completedFocusToday.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Today&apos;s primary focus commitment is fulfilled.
-                          </p>
-                        </div>
+                {(focusQuest || completedFocusToday) && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between px-1">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="size-4 text-primary" aria-hidden="true" />
+                        <h2 className="text-xs font-sans font-semibold text-foreground">
+                          Primary Focus
+                        </h2>
                       </div>
-                      <span className="text-xs font-sans font-semibold px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 shrink-0">
-                        ✓ Done for Today
+                      <span className="text-xs font-sans font-medium text-muted-foreground">
+                        {focusQuest ? "Committed" : "Completed"}
                       </span>
                     </div>
-                  ) : (
-                    <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/[0.03] p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left transition-colors">
-                      <div>
-                        <span className="text-xs font-sans font-semibold text-primary">
-                          Primary Focus Open
-                        </span>
-                        <p className="text-sm font-semibold text-foreground mt-0.5">
-                          Your single most important action for today
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          Center your day around one non-negotiable step toward your goal.
-                        </p>
-                      </div>
-                      {!showCommitForm && (
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            setFormTargetRole("focus");
-                            setShowCommitForm(true);
-                          }}
-                          className="rounded-xl px-4 min-h-10 text-xs font-semibold shrink-0"
-                        >
-                          <Plus className="size-3.5 mr-1.5" />
-                          Commit to Focus
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
 
-                {/* ── SECTION 2: SUPPORTING ROUTINES (MAX 2 SLOTS) ── */}
+                    {focusQuest ? (
+                      <ul className="space-y-2.5">
+                        <QuestCard
+                          key={focusQuest.id}
+                          quest={focusQuest}
+                          completing={saving}
+                          onComplete={handleComplete}
+                          onCancel={handleCancel}
+                          cancelling={cancelling}
+                        />
+                      </ul>
+                    ) : (
+                      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.04] p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left transition-colors">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="size-8 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                            <CheckSquare className="size-4" aria-hidden="true" />
+                          </div>
+                          <div className="min-w-0 text-left">
+                            <span className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400 block">
+                              Primary Focus Completed
+                            </span>
+                            <p className="text-sm font-semibold text-foreground mt-0.5 truncate">
+                              {completedFocusToday.title}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              Today&apos;s primary focus commitment is fulfilled.
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs font-sans font-semibold px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 shrink-0">
+                          ✓ Done for Today
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ── SECTION 2: SUPPORTING ROUTINES (MAX 5 SLOTS) ── */}
                 <div className="space-y-3 pt-2">
                   <div className="flex items-center justify-between px-1">
                     <div className="flex items-center gap-2">
@@ -376,7 +339,7 @@ export default function Quests() {
                       </h2>
                     </div>
                     <span className="text-xs font-sans font-medium text-muted-foreground">
-                      {routineQuests.length} of 2 committed
+                      {routineQuests.length} of {MAX_ROUTINE_SLOTS} committed
                     </span>
                   </div>
 
@@ -398,8 +361,8 @@ export default function Quests() {
                     </ul>
                   ) : null}
 
-                  {/* Open Routine Slot Prompt if < 2 routines (Unified with populated card family) */}
-                  {routineQuests.length < 2 && (
+                  {/* Open Routine Slot Prompt if < MAX_ROUTINE_SLOTS routines */}
+                  {routineQuests.length < MAX_ROUTINE_SLOTS && (
                     <div className="rounded-2xl border border-border/80 bg-card/60 p-4 sm:px-5 sm:py-4 flex items-center justify-between gap-3 shadow-xs">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
                         <div className="size-6 rounded-lg border border-border bg-muted/40 text-muted-foreground flex items-center justify-center shrink-0">
@@ -407,7 +370,7 @@ export default function Quests() {
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-foreground truncate">
-                            Open Routine Slot ({routineQuests.length + 1} of 2)
+                            Open Routine Slot ({routineQuests.length + 1} of {MAX_ROUTINE_SLOTS})
                           </p>
                           <p className="text-xs text-muted-foreground truncate">
                             Add a supporting daily habit to reinforce steady momentum.

@@ -1,6 +1,6 @@
 import { useId, useRef, useState, useCallback, useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Info, CheckCircle2, Shield, AlertTriangle, Compass, Sparkles, X } from "lucide-react";
+import { Info, CheckCircle2, Shield, AlertTriangle, Compass, Sparkles, X, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -646,127 +646,100 @@ export function TrajectoryVisualizer({
         </div>
       )}
 
-      {/* ── Visual Status Legend & Trajectory Key (P2 Final Refinement: 2-Tier Responsive Legend) ── */}
-      <div className="mt-4 pt-3.5 border-t border-border/60 space-y-2.5 text-xs font-sans text-muted-foreground">
-        {/* Tier 1: Trajectory Status States */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+      {/* ── Visual Status Legend & Trajectory Key (Items actually used in graph) ── */}
+      <div className="mt-4 pt-3.5 border-t border-border/60 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs font-sans text-muted-foreground">
+        <div className="flex items-center gap-x-4 gap-y-1.5 flex-wrap">
           <span className="inline-flex items-center gap-1.5 shrink-0">
-            <span className="size-2 rounded-full bg-emerald-500" aria-hidden="true" />
-            <strong className="text-foreground font-medium">On Track</strong>
+            <span className="w-3.5 h-0.5 bg-foreground rounded-full" aria-hidden="true" />
+            <span>History</span>
           </span>
           <span className="inline-flex items-center gap-1.5 shrink-0">
-            <span className="size-2 rounded-full bg-amber-500" aria-hidden="true" />
-            <strong className="text-foreground font-medium">Buffer Active</strong>
+            <span className="w-3.5 h-0.5 border-t-2 border-dashed border-primary" aria-hidden="true" />
+            <span>Target Vector</span>
           </span>
           <span className="inline-flex items-center gap-1.5 shrink-0">
-            <span className="size-2 rounded-full bg-rose-500" aria-hidden="true" />
-            <strong className="text-foreground font-medium">Needs Adjustment</strong>
+            <span className="w-2.5 h-2 rounded-xs border border-primary/50 bg-primary/10 inline-block" aria-hidden="true" />
+            <span>±10% Buffer Zone</span>
           </span>
         </div>
 
-        {/* Tier 2: Chart Geometry & Guide Trigger */}
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pt-1 border-t border-border/40 sm:border-t-0 sm:pt-0">
-          <div className="flex items-center gap-x-4 gap-y-1.5 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 shrink-0">
-              <span className="w-3.5 h-0.5 bg-foreground rounded-full" aria-hidden="true" />
-              <span>History</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 shrink-0">
-              <span className="w-3.5 h-0.5 border-t-2 border-dashed border-primary" aria-hidden="true" />
-              <span>Target Vector</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 shrink-0">
-              <span className="w-2.5 h-2 rounded-xs border border-primary/50 bg-primary/10 inline-block" aria-hidden="true" />
-              <span>±10% Buffer Zone</span>
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setGuideOpen(true)}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm shrink-0"
-          >
-            <Info className="size-3.5" aria-hidden="true" />
-            <span>Status Guide</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setGuideOpen(true)}
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm shrink-0"
+        >
+          <Info className="size-3.5" aria-hidden="true" />
+          <span>Status Guide</span>
+        </button>
       </div>
 
-      {/* Status Guide Dialog (Comprehensive yet non-cluttering explanation) */}
+      {/* Status Guide Dialog (Concise, compact micro-guide with Back button) */}
       <Dialog open={guideOpen} onOpenChange={setGuideOpen}>
-        <DialogContent className="max-w-md p-6">
-          <DialogHeader>
-            <DialogTitle className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
-              <Compass className="size-5 text-primary" />
+        <DialogContent className="max-w-sm sm:max-w-md p-5 space-y-4">
+          <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-3">
+            <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
+              <Compass className="size-4.5 text-primary" />
               <span>Status & Trajectory Guide</span>
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm text-muted-foreground">
-              How Kinetic measures velocity, safety buffers, and trajectory health.
-            </DialogDescription>
-          </DialogHeader>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setGuideOpen(false)}
+              className="h-8 gap-1 px-2.5 text-xs text-muted-foreground hover:text-foreground shrink-0 rounded-lg"
+            >
+              <ArrowLeft className="size-3.5" />
+              <span>Back</span>
+            </Button>
+          </div>
 
-          <div className="space-y-3.5 mt-2 text-xs">
-            {/* On Track */}
-            <div className="p-3 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] space-y-1">
-              <div className="flex items-center gap-2 font-semibold text-emerald-700 dark:text-emerald-400">
-                <CheckCircle2 className="size-3.5" />
-                <span>On Track</span>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                Daily completion pace is within the ±10% mathematical buffer corridor. Your 90-day milestone is on schedule.
+          <div className="space-y-3 text-xs leading-relaxed">
+            {/* Trajectory Corridor */}
+            <div className="p-3 rounded-xl border border-border/80 bg-muted/20 space-y-1">
+              <span className="font-semibold text-foreground flex items-center gap-1.5">
+                <span className="w-2.5 h-2 rounded-xs border border-primary/50 bg-primary/20 inline-block" />
+                ±10% Buffer Corridor
+              </span>
+              <p className="text-muted-foreground">
+                Absorbs life variance without pushing your milestone deadline. Missing a day utilizes a flex day rather than breaking momentum.
               </p>
             </div>
 
-            {/* Buffer Active */}
-            <div className="p-3 rounded-xl border border-amber-500/25 bg-amber-500/[0.06] space-y-1">
-              <div className="flex items-center gap-2 font-semibold text-amber-700 dark:text-amber-400">
-                <Shield className="size-3.5" />
-                <span>Buffer Active</span>
+            {/* Core Pace States */}
+            <div className="p-3 rounded-xl border border-border/80 bg-muted/20 space-y-1.5">
+              <span className="font-semibold text-foreground block">Trajectory States</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px]">
+                <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                  <span>On Track</span>
+                </div>
+                <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
+                  <span className="size-1.5 rounded-full bg-amber-500" />
+                  <span>Buffer Active</span>
+                </div>
+                <div className="flex items-center gap-1 text-rose-600 dark:text-rose-400 font-medium">
+                  <span className="size-1.5 rounded-full bg-rose-500" />
+                  <span>Adjust Needed</span>
+                </div>
               </div>
-              <p className="text-muted-foreground leading-relaxed">
-                Pace is slightly below 1.0/day, but your 9-day flex buffer is absorbing the variance without postponing your completion date.
-              </p>
             </div>
 
-            {/* Needs Adjustment */}
-            <div className="p-3 rounded-xl border border-rose-500/25 bg-rose-500/[0.06] space-y-1">
-              <div className="flex items-center gap-2 font-semibold text-rose-700 dark:text-rose-400">
-                <AlertTriangle className="size-3.5" />
-                <span>Needs Adjustment</span>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                Buffer days are depleted (0 remaining) or deadline has slipped. Focus on primary milestone commitments this week to re-enter the corridor.
-              </p>
+            {/* System Constraints */}
+            <div className="p-3 rounded-xl border border-border/80 bg-muted/20 text-muted-foreground space-y-1">
+              <span className="font-semibold text-foreground block">Daily System Structure</span>
+              <p>• <strong>1 Primary Focus:</strong> Non-negotiable daily progress step.</p>
+              <p>• <strong>Up to 5 Supporting Routines:</strong> Cadence practices protecting consistency.</p>
             </div>
+          </div>
 
-            {/* Establishing */}
-            <div className="p-3 rounded-xl border border-border/60 bg-muted/40 space-y-1">
-              <div className="flex items-center gap-2 font-semibold text-foreground">
-                <Compass className="size-3.5 text-muted-foreground" />
-                <span>Establishing Baseline</span>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                First 3 days of your 90-day cycle while initial momentum and daily habit cadence are calibrated.
-              </p>
-            </div>
-
-            {/* History & Target Vector Guide */}
-            <div className="p-3 rounded-xl border border-border/60 bg-muted/30 space-y-1">
-              <div className="flex items-center gap-2 font-semibold text-foreground">
-                <span className="w-3.5 h-0.5 bg-foreground rounded-full inline-block" />
-                <span>History & Target Vector</span>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">
-                <strong>History</strong> (solid line) records your verified completed anchors to date. <strong>Target Vector</strong> (dashed line) plots the steady 1.0 anchor/day trajectory toward your 90-day goal within the ±10% buffer zone.
-              </p>
-            </div>
-
-            {/* Commitment Constraints */}
-            <div className="pt-2 border-t border-border/50 text-muted-foreground space-y-1">
-              <p className="font-semibold text-foreground">Daily Constraints:</p>
-              <p>• <strong>1 Primary Focus:</strong> Dominant daily milestone advancing your 90-day goal.</p>
-              <p>• <strong>Max 2 Routines:</strong> Daily recurring practices protecting consistency.</p>
-            </div>
+          <div className="pt-1 flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setGuideOpen(false)}
+              className="rounded-xl px-4 text-xs font-semibold"
+            >
+              Done
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
