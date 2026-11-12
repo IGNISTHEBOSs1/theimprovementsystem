@@ -153,6 +153,11 @@ function applyTheme(theme: ThemeName, resolvedMode: "light" | "dark") {
   } else {
     root.classList.remove("dark");
   }
+
+  // Update theme-color meta tag for seamless mobile status bar and navigation bar
+  const themeColor = resolvedMode === "dark" ? "#0a0a0a" : "#edf0f5";
+  const themeMetas = document.querySelectorAll('meta[name="theme-color"]');
+  themeMetas.forEach((meta) => meta.setAttribute("content", themeColor));
 }
 
 function resolveMode(mode: ThemeMode): "light" | "dark" {

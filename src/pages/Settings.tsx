@@ -232,7 +232,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-4 sm:space-y-6">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-8 space-y-4 sm:space-y-6">
       <PageHeader
         eyebrow="Preferences"
         title="Settings."

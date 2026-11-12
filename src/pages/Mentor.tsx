@@ -82,7 +82,7 @@ export default function Mentor() {
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
         <div className="h-40 animate-pulse rounded-2xl bg-muted" aria-label="Loading your mentor" />
       </div>
     );
@@ -90,7 +90,7 @@ export default function Mentor() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
         <section className="rounded-2xl border border-border/70 bg-card p-7" aria-label="Mentor unavailable">
           <p className="text-xs font-sans font-medium text-muted-foreground">Mentor</p>
           <h2 className="mt-2 text-lg font-semibold text-foreground">We couldn't load your history.</h2>
@@ -260,7 +260,7 @@ export default function Mentor() {
 
   if (!hasHero && surfaced.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
         <PlaceholderExperience
           icon={MessageSquare}
           title="No clear behavioral pattern yet."
@@ -315,7 +315,7 @@ export default function Mentor() {
       variants={shouldReduceMotion ? undefined : containerVariants}
       initial={shouldReduceMotion ? false : "hidden"}
       animate="visible"
-      className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-6 sm:py-10"
+      className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10"
     >
       <PageHeader
         title="Guidance & Patterns"

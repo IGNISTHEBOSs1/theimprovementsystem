@@ -232,7 +232,7 @@ export default function SystemBar({
           select-none
         "
         style={{
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)",
+          bottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)",
         }}
         aria-label="Primary navigation, mobile"
       >
