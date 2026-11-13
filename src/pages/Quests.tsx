@@ -4,6 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import { CheckSquare, Pause, Plus, Repeat, Sparkles, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { PrimaryActionPanel } from "@/components/dashboard/PrimaryActionPanel";
 import { TodaysCommitment } from "@/components/quests/TodaysCommitment";
 import { QuestCard } from "@/components/quests/QuestCard";
 import {
@@ -293,16 +294,16 @@ export default function Quests() {
                     </div>
 
                     {focusQuest ? (
-                      <ul className="space-y-2.5">
-                        <QuestCard
-                          key={focusQuest.id}
-                          quest={focusQuest}
-                          completing={saving}
-                          onComplete={handleComplete}
-                          onCancel={handleCancel}
-                          cancelling={cancelling}
-                        />
-                      </ul>
+                      <PrimaryActionPanel
+                        quest={focusQuest}
+                        completing={saving}
+                        onComplete={() => void handleComplete(focusQuest.id)}
+                        onChooseQuest={() => {
+                          setFormTargetRole("focus");
+                          setShowCommitForm(true);
+                        }}
+                        completedGoalQuests={goalStats.completed}
+                      />
                     ) : (
                       <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.04] p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left transition-colors">
                         <div className="flex items-center gap-3 min-w-0">

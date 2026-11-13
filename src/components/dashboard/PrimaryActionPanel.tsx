@@ -18,8 +18,6 @@ interface PrimaryActionPanelProps {
   completedGoalQuests?: number;
 }
 
-
-
 export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQuest, completedGoalQuests = 0 }: PrimaryActionPanelProps) {
   const shouldReduceMotion = useReducedMotion();
   const [completionStage, setCompletionStage] = useState<"idle" | "complete">("idle");
@@ -30,10 +28,13 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
       onComplete();
       return;
     }
+    // Instant, deterministic completion lock-in inside Doherty threshold (<50ms)
+    triggerHaptic("success");
+    soundEngine.playSuccess();
     setCompletionStage("complete");
     setTimeout(() => {
       onComplete();
-    }, 280);
+    }, 220);
   };
 
   if (!quest) {
@@ -53,19 +54,21 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
     );
   }
 
+  const isComplete = completionStage === "complete";
+
   return (
     <motion.section
       layout
       initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
       animate={
-        completionStage === "complete" && !shouldReduceMotion
+        isComplete && !shouldReduceMotion
           ? {
               scale: 0.94,
               x: 280,
               opacity: 0,
               filter: "blur(4px)",
               transition: {
-                duration: 0.28,
+                duration: 0.22,
                 ease: TIS_EASINGS.exitDecel,
               },
             }
@@ -79,7 +82,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
               x: 280,
               opacity: 0,
               filter: "blur(4px)",
-              transition: { duration: 0.28, ease: TIS_EASINGS.exitDecel },
+              transition: { duration: 0.22, ease: TIS_EASINGS.exitDecel },
             }
       }
       transition={{
@@ -87,18 +90,18 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
       }}
       className={cn(
         "relative overflow-hidden rounded-2xl glass-hero p-5 sm:p-7 transition-colors duration-250",
-        completionStage !== "idle" && "bg-emerald-500/[0.08] border-emerald-500/40"
+        isComplete && "bg-emerald-500/[0.08] border-emerald-500/40"
       )}
       aria-labelledby="focus-heading"
     >
-      
+
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-xs font-semibold text-primary">
           <CircleDot className="size-3.5 text-primary shrink-0" aria-hidden="true" />
           <span>Today&apos;s Focus {quest.timeFrame ? `· ${quest.timeFrame}` : ""}</span>
         </div>
         <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline-block">
-          Primary milestone · Slide or click to confirm
+          Primary milestone · Slide to complete
         </span>
       </div>
 
@@ -139,7 +142,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
             totalSteps={90}
           />
           <p className="text-[11px] text-muted-foreground text-center sm:text-right mt-1.5 sm:mt-1">
-            Intentional confirmation for your main milestone.
+            Slide puck past 65% to lock in today&apos;s focus.
           </p>
         </div>
       </div>
@@ -357,16 +360,7 @@ function SwipeToComplete({
     const isSuccess = progress >= THRESHOLD;
 
     if (isSuccess && !isSubmittingRef.current && !completing && !isDone) {
-      isSubmittingRef.current = true;
-      setIsDone(true);
-      triggerHaptic("success");
-      soundEngine.playLockIn();
-
-      animateSettling(currentX, max, cappedVelocity, () => {
-        completeTimerRef.current = setTimeout(() => {
-          onComplete();
-        }, 120);
-      });
+      executeCompletion(currentX, cappedVelocity);
     } else {
       setThresholdMet(false);
       hasCrossedThresholdRef.current = false;
@@ -374,29 +368,36 @@ function SwipeToComplete({
     }
   };
 
-  const handleClick = () => {
-    // Accessible fallback: tap, Enter, or Space directly confirms without dragging
-    if (!movedRef.current && !completing && !isDone && !isSubmittingRef.current) {
-      isSubmittingRef.current = true;
-      setIsDone(true);
-      setThresholdMet(true);
-      triggerHaptic("success");
-      soundEngine.playLockIn();
-      const max = maxDrag();
+  const executeCompletion = (initialX: number, velocity: number) => {
+    if (isSubmittingRef.current || completing || isDone) return;
+    isSubmittingRef.current = true;
+    setIsDone(true);
+    setThresholdMet(true);
+    triggerHaptic("success");
+    soundEngine.playLockIn();
+    const max = maxDrag();
 
-      animateSettling(0, max, 1.0, () => {
-        completeTimerRef.current = setTimeout(() => {
-          onComplete();
-        }, 120);
-      });
+    animateSettling(initialX, max, velocity, () => {
+      completeTimerRef.current = setTimeout(() => {
+        onComplete();
+      }, 100);
+    });
+  };
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Deliberate Slide Protection:
+    // Mouse or touch clicks (e.detail > 0) MUST NOT trigger completion — the user must slide!
+    // Only pure keyboard invocation (detail === 0 via Enter/Space) executes accessible fallback.
+    if (e.detail === 0 && !completing && !isDone && !isSubmittingRef.current) {
+      executeCompletion(0, 1.0);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (completing || isDone || isSubmittingRef.current) return;
-    if (e.key === "ArrowRight") {
+    if (e.key === "Enter" || e.key === " " || e.key === "ArrowRight") {
       e.preventDefault();
-      handleClick();
+      executeCompletion(0, 1.0);
     }
   };
 

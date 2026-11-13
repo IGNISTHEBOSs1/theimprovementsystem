@@ -267,16 +267,15 @@ export default function SystemBar({
                   group
                 "
               >
-                {/* 1. Circular sliding active pill indicator with concentric radius & real glassmorphism */}
+                {/* 1. Capsule sliding active pill indicator enclosing both icon and label */}
                 {active && (
                   <motion.div
                     layoutId="system-bar-active-indicator-mobile"
                     className="
                       absolute
-                      inset-0
-                      m-auto
-                      size-[40px]
-                      rounded-full
+                      inset-x-1
+                      inset-y-1
+                      rounded-2xl
                       glass-nav-pill
                       pointer-events-none
                       z-0
