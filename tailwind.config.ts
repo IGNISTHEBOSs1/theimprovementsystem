@@ -18,6 +18,11 @@ export default {
         sans: ['Inter', '-apple-system', 'sans-serif'],
         display: ['Inter', '-apple-system', 'sans-serif'],
       },
+      transitionTimingFunction: {
+        productive: 'cubic-bezier(0.2, 0, 0, 1)',
+        expressive: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        smooth: 'cubic-bezier(0.65, 0, 0.35, 1)',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

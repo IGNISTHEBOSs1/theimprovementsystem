@@ -8,7 +8,7 @@
     "clean:cache": "node -e \"try { fs.rmSync('.cache', { recursive: true, force: true }); fs.rmSync('.temp', { recursive: true, force: true }); } catch (e) {}\"",
     "prebuild": "npm run clean",
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node -e \"try { fs.copyFileSync('dist/index.html', 'dist/200.html'); } catch (e) {}\"",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview"
