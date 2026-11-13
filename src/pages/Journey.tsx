@@ -33,7 +33,7 @@ export default function Journey() {
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10 space-y-6 animate-pulse">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10 space-y-6 animate-pulse">
         <div className="h-8 w-48 rounded-xl bg-muted/60" />
         <div className="h-80 rounded-3xl bg-muted/60" aria-label="Loading trajectory" />
         <div className="h-44 rounded-2xl bg-muted/60" />
@@ -43,7 +43,7 @@ export default function Journey() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10">
         <section
           className="rounded-xl border border-border bg-card p-8 shadow-xs text-center milled-slab"
           aria-label="Trajectory unavailable"
@@ -66,7 +66,7 @@ export default function Journey() {
   const hasGoal = Boolean(profile?.primary_goal);
   if (!hasGoal) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10">
         <PlaceholderExperience
           icon={Compass}
           title="No 90-Day North Star Set."

@@ -570,7 +570,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 data-cuelume-press="press"
                 data-cuelume-hover="tick"
                 className={cn(
-                  "relative p-4 sm:p-4.5 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden",
+                  "relative p-4 sm:p-5 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden",
                   isActive
                     ? "bg-card/95 border-border scale-[1.01] opacity-100 shadow-sm"
                     : "bg-card/40 border-border/60 opacity-60 hover:opacity-90 hover:bg-card/60 scale-[0.99]"
@@ -605,12 +605,12 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                   </div>
                   <Icon
                     className={cn(
-                      "size-4 sm:size-4.5 transition-colors",
+                      "size-4 sm:size-5 transition-colors",
                       isActive ? "text-foreground" : "text-muted-foreground"
                     )}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 pl-8 sm:pl-9.5">
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 pl-8 sm:pl-10">
                   {s.desc}
                 </p>
               </div>

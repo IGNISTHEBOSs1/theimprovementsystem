@@ -212,7 +212,7 @@ export default function Quests() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10">
       <PageHeader
         title="Daily Focus & Routines"
         description="Select one primary focus for today and your supporting routines to protect steady momentum."

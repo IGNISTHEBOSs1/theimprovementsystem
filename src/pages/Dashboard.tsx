@@ -198,8 +198,8 @@ export default function Dashboard() {
 
   if (profileLoading) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
-        <section className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7" aria-label="Loading">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10">
+        <section className="milled-slab rounded-2xl border border-border/70 bg-card p-7 shadow-xs" aria-label="Loading">
           <div className="h-3 w-24 animate-pulse rounded bg-muted" />
           <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
         </section>
@@ -209,9 +209,9 @@ export default function Dashboard() {
 
   if (profileError || !profile) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10">
         <section
-          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7"
+          className="milled-slab rounded-2xl border border-border/70 bg-card p-7 shadow-xs"
           aria-label="Profile unavailable"
         >
           <p className="text-label text-muted-foreground">Your system</p>
@@ -223,7 +223,7 @@ export default function Dashboard() {
           </p>
           <Button
             size="lg"
-            className="mt-4"
+            className="mt-4 rounded-xl min-h-11 active:scale-[0.98]"
             onClick={() => user && void fetchProfile(user.id)}
           >
             Try again
@@ -239,9 +239,9 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
+      <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10">
         <section
-          className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card p-7"
+          className="milled-slab rounded-2xl border border-border/70 bg-card p-7 shadow-xs"
           aria-label="Progress unavailable"
         >
           <p className="text-label text-muted-foreground">Your system</p>
@@ -327,7 +327,7 @@ export default function Dashboard() {
       initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10"
+      className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10"
     >
       <AppTour />
 
