@@ -32,32 +32,32 @@ export function RecoveryState({ onChooseQuest, lastMissedQuest, onRecommit }: Re
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -6, scale: 0.985 }}
       transition={TIS_SPRINGS.settle}
-      className="rounded-2xl border border-border bg-muted/30 p-5 sm:p-6"
+      className="rounded-xl border border-border/80 bg-card p-5 sm:p-6 milled-slab"
       aria-labelledby="recovery-heading"
     >
-      <p className="text-label text-muted-foreground">A clear return</p>
-      <h2 id="recovery-heading" className="mt-2 text-lg font-semibold text-foreground">You can begin again from here.</h2>
+      <p className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">Deterministic Recovery</p>
+      <h2 id="recovery-heading" className="mt-2 text-lg font-bold text-foreground">You can begin again from here.</h2>
       {lastMissedQuest ? (
-        <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-          "{lastMissedQuest.title}" didn't happen. There is no need to catch up all at once — pick it back up, or choose one new action that matters.
+        <p className="mt-1 max-w-2xl text-xs sm:text-sm leading-relaxed text-muted-foreground">
+          &ldquo;{lastMissedQuest.title}&rdquo; was unresolved. There is no penalty or attendance streak pressure — recommit to it now, or anchor today with one new action.
         </p>
       ) : (
-        <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-          There is no need to catch up all at once. Choose one action that matters, then let the next step reveal itself.
+        <p className="mt-1 max-w-2xl text-xs sm:text-sm leading-relaxed text-muted-foreground">
+          There is no need to catch up all at once. Choose one decisive action within your buffer margin, and momentum will follow.
         </p>
       )}
-      <div className="mt-3 flex flex-wrap items-center gap-4">
+      <div className="mt-4 flex flex-wrap items-center gap-3">
         {canRecommit && (
           <Button
             variant="outline"
-            className="min-h-11"
+            className="min-h-10 rounded-lg text-xs font-semibold active:scale-[0.98]"
             onClick={() => onRecommit!(lastMissedQuest!)}
           >
-            <RotateCcw className="size-4" aria-hidden="true" /> Commit to it again
+            <RotateCcw className="size-3.5 mr-1.5" aria-hidden="true" /> Recommit to action
           </Button>
         )}
-        <Button variant="ghost" className="min-h-11 px-0 text-primary hover:bg-transparent hover:text-primary" onClick={onChooseQuest}>
-          Choose one action <ArrowRight className="size-4" aria-hidden="true" />
+        <Button variant="ghost" className="min-h-10 px-2 text-xs font-semibold text-primary hover:bg-transparent hover:text-primary active:scale-[0.98]" onClick={onChooseQuest}>
+          Choose new action <ArrowRight className="size-3.5 ml-1.5" aria-hidden="true" />
         </Button>
       </div>
     </motion.section>

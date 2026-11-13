@@ -84,39 +84,42 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         layout: TIS_SPRINGS.settle,
       }}
       className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card/80 px-3.5 sm:px-4 py-3 sm:py-3.5 text-body-sm transition-colors duration-250 overflow-hidden",
-        completionStage !== "idle" && "bg-emerald-500/[0.12] border-emerald-500/50",
+        "flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 rounded-xl border border-border/80 bg-card px-3.5 sm:px-4 py-3 sm:py-3.5 text-body-sm transition-all duration-200 overflow-hidden milled-slab",
+        completionStage !== "idle" && "bg-emerald-500/[0.08] border-emerald-500/40",
       )}
     >
       <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-        <button
-          type="button"
-          onClick={handleMarkComplete}
-          disabled={completing || isCompleted}
-          aria-label={`Mark "${quest.title}" as complete`}
-          className={cn(
-            "size-6 shrink-0 rounded-lg border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer mt-0.5 sm:mt-0",
-            isCompleted
-              ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105"
-              : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30 shadow-xs",
-          )}
-        >
-          {completing && !isCompleted ? (
-            <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
-          ) : isCompleted ? (
-            <Check className="size-3.5 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
-          ) : (
-            <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
-          )}
-        </button>
+        {/* Expanded touch target wrapping conforming to Fitts's Law (min 44x44px hit-box) */}
+        <div className="relative -m-2.5 p-2.5 touch-target flex items-center justify-center shrink-0">
+          <button
+            type="button"
+            onClick={handleMarkComplete}
+            disabled={completing || isCompleted}
+            aria-label={`Mark "${quest.title}" as complete`}
+            className={cn(
+              "size-6 shrink-0 rounded-md border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer shadow-xs",
+              isCompleted
+                ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105"
+                : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30",
+            )}
+          >
+            {completing && !isCompleted ? (
+              <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
+            ) : isCompleted ? (
+              <Check className="size-3.5 stroke-[3] animate-in zoom-in-75 duration-200" aria-hidden="true" />
+            ) : (
+              <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
+            )}
+          </button>
+        </div>
 
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-sans font-medium border border-border/70 bg-muted/40 text-muted-foreground shrink-0">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium border border-border/70 bg-muted/40 text-muted-foreground shrink-0 uppercase tracking-wider">
               Routine
             </span>
             {quest.linkedToGoal && quest.goalName && (
-              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground border border-border/40 bg-muted/20 px-2 py-0.5 rounded-full truncate max-w-[160px]">
+              <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground border border-border/40 bg-muted/20 px-2 py-0.5 rounded-md truncate max-w-[160px]">
                 <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
                 <span className="truncate">{quest.goalName}</span>
               </span>
@@ -128,18 +131,18 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         </div>
       </div>
 
-      <div className="flex items-center justify-end sm:justify-end shrink-0 pl-9 sm:pl-0">
+      <div className="flex items-center justify-end shrink-0 pl-11 sm:pl-0">
         <Button
           size="sm"
           variant="ghost"
           className={cn(
-            "min-h-8 sm:min-h-10 px-2.5 sm:px-3 hover:bg-muted/80 text-xs font-medium transition-colors",
-            isCompleted ? "text-emerald-700 dark:text-emerald-400 font-semibold" : "text-muted-foreground hover:text-foreground",
+            "min-h-9 px-3 hover:bg-muted/70 text-xs font-medium transition-colors rounded-md active:scale-[0.98]",
+            isCompleted ? "text-emerald-600 dark:text-emerald-400 font-semibold" : "text-muted-foreground hover:text-foreground",
           )}
           disabled={completing || isCompleted}
           onClick={handleMarkComplete}
         >
-          {isCompleted ? "Done!" : "Mark complete"}
+          {isCompleted ? "Done" : "Complete"}
         </Button>
       </div>
     </motion.li>
@@ -343,7 +346,7 @@ export default function Dashboard() {
 
         {/* Quiet Commitment Capacity Pill */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/80 bg-card text-xs font-sans font-medium text-foreground shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/80 bg-card text-xs font-mono font-medium text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
             <span
               className={cn(
                 "size-2 rounded-full shrink-0",
@@ -354,7 +357,7 @@ export default function Dashboard() {
             <span>
               {activeFocus ? "1 Focus" : completedFocusToday ? "1 Focus (Done)" : "0 Focus"}
             </span>
-            <span className="text-muted-foreground/60">·</span>
+            <span className="text-muted-foreground/50">·</span>
             <span className="text-muted-foreground">{activeRoutines.length}/5 Routines</span>
           </div>
         </div>
@@ -366,7 +369,7 @@ export default function Dashboard() {
         <div className="lg:col-span-7 space-y-6">
           {/* Primary Focus Slot */}
           {loading ? (
-            <section className="rounded-2xl border border-border/80 bg-card p-7" aria-label="Loading today’s focus">
+            <section className="rounded-xl border border-border/80 bg-card p-6 milled-slab" aria-label="Loading today’s focus">
               <div className="h-3 w-24 animate-pulse rounded bg-muted" />
               <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
             </section>
@@ -400,21 +403,21 @@ export default function Dashboard() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -6, scale: 0.985 }}
                   transition={TIS_SPRINGS.settle}
-                  className="rounded-2xl glass-hero p-5 sm:p-7 shadow-[var(--shadow-card)]"
+                  className="rounded-xl milled-slab p-5 sm:p-7 border border-emerald-500/30 bg-emerald-500/[0.04]"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="flex size-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                    <span className="flex size-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                       <CheckCircle2 className="size-4" aria-hidden="true" />
                     </span>
-                    <p className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400">
-                      Primary Focus Complete
+                    <p className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                      Primary Focus Locked
                     </p>
                   </div>
                   <h2 className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                     {completedFocusToday.title}
                   </h2>
                   <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground">
-                    Your primary focus for today is locked in. Continue with your supporting routines below or rest.
+                    Today&apos;s non-negotiable anchor is complete. Proceed with your supporting routines below or conclude your session.
                   </p>
                 </motion.div>
               ) : activeRoutines.length > 0 ? (
@@ -424,22 +427,22 @@ export default function Dashboard() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -6, scale: 0.985 }}
                   transition={TIS_SPRINGS.settle}
-                  className="rounded-2xl border border-dashed border-primary/40 bg-primary/[0.03] p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="rounded-xl border border-dashed border-primary/30 bg-primary/[0.02] p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div>
-                    <span className="text-xs font-sans font-semibold text-primary">
+                    <span className="text-xs font-mono font-semibold uppercase tracking-wider text-primary">
                       Primary Focus Open
                     </span>
                     <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground mt-0.5">
-                      Focus today on one decisive commitment
+                      Anchor today with one decisive commitment
                     </h2>
                     <p className="text-xs text-muted-foreground mt-0.5 max-w-lg">
-                      Your routines are active below. Set your single non-negotiable focus to guide today&apos;s momentum.
+                      Your routines are active below. Set your primary milestone to establish deterministic forward momentum.
                     </p>
                   </div>
                   <Button
                     onClick={chooseQuest}
-                    className="rounded-xl px-5 min-h-10 text-xs font-semibold shrink-0"
+                    className="rounded-lg px-5 min-h-10 text-xs font-semibold shrink-0 active:scale-[0.98]"
                   >
                     Commit to Focus
                     <ChevronRight className="size-3.5 ml-1" />
@@ -490,7 +493,7 @@ export default function Dashboard() {
                 </AnimatePresence>
               </ul>
             ) : activeFocus ? (
-              <div className="rounded-2xl border border-border/70 bg-card/60 p-4 flex items-center justify-between gap-3 text-xs shadow-xs">
+              <div className="rounded-xl border border-border/70 bg-card/60 p-4 flex items-center justify-between gap-3 text-xs shadow-xs milled-slab">
                 <div>
                   <p className="font-medium text-foreground">No supporting routines active today</p>
                   <p className="text-muted-foreground mt-0.5">Add regular routines to reinforce daily habits alongside your focus.</p>
@@ -503,111 +506,138 @@ export default function Dashboard() {
           </section>
         </div>
 
-        {/* Right Column: Context & Guidance (Progress Indicators + Mentor Signal) */}
-        <div className="lg:col-span-5 space-y-3.5">
-          {/* Card 1: Follow-Through */}
-          <section
-            aria-label="Follow-Through Summary"
-            className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 text-xs shadow-xs space-y-1.5 transition-all"
+        {/* Right Column: Telemetry Console & Epistemic Guidance */}
+        <div className="lg:col-span-5 space-y-4">
+          {/* Integrated Telemetry Plinth (De-carded precision instrument) */}
+          <aside
+            aria-label="System Telemetry Console"
+            className="milled-slab rounded-xl overflow-hidden divide-y divide-border/60"
           >
-            <div className="flex items-center justify-between">
-              <span className="font-sans font-semibold text-muted-foreground text-xs">Follow-Through</span>
-              <span className="font-mono text-sm font-bold text-foreground">
-                {completionRate !== null ? `${completionRate}%` : "—"}
+            {/* Header: Console Banner */}
+            <div className="px-4 py-2.5 bg-muted/25 flex items-center justify-between border-b border-border/40">
+              <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-muted-foreground">
+                Telemetry Console
+              </span>
+              <span className="text-[10px] font-mono text-muted-foreground/80 flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+                Live Status
               </span>
             </div>
-            <p className="text-xs text-muted-foreground leading-snug">
-              {completionRate !== null
-                ? `${followThrough.completed} of ${followThrough.total} commitments honored`
-                : "No resolved commitments yet"}
-            </p>
-          </section>
 
-          {/* Card 2: 90-Day Milestone */}
-          <section
-            aria-label="90-Day Milestone Summary"
-            className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 text-xs shadow-xs space-y-1.5 transition-all"
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-sans font-semibold text-muted-foreground text-xs">90-Day Milestone</span>
-              <span className="font-mono text-sm font-bold text-foreground">
-                Step {goalStats.completed} of 90
-              </span>
-            </div>
-            <div className="flex items-center justify-between pt-0.5 gap-2">
-              <p className="text-xs text-muted-foreground truncate">
-                {Math.min(100, Math.round((goalStats.completed / 90) * 100))}% completed toward goal
+            {/* Metric 1: Follow-Through Rate */}
+            <div className="p-4 sm:p-4.5 space-y-1.5 transition-colors hover:bg-muted/10">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-muted-foreground">Follow-Through Rate</span>
+                <span className="font-mono text-sm font-bold text-foreground">
+                  {completionRate !== null ? `${completionRate}%` : "—"}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-snug">
+                {completionRate !== null
+                  ? `${followThrough.completed} of ${followThrough.total} commitments honored`
+                  : "No resolved commitments yet"}
               </p>
-              <Link to="/journey" className="text-primary text-xs font-semibold hover:underline flex items-center gap-0.5 shrink-0">
-                <span>Journey</span>
-                <ChevronRight className="size-3" aria-hidden="true" />
-              </Link>
-            </div>
-          </section>
-
-          {/* Card 3: Buffer Reserve */}
-          <section
-            aria-label="Buffer Reserve Summary"
-            className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 text-xs shadow-xs space-y-1.5 transition-all"
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-sans font-semibold text-muted-foreground text-xs">Buffer Reserve</span>
-              <span className="font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                {bufferDaysRemaining} of 9 flex days
-              </span>
-            </div>
-            <div className="flex items-center justify-between pt-0.5 gap-2">
-              <p className="text-xs text-muted-foreground truncate">
-                ±10% mathematical safety margin intact
-              </p>
-              {weeklyCadence.length === 7 && (
-                <div
-                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-border/80 bg-background/80 shrink-0"
-                  aria-label="7-day completion rhythm"
-                  title="7-day completion cadence"
-                >
-                  {weeklyCadence.map((day) => (
-                    <span
-                      key={day.dateStr}
-                      className={cn(
-                        "size-1.5 rounded-full transition-all",
-                        day.completed ? "bg-primary" : "border border-border/80 bg-transparent",
-                      )}
-                    />
-                  ))}
-                  <span className="text-[10px] font-mono text-muted-foreground ml-0.5">7d</span>
+              {completionRate !== null && (
+                <div className="w-full h-1.5 rounded-full recessed-track overflow-hidden mt-2">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${Math.min(100, Math.max(0, completionRate))}%` }}
+                  />
                 </div>
               )}
             </div>
-          </section>
 
-          {/* ── 4. MENTOR GUIDANCE ── */}
+            {/* Metric 2: 90-Day Milestone Progress */}
+            <div className="p-4 sm:p-4.5 space-y-1.5 transition-colors hover:bg-muted/10">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-muted-foreground">90-Day Milestone</span>
+                <span className="font-mono text-sm font-bold text-foreground">
+                  Step {goalStats.completed} of 90
+                </span>
+              </div>
+              <div className="flex items-center justify-between pt-0.5 gap-2">
+                <p className="text-xs text-muted-foreground truncate">
+                  {Math.min(100, Math.round((goalStats.completed / 90) * 100))}% toward goal
+                </p>
+                <Link
+                  to="/journey"
+                  className="text-primary text-xs font-semibold hover:underline flex items-center gap-0.5 shrink-0"
+                >
+                  <span>Journey</span>
+                  <ChevronRight className="size-3" aria-hidden="true" />
+                </Link>
+              </div>
+              <div className="w-full h-1.5 rounded-full recessed-track overflow-hidden mt-1.5">
+                <div
+                  className="h-full bg-emerald-500/80 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${Math.min(100, (goalStats.completed / 90) * 100)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Metric 3: Buffer Margin & 7-Day Rhythm */}
+            <div className="p-4 sm:p-4.5 space-y-2 transition-colors hover:bg-muted/10">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-muted-foreground">Buffer Reserve</span>
+                <span className="font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                  {bufferDaysRemaining} of 9 flex days
+                </span>
+              </div>
+              <div className="flex items-center justify-between pt-0.5 gap-2">
+                <p className="text-xs text-muted-foreground truncate">
+                  ±10% mathematical safety margin intact
+                </p>
+                {weeklyCadence.length === 7 && (
+                  <div
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/80 bg-background/80 shrink-0"
+                    aria-label="7-day completion rhythm"
+                    title="7-day completion cadence"
+                  >
+                    {weeklyCadence.map((day) => (
+                      <span
+                        key={day.dateStr}
+                        className={cn(
+                          "size-1.5 rounded-full transition-all",
+                          day.completed ? "bg-emerald-500" : "border border-border/80 bg-transparent",
+                        )}
+                      />
+                    ))}
+                    <span className="text-[10px] font-mono text-muted-foreground ml-0.5">7d</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </aside>
+
+          {/* Epistemic Guidance Slab */}
           {topMentorSignal && (
-            <section
+            <aside
               aria-label="Mentor Advisory Note"
-              className="p-4 rounded-2xl border border-border/70 bg-card hover:bg-muted/30 transition-all shadow-xs"
+              className="milled-slab rounded-xl p-4 sm:p-4.5 hover:bg-muted/10 transition-all shadow-xs"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">
-                  <div className="size-8 rounded-xl border border-border bg-background flex items-center justify-center shrink-0 text-primary mt-0.5">
-                    <Sparkles className="size-4" aria-hidden="true" />
+                  <div className="size-8 rounded-lg border border-border/80 bg-background flex items-center justify-center shrink-0 text-primary mt-0.5">
+                    <Target className="size-4 text-primary" aria-hidden="true" />
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold text-foreground">Mentor Advice</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+                      Mentor Diagnostic
+                    </p>
+                    <p className="text-xs text-foreground mt-0.5 leading-relaxed line-clamp-2">
                       {topMentorSignal}
                     </p>
                   </div>
                 </div>
                 <Link
                   to="/mentor"
-                  className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 shrink-0 self-center"
+                  className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 shrink-0 self-center active:scale-[0.98]"
                 >
-                  <span>View advice</span>
+                  <span>Review</span>
                   <ChevronRight className="size-3.5" aria-hidden="true" />
                 </Link>
               </div>
-            </section>
+            </aside>
           )}
         </div>
       </div>
