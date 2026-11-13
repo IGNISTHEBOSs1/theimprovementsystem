@@ -45,7 +45,7 @@ export default function Journey() {
     return (
       <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
         <section
-          className="rounded-3xl border border-border bg-card p-8 shadow-xs text-center"
+          className="rounded-xl border border-border bg-card p-8 shadow-xs text-center milled-slab"
           aria-label="Trajectory unavailable"
         >
           <Compass className="size-8 mx-auto text-muted-foreground/60 mb-2" />
@@ -55,7 +55,7 @@ export default function Journey() {
           <p className="mt-2 text-sm font-sans text-muted-foreground max-w-md mx-auto">
             Unable to compute trajectory from stored commitment history.
           </p>
-          <Button variant="outline" size="sm" className="mt-5 rounded-xl px-5 font-sans" onClick={() => void reload()}>
+          <Button variant="outline" size="sm" className="mt-5 rounded-lg px-5 font-sans active:scale-[0.98]" onClick={() => void reload()}>
             Try again
           </Button>
         </section>
@@ -146,7 +146,7 @@ export default function Journey() {
       {/* ── 2. PLAIN-LANGUAGE STATUS & EXPLANATION (RESTRAINED STATUS CARD) ── */}
       <section
         aria-label="Pace status"
-        className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all"
+        className="rounded-xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all milled-slab"
       >
         <div className="flex items-center gap-2">
           <Badge
@@ -159,7 +159,7 @@ export default function Journey() {
                 ? "destructive"
                 : "neutral"
             }
-            className="gap-1.5 py-1 text-xs font-sans font-semibold"
+            className="gap-1.5 py-1 text-xs font-mono font-semibold uppercase tracking-wider rounded-md"
           >
             {paceDetails.badgeVariant === "success" ? (
               <ShieldCheck className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
@@ -180,15 +180,15 @@ export default function Journey() {
           </Badge>
         </div>
 
-        <p className="text-base sm:text-lg font-semibold tracking-tight text-foreground mt-2 leading-snug">
+        <p className="text-base sm:text-lg font-bold tracking-tight text-foreground mt-2 leading-snug">
           {paceDetails.explanation}
         </p>
 
-        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-mono text-muted-foreground">
           <span>{goalStats.completed} of 90 goal steps completed</span>
-          <span>·</span>
+          <span className="text-muted-foreground/40">·</span>
           <span>{buffer} of 9 flex days intact</span>
-          <span>·</span>
+          <span className="text-muted-foreground/40">·</span>
           <span>{daysLeft === 0 ? "Target date reached (0d left)" : `${daysLeft} days remaining`}</span>
         </div>
       </section>
@@ -235,16 +235,16 @@ export default function Journey() {
       {/* ── 4. ONE NEXT ACTION (WHAT TO DO NEXT) ── */}
       <section
         aria-label="Next action for today"
-        className="rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-sm"
+        className="rounded-xl border border-border/80 bg-card p-5 sm:p-6 shadow-sm milled-slab"
       >
-        <span className="text-xs font-sans font-semibold text-muted-foreground block mb-2">
+        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
           Today's Next Step
         </span>
 
         {activeGoalQuest ? (
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">Today's Goal Step Queued:</span>
+              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-mono font-medium">Today's Goal Step Queued:</span>
               <p className="text-base font-semibold text-foreground mt-0.5 truncate">
                 {activeGoalQuest.title}
               </p>
@@ -257,7 +257,7 @@ export default function Journey() {
               size="sm"
               disabled={completingId === activeGoalQuest.id}
               onClick={() => void handleCompleteAnchor(activeGoalQuest.id)}
-              className="rounded-xl px-5 h-11 font-semibold text-xs shrink-0 active:scale-[0.98] transition-all"
+              className="rounded-lg px-5 h-10 font-semibold text-xs shrink-0 active:scale-[0.98] transition-all"
             >
               <Check className="size-4 mr-1.5" />
               {completingId === activeGoalQuest.id ? "Recording completion..." : "Complete Today's Focus"}
@@ -276,7 +276,7 @@ export default function Journey() {
             <Button
               asChild
               size="sm"
-              className="rounded-xl px-5 h-11 font-medium text-xs shrink-0 active:scale-[0.98] transition-all"
+              className="rounded-lg px-5 h-10 font-medium text-xs shrink-0 active:scale-[0.98] transition-all"
             >
               <Link to="/quests">
                 <Plus className="size-4 mr-1.5" />
@@ -289,41 +289,43 @@ export default function Journey() {
 
       {/* ── 5. PACE & PRIORITY TELEMETRY (SUBORDINATED METRICS) ── */}
       <section className="pt-2 space-y-3" aria-label="Pace and Priority Breakdown">
-        <h2 className="text-xs font-sans font-semibold text-muted-foreground px-1">
-          Pace & Priority Breakdown
+        <h2 className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground px-1">
+          Pace & Priority Telemetry
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Flex Buffer breakdown */}
-          <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2 shadow-xs">
-            <span className="text-xs font-sans font-semibold text-muted-foreground block">
+          <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-4.5 text-xs space-y-2 shadow-xs milled-slab">
+            <span className="text-xs font-medium text-muted-foreground block">
               Flex Buffer Days
             </span>
-            <div className="grid grid-cols-9 gap-1 pt-1">
-              {Array.from({ length: 9 }).map((_, i) => {
-                const isIntact = i < buffer;
-                return (
-                  <div
-                    key={i}
-                    className={cn(
-                      "h-2.5 rounded-xs transition-all",
-                      isIntact
-                        ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.3)]"
-                        : "bg-muted-foreground/20 border border-border/50",
-                    )}
-                    title={`Flex Day ${i + 1}: ${isIntact ? "Intact" : "Used"}`}
-                  />
-                );
-              })}
+            <div className="p-1 rounded-lg recessed-track">
+              <div className="grid grid-cols-9 gap-1.5">
+                {Array.from({ length: 9 }).map((_, i) => {
+                  const isIntact = i < buffer;
+                  return (
+                    <div
+                      key={i}
+                      className={cn(
+                        "h-3 rounded-xs transition-all",
+                        isIntact
+                          ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.35)]"
+                          : "bg-muted-foreground/15 border border-border/40",
+                      )}
+                      title={`Flex Day ${i + 1}: ${isIntact ? "Intact" : "Used"}`}
+                    />
+                  );
+                })}
+              </div>
             </div>
             <p className="text-xs text-muted-foreground pt-1">
-              {buffer} of 9 safety margin days intact (±10% mathematical resilience cone).
+              <span className="font-mono font-bold text-foreground">{buffer}</span> of 9 safety margin days intact (±10% mathematical resilience cone).
             </p>
           </div>
 
           {/* Daily Pace */}
-          <div className="rounded-xl border border-border/80 bg-card p-4 text-xs space-y-2 shadow-xs">
-            <span className="text-xs font-sans font-semibold text-muted-foreground block">
-              Daily Completion Pace
+          <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-4.5 text-xs space-y-2 shadow-xs milled-slab">
+            <span className="text-xs font-medium text-muted-foreground block">
+              Daily Completion Velocity
             </span>
             <div className="flex items-baseline gap-1.5 pt-1">
               <span className="text-2xl font-mono font-bold text-foreground">
@@ -332,14 +334,14 @@ export default function Journey() {
               <span className="text-muted-foreground">completions / day</span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Target pace: 1.0/day. Catch-up required: {pace?.requiredDailyPace ?? 1.0}/day.
+              Target velocity: 1.0/day. Catch-up required: {pace?.requiredDailyPace ?? 1.0}/day.
             </p>
           </div>
 
           {/* Evidence Breakdown */}
-          <div className="sm:col-span-2 rounded-xl border border-border/80 bg-card p-4 text-xs space-y-3 shadow-xs">
+          <div className="sm:col-span-2 rounded-xl border border-border/80 bg-card p-4.5 sm:p-5 text-xs space-y-3 shadow-xs milled-slab">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs font-sans font-semibold text-muted-foreground">
+              <span className="text-xs font-medium text-muted-foreground">
                 Progress by Priority
               </span>
               <span className="font-mono text-muted-foreground">
@@ -348,7 +350,7 @@ export default function Journey() {
             </div>
 
             {priorityBreakdown.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {priorityBreakdown.map(({ priority, completed, total }) => {
                   const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
                   return (
@@ -359,9 +361,9 @@ export default function Journey() {
                           {completed} / {total} · {rate}%
                         </span>
                       </div>
-                      <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                      <div className="h-1.5 w-full rounded-full recessed-track overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-foreground transition-all duration-500"
+                          className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                           style={{ width: `${rate}%` }}
                         />
                       </div>

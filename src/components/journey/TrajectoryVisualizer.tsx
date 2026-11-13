@@ -1,6 +1,6 @@
 import { useId, useRef, useState, useCallback, useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Info, CheckCircle2, Shield, AlertTriangle, Compass, Sparkles, X, ArrowLeft } from "lucide-react";
+import { Info, CheckCircle2, AlertTriangle, Compass, ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -266,7 +266,7 @@ export function TrajectoryVisualizer({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-3xl p-5 sm:p-7 bg-card/90 border border-border/80 shadow-[var(--shadow-card)] backdrop-blur-xl transition-all duration-300",
+        "relative overflow-hidden rounded-xl p-5 sm:p-7 milled-slab transition-all duration-300",
         className,
       )}
     >
@@ -276,20 +276,18 @@ export function TrajectoryVisualizer({
         aria-hidden="true"
       />
 
-      
-
-      {/* ── Revolut-Style Top KPI Header (Inside the Card) ── */}
+      {/* ── Precision Flight KPI Header (Inside the Slab) ── */}
       <div className="relative z-10 flex items-start justify-between gap-4 pb-1">
         <div className="min-w-0">
           {/* Eyebrow: Clearly distinguish recorded history from planned target */}
-          <span className="text-xs font-semibold text-primary block truncate">
+          <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground block truncate">
             {activeScrubDay !== null
               ? activeScrubDay === safeElapsed
                 ? `Today · Day ${safeElapsed}`
                 : activeScrubDay < safeElapsed
-                ? `Day ${activeScrubDay} · Recorded`
-                : `Day ${activeScrubDay} · Planned Target`
-              : "Goal progress"}
+                ? `Day ${activeScrubDay} · Recorded Velocity`
+                : `Day ${activeScrubDay} · Target Vector`
+              : "Goal Trajectory"}
           </span>
           <div className="mt-0.5 flex items-baseline gap-2">
             <span className="text-3xl sm:text-4xl font-mono font-bold tracking-tight text-foreground tabular-nums">
@@ -307,9 +305,9 @@ export function TrajectoryVisualizer({
           </div>
         </div>
 
-        {/* Meaningful Progress Metric Badge (P2 Final Refinement: De-duplicated from main status card) */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/80 bg-muted/30 text-xs font-mono text-muted-foreground shrink-0 shadow-xs">
-          <span className="size-1.5 rounded-full bg-primary" aria-hidden="true" />
+        {/* Meaningful Progress Metric Badge */}
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/80 bg-card text-xs font-mono text-muted-foreground shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
+          <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
           <span>{Math.round(((activeScrubDay !== null ? scrubAnchors : completedQuests) / Math.max(1, targetAnchors)) * 100)}% to target</span>
         </div>
       </div>
@@ -675,7 +673,7 @@ export function TrajectoryVisualizer({
 
       {/* Status Guide Dialog (Concise, compact micro-guide with Back button) */}
       <Dialog open={guideOpen} onOpenChange={setGuideOpen}>
-        <DialogContent className="max-w-sm sm:max-w-md p-5 space-y-4">
+        <DialogContent className="max-w-sm sm:max-w-md p-5 space-y-4 rounded-xl border border-border/80 bg-card/95 backdrop-blur-xl shadow-2xl milled-slab">
           <div className="flex items-center justify-between gap-3 border-b border-border/50 pb-3">
             <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
               <Compass className="size-4.5 text-primary" />
@@ -685,7 +683,7 @@ export function TrajectoryVisualizer({
               variant="ghost"
               size="sm"
               onClick={() => setGuideOpen(false)}
-              className="h-8 gap-1 px-2.5 text-xs text-muted-foreground hover:text-foreground shrink-0 rounded-lg"
+              className="h-8 gap-1 px-2.5 text-xs text-muted-foreground hover:text-foreground shrink-0 rounded-lg active:scale-[0.98]"
             >
               <ArrowLeft className="size-3.5" />
               <span>Back</span>
@@ -694,7 +692,7 @@ export function TrajectoryVisualizer({
 
           <div className="space-y-3 text-xs leading-relaxed">
             {/* Trajectory Corridor */}
-            <div className="p-3 rounded-xl border border-border/80 bg-muted/20 space-y-1">
+            <div className="p-3 rounded-lg border border-border/80 bg-muted/20 space-y-1">
               <span className="font-semibold text-foreground flex items-center gap-1.5">
                 <span className="w-2.5 h-2 rounded-xs border border-primary/50 bg-primary/20 inline-block" />
                 ±10% Buffer Corridor
@@ -705,7 +703,7 @@ export function TrajectoryVisualizer({
             </div>
 
             {/* Core Pace States */}
-            <div className="p-3 rounded-xl border border-border/80 bg-muted/20 space-y-1.5">
+            <div className="p-3 rounded-lg border border-border/80 bg-muted/20 space-y-1.5">
               <span className="font-semibold text-foreground block">Trajectory States</span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px]">
                 <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
@@ -724,10 +722,10 @@ export function TrajectoryVisualizer({
             </div>
 
             {/* System Constraints */}
-            <div className="p-3 rounded-xl border border-border/80 bg-muted/20 text-muted-foreground space-y-1">
+            <div className="p-3 rounded-lg border border-border/80 bg-muted/20 text-muted-foreground space-y-1">
               <span className="font-semibold text-foreground block">Daily System Structure</span>
               <p>• <strong>1 Primary Focus:</strong> Non-negotiable daily progress step.</p>
-              <p>• <strong>Up to 5 Supporting Routines:</strong> Cadence practices protecting consistency.</p>
+              <p>• <strong>Supporting Routines:</strong> Cadence practices protecting consistency.</p>
             </div>
           </div>
 
@@ -736,7 +734,7 @@ export function TrajectoryVisualizer({
               variant="outline"
               size="sm"
               onClick={() => setGuideOpen(false)}
-              className="rounded-xl px-4 text-xs font-semibold"
+              className="rounded-lg px-4 text-xs font-semibold active:scale-[0.98]"
             >
               Done
             </Button>
