@@ -525,7 +525,7 @@ export default function Dashboard() {
             </div>
 
             {/* Metric 1: Follow-Through Rate */}
-            <div className="p-4 sm:p-4.5 space-y-1.5 transition-colors hover:bg-muted/10">
+            <div className="p-4 sm:p-5 space-y-1.5 transition-colors hover:bg-muted/10">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-muted-foreground">Follow-Through Rate</span>
                 <span className="font-mono text-sm font-bold text-foreground">
@@ -538,9 +538,9 @@ export default function Dashboard() {
                   : "No resolved commitments yet"}
               </p>
               {completionRate !== null && (
-                <div className="w-full h-1.5 rounded-full recessed-track overflow-hidden mt-2">
+                <div className="w-full h-2 rounded-full bg-muted/60 overflow-hidden border border-border/40 mt-2">
                   <div
-                    className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+                    className="h-full bg-primary rounded-full transition-all duration-500 ease-smooth"
                     style={{ width: `${Math.min(100, Math.max(0, completionRate))}%` }}
                   />
                 </div>
@@ -548,7 +548,7 @@ export default function Dashboard() {
             </div>
 
             {/* Metric 2: 90-Day Milestone Progress */}
-            <div className="p-4 sm:p-4.5 space-y-1.5 transition-colors hover:bg-muted/10">
+            <div className="p-4 sm:p-5 space-y-1.5 transition-colors hover:bg-muted/10">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-muted-foreground">90-Day Milestone</span>
                 <span className="font-mono text-sm font-bold text-foreground">
@@ -567,16 +567,16 @@ export default function Dashboard() {
                   <ChevronRight className="size-3" aria-hidden="true" />
                 </Link>
               </div>
-              <div className="w-full h-1.5 rounded-full recessed-track overflow-hidden mt-1.5">
+              <div className="w-full h-2 rounded-full bg-muted/60 overflow-hidden border border-border/40 mt-1.5">
                 <div
-                  className="h-full bg-emerald-500/80 rounded-full transition-all duration-500 ease-out"
+                  className="h-full bg-emerald-500 rounded-full transition-all duration-500 ease-smooth"
                   style={{ width: `${Math.min(100, (goalStats.completed / 90) * 100)}%` }}
                 />
               </div>
             </div>
 
             {/* Metric 3: Buffer Margin & 7-Day Rhythm */}
-            <div className="p-4 sm:p-4.5 space-y-2 transition-colors hover:bg-muted/10">
+            <div className="p-4 sm:p-5 space-y-2 transition-colors hover:bg-muted/10">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-muted-foreground">Buffer Reserve</span>
                 <span className="font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400">
@@ -613,7 +613,7 @@ export default function Dashboard() {
           {topMentorSignal && (
             <aside
               aria-label="Mentor Advisory Note"
-              className="milled-slab rounded-xl p-4 sm:p-4.5 hover:bg-muted/10 transition-all shadow-xs"
+              className="milled-slab rounded-xl p-4 sm:p-5 hover:bg-muted/10 transition-all shadow-xs"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">

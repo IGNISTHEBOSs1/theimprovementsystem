@@ -111,7 +111,7 @@ export default function Journey() {
   const daysLeft = pace?.daysRemaining ?? 90;
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10 space-y-6">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10 space-y-6">
       {/* ── 1. HEADER (IDENTITY & PURPOSE) ── */}
       <header className="space-y-2 pb-2 border-b border-border/60">
         <div className="flex items-center gap-2">
@@ -294,7 +294,7 @@ export default function Journey() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Flex Buffer breakdown */}
-          <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-4.5 text-xs space-y-2 shadow-xs milled-slab">
+          <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 text-xs space-y-2 shadow-xs milled-slab">
             <span className="text-xs font-medium text-muted-foreground block">
               Flex Buffer Days
             </span>
@@ -323,7 +323,7 @@ export default function Journey() {
           </div>
 
           {/* Daily Pace */}
-          <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-4.5 text-xs space-y-2 shadow-xs milled-slab">
+          <div className="rounded-xl border border-border/80 bg-card p-4 sm:p-5 text-xs space-y-2 shadow-xs milled-slab">
             <span className="text-xs font-medium text-muted-foreground block">
               Daily Completion Velocity
             </span>
@@ -339,13 +339,13 @@ export default function Journey() {
           </div>
 
           {/* Evidence Breakdown */}
-          <div className="sm:col-span-2 rounded-xl border border-border/80 bg-card p-4.5 sm:p-5 text-xs space-y-3 shadow-xs milled-slab">
+          <div className="sm:col-span-2 rounded-xl border border-border/80 bg-card p-4 sm:p-5 text-xs space-y-3 shadow-xs milled-slab">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs font-medium text-muted-foreground">
-                Progress by Priority
+              <span className="text-xs font-semibold text-foreground">
+                Progress by Evidence
               </span>
-              <span className="font-mono text-muted-foreground">
-                {goalStats.completed} completed · {goalStats.failed} missed ({accuracyPct}%)
+              <span className="font-mono text-muted-foreground text-[11px]">
+                {goalStats.completed} completed · {goalStats.failed} missed ({accuracyPct}% follow-through)
               </span>
             </div>
 
@@ -361,9 +361,9 @@ export default function Journey() {
                           {completed} / {total} · {rate}%
                         </span>
                       </div>
-                      <div className="h-1.5 w-full rounded-full recessed-track overflow-hidden">
+                      <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden border border-border/40">
                         <div
-                          className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
+                          className="h-full rounded-full bg-primary transition-all duration-500 ease-smooth"
                           style={{ width: `${rate}%` }}
                         />
                       </div>
