@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { MessageSquare, RotateCcw, Sparkles, ArrowRight, Pause, CheckCircle2 } from "lucide-react";
+import { MessageSquare, RotateCcw, ArrowRight, Pause } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
@@ -328,20 +328,20 @@ export default function Mentor() {
           {recurring && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-sm space-y-5"
+              className="milled-slab rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
             >
               <div className="flex items-center justify-between gap-4">
-                <span className="text-xs font-sans font-semibold text-primary block">
+                <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-primary block">
                   Pattern · Repeating Obstacle
                 </span>
-                <span className="text-xs font-medium text-muted-foreground">
+                <span className="text-xs font-mono font-medium text-muted-foreground">
                   Diagnostic Advisory
                 </span>
               </div>
 
               {/* 1. Observed Evidence */}
-              <div className="rounded-xl bg-muted/40 p-4 border border-border/60 space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
+              <div className="recessed-track rounded-xl p-4 border border-border/60 space-y-1">
+                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
                   1. Observed Evidence
                 </span>
                 <p className="text-xs sm:text-sm text-foreground/90 font-medium leading-relaxed">
@@ -351,8 +351,8 @@ export default function Mentor() {
 
               {/* 2. Mentor Interpretation */}
               <div className="space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-primary block">
-                  2. Mentor's Interpretation
+                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block">
+                  2. Mentor&apos;s Interpretation
                 </span>
                 <h2
                   id="primary-insight-heading"
@@ -364,9 +364,9 @@ export default function Mentor() {
 
               {/* 3. Recommended Action with integrated CTA in natural final position */}
               {recurring.adjustment && (
-                <div className="rounded-xl bg-primary/5 p-4 sm:p-5 border border-primary/20 text-xs sm:text-sm space-y-3">
+                <div className="milled-slab rounded-xl p-4 sm:p-5 border border-primary/25 bg-primary/[0.04] text-xs sm:text-sm space-y-3.5">
                   <div>
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-primary block mb-1">
+                    <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block mb-1">
                       3. Recommended Action
                     </span>
                     <p className="text-foreground font-medium leading-relaxed">
@@ -379,7 +379,7 @@ export default function Mentor() {
                       <>
                         <Button
                           size="sm"
-                          className="min-h-10 px-4 text-xs font-semibold gap-1.5"
+                          className="min-h-10 px-4 text-xs font-semibold gap-1.5 active:scale-[0.98]"
                           onClick={() => setRebalanceOpen(true)}
                         >
                           <RotateCcw className="size-3.5" aria-hidden="true" />
@@ -391,14 +391,14 @@ export default function Mentor() {
                           variant="outline"
                           disabled={pausingSeriesId === rebalanceProposal.seriesId}
                           onClick={() => void handlePauseRoutine(rebalanceProposal.seriesId)}
-                          className="min-h-10 px-4 text-xs font-medium gap-1.5"
+                          className="min-h-10 px-4 text-xs font-medium gap-1.5 active:scale-[0.98]"
                         >
                           <Pause className="size-3.5" aria-hidden="true" />
                           <span>{pausingSeriesId === rebalanceProposal.seriesId ? "Pausing…" : "Pause Routine"}</span>
                         </Button>
                       </>
                     ) : (
-                      <Button asChild size="sm" className="min-h-10 px-4 text-xs font-semibold">
+                      <Button asChild size="sm" className="min-h-10 px-4 text-xs font-semibold active:scale-[0.98]">
                         <Link to="/quests">Manage repeating routines →</Link>
                       </Button>
                     )}
@@ -411,20 +411,20 @@ export default function Mentor() {
           {isRecoveryHero && recovery && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
+              className="milled-slab rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-sans font-semibold text-primary">
+                <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-primary">
                   Pattern · Bouncing Back
                 </span>
-                <span className="text-xs font-medium text-muted-foreground">
+                <span className="text-xs font-mono font-medium text-muted-foreground">
                   Diagnostic Advisory
                 </span>
               </div>
 
               {/* 1. Observed Evidence */}
-              <div className="rounded-xl bg-muted/40 p-4 border border-border/60 space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
+              <div className="recessed-track rounded-xl p-4 border border-border/60 space-y-1">
+                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
                   1. Observed Evidence
                 </span>
                 <p className="text-xs sm:text-sm text-foreground/90 font-medium leading-relaxed">
@@ -434,8 +434,8 @@ export default function Mentor() {
 
               {/* 2. Mentor Interpretation */}
               <div className="space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-primary block">
-                  2. Mentor's Interpretation
+                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block">
+                  2. Mentor&apos;s Interpretation
                 </span>
                 <h2 id="primary-insight-heading" className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-snug">
                   {recovery.text}
@@ -446,9 +446,9 @@ export default function Mentor() {
               </div>
 
               {/* 3. Recommended Action with CTA in natural position */}
-              <div className="rounded-xl bg-primary/5 p-4 sm:p-5 border border-primary/20 text-xs sm:text-sm space-y-3">
+              <div className="milled-slab rounded-xl p-4 sm:p-5 border border-primary/25 bg-primary/[0.04] text-xs sm:text-sm space-y-3.5">
                 <div>
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-primary block mb-1">
+                  <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block mb-1">
                     3. Recommended Action
                   </span>
                   <p className="text-foreground font-medium leading-relaxed">
@@ -459,7 +459,7 @@ export default function Mentor() {
                 <div className="pt-1">
                   <Button
                     size="sm"
-                    className="min-h-10 px-4 text-xs font-semibold"
+                    className="min-h-10 px-4 text-xs font-semibold active:scale-[0.98]"
                     onClick={() => {
                       soundEngine.playTap();
                       navigate("/quests");
@@ -475,22 +475,22 @@ export default function Mentor() {
           {isMomentumHero && momentum && (
             <section
               aria-labelledby="primary-insight-heading"
-              className="rounded-2xl border border-border/70 bg-card p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
+              className="milled-slab rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400">
+                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
                   Pattern · Steady Progress
                 </span>
                 {momentum.comparison && (
-                  <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                  <span className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-mono font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                     +{Math.round(momentum.comparison.delta * 100)}% shift
                   </span>
                 )}
               </div>
 
               {/* 1. Observed Evidence */}
-              <div className="rounded-xl bg-muted/40 p-4 border border-border/60 space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block">
+              <div className="recessed-track rounded-xl p-4 border border-border/60 space-y-1">
+                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
                   1. Observed Evidence
                 </span>
                 <p className="text-xs sm:text-sm text-foreground/90 font-medium leading-relaxed">
@@ -500,8 +500,8 @@ export default function Mentor() {
 
               {/* 2. Mentor Interpretation */}
               <div className="space-y-1">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block">
-                  2. Mentor's Interpretation
+                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block">
+                  2. Mentor&apos;s Interpretation
                 </span>
                 <h2 id="primary-insight-heading" className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-snug">
                   {momentum.observation}
@@ -509,9 +509,9 @@ export default function Mentor() {
               </div>
 
               {/* 3. Recommended Action with CTA in natural position */}
-              <div className="rounded-xl bg-emerald-500/5 p-4 sm:p-5 border border-emerald-500/20 text-xs sm:text-sm space-y-3">
+              <div className="milled-slab rounded-xl p-4 sm:p-5 border border-emerald-500/25 bg-emerald-500/[0.04] text-xs sm:text-sm space-y-3.5">
                 <div>
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-1">
+                  <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-1">
                     3. Recommended Action
                   </span>
                   <p className="text-foreground font-medium leading-relaxed">
@@ -523,7 +523,7 @@ export default function Mentor() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="min-h-10 px-4 text-xs font-medium"
+                    className="min-h-10 px-4 text-xs font-medium active:scale-[0.98]"
                     onClick={() => {
                       soundEngine.playTap();
                       navigate("/journey");
@@ -542,33 +542,33 @@ export default function Mentor() {
       {surfaced.length > 0 && (
         <motion.div
           variants={shouldReduceMotion ? undefined : itemVariants}
-          className="mt-6 rounded-2xl border border-border/70 bg-card overflow-hidden shadow-[var(--shadow-card)]"
+          className="mt-6 milled-slab rounded-xl overflow-hidden shadow-[var(--shadow-card)]"
         >
           <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">
+            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
               Observed Patterns & Suggested Actions
             </span>
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-xs font-mono font-medium text-muted-foreground">
               {surfaced.length} patterns
             </span>
           </div>
 
           <div className="divide-y divide-border/40">
             {visibleDynamics.map((item) => (
-              <div key={item.key} className="p-5 sm:p-6 space-y-4">
+              <div key={item.key} className="p-5 sm:p-6 space-y-4 hover:bg-card/40 transition-colors">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-primary">
+                  <span className="text-xs font-mono font-semibold uppercase tracking-wider text-primary">
                     {item.categoryLabel}
                   </span>
-                  <span className="text-xs font-sans text-muted-foreground">
+                  <span className="text-[11px] font-mono text-muted-foreground">
                     Based on logged commitment history
                   </span>
                 </div>
 
                 {/* 1. Observed Evidence */}
                 {item.evidence && (
-                  <div className="rounded-lg bg-muted/40 p-3 border border-border/50 text-xs space-y-0.5">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground block">
+                  <div className="recessed-track rounded-lg p-3 border border-border/50 text-xs space-y-0.5">
+                    <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
                       1. Observed Evidence
                     </span>
                     <p className="text-foreground/90 font-medium leading-relaxed">
@@ -579,8 +579,8 @@ export default function Mentor() {
 
                 {/* 2. Mentor's Interpretation */}
                 <div className="space-y-0.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-primary block">
-                    2. Mentor's Interpretation
+                  <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block">
+                    2. Mentor&apos;s Interpretation
                   </span>
                   <h3 className="text-sm sm:text-base font-semibold text-foreground leading-snug">
                     {item.observation}
@@ -588,9 +588,9 @@ export default function Mentor() {
                 </div>
 
                 {/* 3. Recommended Action with CTA in natural position */}
-                <div className="rounded-xl bg-primary/5 p-3.5 border border-primary/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div className="milled-slab rounded-xl p-3.5 sm:p-4 border border-primary/20 bg-primary/[0.03] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                   <div className="min-w-0 flex-1">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-primary block mb-0.5">
+                    <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block mb-0.5">
                       3. Recommended Action
                     </span>
                     <p className="text-foreground font-medium leading-relaxed">
@@ -609,7 +609,7 @@ export default function Mentor() {
                         navigate(item.actionDestination);
                       }
                     }}
-                    className="h-8 px-3 text-xs shrink-0 self-start sm:self-auto gap-1 font-semibold"
+                    className="h-8 px-3 text-xs shrink-0 self-start sm:self-auto gap-1 font-semibold active:scale-95"
                   >
                     <span>{item.actionLabel}</span>
                     <ArrowRight className="size-3" />
@@ -624,7 +624,7 @@ export default function Mentor() {
               <button
                 type="button"
                 onClick={() => setShowAllDynamics((prev) => !prev)}
-                className="text-xs font-semibold text-primary hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2 py-1"
+                className="text-xs font-semibold text-primary hover:underline cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md px-2 py-1 active:scale-95"
                 aria-expanded={showAllDynamics}
               >
                 {showAllDynamics ? "Show fewer patterns" : "Show all patterns"}

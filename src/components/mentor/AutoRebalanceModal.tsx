@@ -115,29 +115,29 @@ export function AutoRebalanceModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="rounded-xl border border-border bg-card/60 p-4 space-y-3">
+        <div className="recessed-track rounded-xl border border-border/70 p-4 space-y-3">
           <p className="text-sm font-semibold text-foreground">{proposal.questTitle}</p>
 
           <div className="flex items-center justify-center gap-4 py-2 text-xs">
-            <div className="text-center p-2 rounded-lg bg-muted/40 border border-border/50 min-w-[90px]">
-              <div className="font-semibold text-foreground">{proposal.fromDayLabel}</div>
-              <div className="text-muted-foreground mt-0.5">
+            <div className="text-center p-2.5 rounded-lg bg-card/60 border border-border/60 min-w-[95px] shadow-2xs">
+              <div className="font-semibold text-foreground font-mono">{proposal.fromDayLabel}</div>
+              <div className="text-muted-foreground font-mono text-[11px] mt-0.5">
                 {Math.round(proposal.fromDayRate * 100)}% finish
               </div>
             </div>
 
             <ArrowRight className="size-4 shrink-0 text-primary" aria-hidden="true" />
 
-            <div className="text-center p-2 rounded-lg bg-primary/10 border border-primary/30 min-w-[90px]">
-              <div className="font-semibold text-primary">{proposal.toDayLabel}</div>
-              <div className="text-primary/80 mt-0.5">
+            <div className="text-center p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 min-w-[95px] shadow-2xs">
+              <div className="font-semibold text-emerald-700 dark:text-emerald-400 font-mono">{proposal.toDayLabel}</div>
+              <div className="text-emerald-700/80 dark:text-emerald-400/80 font-mono text-[11px] mt-0.5">
                 {proposal.toDayRate >= 0 ? `${Math.round(proposal.toDayRate * 100)}% usual` : "Recommended"}
               </div>
             </div>
           </div>
 
           <p className="text-xs text-muted-foreground leading-relaxed">
-            You frequently miss on <strong className="text-foreground">{proposal.fromDayLabel}</strong> ({Math.round(proposal.fromDayRate * 100)}% follow-through across {proposal.fromDaySample} checks). Moving this occurrence to <strong className="text-foreground">{proposal.toDayLabel}</strong> removes structural friction.
+            You frequently miss on <strong className="text-foreground font-mono">{proposal.fromDayLabel}</strong> ({Math.round(proposal.fromDayRate * 100)}% follow-through across {proposal.fromDaySample} checks). Moving this occurrence to <strong className="text-foreground font-mono">{proposal.toDayLabel}</strong> removes structural friction.
           </p>
         </div>
 
@@ -145,7 +145,7 @@ export function AutoRebalanceModal({
           <div
             role="status"
             aria-live="polite"
-            className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-2"
+            className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-700 dark:text-emerald-400 flex items-center gap-2 font-medium"
           >
             <Check className="size-4 shrink-0" />
             <span>{appliedMessage}</span>
@@ -159,7 +159,7 @@ export function AutoRebalanceModal({
               size="sm"
               onClick={() => void handlePause()}
               disabled={applying || pausing || reducing || Boolean(appliedMessage)}
-              className="min-h-10 text-xs"
+              className="min-h-10 text-xs rounded-xl active:scale-[0.98]"
             >
               <Pause className="size-3 mr-1" />
               {pausing ? "Pausing…" : "Pause Routine"}
@@ -171,7 +171,7 @@ export function AutoRebalanceModal({
               size="sm"
               onClick={() => void handleReduce()}
               disabled={applying || pausing || reducing || Boolean(appliedMessage)}
-              className="min-h-10 text-xs"
+              className="min-h-10 text-xs rounded-xl active:scale-[0.98]"
             >
               {reducing ? "Reducing…" : `Drop ${proposal.fromDayLabel}`}
             </Button>
@@ -180,7 +180,7 @@ export function AutoRebalanceModal({
             size="sm"
             onClick={() => void handleApply()}
             disabled={applying || pausing || reducing || Boolean(appliedMessage)}
-            className="min-h-10 text-xs font-semibold"
+            className="min-h-10 text-xs font-semibold rounded-xl active:scale-[0.98]"
           >
             {applying ? "Applying…" : `Move to ${proposal.toDayLabel}`}
           </Button>
