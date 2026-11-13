@@ -153,17 +153,17 @@ const Auth = () => {
 
           {/* 3 Architectural Pillars */}
           <div className="space-y-3 pt-1">
-            <div className="p-3.5 rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-xs flex items-start gap-3">
+            <div className="milled-slab p-3.5 rounded-xl border border-border/70 bg-card shadow-xs flex items-start gap-3">
               <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <Target className="size-4" />
               </div>
               <div>
-                <h2 className="font-semibold text-xs text-foreground">1 Primary Focus + 5 Routines</h2>
+                <h2 className="font-semibold text-xs text-foreground">1 Primary Focus + 2 Routines</h2>
                 <p className="text-xs text-muted-foreground mt-0.5 leading-snug">Strict daily constraint eliminates backlog guilt. Execute in under 90 seconds.</p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-xs flex items-start gap-3">
+            <div className="milled-slab p-3.5 rounded-xl border border-border/70 bg-card shadow-xs flex items-start gap-3">
               <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <ShieldCheck className="size-4" />
               </div>
@@ -173,7 +173,7 @@ const Auth = () => {
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-xs flex items-start gap-3">
+            <div className="milled-slab p-3.5 rounded-xl border border-border/70 bg-card shadow-xs flex items-start gap-3">
               <div className="size-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5 text-foreground">
                 <Layers className="size-4" />
               </div>
@@ -206,7 +206,7 @@ const Auth = () => {
           <div className="flex items-center justify-between mb-2 sm:mb-3 px-1">
             <button
               onClick={() => navigate('/')}
-              className="lg:hidden flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer"
+              className="lg:hidden flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group cursor-pointer active:scale-[0.98]"
             >
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
               <span>Overview</span>
@@ -219,7 +219,7 @@ const Auth = () => {
                 type="button"
                 onClick={() => setThemeMode('light')}
                 className={cn(
-                  "p-1.5 rounded text-xs transition-colors cursor-pointer",
+                  "p-1.5 rounded text-xs transition-colors cursor-pointer active:scale-[0.98]",
                   themeMode === 'light' ? "bg-foreground text-background shadow-xs" : "text-muted-foreground hover:text-foreground"
                 )}
                 title="Light Palette"
@@ -231,7 +231,7 @@ const Auth = () => {
                 type="button"
                 onClick={() => setThemeMode('dark')}
                 className={cn(
-                  "p-1.5 rounded text-xs transition-colors cursor-pointer",
+                  "p-1.5 rounded text-xs transition-colors cursor-pointer active:scale-[0.98]",
                   themeMode === 'dark' ? "bg-foreground text-background shadow-xs" : "text-muted-foreground hover:text-foreground"
                 )}
                 title="Dark Palette"
@@ -243,7 +243,7 @@ const Auth = () => {
                 type="button"
                 onClick={() => setThemeMode('system')}
                 className={cn(
-                  "p-1.5 rounded text-xs transition-colors cursor-pointer",
+                  "p-1.5 rounded text-xs transition-colors cursor-pointer active:scale-[0.98]",
                   themeMode === 'system' ? "bg-foreground text-background shadow-xs" : "text-muted-foreground hover:text-foreground"
                 )}
                 title="Auto Palette"
@@ -255,7 +255,7 @@ const Auth = () => {
           </div>
 
           {/* Liquid Frosted Glass Authentication Card */}
-          <div className="rounded-2xl border border-black/[0.08] dark:border-white/[0.08] bg-card shadow-[var(--shadow-card)] overflow-hidden">
+          <div className="milled-slab rounded-2xl border border-border/80 bg-card shadow-[var(--shadow-card)] overflow-hidden">
             {/* Header (Rich brand & product identity for all viewports) */}
             <div className="px-5 py-4 sm:py-5 text-center bg-muted/40 dark:bg-muted/20 border-b border-border/80 dark:border-white/10">
               <motion.div
@@ -292,7 +292,7 @@ const Auth = () => {
                         key={m}
                         type="button"
                         onClick={() => { playClick(); setMode(m); }}
-                        className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all relative cursor-pointer ${
+                        className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-medium transition-all relative cursor-pointer active:scale-[0.98] ${
                           mode === m ? 'text-foreground font-semibold' : 'text-muted-foreground hover:text-foreground'
                         }`}
                       >
@@ -317,7 +317,7 @@ const Auth = () => {
                 <div className="space-y-3.5">
                   <div className="grid grid-cols-2 gap-2.5">
                     <Button type="button" variant="outline" disabled={googleLoading}
-                      className="rounded-xl border border-border/80 bg-card hover:bg-muted/60 text-foreground text-xs sm:text-sm h-10 sm:h-11 active:scale-[0.98] shadow-xs cursor-pointer font-medium"
+                      className="rounded-xl border border-border/80 bg-card hover:bg-muted/60 text-foreground text-xs sm:text-sm h-11 active:scale-[0.98] shadow-xs cursor-pointer font-semibold"
                       onClick={async () => {
                         playClick(); setGoogleLoading(true);
                         const { error } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
@@ -335,7 +335,7 @@ const Auth = () => {
                       Google
                     </Button>
                     <Button type="button" variant="outline" disabled={appleLoading}
-                      className="rounded-xl border border-border/80 bg-card hover:bg-muted/60 text-foreground text-xs sm:text-sm h-10 sm:h-11 active:scale-[0.98] shadow-xs cursor-pointer font-medium"
+                      className="rounded-xl border border-border/80 bg-card hover:bg-muted/60 text-foreground text-xs sm:text-sm h-11 active:scale-[0.98] shadow-xs cursor-pointer font-semibold"
                       onClick={async () => {
                         playClick(); setAppleLoading(true);
                         const { error } = await supabase.auth.signInWithOAuth({ provider: 'apple', options: { redirectTo: window.location.origin } });
@@ -384,7 +384,7 @@ const Auth = () => {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="Enter your name"
-                        className="pl-10 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground h-10 text-xs sm:text-sm shadow-2xs"
+                        className="pl-10 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground h-11 text-xs sm:text-sm shadow-2xs"
                         maxLength={20}
                       />
                     </div>
@@ -406,7 +406,7 @@ const Auth = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="pl-10 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground h-10 text-xs sm:text-sm shadow-2xs"
+                    className="pl-10 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground h-11 text-xs sm:text-sm shadow-2xs"
                   />
                 </div>
               </div>
@@ -433,7 +433,7 @@ const Auth = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="pl-10 pr-10 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground h-10 text-xs sm:text-sm shadow-2xs"
+                      className="pl-10 pr-10 bg-background/90 dark:bg-muted/30 border border-input focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20 rounded-xl text-foreground placeholder:text-muted-foreground h-11 text-xs sm:text-sm shadow-2xs"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1 cursor-pointer rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -448,7 +448,7 @@ const Auth = () => {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full font-semibold text-xs sm:text-sm h-10 sm:h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-[var(--shadow-button)] active:scale-[0.98] cursor-pointer mt-1"
+                className="w-full font-semibold text-xs sm:text-sm h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 shadow-[var(--shadow-button)] active:scale-[0.98] cursor-pointer mt-1"
                 size="default"
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
@@ -459,7 +459,7 @@ const Auth = () => {
 
               {mode === 'reset' && (
                 <button type="button" onClick={() => { playClick(); setMode('signin'); }}
-                  className="text-xs text-muted-foreground hover:text-foreground w-full text-center transition-colors flex items-center justify-center gap-1.5 pt-1 cursor-pointer"
+                  className="text-xs text-muted-foreground hover:text-foreground w-full text-center transition-colors flex items-center justify-center gap-1.5 pt-1 cursor-pointer active:scale-[0.98]"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   Back to Log In

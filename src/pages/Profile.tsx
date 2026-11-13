@@ -134,11 +134,11 @@ export default function Profile() {
   const daysRemaining = profilePace?.daysRemaining ?? null;
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10 space-y-6">
+    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10 space-y-6">
       {/* ── 1. Identity Header ── */}
       <section
         aria-label="Your Profile"
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-2xl border border-border/70 bg-card shadow-sm"
+        className="milled-slab flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 sm:p-6 rounded-2xl border border-border/70 bg-card shadow-xs"
       >
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -155,9 +155,9 @@ export default function Profile() {
 
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="truncate text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              <h1 className="truncate text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 {profile?.username || "Member"}
-              </h2>
+              </h1>
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-2">
               <span>Timezone: {profile?.timezone || "UTC"}</span>
@@ -172,7 +172,7 @@ export default function Profile() {
             variant="outline"
             size="sm"
             asChild
-            className="min-h-10 rounded-xl gap-2 border-border/80 hover:bg-muted/50 px-4 text-xs font-medium"
+            className="min-h-10 rounded-xl gap-2 border-border/80 hover:bg-muted/50 px-4 text-xs font-semibold active:scale-[0.98]"
           >
             <Link to="/profile/settings">
               <SettingsIcon className="size-3.5 text-muted-foreground" aria-hidden="true" />
@@ -184,7 +184,7 @@ export default function Profile() {
 
       {/* ── 2. The North Star Mission Spotlight ── */}
       <section
-        className="rounded-2xl border border-border/70 bg-card p-6 sm:p-7 shadow-[var(--shadow-card)] relative overflow-hidden"
+        className="milled-slab rounded-2xl border border-border/70 bg-card p-6 sm:p-7 shadow-xs relative overflow-hidden"
         aria-labelledby="primary-goal-heading"
       >
         <div className="flex items-start justify-between gap-4">
@@ -248,15 +248,13 @@ export default function Profile() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-8 rounded-full text-xs text-muted-foreground hover:text-foreground gap-1.5 px-3"
+                  className="h-8 rounded-full text-xs text-muted-foreground hover:text-foreground gap-1.5 px-3 active:scale-[0.98]"
                   onClick={startEditing}
                 >
                   <Pencil className="size-3" aria-hidden="true" />
                   <span>Edit Goal</span>
                 </Button>
               </div>
-
-              
             </div>
           ) : (
             <div className="mt-4 space-y-3">
@@ -267,7 +265,7 @@ export default function Profile() {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="rounded-xl min-h-10 text-xs font-medium gap-1.5"
+                className="rounded-xl min-h-10 text-xs font-medium gap-1.5 active:scale-[0.98]"
                 onClick={startEditing}
               >
                 <Target className="size-3.5 text-primary" aria-hidden="true" />
@@ -375,13 +373,13 @@ export default function Profile() {
             )}
 
             <div className="flex gap-2.5 pt-1">
-              <Button type="submit" className="min-h-10 rounded-xl px-5 text-xs font-semibold" disabled={saving}>
+              <Button type="submit" className="min-h-11 rounded-xl px-5 text-xs font-semibold active:scale-[0.98]" disabled={saving}>
                 {saving ? "Saving…" : goalRenameWarning !== null ? "Confirm Rename" : "Save Goal"}
               </Button>
               <Button
                 type="button"
                 variant="ghost"
-                className="min-h-10 rounded-xl text-xs text-muted-foreground"
+                className="min-h-11 rounded-xl text-xs text-muted-foreground active:scale-[0.98]"
                 onClick={cancelEditing}
                 disabled={saving}
               >
@@ -405,7 +403,7 @@ export default function Profile() {
 
       {/* ── 3. Personal Execution & History ── */}
       <section
-        className="rounded-2xl border border-border/70 bg-card p-6 sm:p-7 shadow-[var(--shadow-card)] space-y-5"
+        className="milled-slab rounded-2xl border border-border/70 bg-card p-6 sm:p-7 shadow-xs space-y-5"
         aria-labelledby="execution-summary-heading"
       >
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -422,7 +420,7 @@ export default function Profile() {
             variant="outline"
             size="sm"
             asChild
-            className="rounded-xl min-h-10 text-xs font-semibold gap-2 border-border/80 hover:bg-muted/60 self-start sm:self-auto shrink-0"
+            className="rounded-xl min-h-10 text-xs font-semibold gap-2 border-border/80 hover:bg-muted/60 self-start sm:self-auto shrink-0 active:scale-[0.98]"
           >
             <Link to="/profile/history">
               <History className="size-3.5 text-primary" aria-hidden="true" />
@@ -434,8 +432,8 @@ export default function Profile() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
           {/* Metric 1: Overall Follow-Through */}
-          <div className="rounded-xl bg-muted/40 p-4 border border-border/60 flex items-start gap-3.5">
-            <div className="size-10 rounded-xl bg-background border border-border flex items-center justify-center shrink-0">
+          <div className="rounded-xl bg-muted/30 p-4 sm:p-5 border border-border/60 flex items-start gap-3.5 transition-colors hover:bg-muted/40">
+            <div className="size-10 rounded-xl bg-background border border-border/80 flex items-center justify-center shrink-0 shadow-xs">
               <CheckCircle2 className="size-5 text-emerald-500" aria-hidden="true" />
             </div>
             <div className="min-w-0">
@@ -457,8 +455,8 @@ export default function Profile() {
           </div>
 
           {/* Metric 2: North Star Goal Steps */}
-          <div className="rounded-xl bg-muted/40 p-4 border border-border/60 flex items-start gap-3.5">
-            <div className="size-10 rounded-xl bg-background border border-border flex items-center justify-center shrink-0">
+          <div className="rounded-xl bg-muted/30 p-4 sm:p-5 border border-border/60 flex items-start gap-3.5 transition-colors hover:bg-muted/40">
+            <div className="size-10 rounded-xl bg-background border border-border/80 flex items-center justify-center shrink-0 shadow-xs">
               <Target className="size-5 text-primary" aria-hidden="true" />
             </div>
             <div className="min-w-0">
