@@ -215,7 +215,7 @@ export default function Quests() {
     <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-3 sm:py-10">
       <PageHeader
         title="Daily Focus & Routines"
-        description="Select one primary focus for today and up to five supporting routines."
+        description="Select one primary focus for today and your supporting routines to protect steady momentum."
       />
 
       <div className="mt-6 space-y-6">
@@ -305,13 +305,13 @@ export default function Quests() {
                         completedGoalQuests={goalStats.completed}
                       />
                     ) : (
-                      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.04] p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left transition-colors">
+                      <div className="milled-slab rounded-xl border border-emerald-500/30 bg-emerald-500/[0.04] p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
                           <div className="size-8 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
                             <CheckSquare className="size-4" aria-hidden="true" />
                           </div>
                           <div className="min-w-0 text-left">
-                            <span className="text-xs font-sans font-semibold text-emerald-700 dark:text-emerald-400 block">
+                            <span className="text-[11px] font-mono uppercase tracking-wider font-semibold text-emerald-700 dark:text-emerald-400 block">
                               Primary Focus Completed
                             </span>
                             <p className="text-sm font-semibold text-foreground mt-0.5 truncate">
@@ -322,7 +322,7 @@ export default function Quests() {
                             </p>
                           </div>
                         </div>
-                        <span className="text-xs font-sans font-semibold px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 shrink-0">
+                        <span className="text-[11px] font-mono font-semibold px-2.5 py-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 shrink-0">
                           ✓ Done for Today
                         </span>
                       </div>
@@ -339,7 +339,7 @@ export default function Quests() {
                         Supporting Routines
                       </h2>
                     </div>
-                    <span className="text-xs font-sans font-medium text-muted-foreground">
+                    <span className="text-xs font-mono font-medium text-muted-foreground">
                       {routineQuests.length} of {MAX_ROUTINE_SLOTS} committed
                     </span>
                   </div>
@@ -364,9 +364,9 @@ export default function Quests() {
 
                   {/* Open Routine Slot Prompt if < MAX_ROUTINE_SLOTS routines */}
                   {routineQuests.length < MAX_ROUTINE_SLOTS && (
-                    <div className="rounded-2xl border border-border/80 bg-card/60 p-4 sm:px-5 sm:py-4 flex items-center justify-between gap-3 shadow-xs">
+                    <div className="milled-slab rounded-xl p-4 sm:px-5 sm:py-4 flex items-center justify-between gap-3 shadow-xs">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="size-6 rounded-lg border border-border bg-muted/40 text-muted-foreground flex items-center justify-center shrink-0">
+                        <div className="size-7 rounded-lg border border-border bg-muted/40 text-muted-foreground flex items-center justify-center shrink-0">
                           <Plus className="size-3.5" aria-hidden="true" />
                         </div>
                         <div className="min-w-0">
@@ -386,7 +386,7 @@ export default function Quests() {
                             setFormTargetRole("routine");
                             setShowCommitForm(true);
                           }}
-                          className="rounded-xl px-3 h-9 text-xs shrink-0 font-medium"
+                          className="rounded-xl px-3 h-9 text-xs shrink-0 font-medium active:scale-[0.98]"
                         >
                           <Plus className="size-3 mr-1" />
                           Add Routine
@@ -421,7 +421,7 @@ export default function Quests() {
                     </span>
                   </div>
 
-                  <div className="rounded-2xl border border-border/70 bg-card/70 shadow-xs overflow-hidden">
+                  <div className="milled-slab rounded-xl shadow-xs overflow-hidden">
                     <ul className="divide-y divide-border/50">
                       {upcoming.map((quest) => {
                         const day = nextEligibleDayLabel(quest.recurrenceDays ?? [], serverLocal.weekday);
@@ -430,7 +430,7 @@ export default function Quests() {
                         return (
                           <li
                             key={quest.seriesId}
-                            className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5 hover:bg-muted/20 transition-colors text-xs"
+                            className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5 hover:bg-muted/25 transition-colors text-xs"
                           >
                             <div className="flex items-center gap-2.5 min-w-0 flex-1">
                               <div className="size-6 rounded-md bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shrink-0">
@@ -440,7 +440,7 @@ export default function Quests() {
                                 {quest.title}
                               </span>
                               {quest.linkedToGoal && quest.goalName && (
-                                <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-muted/50 px-2 py-0.5 text-xs text-muted-foreground border border-border/50 truncate max-w-[170px]">
+                                <span className="hidden sm:inline-flex items-center gap-1 rounded-md bg-muted/50 px-2 py-0.5 text-[11px] text-muted-foreground border border-border/50 truncate max-w-[170px]">
                                   <Target className="size-2.5 text-primary shrink-0" aria-hidden="true" />
                                   <span className="truncate">{quest.goalName}</span>
                                 </span>
@@ -448,7 +448,7 @@ export default function Quests() {
                             </div>
 
                             <div className="flex items-center gap-2.5 shrink-0 text-muted-foreground">
-                              <span className="font-sans text-xs bg-muted/40 px-2 py-0.5 rounded border border-border/40 text-foreground/80">
+                              <span className="font-mono text-[11px] bg-muted/40 px-2 py-0.5 rounded-md border border-border/40 text-foreground/80">
                                 {dayLabel}
                               </span>
                               {quest.seriesId && (
@@ -456,7 +456,7 @@ export default function Quests() {
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => void handlePauseSeries(quest.seriesId!)}
-                                  className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
+                                  className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1 active:scale-95"
                                   title="Pause routine"
                                 >
                                   <Pause className="size-3" />

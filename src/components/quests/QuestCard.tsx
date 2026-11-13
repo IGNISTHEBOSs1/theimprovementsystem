@@ -97,43 +97,45 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
         layout: { type: "spring", stiffness: 360, damping: 28 },
       }}
       className={cn(
-        "group relative flex flex-col justify-between gap-2.5 rounded-2xl border border-border/80 bg-card/80 p-4 transition-colors duration-250 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4 shadow-sm overflow-hidden",
+        "group relative flex flex-col justify-between gap-2.5 rounded-xl border border-border/70 bg-card/70 milled-slab p-4 transition-all duration-200 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4 shadow-xs overflow-hidden",
         completionStage !== "idle"
-          ? "bg-emerald-500/[0.12] border-emerald-500/50 shadow-emerald-500/10"
+          ? "bg-emerald-500/[0.08] border-emerald-500/40 shadow-emerald-500/10"
           : isDone
-          ? "bg-muted/20 opacity-65 border-border/40"
-          : "hover:bg-muted/30 hover:border-border"
+          ? "bg-muted/20 opacity-65 border-border/40 shadow-none"
+          : "hover:bg-card/90 hover:border-border"
       )}
     >
-      {/* LEFT AXIS: Tactile check-target & task title (The Receipt Left Edge) */}
+      {/* LEFT AXIS: Tactile check-target & task title */}
       <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-        {/* Tactile Check Target (Show, Don't Tell: Stop-Sign Signifier) */}
-        <button
-          type="button"
-          onClick={handleMarkComplete}
-          disabled={completing || isDone || quest.completed}
-          aria-label={
-            isCompleted
-              ? `Quest "${quest.title}" completed`
-              : `Mark "${quest.title}" as complete`
-          }
-          className={cn(
-            "relative mt-0.5 sm:mt-0 size-6 shrink-0 rounded-lg border transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] cursor-pointer",
-            isCompleted
-              ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105"
-              : quest.failed
-              ? "border-muted-foreground/30 bg-muted/40 text-muted-foreground cursor-not-allowed"
-              : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30 shadow-xs"
-          )}
-        >
-          {completing && !isCompleted ? (
-            <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
-          ) : isCompleted ? (
-            <Check className="size-3.5 stroke-[3] animate-in zoom-in-75 duration-300" aria-hidden="true" />
-          ) : (
-            <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
-          )}
-        </button>
+        {/* Tactile Check Target with 44x44px touch envelope */}
+        <div className="relative flex items-center justify-center shrink-0">
+          <button
+            type="button"
+            onClick={handleMarkComplete}
+            disabled={completing || isDone || quest.completed}
+            aria-label={
+              isCompleted
+                ? `Quest "${quest.title}" completed`
+                : `Mark "${quest.title}" as complete`
+            }
+            className={cn(
+              "relative size-6 shrink-0 rounded-md border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.92] cursor-pointer before:absolute before:-inset-2.5 before:content-['']",
+              isCompleted
+                ? "border-emerald-500 bg-emerald-500 text-white shadow-xs shadow-emerald-500/30 scale-105"
+                : quest.failed
+                ? "border-muted-foreground/30 bg-muted/40 text-muted-foreground cursor-not-allowed"
+                : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/70 hover:bg-emerald-500/5 hover:text-emerald-500/40 shadow-2xs"
+            )}
+          >
+            {completing && !isCompleted ? (
+              <Loader2 className="size-3.5 animate-spin text-muted-foreground" aria-hidden="true" />
+            ) : isCompleted ? (
+              <Check className="size-3.5 stroke-[3] animate-in zoom-in-75 duration-200" aria-hidden="true" />
+            ) : (
+              <Check className="size-3.5 stroke-[2]" aria-hidden="true" />
+            )}
+          </button>
+        </div>
 
         {/* Manufactured Text Edge */}
         <div className="min-w-0 flex-1">
