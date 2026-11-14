@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "buildNumber": 10000,
+  "minNativeVersion": "1.0.0",
+  "downloadUrl": "/updates/dist-1.0.0.zip",
+  "channel": "production",
+  "releaseNotes": "Kinetic 1.0.0 — Production release with edge-to-edge Android experience, consolidated capacity meter, and automatic background updates.",
+  "releasedAt": "2026-11-14T00:00:00Z"
+}

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import SystemBar from "@/components/system-bar/SystemBar";
@@ -10,6 +10,8 @@ import { deriveGuidance } from "@/lib/guidance";
 import { deriveInsights } from "@/lib/insights";
 import { triggerHaptic } from "@/lib/haptics";
 import { useGlobalShortcuts } from "@/hooks/useGlobalShortcuts";
+import { useAndroidBackNavigation } from "@/hooks/useAndroidBackNavigation";
+import { notifyBundleHealthy } from "@/services/otaUpdateService";
 
 const NAV_ROUTES = ["/", "/journey", "/quests", "/mentor", "/profile"] as const;
 
@@ -30,6 +32,12 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
   const location = useLocation();
   const navigate = useNavigate();
   useGlobalShortcuts();
+  useAndroidBackNavigation();
+
+  useEffect(() => {
+    void notifyBundleHealthy();
+  }, []);
+
   const { state, activeQuests } = useDashboardDataContext();
   const guidance = deriveGuidance(state?.quests || [], profile?.timezone || "UTC");
   const insights = deriveInsights(state?.quests || []);

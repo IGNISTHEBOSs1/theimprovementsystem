@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PrimaryActionPanel } from "@/components/dashboard/PrimaryActionPanel";
 import { TodaysCommitment } from "@/components/quests/TodaysCommitment";
 import { QuestCard } from "@/components/quests/QuestCard";
+import { CapacityMeter } from "@/components/quests/CapacityMeter";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -257,21 +258,17 @@ export default function Quests() {
               </div>
             )}
 
-            {/* Action Header */}
-            {!showCommitForm && canAddAny && (
-              <div className="flex items-center justify-end px-1 border-b border-border/60 pb-3">
-                <Button
-                  size="sm"
-                  className="h-8 gap-1.5 text-xs rounded-xl px-3 font-semibold"
-                  onClick={() => {
-                    setFormTargetRole(focusAvailable ? "focus" : "routine");
-                    setShowCommitForm(true);
-                  }}
-                >
-                  <Plus className="size-3.5" aria-hidden="true" />
-                  <span>Add quest</span>
-                </Button>
-              </div>
+            {/* ── Capacity Status & Quick Add (Consolidated from Flutter Obsidian Kinetic Spec) ── */}
+            {!showCommitForm && (
+              <CapacityMeter
+                activeFocusCount={focusQuest || completedFocusToday ? 1 : 0}
+                activeRoutineCount={routineQuests.length}
+                canAdd={canAddAny}
+                onAddPressed={() => {
+                  setFormTargetRole(focusAvailable ? "focus" : "routine");
+                  setShowCommitForm(true);
+                }}
+              />
             )}
 
             {/* ── BALANCED DESKTOP WORKSPACE (Active Quests + Upcoming Schedule) ── */}

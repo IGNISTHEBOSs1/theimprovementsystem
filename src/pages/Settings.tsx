@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/dashboard/PageHeader";
+import { UpdateManagerCard } from "@/components/shared/UpdateManagerCard";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -514,7 +515,10 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* ── 4. ACCOUNT & SESSION ── */}
+        {/* ── 4. APPLICATION & SYSTEM UPDATES (OTA & NATIVE APK) ── */}
+        <UpdateManagerCard />
+
+        {/* ── 5. ACCOUNT & SESSION ── */}
         <section
           className="milled-slab rounded-2xl border border-border/70 bg-card p-5 sm:p-6 shadow-xs space-y-4"
           aria-labelledby="session-heading"

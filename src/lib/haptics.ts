@@ -15,6 +15,9 @@
  * that quietly does nothing on iOS.
  */
 
+import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
+import { Capacitor } from "@capacitor/core";
+
 export type HapticPattern = "light" | "medium" | "success" | "selection";
 
 const PATTERNS: Record<HapticPattern, number | number[]> = {
@@ -53,11 +56,34 @@ export function hasUserActivation(): boolean {
   return hasUserInteracted;
 }
 
-export function triggerHaptic(pattern: HapticPattern = "light") {
+export async function triggerHaptic(pattern: HapticPattern = "light") {
+  // 1. Native Capacitor Haptics Engine (Android / iOS)
+  if (Capacitor.isNativePlatform()) {
+    try {
+      switch (pattern) {
+        case "selection":
+          await Haptics.selectionStart();
+          await Haptics.selectionChanged();
+          break;
+        case "light":
+          await Haptics.impact({ style: ImpactStyle.Light });
+          break;
+        case "medium":
+          await Haptics.impact({ style: ImpactStyle.Medium });
+          break;
+        case "success":
+          await Haptics.notification({ type: NotificationType.Success });
+          break;
+      }
+      return;
+    } catch {
+      // Fall through to web vibration if native call encounters error
+    }
+  }
+
+  // 2. Web Vibration API Fallback (Mobile Web / PWA)
   if (typeof navigator === "undefined" || !("vibrate" in navigator)) return;
 
-  // Intercept before navigator.vibrate() is called to prevent Chrome's
-  // [Intervention] "Blocked call to navigator.vibrate because user hasn't tapped on the frame yet".
   if (!hasUserActivation()) return;
 
   try {
