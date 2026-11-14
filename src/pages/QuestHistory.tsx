@@ -133,7 +133,7 @@ export default function QuestHistory() {
   }, [resolved, activeTab, search]);
 
   return (
-    <div className="w-full px-3 sm:px-6 lg:px-8 pt-3 pb-6 sm:py-6">
+    <div className="w-full px-3 sm:px-6 lg:px-8 pt-2 pb-2 sm:py-6">
       <PageHeader
         eyebrow="Personal Record"
         title="Commitment history."

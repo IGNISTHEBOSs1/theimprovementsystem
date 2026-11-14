@@ -21,7 +21,7 @@ export function LoadingScreen({ message }: { message?: string }) {
 
 export function CockpitRouteSkeleton() {
   return (
-    <div className="w-full px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6" aria-busy="true" aria-label="Loading workspace">
+    <div className="w-full px-3 sm:px-6 lg:px-8 pt-2 pb-2 sm:py-6 space-y-6" aria-busy="true" aria-label="Loading workspace">
       {/* PageHeader Skeleton */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-border/60">
         <div className="space-y-2">

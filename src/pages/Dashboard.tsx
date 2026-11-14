@@ -198,7 +198,7 @@ export default function Dashboard() {
 
   if (profileLoading) {
     return (
-      <div className="w-full px-3 sm:px-6 lg:px-8 pt-3 pb-6 sm:py-6">
+      <div className="w-full px-3 sm:px-6 lg:px-8 pt-2 pb-2 sm:py-6">
         <section className="milled-slab rounded-2xl border border-border/70 bg-card p-7 shadow-xs" aria-label="Loading">
           <div className="h-3 w-24 animate-pulse rounded bg-muted" />
           <div className="mt-4 h-7 w-3/5 animate-pulse rounded bg-muted" />
@@ -209,7 +209,7 @@ export default function Dashboard() {
 
   if (profileError || !profile) {
     return (
-      <div className="w-full px-3 sm:px-6 lg:px-8 pt-3 pb-6 sm:py-6">
+      <div className="w-full px-3 sm:px-6 lg:px-8 pt-2 pb-2 sm:py-6">
         <section
           className="milled-slab rounded-2xl border border-border/70 bg-card p-7 shadow-xs"
           aria-label="Profile unavailable"
@@ -239,7 +239,7 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="w-full px-3 sm:px-6 lg:px-8 pt-3 pb-6 sm:py-6">
+      <div className="w-full px-3 sm:px-6 lg:px-8 pt-2 pb-2 sm:py-6">
         <section
           className="milled-slab rounded-2xl border border-border/70 bg-card p-7 shadow-xs"
           aria-label="Progress unavailable"
@@ -327,7 +327,7 @@ export default function Dashboard() {
       initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: shouldReduceMotion ? 0 : 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full px-3 sm:px-6 lg:px-8 pt-3 pb-6 sm:py-6"
+      className="w-full px-3 sm:px-6 lg:px-8 pt-2 pb-2 sm:py-6"
     >
       <AppTour />
 

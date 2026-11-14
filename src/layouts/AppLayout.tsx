@@ -123,7 +123,7 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex">
+    <div className="h-[100dvh] min-h-[100dvh] w-full bg-background text-foreground flex flex-col md:flex-row overflow-hidden">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:rounded-xl focus:bg-background focus:text-foreground focus:border focus:border-border focus:shadow-2xl focus:ring-2 focus:ring-primary focus:outline-none text-xs font-semibold"
@@ -146,7 +146,7 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
         tabIndex={-1}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className="flex-1 min-w-0 overflow-y-auto pt-[env(safe-area-inset-top,0px)] pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pt-0 md:pb-0 material-surface material-workspace focus:outline-none"
+        className="flex-1 min-w-0 h-full overflow-y-auto pt-[env(safe-area-inset-top,0px)] pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pt-0 md:pb-0 bg-background focus:outline-none border-0 shadow-none"
       >
         {children}
       </main>
