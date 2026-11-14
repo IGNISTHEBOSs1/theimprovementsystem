@@ -230,7 +230,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-8 space-y-4 sm:space-y-6">
+    <div className="w-full px-3 sm:px-6 lg:px-8 pt-3 pb-6 sm:py-6 space-y-4 sm:space-y-6">
       <PageHeader
         eyebrow="Preferences"
         title="Settings."

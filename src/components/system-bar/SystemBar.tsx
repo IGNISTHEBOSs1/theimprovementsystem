@@ -227,23 +227,23 @@ export default function SystemBar({
           glass-dock
           md:hidden
           fixed
-          left-3
-          right-3
-          sm:left-1/2
-          sm:-translate-x-1/2
-          sm:w-full
-          sm:max-w-md
+          bottom-0
+          inset-x-0
+          w-full
           z-40
           flex
           items-stretch
-          h-[54px]
-          p-1
-          rounded-full
+          rounded-none
+          border-t
+          border-x-0
+          border-b-0
+          border-border/80
           isolate
           select-none
         "
         style={{
-          bottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          height: "calc(56px + env(safe-area-inset-bottom, 0px))",
         }}
         aria-label="Primary navigation, mobile"
       >
@@ -269,26 +269,26 @@ export default function SystemBar({
                   items-center
                   justify-center
                   min-w-[44px]
-                  min-h-[44px]
-                  rounded-full
+                  h-14
                   touch-manipulation
                   focus-visible:outline-none
                   focus-visible:ring-2
                   focus-visible:ring-ring
-                  active:scale-[0.94]
+                  active:scale-[0.96]
                   transition-transform
                   duration-100
                   group
                 "
               >
-                {/* 1. Concentric capsule sliding active pill indicator enclosing both icon and label */}
+                {/* 1. Concentric sliding active pill indicator enclosing both icon and label */}
                 {active && (
                   <motion.div
                     layoutId="system-bar-active-indicator-mobile"
                     className="
                       absolute
-                      inset-0
-                      rounded-full
+                      inset-x-1
+                      inset-y-1.5
+                      rounded-xl
                       glass-nav-pill
                       pointer-events-none
                       z-0

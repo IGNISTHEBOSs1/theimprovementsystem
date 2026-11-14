@@ -134,7 +134,7 @@ export default function Profile() {
   const daysRemaining = profilePace?.daysRemaining ?? null;
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 pt-2 pb-12 sm:py-10 space-y-6">
+    <div className="w-full px-3 sm:px-6 lg:px-8 pt-3 pb-6 sm:py-6 space-y-6">
       {/* ── 1. Identity Header ── */}
       <section
         aria-label="Your Profile"
