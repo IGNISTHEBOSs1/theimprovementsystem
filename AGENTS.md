@@ -75,7 +75,7 @@ point of asking.
 - **Intentional Minimalism & 3-Second Clarity**: Strip noise, never character. The app must communicate its purpose in under 3 seconds using 6th-grade clarity (except core branding terms):
   1. Deep Obsidian + Emerald kinetic contrast.
   2. The signature ±10% mathematical buffer cone.
-  3. Strict constraint: 1 Primary Focus + 2 Routines.
+  3. Strict constraint: 1 Primary Focus + up to 5 Routines.
   4. Local-first encrypted browser storage.
 - **No RPG Gamification**: Never introduce hunter ranks, XP bars, or fantasy game tropes. Frame user growth as deterministic personal trajectory and quiet mathematical velocity.
 - **No Streak Counters or Attendance Gamification**: Never introduce streak counters, streak badges, flame meters, or streak-preservation pressure ("extend your streak", "streak preserved", "don't break the chain"). Kinetic does not treat unbroken daily attendance as proof of progress. Daily practice is honored only to the extent that it genuinely serves a chosen Goal. Progress is measured strictly through deterministic trajectory velocity (within the ±10% buffer), commitment follow-through rates, and verified cumulative execution proof.

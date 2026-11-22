@@ -40,7 +40,7 @@ const comparisons: ComparisonRow[] = [
     basis: "Daily task load",
     subBasis: "Cognitive overhead & willpower",
     otherText: "Endless 15–20 item checklist overwhelm",
-    kineticText: "Strict 1 Focus + 2 Routines (<2 min execution)",
+    kineticText: "Strict 1 Focus + up to 5 Routines (<2 min execution)",
   },
   {
     basis: "Core metric of progress",

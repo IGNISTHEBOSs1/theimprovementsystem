@@ -21,6 +21,8 @@ const PRESET_ROUTINES = [
   "1 proactive customer or stakeholder outreach dialog",
 ];
 
+const MAX_ROUTINES = 5;
+
 export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }: Stage4Props) {
   const [customInput, setCustomInput] = useState("");
   const [showCustom, setShowCustom] = useState(false);
@@ -39,7 +41,7 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
         triggerHaptic.light();
         return prev.filter((r) => r !== routine);
       }
-      if (prev.length >= 2) {
+      if (prev.length >= MAX_ROUTINES) {
         triggerHaptic.error();
         return prev;
       }
@@ -50,7 +52,7 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
 
   const handleAddCustom = () => {
     const trimmed = customInput.trim();
-    if (!trimmed || selectedRoutines.length >= 2) return;
+    if (!trimmed || selectedRoutines.length >= MAX_ROUTINES) return;
     triggerHaptic.light();
     triggerBump();
     onChange([...selectedRoutines, trimmed]);
@@ -63,35 +65,35 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground leading-snug">
-            Select 2 supporting routines.
+            Select supporting routines.
           </h2>
           {/* Spring-bumped counter badge */}
           <motion.div
             animate={{ scale: badgeBump ? 1.15 : 1.0 }}
             transition={{ type: "spring", stiffness: 600, damping: 20 }}
             className={`rounded-full px-2.5 py-0.5 text-xs font-medium flex items-center gap-1.5 shrink-0 transition-colors shadow-xs ${
-              selectedRoutines.length === 2
+              selectedRoutines.length === MAX_ROUTINES
                 ? "bg-accent text-accent-foreground border border-border"
                 : "bg-muted text-muted-foreground border border-border"
             }`}
           >
-            {selectedRoutines.length === 2 ? (
+            {selectedRoutines.length === MAX_ROUTINES ? (
               <Lock className="h-2.5 w-2.5 text-emerald-500" />
             ) : (
               <Layers className="h-2.5 w-2.5 text-muted-foreground" />
             )}
-            <span>Selected: <span className="font-mono tabular-nums font-bold">{selectedRoutines.length} / 2</span></span>
+            <span>Selected: <span className="font-mono tabular-nums font-bold">{selectedRoutines.length} / {MAX_ROUTINES}</span></span>
           </motion.div>
         </div>
         <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed text-pretty">
-          Two daily habits that directly advance your 90-day focus.
+          Choose up to 5 daily habits that directly advance your 90-day focus.
         </p>
       </div>
 
       <div className="grid gap-1.5" role="group" aria-label="Supporting routines">
         {PRESET_ROUTINES.map((routine) => {
           const isSelected = selectedRoutines.includes(routine);
-          const isDisabled = !isSelected && selectedRoutines.length >= 2;
+          const isDisabled = !isSelected && selectedRoutines.length >= MAX_ROUTINES;
 
           return (
             <button
@@ -127,7 +129,7 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
       </div>
 
       {/* Custom routine add option */}
-      {selectedRoutines.length < 2 && (
+      {selectedRoutines.length < MAX_ROUTINES && (
         <div className="pt-0.5">
           {!showCustom ? (
             <button
@@ -168,11 +170,11 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
         </button>
         <button
           type="button"
-          disabled={selectedRoutines.length !== 2}
+          disabled={selectedRoutines.length === 0}
           onClick={onNext}
           className="flex-1 min-h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-xs sm:text-sm tracking-wide transition-colors active:scale-[0.98] motion-reduce:transform-none shadow-xs flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
         >
-          <span>Lock Routines (2/2)</span>
+          <span>Lock Routines ({selectedRoutines.length}/{MAX_ROUTINES})</span>
         </button>
       </div>
     </div>
