@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RefreshCw, Download, CheckCircle2, AlertCircle, Smartphone, Globe, Sparkles } from "lucide-react";
+import { RefreshCw, Download, CheckCircle2, AlertCircle, Smartphone, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -130,7 +130,7 @@ export function UpdateManagerCard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div className="space-y-1">
           <p className="text-xs text-foreground font-medium">
-            {statusMessage ?? "Check for web improvements or native APK updates."}
+            {statusMessage ?? "Check for web updates or native APK updates."}
           </p>
           <p className="text-[11px] text-muted-foreground">
             OTA updates are verified cryptographically and staged without interrupting active sessions.

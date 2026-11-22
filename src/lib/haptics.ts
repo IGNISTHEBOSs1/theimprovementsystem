@@ -18,13 +18,15 @@
 import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
 import { Capacitor } from "@capacitor/core";
 
-export type HapticPattern = "light" | "medium" | "success" | "selection";
+export type HapticPattern = "light" | "medium" | "heavy" | "success" | "error" | "selection";
 
 const PATTERNS: Record<HapticPattern, number | number[]> = {
   selection: 8,
-  light: 10,
-  medium: 20,
-  success: [10, 40, 10],
+  light: 8,
+  medium: 15,
+  heavy: 25,
+  success: [30, 40, 50],
+  error: [10, 40, 10],
 };
 
 // Tracks whether the user has performed at least one user activation (tap/click/key)
@@ -71,8 +73,14 @@ export async function triggerHaptic(pattern: HapticPattern = "light") {
         case "medium":
           await Haptics.impact({ style: ImpactStyle.Medium });
           break;
+        case "heavy":
+          await Haptics.impact({ style: ImpactStyle.Heavy });
+          break;
         case "success":
           await Haptics.notification({ type: NotificationType.Success });
+          break;
+        case "error":
+          await Haptics.notification({ type: NotificationType.Error });
           break;
       }
       return;
@@ -94,3 +102,12 @@ export async function triggerHaptic(pattern: HapticPattern = "light") {
     // a haptic failure break the actual action it's confirming.
   }
 }
+
+// Convenient helper methods for direct semantic invocation
+triggerHaptic.light = () => triggerHaptic("light");
+triggerHaptic.medium = () => triggerHaptic("medium");
+triggerHaptic.heavy = () => triggerHaptic("heavy");
+triggerHaptic.success = () => triggerHaptic("success");
+triggerHaptic.error = () => triggerHaptic("error");
+triggerHaptic.selection = () => triggerHaptic("selection");
+

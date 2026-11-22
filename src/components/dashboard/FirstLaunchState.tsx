@@ -1,165 +1,116 @@
-import { useState } from "react";
-import { ArrowRight, Loader2, Target, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { PageHeader } from "@/components/dashboard/PageHeader";
+// src/components/dashboard/FirstLaunchState.tsx
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
+import { OnboardingState } from "@/components/onboarding/types";
 import { useAuth } from "@/hooks/useAuth";
+import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
+import { toast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface FirstLaunchStateProps {
   name: string;
 }
 
-const INSPIRATIONAL_CHIPS = [
-  "Build consistent daily strength & mobility",
-  "Ship core product architecture in 90 days",
-  "Deepen daily reading & synthesis habit",
-] as const;
-
 export function FirstLaunchState({ name }: FirstLaunchStateProps) {
-  const { updateProfile, completeFirstLaunch } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, updateProfile, completeFirstLaunch } = useAuth();
+  const { seedOnboardingRoutines, reload } = useDashboardDataContext();
+  const [isFinishing, setIsFinishing] = useState(false);
 
-  const [goal, setGoal] = useState("");
-  const [entering, setEntering] = useState(false);
-  const [error, setError] = useState(false);
-
-  const handleInitialize = async () => {
-    setError(false);
-    setEntering(true);
+  const handleComplete = async (state: OnboardingState) => {
+    setIsFinishing(true);
     try {
-      const trimmed = goal.trim();
-      if (trimmed) {
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + 90);
-        const targetDateStr = targetDate.toISOString().split("T")[0];
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + (state.horizonDays || 90));
+      const targetDateStr = targetDate.toISOString().split("T")[0];
+
+      // If user is authenticated, persist to Supabase
+      if (user) {
         await updateProfile({
-          primary_goal: trimmed,
+          primary_goal: state.primaryGoal,
           primary_goal_target_date: targetDateStr,
+          timezone: state.timezone,
         });
-      }
-      const { error: completeError } = await completeFirstLaunch();
-      if (completeError) setError(true);
-    } catch {
-      setError(true);
-    } finally {
-      setEntering(false);
-    }
-  };
 
-  const handleSkip = async () => {
-    setError(false);
-    setEntering(true);
-    try {
-      const { error: completeError } = await completeFirstLaunch();
-      if (completeError) setError(true);
-    } catch {
-      setError(true);
+        // Seed both supporting routines cleanly in a single batch
+        if (seedOnboardingRoutines && state.supportingRoutines?.length > 0) {
+          try {
+            await seedOnboardingRoutines(state.supportingRoutines, state.primaryGoal);
+          } catch (rErr) {
+            console.warn("Could not seed routine quests:", rErr);
+          }
+        }
+
+        const { error: launchErr } = await completeFirstLaunch();
+        if (launchErr) {
+          console.warn("First launch flag update warning:", launchErr);
+        }
+
+        if (reload) {
+          await reload();
+        }
+
+        toast({
+          title: "Trajectory Initialized",
+          description: "Your 90-day focus and routines are active in your cockpit.",
+        });
+
+        // Navigate to cockpit if on standalone /onboarding route
+        if (location.pathname === "/onboarding") {
+          navigate("/", { replace: true });
+        }
+      } else {
+        // Unauthenticated visitor (e.g. preview, or completing onboarding prior to account creation)
+        localStorage.setItem("kinetic_pending_onboarding", JSON.stringify({
+          ...state,
+          primary_goal_target_date: targetDateStr,
+        }));
+        localStorage.setItem("kinetic_preview_completed", "true");
+
+        toast({
+          title: "Covenant Calibrated",
+          description: "Create your account or log in to seal your covenant in your personal cockpit.",
+        });
+
+        // Route to auth with signup mode to complete account initialization
+        navigate("/auth?mode=signup", { replace: true });
+      }
+    } catch (err) {
+      console.error("Failed to complete onboarding:", err);
+      // Fallback navigation so user is never trapped
+      if (user) {
+        await completeFirstLaunch();
+        if (location.pathname === "/onboarding") navigate("/", { replace: true });
+      } else {
+        navigate("/auth", { replace: true });
+      }
     } finally {
-      setEntering(false);
+      setIsFinishing(false);
     }
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
-      <PageHeader
-        eyebrow="Welcome"
-        title={`Welcome, ${name}.`}
-        description="Set your 90-day North Star goal to guide your daily tasks."
-      />
+    <div className="relative min-h-[100dvh] w-full bg-background text-foreground flex flex-col items-center justify-start overflow-y-auto overflow-x-hidden pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-[calc(env(safe-area-inset-bottom,0px)+24px)] px-3.5 sm:px-6 md:px-8">
+      {/* Environmental light layer matching app shell */}
+      <div className="env-light-layer pointer-events-none" aria-hidden="true" />
 
-      <section
-        className="rounded-3xl border border-border/80 bg-card p-6 sm:p-9 shadow-[var(--shadow-card)] space-y-6"
-        aria-labelledby="first-launch-heading"
-      >
-        <div className="space-y-1.5">
-          <p className="text-xs font-semibold text-primary">
-            Step 1 of 1 • North Star Direction
-          </p>
-          <h2 id="first-launch-heading" className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-            What is your single focus for the next 90 days?
-          </h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            One meaningful outcome. Kinetic calculates your pace and cushions it with a flexible 10% buffer (9 flex days).
-          </p>
-        </div>
-
-        {/* 90 / 90 / 9 Framework Summary Pill */}
-        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 text-xs font-sans text-foreground">
-          <Target className="size-4 text-primary shrink-0" aria-hidden="true" />
-          <span className="font-semibold text-primary">The 90 / 90 / 9 Framework:</span>
-          <span className="text-muted-foreground">90-Day Horizon</span>
-          <span className="text-border">•</span>
-          <span className="text-muted-foreground">90 Goal Steps (1/day)</span>
-          <span className="text-border">•</span>
-          <span className="text-emerald-700 dark:text-emerald-400 font-medium">9 Flexible Buffer Days (10% Tolerance)</span>
-        </div>
-
-        {/* Goal Input Field */}
-        <div className="space-y-3">
-          <label htmlFor="goal-input" className="text-xs font-medium text-foreground block">
-            Primary 90-Day Objective (Optional)
-          </label>
-          <Input
-            id="goal-input"
-            value={goal}
-            onChange={(e) => setGoal(e.target.value)}
-            disabled={entering}
-            placeholder="e.g. Master system design & ship production architecture"
-            className="h-12 rounded-xl bg-background border-border/80 text-foreground text-sm font-medium focus-visible:ring-primary shadow-xs"
-          />
-
-          {/* Inspirational Prompt Chips */}
-          <div className="pt-1">
-            <span className="text-xs font-medium text-muted-foreground block mb-2">
-              Suggested goals:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {INSPIRATIONAL_CHIPS.map((chip) => (
-                <button
-                  key={chip}
-                  type="button"
-                  onClick={() => setGoal(chip)}
-                  disabled={entering}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-3 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors active:scale-[0.98]"
-                >
-                  <Sparkles className="size-3 text-primary/70 shrink-0" aria-hidden="true" />
-                  <span>{chip}</span>
-                </button>
-              ))}
+      <div className="relative z-10 w-full max-w-2xl mx-auto min-w-0 flex-1 flex flex-col items-stretch justify-start py-1">
+        {isFinishing ? (
+          <div className="rounded-2xl border border-border/80 bg-card p-8 flex flex-col items-center justify-center gap-4 text-center shadow-[var(--shadow-card)] my-auto">
+            <Loader2 className="h-8 w-8 motion-safe:animate-spin text-foreground" />
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-foreground">Initializing Cockpit Trajectory</h3>
+              <p className="text-xs text-muted-foreground">
+                Seeding 90-day horizon and supporting daily routines…
+              </p>
             </div>
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <Button
-            variant="default"
-            size="lg"
-            disabled={entering}
-            onClick={handleInitialize}
-            className="rounded-xl font-semibold shadow-sm h-11 px-6 text-sm"
-          >
-            {entering ? <Loader2 className="size-4 animate-spin mr-2" /> : null}
-            Initialize 90-Day Trajectory
-            {!entering && <ArrowRight className="size-4 ml-2" aria-hidden="true" />}
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="lg"
-            disabled={entering}
-            onClick={handleSkip}
-            className="rounded-xl text-muted-foreground hover:text-foreground h-11 text-sm font-medium"
-          >
-            Skip for now →
-          </Button>
-        </div>
-
-        {error && (
-          <p className="text-xs font-medium text-destructive" role="alert">
-            Could not initialize trajectory. Please try again.
-          </p>
+        ) : (
+          <OnboardingFlow onComplete={handleComplete} />
         )}
-      </section>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Compass } from "lucide-react";
+import { Compass, ShieldCheck } from "lucide-react";
 import type { GoalStats } from "@/lib/trajectory";
 
 interface DirectionCardProps {
@@ -46,10 +46,10 @@ export function DirectionCard({ name, goalStats, bufferDaysRemaining = 9, elapse
         <div className="min-w-0 flex-1">
           <p className="text-label text-muted-foreground">Your direction</p>
           <h2 id="direction-heading" className="mt-1 text-lg font-semibold tracking-tight text-foreground">
-            Build a life you can direct with confidence.
+            90-Day Execution Trajectory
           </h2>
           <p className="mt-1.5 max-w-2xl text-sm leading-6 text-muted-foreground">
-            {name}, each deliberate action is evidence of the person you are becoming.
+            Paced to absorb up to 9 off-days without compromising your target completion date.
           </p>
 
           {goalStats && (
@@ -60,11 +60,11 @@ export function DirectionCard({ name, goalStats, bufferDaysRemaining = 9, elapse
                     Also removed the rounded-full border pill wrapper (fake-button
                     anti-pattern — non-clickable element that looked interactive). */}
                 <p className="text-body-sm font-semibold text-foreground">
-                  {goalStats.completed} of 90 goal steps completed
+                  <span className="tabular-nums">{goalStats.completed}</span> of 90 goal steps completed
                 </p>
                 <p className="text-xs font-mono text-muted-foreground">
-                  <span className="text-emerald-500 mr-1">🛡</span>
-                  <strong className="text-foreground">{bufferDaysRemaining}</strong>/9 flex days · Day {elapsedDays}
+                  <ShieldCheck className="inline-block size-3.5 text-emerald-500 mr-1 align-text-bottom" aria-hidden="true" />
+                  <strong className="text-foreground tabular-nums">{bufferDaysRemaining}</strong>/9 flex days · Day <span className="tabular-nums">{elapsedDays}</span>
                 </p>
                 <span className="text-[11px] text-muted-foreground block mt-0.5">
                   Flexible buffer days absorb off-schedule days without delaying your target milestone.

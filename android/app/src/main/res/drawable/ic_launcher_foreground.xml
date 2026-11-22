@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Ambient emerald halo glow -->
+    <path
+        android:fillAlpha="0.18"
+        android:fillColor="#10B981"
+        android:pathData="M70,36m-22,0a22,22 0,1,1 44,0a22,22 0,1,1 -44,0" />
+    <!-- Left vertical discipline pillar -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M34,34 A6,6 0 0,1 46,34 L46,74 A6,6 0 0,1 34,74 Z" />
+    <!-- Upper kinetic velocity trajectory blade -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M48,50 L71,27 C73,25 76.5,26.5 76.5,29.5 L76.5,37 C76.5,38.5 75.5,40 74,41.5 L58,57.5 C55.5,60 52,58.5 52,55.5 L52,51 Z" />
+    <!-- Lower anchor trajectory wing -->
+    <path
+        android:fillColor="#F1F5F9"
+        android:pathData="M52,53 C52,50 55.5,48.5 58,51 L74,67 C75.5,68.5 76.5,70 76.5,71.5 L76.5,77 C76.5,80 73,81.5 71,79.5 L48,56.5 Z" />
+</vector>

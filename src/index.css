@@ -183,9 +183,20 @@
   }
 
   ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: hsl(var(--background)); }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: hsl(var(--muted)); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.4); }
+
+  @media (hover: none) and (pointer: coarse) {
+    ::-webkit-scrollbar {
+      display: none;
+      width: 0px;
+      height: 0px;
+    }
+    * {
+      scrollbar-width: none;
+    }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

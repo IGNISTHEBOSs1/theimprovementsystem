@@ -43,6 +43,7 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
   const insights = deriveInsights(state?.quests || []);
   const activeQuestCount = activeQuests?.length ?? 0;
   const hasMentorInsight = guidance.length > 0 || insights.length > 0;
+  const isOnboarding = Boolean(profile && !profile.has_completed_first_launch);
 
   const touchStartRef = useRef<{ x: number; y: number; time: number; valid: boolean } | null>(null);
 
@@ -139,22 +140,28 @@ function AppLayoutContent({ children, profile }: AppLayoutProps & { profile: Ret
         Skip to content
       </a>
       <div className="env-light-layer" aria-hidden="true" />
-      <ViewportNavDiagnostic />
-      <CommandPalette />
+      {!isOnboarding && <ViewportNavDiagnostic />}
+      {!isOnboarding && <CommandPalette />}
 
-      <SystemBar
-        username={profile?.username ?? "Member"}
-        activeQuestCount={activeQuestCount}
-        hasMentorInsight={hasMentorInsight}
-      />
+      {!isOnboarding && (
+        <SystemBar
+          username={profile?.username ?? "Member"}
+          activeQuestCount={activeQuestCount}
+          hasMentorInsight={hasMentorInsight}
+        />
+      )}
 
       {/* ── Content area with attentive swipe-to-navigate ─────────── */}
       <main
         id="main-content"
         tabIndex={-1}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-        className="flex-1 min-w-0 h-full overflow-y-auto pt-[env(safe-area-inset-top,0px)] pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pt-0 md:pb-0 bg-background focus:outline-none border-0 shadow-none"
+        onTouchStart={isOnboarding ? undefined : handleTouchStart}
+        onTouchEnd={isOnboarding ? undefined : handleTouchEnd}
+        className={
+          isOnboarding
+            ? "flex-1 min-w-0 h-full overflow-y-auto bg-background focus:outline-none border-0 shadow-none"
+            : "flex-1 min-w-0 h-full overflow-y-auto pt-[env(safe-area-inset-top,0px)] pb-[calc(56px+env(safe-area-inset-bottom,0px))] md:pt-0 md:pb-0 bg-background focus:outline-none border-0 shadow-none"
+        }
       >
         {children}
       </main>

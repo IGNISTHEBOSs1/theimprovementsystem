@@ -32,7 +32,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.07,
+      staggerChildren: 0.04,
       delayChildren: 0.04,
     },
   },
@@ -331,7 +331,7 @@ export default function Mentor() {
               className="milled-slab rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
             >
               <div className="flex items-center justify-between gap-4">
-                <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-primary block">
+                <span className="text-xs font-mono font-medium text-primary block">
                   Pattern · Repeating Obstacle
                 </span>
                 <span className="text-xs font-mono font-medium text-muted-foreground">
@@ -341,7 +341,7 @@ export default function Mentor() {
 
               {/* 1. Observed Evidence */}
               <div className="recessed-track rounded-xl p-4 border border-border/60 space-y-1">
-                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
+                <span className="text-xs font-mono font-medium text-muted-foreground block">
                   1. Observed Evidence
                 </span>
                 <p className="text-xs sm:text-sm text-foreground/90 font-medium leading-relaxed">
@@ -351,7 +351,7 @@ export default function Mentor() {
 
               {/* 2. Mentor Interpretation */}
               <div className="space-y-1">
-                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block">
+                <span className="text-xs font-mono font-medium text-primary block">
                   2. Mentor&apos;s Interpretation
                 </span>
                 <h2
@@ -366,7 +366,7 @@ export default function Mentor() {
               {recurring.adjustment && (
                 <div className="milled-slab rounded-xl p-4 sm:p-5 border border-primary/25 bg-primary/[0.04] text-xs sm:text-sm space-y-3.5">
                   <div>
-                    <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block mb-1">
+                    <span className="text-xs font-mono font-medium text-primary block mb-1">
                       3. Recommended Action
                     </span>
                     <p className="text-foreground font-medium leading-relaxed">
@@ -414,7 +414,7 @@ export default function Mentor() {
               className="milled-slab rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-mono font-medium uppercase tracking-wider text-primary">
+                <span className="text-xs font-mono font-medium text-primary">
                   Pattern · Bouncing Back
                 </span>
                 <span className="text-xs font-mono font-medium text-muted-foreground">
@@ -424,7 +424,7 @@ export default function Mentor() {
 
               {/* 1. Observed Evidence */}
               <div className="recessed-track rounded-xl p-4 border border-border/60 space-y-1">
-                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
+                <span className="text-xs font-mono font-medium text-muted-foreground block">
                   1. Observed Evidence
                 </span>
                 <p className="text-xs sm:text-sm text-foreground/90 font-medium leading-relaxed">
@@ -434,7 +434,7 @@ export default function Mentor() {
 
               {/* 2. Mentor Interpretation */}
               <div className="space-y-1">
-                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block">
+                <span className="text-xs font-mono font-medium text-primary block">
                   2. Mentor&apos;s Interpretation
                 </span>
                 <h2 id="primary-insight-heading" className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-snug">
@@ -448,7 +448,7 @@ export default function Mentor() {
               {/* 3. Recommended Action with CTA in natural position */}
               <div className="milled-slab rounded-xl p-4 sm:p-5 border border-primary/25 bg-primary/[0.04] text-xs sm:text-sm space-y-3.5">
                 <div>
-                  <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block mb-1">
+                  <span className="text-xs font-mono font-medium text-primary block mb-1">
                     3. Recommended Action
                   </span>
                   <p className="text-foreground font-medium leading-relaxed">
@@ -478,7 +478,7 @@ export default function Mentor() {
               className="milled-slab rounded-2xl p-6 sm:p-8 shadow-[var(--shadow-card)] space-y-5"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                <span className="text-xs font-mono font-medium text-emerald-700 dark:text-emerald-400">
                   Pattern · Steady Progress
                 </span>
                 {momentum.comparison && (
@@ -490,7 +490,7 @@ export default function Mentor() {
 
               {/* 1. Observed Evidence */}
               <div className="recessed-track rounded-xl p-4 border border-border/60 space-y-1">
-                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
+                <span className="text-xs font-mono font-medium text-muted-foreground block">
                   1. Observed Evidence
                 </span>
                 <p className="text-xs sm:text-sm text-foreground/90 font-medium leading-relaxed">
@@ -500,7 +500,7 @@ export default function Mentor() {
 
               {/* 2. Mentor Interpretation */}
               <div className="space-y-1">
-                <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block">
+                <span className="text-xs font-mono font-medium text-emerald-700 dark:text-emerald-400 block">
                   2. Mentor&apos;s Interpretation
                 </span>
                 <h2 id="primary-insight-heading" className="text-base sm:text-lg font-bold tracking-tight text-foreground leading-snug">
@@ -511,7 +511,7 @@ export default function Mentor() {
               {/* 3. Recommended Action with CTA in natural position */}
               <div className="milled-slab rounded-xl p-4 sm:p-5 border border-emerald-500/25 bg-emerald-500/[0.04] text-xs sm:text-sm space-y-3.5">
                 <div>
-                  <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block mb-1">
+                  <span className="text-xs font-mono font-medium text-emerald-700 dark:text-emerald-400 block mb-1">
                     3. Recommended Action
                   </span>
                   <p className="text-foreground font-medium leading-relaxed">
@@ -545,7 +545,7 @@ export default function Mentor() {
           className="mt-6 milled-slab rounded-xl overflow-hidden shadow-[var(--shadow-card)]"
         >
           <div className="px-5 sm:px-6 py-4 bg-muted/20 border-b border-border/50 flex items-center justify-between">
-            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-mono font-medium text-muted-foreground">
               Observed Patterns & Suggested Actions
             </span>
             <span className="text-xs font-mono font-medium text-muted-foreground">
@@ -557,7 +557,7 @@ export default function Mentor() {
             {visibleDynamics.map((item) => (
               <div key={item.key} className="p-5 sm:p-6 space-y-4 hover:bg-card/40 transition-colors">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-mono font-semibold uppercase tracking-wider text-primary">
+                  <span className="text-xs font-mono font-medium text-primary">
                     {item.categoryLabel}
                   </span>
                   <span className="text-[11px] font-mono text-muted-foreground">
@@ -568,7 +568,7 @@ export default function Mentor() {
                 {/* 1. Observed Evidence */}
                 {item.evidence && (
                   <div className="recessed-track rounded-lg p-3 border border-border/50 text-xs space-y-0.5">
-                    <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-muted-foreground block">
+                    <span className="text-xs font-mono font-medium text-muted-foreground block">
                       1. Observed Evidence
                     </span>
                     <p className="text-foreground/90 font-medium leading-relaxed">
@@ -579,7 +579,7 @@ export default function Mentor() {
 
                 {/* 2. Mentor's Interpretation */}
                 <div className="space-y-0.5">
-                  <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block">
+                  <span className="text-xs font-mono font-medium text-primary block">
                     2. Mentor&apos;s Interpretation
                   </span>
                   <h3 className="text-sm sm:text-base font-semibold text-foreground leading-snug">
@@ -590,7 +590,7 @@ export default function Mentor() {
                 {/* 3. Recommended Action with CTA in natural position */}
                 <div className="milled-slab rounded-xl p-3.5 sm:p-4 border border-primary/20 bg-primary/[0.03] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                   <div className="min-w-0 flex-1">
-                    <span className="text-[10px] font-mono font-medium uppercase tracking-wider text-primary block mb-0.5">
+                    <span className="text-xs font-mono font-medium text-primary block mb-0.5">
                       3. Recommended Action
                     </span>
                     <p className="text-foreground font-medium leading-relaxed">

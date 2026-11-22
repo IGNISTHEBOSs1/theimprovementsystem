@@ -2,8 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Outlet, Navigate } from "react-router-dom";
-import { Suspense } from "react";
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from "react-router-dom";
+import { Suspense, useEffect } from "react";
 import { useAuth } from "./hooks/useAuth";
 import { AuthProvider } from "./providers/AuthProvider";
 import { ThemeProvider } from "./providers/ThemeProvider";
@@ -12,6 +12,11 @@ import { DevErrorBoundary } from "@/components/diagnostics/DevErrorBoundary";
 import { RouteErrorBoundary } from "@/components/diagnostics/RouteErrorBoundary";
 import { RenderProfiler } from "@/components/diagnostics/RenderProfiler";
 import { lazyWithRetry } from "./lib/lazyWithRetry";
+import { isCapacitorNative } from "./services/otaUpdateService";
+import { MobileAppRedirectBanner } from "@/components/shared/MobileAppRedirectBanner";
+import { checkAndAutoRedirectMobile } from "@/lib/mobileAppRedirect";
+import { FirstLaunchState } from "@/components/dashboard/FirstLaunchState";
+import { DashboardDataProvider } from "@/providers/DashboardDataProvider";
 
 // Protected app pages — wrapped with retry and chunk recovery
 const Dashboard = lazyWithRetry(() => import("./pages/Dashboard"));
@@ -50,6 +55,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) {
+    if (isCapacitorNative()) {
+      return <Navigate to="/auth" replace />;
+    }
     return (
       <Suspense fallback={<CenteredSpinner />}>
         <Landing />
@@ -64,34 +72,69 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // mounts ONCE here and stays mounted across every in-app navigation.
 // Suspense wraps only <Outlet /> (the page content), scoped to the content area.
 // RouteErrorBoundary isolates page-level render crashes so that navigation remains fully functional.
-const ProtectedLayout = () => (
-  <ProtectedRoute>
-    <AppLayout>
-      <RouteErrorBoundary>
-        <Suspense fallback={<CockpitRouteSkeleton />}>
-          <Outlet />
-        </Suspense>
-      </RouteErrorBoundary>
-    </AppLayout>
-  </ProtectedRoute>
-);
+const ProtectedLayout = () => {
+  const { profile, loading } = useAuth();
+  const location = useLocation();
 
-const App = () => (
-  <DevErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="Monarch" defaultMode="system">
-        <TooltipProvider delayDuration={260} skipDelayDuration={450}>
-          <Toaster />
-          <Sonner />
-          <AuthProvider>
-            <BrowserRouter>
-              <Routes>
+  // If user hasn't completed onboarding, restrict navigation strictly to "/"
+  if (!loading && profile && !profile.has_completed_first_launch && location.pathname !== "/") {
+    return <Navigate to="/" replace />;
+  }
+
+  return (
+    <ProtectedRoute>
+      <AppLayout>
+        <RouteErrorBoundary>
+          <Suspense fallback={<CockpitRouteSkeleton />}>
+            <Outlet />
+          </Suspense>
+        </RouteErrorBoundary>
+      </AppLayout>
+    </ProtectedRoute>
+  );
+};
+
+const OnboardingRoute = () => {
+  const { user, profile } = useAuth();
+  return (
+    <DashboardDataProvider userId={user?.id} timezone={profile?.timezone}>
+      <FirstLaunchState name={profile?.username || "Operator"} />
+    </DashboardDataProvider>
+  );
+};
+
+const App = () => {
+  useEffect(() => {
+    checkAndAutoRedirectMobile();
+  }, []);
+
+  return (
+    <DevErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="Monarch" defaultMode="system">
+          <TooltipProvider delayDuration={260} skipDelayDuration={450}>
+            <Toaster />
+            <Sonner />
+            <MobileAppRedirectBanner />
+            <AuthProvider>
+              <BrowserRouter>
+                <Routes>
                 {/* Auth/landing/404 — no persistent shell, each gets
                     its own small Suspense boundary rather than sharing
                     one root-level boundary with the protected routes. */}
                 <Route path="/auth" element={
                   <Suspense fallback={<CenteredSpinner />}>
-                    <RenderProfiler id="Auth"><Auth /></RenderProfiler>
+                    <RouteErrorBoundary>
+                      <RenderProfiler id="Auth"><Auth /></RenderProfiler>
+                    </RouteErrorBoundary>
+                  </Suspense>
+                } />
+
+                <Route path="/onboarding" element={
+                  <Suspense fallback={<CenteredSpinner />}>
+                    <RouteErrorBoundary>
+                      <OnboardingRoute />
+                    </RouteErrorBoundary>
                   </Suspense>
                 } />
 
@@ -122,6 +165,7 @@ const App = () => (
       </ThemeProvider>
     </QueryClientProvider>
   </DevErrorBoundary>
-);
+  );
+};
 
 export default App;

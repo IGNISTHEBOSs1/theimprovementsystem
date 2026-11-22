@@ -6,7 +6,7 @@ import {
   ArrowRight,
   Check,
   RotateCcw,
-  Sparkles,
+  Compass,
   Lock,
   Layers,
   Sun,
@@ -681,7 +681,7 @@ export default function Landing() {
                 data-cuelume-press="press"
                 data-cuelume-release="release"
                 data-cuelume-hover="tick"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/auth?mode=signin')}
                 className="text-xs px-3.5 sm:px-4 h-8 sm:h-9 font-display font-semibold shadow-xs active:scale-[0.96] rounded-full transition-transform"
               >
                 <span>Log In</span>
@@ -696,7 +696,7 @@ export default function Landing() {
         {/* Eyebrow with Atmospheric Lift */}
         <AtmosphericLift yOffset={16} blurAmount={6} duration={0.65} className="inline-block mb-4 sm:mb-5">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-border/80 shadow-xs">
-            <Sparkles className="size-3.5 text-foreground shrink-0" />
+            <Compass className="size-3.5 text-foreground shrink-0" />
             <span className="text-xs font-medium text-foreground">
               <span className="hidden sm:inline">Personal Trajectory Engine • Dynamic Vector, Not Static Streaks</span>
               <span className="sm:hidden">Dynamic Trajectory • ±10% Buffer</span>
@@ -735,7 +735,7 @@ export default function Landing() {
                 data-cuelume-press="press"
                 data-cuelume-release="release"
                 data-cuelume-hover="tick"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/onboarding')}
                 className="w-full sm:w-auto h-11 sm:h-12 px-7 sm:px-9 font-display text-xs sm:text-sm font-semibold shadow-lg active:scale-[0.96] rounded-xl group transition-transform"
               >
                 <span>Start My 90-Day Trajectory</span>
@@ -1028,7 +1028,7 @@ export default function Landing() {
       <PinAndTransformWorkflow isDark={isDark} />
 
       {/* -- SIDE-BY-SIDE ARCHITECTURAL COMPARISON (REDUCED BASIS, OPTIMAL ON MOBILE & PC) -- */}
-      <ComparisonTable onSelectPlan={() => navigate('/auth')} />
+      <ComparisonTable onSelectPlan={() => navigate('/onboarding')} />
 
       {/* -- FINAL CALL TO ACTION -- */}
       <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-12 sm:py-20 md:py-24 text-center">
@@ -1058,7 +1058,7 @@ export default function Landing() {
                       data-cuelume-press="press"
                       data-cuelume-release="release"
                       data-cuelume-hover="tick"
-                      onClick={() => navigate('/auth')}
+                      onClick={() => navigate('/onboarding')}
                       className="w-full sm:w-auto h-11 sm:h-12 px-8 font-display text-xs sm:text-sm font-semibold shadow-lg active:scale-[0.96] rounded-xl group transition-transform"
                     >
                       <span>Start My 90-Day Trajectory</span>
@@ -1107,7 +1107,7 @@ export default function Landing() {
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-muted-foreground">
             <button
               type="button"
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/auth?mode=signin')}
               className="hover:text-foreground transition-colors touch-target font-medium"
             >
               Log In

@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -11,14 +11,17 @@ import {
   Download,
   LogOut,
   User,
-  Sparkles,
+  Palette,
+  Volume2,
   CheckCircle2,
   Lock,
   RefreshCw,
   Sliders,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InUiSelect, type SelectOption } from "@/components/ui/in-ui-select";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -46,22 +49,47 @@ import { detectDeviceTimezone } from "@/lib/serverTime";
 // behavior. Profile's job is identity/goal/history; this page's job is
 // system-level control over the account itself.
 //
-// Known IANA zone names, when the browser supports Intl.supportedValuesOf
-// (widely available, but not universal — see the guarded call below).
-// Used only to validate what's typed, not to render a picker UI; this
-// stays a plain text field, not a new dropdown component.
-function getKnownTimezones(): string[] | null {
+const FALLBACK_TIMEZONES = [
+  "UTC",
+  "Africa/Cairo", "Africa/Johannesburg", "Africa/Lagos", "Africa/Nairobi",
+  "America/Anchorage", "America/Argentina/Buenos_Aires", "America/Bogota", "America/Chicago", "America/Denver",
+  "America/Halifax", "America/Los_Angeles", "America/Mexico_City", "America/New_York", "America/Phoenix", "America/Santiago", "America/Sao_Paulo", "America/Toronto", "America/Vancouver",
+  "Asia/Bangkok", "Asia/Colombo", "Asia/Dhaka", "Asia/Dubai", "Asia/Hong_Kong", "Asia/Jakarta", "Asia/Jerusalem", "Asia/Karachi", "Asia/Kathmandu", "Asia/Kolkata", "Asia/Kuala_Lumpur", "Asia/Manila", "Asia/Riyadh", "Asia/Seoul", "Asia/Shanghai", "Asia/Singapore", "Asia/Taipei", "Asia/Tokyo",
+  "Atlantic/Reykjavik",
+  "Australia/Adelaide", "Australia/Brisbane", "Australia/Melbourne", "Australia/Perth", "Australia/Sydney",
+  "Europe/Amsterdam", "Europe/Athens", "Europe/Berlin", "Europe/Dublin", "Europe/Helsinki", "Europe/Istanbul", "Europe/Lisbon", "Europe/London", "Europe/Madrid", "Europe/Paris", "Europe/Rome", "Europe/Stockholm", "Europe/Warsaw", "Europe/Zurich",
+  "Pacific/Auckland", "Pacific/Fiji", "Pacific/Honolulu",
+];
+
+function getAllTimezones(): string[] {
   try {
-    // @ts-expect-error — supportedValuesOf is recent; not in older lib.dom typings
-    if (typeof Intl.supportedValuesOf === "function") {
+    // @ts-expect-error — supportedValuesOf is supported in modern runtimes
+    if (typeof Intl?.supportedValuesOf === "function") {
       // @ts-expect-error — see above
       return Intl.supportedValuesOf("timeZone");
     }
   } catch {
     // fall through
   }
-  return null;
+  return FALLBACK_TIMEZONES;
 }
+
+const ALL_TIMEZONES = getAllTimezones();
+
+function getTimezoneGroups(): [string, string[]][] {
+  const groups: Record<string, string[]> = {};
+  for (const tz of ALL_TIMEZONES) {
+    const parts = tz.split("/");
+    const groupName = parts.length > 1 ? parts[0] : "Global & Other";
+    if (!groups[groupName]) {
+      groups[groupName] = [];
+    }
+    groups[groupName].push(tz);
+  }
+  return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
+}
+
+const TIMEZONE_GROUPS = getTimezoneGroups();
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -103,6 +131,41 @@ export default function Settings() {
     setTimezone(profile?.timezone ?? "");
   }, [profile?.timezone]);
 
+  const timezoneOptions = useMemo<SelectOption[]>(() => {
+    const list: SelectOption[] = [];
+    if (detectedTz) {
+      list.push({
+        value: detectedTz,
+        label: `Detected Device Zone (${detectedTz})`,
+        group: "Recommended",
+      });
+    }
+    if (profile?.timezone && profile.timezone !== detectedTz) {
+      list.push({
+        value: profile.timezone,
+        label: `Current Profile Zone (${profile.timezone})`,
+        group: "Recommended",
+      });
+    }
+    list.push({
+      value: "UTC",
+      label: "UTC (Coordinated Universal Time)",
+      group: "Recommended",
+    });
+
+    for (const [groupName, tzs] of TIMEZONE_GROUPS) {
+      for (const tz of tzs) {
+        if (tz === detectedTz || tz === profile?.timezone || tz === "UTC") continue;
+        list.push({
+          value: tz,
+          label: tz.replace(/_/g, " "),
+          group: groupName,
+        });
+      }
+    }
+    return list;
+  }, [detectedTz, profile?.timezone]);
+
   const handleTimezoneSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const trimmed = timezone.trim();
@@ -114,9 +177,9 @@ export default function Settings() {
       playError();
       return;
     }
-    const known = getKnownTimezones();
-    if (known && !known.includes(trimmed)) {
-      setTzError(`"${trimmed}" isn't a recognized timezone (e.g. "Asia/Kolkata", "America/New_York").`);
+    const known = ALL_TIMEZONES;
+    if (known && !known.includes(trimmed) && trimmed !== "UTC") {
+      setTzError(`"${trimmed}" isn't a recognized timezone.`);
       playError();
       return;
     }
@@ -155,8 +218,16 @@ export default function Settings() {
   };
 
   const handleSignOut = async () => {
-    setSigningOut(true);
-    await signOut();
+    try {
+      setSigningOut(true);
+      playButtonPress();
+      await signOut();
+    } catch (err) {
+      console.error("[Settings] Sign out error:", err);
+    } finally {
+      setSigningOut(false);
+      navigate("/auth", { replace: true });
+    }
   };
 
   const executeReset = async () => {
@@ -220,7 +291,7 @@ export default function Settings() {
       const url = URL.createObjectURL(dataBlob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `improvement-system-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+      link.download = `kinetic-data-export-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -254,7 +325,7 @@ export default function Settings() {
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className="size-7 sm:size-8 rounded-lg bg-foreground/5 border border-border/60 flex items-center justify-center text-foreground shrink-0">
-                <Sparkles className="size-3.5 sm:size-4" aria-hidden="true" />
+                <Palette className="size-3.5 sm:size-4" aria-hidden="true" />
               </div>
               <div>
                 <h2 id="experience-heading" className="text-sm sm:text-base font-semibold tracking-tight text-foreground">
@@ -341,9 +412,9 @@ export default function Settings() {
                   size="sm"
                   onClick={() => playSuccess()}
                   disabled={!soundEnabled}
-                  className="min-h-9 px-3 text-xs gap-1.5 rounded-xl border-border/80 active:scale-[0.98]"
+                  className="min-h-11 px-3.5 text-xs gap-1.5 rounded-xl border-border/80 active:scale-[0.98]"
                 >
-                  <Sparkles className="size-3 text-foreground" />
+                  <Volume2 className="size-3.5 text-foreground" />
                   <span>Test Tone</span>
                 </Button>
                 <Button
@@ -352,9 +423,9 @@ export default function Settings() {
                   size="sm"
                   onClick={() => playButtonPress()}
                   disabled={!soundEnabled}
-                  className="min-h-9 px-3 text-xs gap-1.5 rounded-xl border-border/80 active:scale-[0.98]"
+                  className="min-h-11 px-3.5 text-xs gap-1.5 rounded-xl border-border/80 active:scale-[0.98]"
                 >
-                  <Sliders className="size-3 text-foreground" />
+                  <Sliders className="size-3.5 text-foreground" />
                   <span>Test Click</span>
                 </Button>
               </div>
@@ -415,27 +486,25 @@ export default function Settings() {
 
           <form onSubmit={handleTimezoneSubmit} className="flex flex-col sm:flex-row gap-2.5">
             <div className="relative flex-1">
-              <Input
-                name="timezone"
-                autoComplete="off"
+              <InUiSelect
                 value={timezone}
-                onChange={(event) => {
-                  setTimezone(event.target.value);
+                onChange={(val) => {
+                  setTimezone(val);
                   setTzSuccess(false);
                   setTzError(null);
                 }}
-                placeholder="e.g. Asia/Kolkata or America/New_York…"
-                aria-label="Timezone"
+                options={timezoneOptions}
+                placeholder="Select your region or timezone…"
+                searchPlaceholder="Search timezone, city, or region…"
                 disabled={tzSaving}
-                className="min-h-11 font-mono text-xs sm:text-sm bg-background/60 rounded-xl"
               />
             </div>
             <Button
               type="submit"
               className="min-h-11 px-5 shrink-0 font-semibold text-xs active:scale-[0.98] rounded-xl"
-              disabled={tzSaving}
+              disabled={tzSaving || !timezone}
             >
-              {tzSaving ? "Saving…" : "Save Timezone"}
+              {tzSaving ? "Saving…" : "Save Region"}
             </Button>
           </form>
 

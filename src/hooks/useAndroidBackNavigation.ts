@@ -20,7 +20,16 @@ export function useAndroidBackNavigation() {
         return;
       }
 
-      // 2. Sub-route navigation
+      // 2. Check if onboarding is active and can step back
+      const onboardingBackBtn = document.querySelector<HTMLButtonElement>(
+        '[data-onboarding-back="true"]'
+      );
+      if (onboardingBackBtn && !onboardingBackBtn.disabled) {
+        onboardingBackBtn.click();
+        return;
+      }
+
+      // 3. Sub-route navigation
       if (location.pathname === "/profile/settings" || location.pathname === "/profile/history") {
         navigate("/profile");
         return;

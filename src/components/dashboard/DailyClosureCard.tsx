@@ -1,16 +1,14 @@
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { TIS_SPRINGS } from "@/lib/motion-tokens";
 
 interface DailyClosureCardProps {
   completedToday: number;
-  onChooseQuest: () => void;
+  onChooseQuest?: () => void;
 }
 
 export function DailyClosureCard({
   completedToday,
-  onChooseQuest,
 }: DailyClosureCardProps) {
   return (
     <motion.section
@@ -25,7 +23,7 @@ export function DailyClosureCard({
         <span className="flex size-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
           <CheckCircle2 className="size-4" aria-hidden="true" />
         </span>
-        <p className="text-[10px] font-mono font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Session complete</p>
+        <p className="text-xs font-mono font-medium text-emerald-600 dark:text-emerald-400">Session complete</p>
       </div>
 
       <h2
@@ -38,24 +36,13 @@ export function DailyClosureCard({
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <span className="inline-flex items-center gap-1.5 rounded-md bg-muted/60 border border-border/70 px-3 py-1 text-xs font-mono text-foreground font-medium">
           <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-          {completedToday} {completedToday === 1 ? "commitment" : "commitments"} honored today
+          <span className="tabular-nums font-semibold">{completedToday}</span> {completedToday === 1 ? "commitment" : "commitments"} honored today
         </span>
       </div>
 
       <p className="mt-2.5 max-w-xl text-body-sm text-muted-foreground">
         Rest and recharge. Your velocity for today is locked into the trajectory model.
       </p>
-
-      <div className="mt-6 pt-5 border-t border-border/50 flex justify-end">
-        <Button
-          variant="outline"
-          className="min-h-10 rounded-lg px-4 text-xs font-semibold active:scale-[0.98]"
-          onClick={onChooseQuest}
-        >
-          <span>Commit to another action</span>
-          <ArrowRight className="size-3.5 ml-1.5" aria-hidden="true" />
-        </Button>
-      </div>
     </motion.section>
   );
 }

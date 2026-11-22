@@ -98,3 +98,78 @@ export const TIS_TRANSITIONS = {
     ease: TIS_EASINGS.exitDecel,
   } satisfies Transition,
 } as const;
+
+export const MOTION_PRESETS = {
+  // Snappy: Direct manipulation, card select, button tap
+  snappySpring: {
+    type: "spring" as const,
+    stiffness: 500,
+    damping: 32,
+    mass: 1.0,
+  },
+
+  // Smooth: Sliding pill indicators, layoutId transitions
+  smoothSpring: {
+    type: "spring" as const,
+    stiffness: 400,
+    damping: 35,
+    mass: 1.0,
+  },
+
+  // Heavy Press: Tactile button depression
+  holdDepression: {
+    type: "spring" as const,
+    stiffness: 520,
+    damping: 30,
+    mass: 1.0,
+  },
+
+  // Commit Pop: Celebration overshoot on long-press lock
+  commitOvershoot: {
+    type: "spring" as const,
+    stiffness: 700,
+    damping: 14,
+    mass: 0.8,
+  },
+
+  // Easing Curves
+  curves: {
+    velocityTrace: [0.16, 1.0, 0.3, 1.0] as const, // Dynamic trajectory draw
+    stepTransition: [0.25, 1.0, 0.5, 1.0] as const, // Directional slide
+    asymmetricRewind: [0.22, 1.0, 0.36, 1.0] as const, // Release hold before 92%
+  },
+
+  // Durations (ms)
+  durations: {
+    micro: 150,
+    standard: 250,
+    modal: 350,
+    holdCommit: 1200,
+    calibration: 3500,
+  },
+} as const;
+
+// Direction-aware screen slide variants (compositor-only, 120fps optimized)
+export const pageTransitionVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 18 : -18,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      x: { type: "spring", stiffness: 450, damping: 36, restDelta: 0.001 },
+      opacity: { duration: 0.18, ease: "easeOut" },
+    },
+  },
+  exit: (direction: number) => ({
+    x: direction < 0 ? 18 : -18,
+    opacity: 0,
+    transition: {
+      x: { type: "spring", stiffness: 450, damping: 36, restDelta: 0.001 },
+      opacity: { duration: 0.14, ease: "easeIn" },
+    },
+  }),
+};
+

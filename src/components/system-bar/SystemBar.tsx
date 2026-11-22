@@ -202,7 +202,7 @@ export default function SystemBar({
             onClick={() => {
               soundEngine.playTap();
               triggerHaptic("selection");
-              window.dispatchEvent(new CustomEvent("tis:toggle-command-palette"));
+              window.dispatchEvent(new CustomEvent("kinetic:toggle-command-palette"));
             }}
             className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border/70 bg-card/60 hover:bg-accent hover:text-accent-foreground text-xs text-muted-foreground transition-all group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
             title="Open Command Palette (⌘K / Ctrl+K)"

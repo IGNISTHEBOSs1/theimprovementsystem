@@ -27,6 +27,9 @@ export class DevErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
+    // Unconditionally log error to console so it is always visible in Logcat / browser console
+    console.error("[Kinetic Root Error]:", error, info?.componentStack);
+
     logError(error, {
       component: info.componentStack?.trim().split("\n")[0]?.trim() || "Unknown component",
       componentStack: info.componentStack,
@@ -110,6 +113,22 @@ export class DevErrorBoundary extends Component<Props, State> {
               ? "A fresh deployment of Kinetic is ready. Reloading will sync the latest assets."
               : "An unexpected condition occurred. Reloading the system will restore your session."}
           </p>
+
+          {this.state.error?.message && (
+            <details className="mt-4 text-left">
+              <summary className="text-xs text-muted-foreground hover:text-foreground cursor-pointer text-center select-none font-mono">
+                Diagnostic Details
+              </summary>
+              <div className="mt-2 p-3 rounded-xl bg-muted/60 border border-border text-xs font-mono text-destructive break-all select-text">
+                <p className="font-semibold text-foreground/90">{this.state.error.message}</p>
+                {this.state.error.stack && (
+                  <pre className="mt-1 text-[10px] text-muted-foreground max-h-36 overflow-y-auto whitespace-pre-wrap">
+                    {this.state.error.stack}
+                  </pre>
+                )}
+              </div>
+            </details>
+          )}
 
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button

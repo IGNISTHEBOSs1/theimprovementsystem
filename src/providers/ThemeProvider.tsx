@@ -162,9 +162,13 @@ function applyTheme(theme: ThemeName, resolvedMode: "light" | "dark") {
 
 function resolveMode(mode: ThemeMode): "light" | "dark" {
   if (mode !== "system") return mode;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  try {
+    return typeof window !== "undefined" && Boolean(window.matchMedia?.("(prefers-color-scheme: dark)")?.matches)
+      ? "dark"
+      : "light";
+  } catch {
+    return "dark";
+  }
 }
 
 // ── Provider ──────────────────────────────────────────────────────────────────
@@ -201,11 +205,21 @@ export function ThemeProvider({
 
   // Listen for system preference changes when mode === 'system'
   useEffect(() => {
-    if (mode !== "system") return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = () => applyTheme(theme, resolveMode("system"));
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    if (mode !== "system" || typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    try {
+      const mq = window.matchMedia("(prefers-color-scheme: dark)");
+      if (!mq) return;
+      const handler = () => applyTheme(theme, resolveMode("system"));
+      if (typeof mq.addEventListener === "function") {
+        mq.addEventListener("change", handler);
+        return () => mq.removeEventListener("change", handler);
+      } else if (typeof mq.addListener === "function") {
+        mq.addListener(handler);
+        return () => mq.removeListener(handler);
+      }
+    } catch {
+      // Graceful fallback
+    }
   }, [mode, theme]);
 
   const setTheme = useCallback((next: ThemeName) => {

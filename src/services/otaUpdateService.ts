@@ -39,7 +39,6 @@ export interface OtaUpdateState {
   pendingVersion: string | null;
 }
 
-let isInitialized = false;
 let checkInProgress = false;
 
 // Fallback version when running in web or before first native sync
@@ -114,7 +113,9 @@ export async function checkForOtaUpdate(
         if (current?.bundle?.version) {
           installedWebVersion = current.bundle.version;
         }
-      } catch {}
+      } catch {
+        // Fall back to default embedded asset version
+      }
     }
 
     const isNewer = isVersionHigher(manifest.version, installedWebVersion);

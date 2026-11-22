@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Check, Repeat, Settings2, Sparkles, Target } from "lucide-react";
+import { ArrowRight, Check, Repeat, Settings2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -167,7 +167,7 @@ export function TodaysCommitment({
                 "size-8 rounded-lg flex items-center justify-center shrink-0 border mt-0.5 transition-colors",
                 role === "focus" ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "border-border bg-muted/40 text-muted-foreground"
               )}>
-                <Sparkles className="size-4" aria-hidden="true" />
+                <Target className="size-4" aria-hidden="true" />
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">

@@ -713,6 +713,44 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     return { error: dbError };
   }, [load, state, userId, timezone]);
 
+  const seedOnboardingRoutines = useCallback(async (
+    routines: string[],
+    goalName: string
+  ) => {
+    if (!userId || writeLockRef.current || routines.length === 0) return { error: null };
+    const serverLocal = await getServerLocalDate(timezone);
+    const safeQuests = Array.isArray(state?.quests) ? state.quests.filter(Boolean) : [];
+
+    const newQuests: Quest[] = routines.map((title) => ({
+      id: crypto.randomUUID(),
+      title: title.trim(),
+      priority: "Essential",
+      role: "routine" as QuestRole,
+      timeFrame: "Today",
+      linkedToGoal: true,
+      goalName,
+      completed: false,
+      failed: false,
+      createdAt: serverLocal.instant.toISOString(),
+      seriesId: crypto.randomUUID(),
+      recurrenceDays: [0, 1, 2, 3, 4, 5, 6],
+    }));
+
+    const nextQuests = [...safeQuests, ...newQuests];
+    writeLockRef.current = true;
+    setSaving(true);
+    setState((prev) => ({ ...prev, quests: nextQuests }));
+    const { error: dbError } = await supabase
+      .from("game_state")
+      .update({ quests: nextQuests as unknown as Json })
+      .eq("user_id", userId);
+
+    if (dbError) await load();
+    writeLockRef.current = false;
+    setSaving(false);
+    return { error: dbError };
+  }, [load, state, userId, timezone]);
+
   const updateSeriesRecurrence = useCallback(async (seriesId: string, newRecurrenceDays: number[]) => {
     if (!userId || writeLockRef.current || !seriesId) return { error: null };
 
@@ -828,6 +866,7 @@ export function useDashboardData(userId?: string, timezone?: string | null) {
     resumeSeries,
     recalibrateSchedule,
     commitToTodaysQuest,
+    seedOnboardingRoutines,
     reload: load,
     todayStr,
   };

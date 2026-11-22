@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Compass, Check, Plus, ShieldCheck, AlertCircle } from "lucide-react";
+import { Compass, Check, Plus, ShieldCheck, AlertCircle, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PlaceholderExperience } from "@/components/shared/PlaceholderExperience";
@@ -137,9 +137,9 @@ export default function Journey() {
         </h1>
 
         <p className="text-xs sm:text-sm text-muted-foreground">
-          Day <span className="font-mono font-medium text-foreground">{pace?.elapsedDays ?? 1}</span> of{" "}
-          <span className="font-mono">{pace?.cycleTotalDays ?? 90}</span> · Target{" "}
-          {pace?.targetDateFormatted ?? "90-Day Cycle"} ({daysLeft}d left)
+          Day <span className="font-mono font-medium text-foreground tabular-nums">{pace?.elapsedDays ?? 1}</span> of{" "}
+          <span className="font-mono tabular-nums">{pace?.cycleTotalDays ?? 90}</span> · Target{" "}
+          {pace?.targetDateFormatted ?? "90-Day Cycle"} (<span className="tabular-nums">{daysLeft}</span>d left)
         </p>
       </header>
 
@@ -159,7 +159,7 @@ export default function Journey() {
                 ? "destructive"
                 : "neutral"
             }
-            className="gap-1.5 py-1 text-xs font-mono font-semibold uppercase tracking-wider rounded-md"
+            className="gap-1.5 py-1 text-xs font-mono font-medium rounded-md"
           >
             {paceDetails.badgeVariant === "success" ? (
               <ShieldCheck className="size-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
@@ -200,7 +200,7 @@ export default function Journey() {
           className="flex items-start gap-2.5 rounded-xl border border-border/60 bg-muted/40 px-3.5 py-2.5 text-xs font-sans text-muted-foreground"
           role="status"
         >
-          <span className="mt-0.5 shrink-0">📍</span>
+          <MapPin className="size-3.5 shrink-0 mt-0.5 text-muted-foreground" aria-hidden="true" />
           <span>
             No target date set — showing a{" "}
             <span className="font-medium text-foreground">90-day estimate</span> from today.{" "}
@@ -237,8 +237,8 @@ export default function Journey() {
         aria-label="Next action for today"
         className="rounded-xl border border-border/80 bg-card p-5 sm:p-6 shadow-sm milled-slab"
       >
-        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
-          Today's Next Step
+        <span className="text-xs font-mono font-medium text-muted-foreground block mb-2">
+          Today&apos;s Next Step
         </span>
 
         {activeGoalQuest ? (
@@ -289,7 +289,7 @@ export default function Journey() {
 
       {/* ── 5. PACE & PRIORITY TELEMETRY (SUBORDINATED METRICS) ── */}
       <section className="pt-2 space-y-3" aria-label="Pace and Priority Breakdown">
-        <h2 className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground px-1">
+        <h2 className="text-xs font-mono font-medium text-muted-foreground px-1">
           Pace & Priority Telemetry
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

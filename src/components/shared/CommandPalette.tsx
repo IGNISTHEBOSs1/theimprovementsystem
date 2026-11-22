@@ -59,10 +59,10 @@ export function CommandPalette({ open: controlledOpen, onOpenChange: controlledO
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("tis:toggle-command-palette", handleToggle);
+    window.addEventListener("kinetic:toggle-command-palette", handleToggle);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("tis:toggle-command-palette", handleToggle);
+      window.removeEventListener("kinetic:toggle-command-palette", handleToggle);
     };
   }, [open, setOpen]);
 
@@ -120,7 +120,7 @@ export function CommandPalette({ open: controlledOpen, onOpenChange: controlledO
           <CommandItem
             onSelect={() =>
               runCommand(() => {
-                window.dispatchEvent(new CustomEvent("tis:open-commitment"));
+                window.dispatchEvent(new CustomEvent("kinetic:open-commitment"));
                 if (window.location.pathname !== "/quests") {
                   navigate("/quests", { state: { openNewCommitment: true } });
                 }

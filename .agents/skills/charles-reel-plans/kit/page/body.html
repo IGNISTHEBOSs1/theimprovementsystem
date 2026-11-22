@@ -1,0 +1,124 @@
+<main class="board">
+  <section class="stage" id="player" aria-label="The reel">
+    <div class="phone" id="phone">
+      <div class="reel" id="reel">
+        <div class="footage" id="footage" aria-hidden="true">
+          <div class="room">
+            <div class="wall"></div>
+            <div class="door"></div>
+            <div class="door-panel"></div>
+            <div class="lamp"></div>
+            <div class="shade"></div>
+          </div>
+          <div class="person" id="person">
+            <div class="shoulders"></div>
+            <div class="tank"></div>
+            <div class="neck"></div>
+            <div class="hair hair-back"></div>
+            <div class="face"></div>
+            <div class="hair hair-front"></div>
+            <div class="hand"></div>
+            <div class="mic"></div>
+          </div>
+          <div class="vignette"></div>
+        </div>
+        <div class="visual" id="visual" hidden></div>
+        <div class="title ov" id="title" hidden></div>
+        <div class="sub ov" id="sub" hidden></div>
+        <div class="hook" id="hook" hidden></div>
+        <div class="list" id="list"></div>
+        <div class="sw-label ov" id="sw-label" hidden aria-hidden="true"></div>
+        <div class="sw" id="sw" hidden aria-hidden="true"><span class="sw-off">88.88</span><span class="sw-on" id="sw-on">00.00</span></div>
+        <div class="cap" id="cap" hidden></div>
+        <div class="ig" id="ig" hidden aria-hidden="true">
+          <div class="ig-scrim"></div>
+          <div class="ig-top"><span>Reels</span>
+            <svg viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.6l1.2-1.8h5.4L15.9 6h1.6A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.4" r="3.4"/></svg>
+          </div>
+          <div class="ig-rail">
+            <svg viewBox="0 0 24 24"><path d="M12 20.2s-7.6-4.6-7.6-10.1A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.6 2.7c0 5.5-7.6 10.1-7.6 10.1z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M20 11.6a8 8 0 1 1-3.3-6.5A8 8 0 0 1 20 11.6zm0 0V20l-3-2"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M4.5 10.5V9a3 3 0 0 1 3-3h11l-3-3M19.5 13.5V15a3 3 0 0 1-3 3h-11l3 3"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M21 3 3 10.5l7 2.5 2.5 7zM10 13l11-10"/></svg>
+            <svg viewBox="0 0 24 24" class="dots"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+            <div class="ig-audio"></div>
+          </div>
+          <div class="ig-meta">
+            <div class="ig-user"><span class="ig-avatar"></span><span id="ig-handle"></span><span class="ig-follow">Follow</span></div>
+            <div class="ig-caption" id="ig-caption"></div>
+            <div class="ig-sound">Original audio</div>
+          </div>
+        </div>
+        <div class="safe" id="safe" hidden aria-hidden="true">
+          <div class="safe-top"><span>Instagram header</span></div>
+          <div class="safe-bottom"><span>Username and caption</span></div>
+          <div class="safe-right"><span>Buttons</span></div>
+          <div class="safe-margin safe-margin-l"></div>
+          <div class="safe-margin safe-margin-r"></div>
+        </div>
+      </div>
+      <button class="big-play" id="big-play" type="button" aria-label="Play with sound">
+        <span class="disc"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>
+        <span class="big-play-label">Play with sound</span>
+      </button>
+      <div class="loading" aria-hidden="true"><span class="spin"></span><span id="loading-text">Loading</span></div>
+    </div>
+    <div class="bar">
+      <button class="play" id="play" type="button" aria-label="Play">
+        <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+        <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
+      </button>
+      <div class="scrub">
+        <div class="track" id="track" aria-hidden="true"></div>
+        <input type="range" id="scrub" min="0" step="0.01" value="0" aria-label="Position in the reel">
+      </div>
+      <div class="clock"><span id="t-now">0.0</span><span class="clock-total" id="t-total"></span></div>
+      <button class="full-btn" id="full" type="button" aria-label="Full screen" aria-pressed="false">
+        <svg class="i-full" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+        <svg class="i-exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>
+      </button>
+    </div>
+    <div class="opts">
+      <label class="opt"><input type="checkbox" id="opt-safe"> Safe area</label>
+      <label class="opt"><input type="checkbox" id="opt-ig"> Instagram UI</label>
+    </div>
+    <p class="music-line" id="music-line" hidden></p>
+  </section>
+
+  <div class="sheets">
+    <header class="top">
+      <h1 id="page-title"></h1>
+      <nav class="jump" aria-label="Sections">
+        <a href="#script">Script</a>
+        <a href="#caption">Caption</a>
+        <a href="#assets">Assets</a>
+        <a href="#refs">References</a>
+      </nav>
+    </header>
+
+    <section class="sheet" id="script" aria-labelledby="script-h">
+      <div class="sheet-head"><h2 id="script-h">Script</h2><button class="copy" id="copy-script" type="button">Copy</button></div>
+      <div class="script" id="script-lines"></div>
+    </section>
+
+    <section class="sheet" id="caption" aria-labelledby="caption-h">
+      <div class="sheet-head"><h2 id="caption-h">Caption</h2></div>
+      <div class="captions" id="captions"></div>
+    </section>
+
+    <section class="sheet" id="assets" aria-labelledby="assets-h">
+      <div class="sheet-head"><h2 id="assets-h">Assets</h2></div>
+      <div class="cards" id="cards"></div>
+    </section>
+
+    <section class="sheet" id="refs" aria-labelledby="refs-h">
+      <div class="sheet-head"><h2 id="refs-h">References</h2></div>
+      <ul class="refs" id="ref-list"></ul>
+    </section>
+  </div>
+</main>
+
+<dialog class="viewer" id="viewer" aria-label="Asset">
+  <div class="v-media"></div>
+  <div class="v-text"><p class="v-what"></p><p class="v-meta"></p></div>
+</dialog>

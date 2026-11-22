@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Plus, Lock, Sparkles, CheckCircle2 } from "lucide-react";
+import { Plus, Lock, Target, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MAX_FOCUS_SLOTS, MAX_ROUTINE_SLOTS } from "@/hooks/useDashboardData";
@@ -42,7 +42,7 @@ export function CapacityMeter({
               </>
             ) : (
               <>
-                <Sparkles className="size-3 text-emerald-500" aria-hidden="true" />
+                <Target className="size-3 text-emerald-500" aria-hidden="true" />
                 <span>Capacity Status</span>
               </>
             )}

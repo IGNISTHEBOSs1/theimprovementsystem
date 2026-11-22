@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useRef, useState, ReactNode } fro
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 import { detectDeviceTimezone } from '@/lib/serverTime';
+import { setupAuthDeepLinkListener } from '@/services/authDeepLinkService';
+import { isCapacitorNative } from '@/services/otaUpdateService';
 
 export interface Profile {
   id: string;
@@ -164,7 +166,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Native deep link listener for OAuth redirects (com.kinetic.app://auth/callback)
+    let deepLinkCleanup: (() => void) | null = null;
+    setupAuthDeepLinkListener().then((cleanup) => {
+      deepLinkCleanup = cleanup;
+    }).catch((err) => {
+      console.warn("[AuthProvider] Could not register auth deep link listener:", err);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+      if (deepLinkCleanup) deepLinkCleanup();
+    };
   }, [isDevPreview]);
 
   // Dedicated profile effect, watching the authenticated user. Runs
@@ -216,7 +229,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    if (isCapacitorNative()) {
+      try {
+        const { SocialLogin } = await import("@capgo/capacitor-social-login");
+        await Promise.race([
+          SocialLogin.logout({ provider: "google" }).catch(() => {}),
+          new Promise((resolve) => setTimeout(resolve, 600)),
+        ]);
+      } catch {
+        // Non-fatal if social login logout encounters an issue
+      }
+    }
+
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn("[AuthProvider] Primary signOut error, falling back to local:", err);
+      try {
+        await supabase.auth.signOut({ scope: "local" });
+      } catch {
+        // Ignore fallback error
+      }
+    }
+
+    // Clear Supabase session keys from localStorage to prevent resurrection
+    if (typeof window !== "undefined" && window.localStorage) {
+      try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && (key.startsWith("sb-") || key.includes("supabase.auth.token"))) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch (e) {
+        console.warn("[AuthProvider] LocalStorage cleanup warning:", e);
+      }
+    }
+
+    // Immediately clear React auth state
+    lastFetchedUserId.current = null;
+    setUser(null);
+    setProfile(null);
+    setProfileLoading(false);
+    setProfileError(false);
   };
 
   const resetPassword = async (email: string) => {

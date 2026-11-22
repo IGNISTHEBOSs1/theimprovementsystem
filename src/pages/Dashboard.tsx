@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Check, CheckCircle2, ChevronRight, Loader2, Sparkles, Target } from "lucide-react";
+import { Check, CheckCircle2, ChevronRight, Loader2, Target } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ import {
   deriveWeeklyCadence,
 } from "@/lib/trajectory";
 import { deriveInsights } from "@/lib/insights";
+import { deriveGuidance } from "@/lib/guidance";
 import { triggerHaptic } from "@/lib/haptics";
 import { soundEngine } from "@/hooks/useSoundEffects";
 import { TIS_SPRINGS, TIS_EASINGS } from "@/lib/motion-tokens";
@@ -115,7 +116,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
 
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-medium border border-border/70 bg-muted/40 text-muted-foreground shrink-0 uppercase tracking-wider">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-mono font-medium border border-border/70 bg-muted/40 text-muted-foreground shrink-0">
               Routine
             </span>
             {quest.linkedToGoal && quest.goalName && (
@@ -289,7 +290,6 @@ export default function Dashboard() {
   });
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   const completedToday = safeQuests.filter((q) =>
     todayStr ? isQuestResolvedToday(q, todayStr, profile?.timezone || "UTC") : q.completed
@@ -331,16 +331,16 @@ export default function Dashboard() {
     >
       <AppTour />
 
-      {/* ── 1. GREETING & LOCATION (Attention Level: Context) ── */}
+      {/* ── 1. TRAJECTORY HEADER & STATUS ── */}
       <header className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-border/60">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-            {greeting}, {name}.
+            Today&apos;s Trajectory
           </h1>
           <p className="text-xs text-muted-foreground flex items-center gap-1.5 font-mono mt-1">
             <span>{todayDateFormatted}</span>
             <span className="text-muted-foreground/40" aria-hidden="true">·</span>
-            <span>Day {elapsedDays} of 90</span>
+            <span className="tabular-nums">Day {elapsedDays} of 90</span>
           </p>
         </div>
 
@@ -409,8 +409,8 @@ export default function Dashboard() {
                     <span className="flex size-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                       <CheckCircle2 className="size-4" aria-hidden="true" />
                     </span>
-                    <p className="text-xs font-mono font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                      Primary Focus Locked
+                    <p className="text-xs font-mono font-medium text-emerald-600 dark:text-emerald-400">
+                      Primary focus locked
                     </p>
                   </div>
                   <h2 className="mt-3 text-xl sm:text-2xl font-bold tracking-tight text-foreground">
@@ -430,8 +430,8 @@ export default function Dashboard() {
                   className="rounded-xl border border-dashed border-primary/30 bg-primary/[0.02] p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div>
-                    <span className="text-xs font-mono font-semibold uppercase tracking-wider text-primary">
-                      Primary Focus Open
+                    <span className="text-xs font-mono font-medium text-primary">
+                      Primary focus open
                     </span>
                     <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground mt-0.5">
                       Anchor today with one decisive commitment
@@ -515,7 +515,7 @@ export default function Dashboard() {
           >
             {/* Header: Console Banner */}
             <div className="px-4 py-2.5 bg-muted/25 flex items-center justify-between border-b border-border/40">
-              <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-muted-foreground">
+              <span className="text-xs font-mono font-medium text-muted-foreground">
                 Telemetry Console
               </span>
               <span className="text-[10px] font-mono text-muted-foreground/80 flex items-center gap-1.5">
@@ -621,7 +621,7 @@ export default function Dashboard() {
                     <Target className="size-4 text-primary" aria-hidden="true" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">
+                    <p className="text-xs font-mono font-medium text-muted-foreground">
                       Mentor Diagnostic
                     </p>
                     <p className="text-xs text-foreground mt-0.5 leading-relaxed line-clamp-2">

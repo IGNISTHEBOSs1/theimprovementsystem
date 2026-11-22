@@ -47,13 +47,13 @@ export function AppTour() {
     <div
       role="dialog"
       aria-label="Quick tour"
-      className="fixed inset-x-4 bottom-[calc(88px+env(safe-area-inset-bottom))] z-50 mx-auto max-w-sm rounded-2xl border border-border bg-card p-4 shadow-[0_14px_28px_-4px_rgba(0,0,0,0.45)] sm:bottom-6"
+      className="fixed inset-x-4 bottom-[calc(88px+env(safe-area-inset-bottom))] z-50 mx-auto max-w-sm rounded-2xl border border-border bg-card p-4 shadow-lg sm:bottom-6"
     >
       <button
         type="button"
         onClick={dismiss}
         aria-label="Skip tour"
-        className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+        className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground active:scale-[0.98] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground disabled:opacity-40 disabled:cursor-not-allowed"
       >
         <X className="size-4" aria-hidden="true" />
       </button>
@@ -70,7 +70,7 @@ export function AppTour() {
         </div>
         <Button
           size="sm"
-          className="min-h-9"
+          className="min-h-9 active:scale-[0.98] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground disabled:opacity-40 disabled:cursor-not-allowed"
           onClick={() => (isLast ? dismiss() : setStep((s) => (s ?? 0) + 1))}
         >
           {isLast ? "Got it" : "Next"}

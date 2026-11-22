@@ -46,7 +46,7 @@ export function useGlobalShortcuts({ onOpenCommandPalette }: UseGlobalShortcutsO
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         onOpenCommandPalette?.();
-        window.dispatchEvent(new CustomEvent("tis:toggle-command-palette"));
+        window.dispatchEvent(new CustomEvent("kinetic:toggle-command-palette"));
         return;
       }
 
@@ -128,7 +128,7 @@ export function useGlobalShortcuts({ onOpenCommandPalette }: UseGlobalShortcutsO
         e.preventDefault();
         soundEngine.playTap();
         triggerHaptic("light");
-        window.dispatchEvent(new CustomEvent("tis:open-commitment"));
+        window.dispatchEvent(new CustomEvent("kinetic:open-commitment"));
         if (window.location.pathname !== "/quests") {
           navigate("/quests", { state: { openNewCommitment: true } });
         }
@@ -138,7 +138,7 @@ export function useGlobalShortcuts({ onOpenCommandPalette }: UseGlobalShortcutsO
       if (e.key === "?") {
         e.preventDefault();
         onOpenCommandPalette?.();
-        window.dispatchEvent(new CustomEvent("tis:toggle-command-palette"));
+        window.dispatchEvent(new CustomEvent("kinetic:toggle-command-palette"));
         return;
       }
     };

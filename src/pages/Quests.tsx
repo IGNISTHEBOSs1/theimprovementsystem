@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { CheckSquare, Pause, Plus, Repeat, Sparkles, Target } from "lucide-react";
+import { CheckSquare, Pause, Plus, Repeat, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { PrimaryActionPanel } from "@/components/dashboard/PrimaryActionPanel";
@@ -93,8 +93,8 @@ export default function Quests() {
       setFormTargetRole(focusAvailable ? "focus" : "routine");
       setShowCommitForm(true);
     };
-    window.addEventListener("tis:open-commitment", handleOpenCommitment);
-    return () => window.removeEventListener("tis:open-commitment", handleOpenCommitment);
+    window.addEventListener("kinetic:open-commitment", handleOpenCommitment);
+    return () => window.removeEventListener("kinetic:open-commitment", handleOpenCommitment);
   }, [focusAvailable]);
 
   const [serverLocal, setServerLocal] = useState<ServerLocalDate | null>(null);
@@ -280,7 +280,7 @@ export default function Quests() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="size-4 text-primary" aria-hidden="true" />
+                        <Target className="size-4 text-primary" aria-hidden="true" />
                         <h2 className="text-xs font-sans font-semibold text-foreground">
                           Primary Focus
                         </h2>
