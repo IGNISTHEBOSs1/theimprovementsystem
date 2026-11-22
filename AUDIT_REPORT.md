@@ -1,4 +1,4 @@
-# Full Application & Schema Audit Report: The Improvement System (TIS)
+# Full Application & Schema Audit Report: Kinetic
 
 **Audit Date**: September 28, 2026  
 **Auditor**: Antigravity Investigation Specialist  
@@ -278,7 +278,7 @@ Every file and subsystem in the repository has been inventoried and audited agai
 - **Evidence**:
   In `Landing.tsx:397, 1138` and `comparison-table.tsx:47`:
   ```tsx
-  "Streaks are fragile binary counters—miss once and 60 days vanish into zero. The Improvement System prioritizes Trajectory: a wholesome, velocity-based measure of real progress..."
+  "Streaks are fragile binary counters—miss once and 60 days vanish into zero. Kinetic prioritizes Trajectory: a wholesome, velocity-based measure of real progress..."
   ```
   In `AGENTS.md:49`:
   ```markdown
@@ -296,8 +296,8 @@ Every file and subsystem in the repository has been inventoried and audited agai
     ...
     <span>Complete today&apos;s focus to extend your streak to {currentStreak + 1} days</span>
   ```
-- **What is broken**: The Landing page and Comparison Table heavily attack streaks as "fragile binary counters" and position TIS as the antidote to streaks. Yet the active `Dashboard.tsx` features a large, prominent streak cockpit with an animated Flame icon, day counter, and the exact copy: *"Complete today's focus to extend your streak to {currentStreak + 1} days"*.
-- **User impact**: Severe product positioning contradiction. Users who signed up because TIS promised freedom from rigid streaks are immediately greeted with a streak counter on their home screen.
+- **What is broken**: The Landing page and Comparison Table heavily attack streaks as "fragile binary counters" and position Kinetic as the antidote to streaks. Yet the active `Dashboard.tsx` features a large, prominent streak cockpit with an animated Flame icon, day counter, and the exact copy: *"Complete today's focus to extend your streak to {currentStreak + 1} days"*.
+- **User impact**: Severe product positioning contradiction. Users who signed up because Kinetic promised freedom from rigid streaks are immediately greeted with a streak counter on their home screen.
 - **Root cause**: Design drift where a streak cockpit was added to `Dashboard.tsx` despite brand invariants forbidding streak gamification.
 
 ---
@@ -465,7 +465,7 @@ Every file and subsystem in the repository has been inventoried and audited agai
   Grep search across `src/` for `ai-assistant` returned **0 active callers** (only referenced in `src/archive/2026-v0/dormant/AIAssistant.tsx`).
 - **What is broken**: The function is deployed and callable without authentication (`verify_jwt = false`). It forwards requests to Lovable AI Gateway using server-side secrets. However, the active app uses deterministic algorithms (`guidance.ts`, `insights.ts`) and never invokes `ai-assistant`.
 - **User impact**: Security vulnerability: anyone with the project URL can invoke the edge function, consuming API gateway credits without authentication.
-- **Root cause**: Left deployed when TIS transitioned to deterministic guidance algorithms.
+- **Root cause**: Left deployed when Kinetic transitioned to deterministic guidance algorithms.
 
 ---
 
@@ -1094,12 +1094,12 @@ The following features were audited end-to-end, traced from UI through state and
 
 1. **Trajectory Visualization**:
    - *Question*: Should `/journey` display the authentic mathematical `TrajectoryChart.tsx` (plotting real actual/intended series and ±10% buffer corridor), or was `TrajectoryVisualizer.tsx` intentionally adopted for aesthetic simplicity?
-   - *Recommendation*: Mount `TrajectoryChart.tsx`. TIS's core brand promise is quiet, mathematically grounded trajectory tracking. Showing a synthetic static curve contradicts Brand Invariant #2 ("Deep Emerald kinetic contrast and signature ±10% buffer cone").
+   - *Recommendation*: Mount `TrajectoryChart.tsx`. Kinetic's core brand promise is quiet, mathematically grounded trajectory tracking. Showing a synthetic static curve contradicts Brand Invariant #2 ("Deep Emerald kinetic contrast and signature ±10% buffer cone").
 2. **Streak Counter in Dashboard**:
-   - *Question*: `Dashboard.tsx:330-376` renders a prominent Flame streak counter ("Complete today's focus to extend your streak to N days"), while `Landing.tsx` and `comparison-table.tsx` claim TIS rejects fragile streaks in favor of trajectory. Should the Dashboard streak cockpit be replaced with trajectory velocity?
+   - *Question*: `Dashboard.tsx:330-376` renders a prominent Flame streak counter ("Complete today's focus to extend your streak to N days"), while `Landing.tsx` and `comparison-table.tsx` claim Kinetic rejects fragile streaks in favor of trajectory. Should the Dashboard streak cockpit be replaced with trajectory velocity?
    - *Recommendation*: Replace the streak counter with velocity/trajectory metrics to maintain consistency with the landing page and Brand Invariant #3.
 3. **Local-First Offline Vault vs Cloud Supabase**:
-   - *Question*: Should TIS build a true local-first offline encrypted vault (RxDB / SQLite WASM), or update marketing copy to describe current cloud-backed Supabase storage with RLS?
+   - *Question*: Should Kinetic build a true local-first offline encrypted vault (RxDB / SQLite WASM), or update marketing copy to describe current cloud-backed Supabase storage with RLS?
    - *Recommendation*: Update marketing copy. Building a cryptographic local-first offline sync engine is a major multi-month architectural project.
 4. **Recurring Series Management**:
    - *Question*: How should users stop, edit, or pause recurring series?

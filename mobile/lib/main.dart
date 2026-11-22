@@ -21,11 +21,11 @@ void main() {
     ),
   );
 
-  runApp(const TisMobileApp());
+  runApp(const KineticMobileApp());
 }
 
-class TisMobileApp extends StatelessWidget {
-  const TisMobileApp({super.key});
+class KineticMobileApp extends StatelessWidget {
+  const KineticMobileApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class TisMobileApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'The Improvement System',
+        title: 'Kinetic',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme,
         home: const AppShell(),

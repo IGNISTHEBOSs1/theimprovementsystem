@@ -1,6 +1,6 @@
-# Deep Research & UI/UX Architecture: The Onboarding System
-**For The Improvement System (TIS) / Kinetic**
-*Synthesized from Empirical Behavioral Science (Irrational Labs, Headspace, Grit, WHOOP), 1,460 Mobile Onboarding Flow Benchmarks, and TIS Core Brand Invariants.*
+﻿# Deep Research & UI/UX Architecture: The Onboarding System
+**For Kinetic / Kinetic**
+*Synthesized from Empirical Behavioral Science (Irrational Labs, Headspace, Grit, WHOOP), 1,460 Mobile Onboarding Flow Benchmarks, and Kinetic Core Brand Invariants.*
 
 ---
 
@@ -19,16 +19,16 @@ Standard onboarding approaches in habit and self-improvement apps fail because t
 
 ---
 
-## 2. Core Brand Invariants & Guardrails for TIS Onboarding
+## 2. Core Brand Invariants & Guardrails for Kinetic Onboarding
 
-The Improvement System has distinct, non-negotiable architectural constraints defined in `AGENTS.md`. Every question and UI component in this onboarding flow must strictly adhere to these invariants:
+Kinetic has distinct, non-negotiable architectural constraints defined in `AGENTS.md`. Every question and UI component in this onboarding flow must strictly adhere to these invariants:
 
 | Brand Invariant | Meaning for Onboarding | Forbidden Anti-Patterns |
 | :--- | :--- | :--- |
 | **Strict Constraint: 1 Focus + 2 Routines** | Onboarding must physically prevent over-ambition. Users cannot enter 5 goals; the system forces them to pick exactly ONE 90-day North Star and TWO supporting routines. | Never allow open-ended task dumps, endless habit pickers, or multi-goal setups. |
 | **The Signature $\pm 10\%$ Buffer Cone** | The questionnaire must introduce the mathematical buffer cone (9 flexible buffer days over a 90-day horizon) as a structural feature that absorbs life disruptions. | Never frame missing a day as a "broken streak", "failure", or "streak reset". |
-| **Anti-Streak / Anti-Attendance** | TIS does not measure unbroken attendance; it measures **deterministic trajectory velocity** and **commitment follow-through**. | Never introduce streak flame counters, streak preservation alerts ("Don't break your streak!"), or guilt triggers. |
-| **No RPG Gamification** | TIS is a high-precision personal operating system for serious operators. | No XP bars, leveling, avatars, coin drops, fantasy hunter ranks, or confetti bursts. |
+| **Anti-Streak / Anti-Attendance** | Kinetic does not measure unbroken attendance; it measures **deterministic trajectory velocity** and **commitment follow-through**. | Never introduce streak flame counters, streak preservation alerts ("Don't break your streak!"), or guilt triggers. |
+| **No RPG Gamification** | Kinetic is a high-precision personal operating system for serious operators. | No XP bars, leveling, avatars, coin drops, fantasy hunter ranks, or confetti bursts. |
 | **Neoskeuomorphic Materiality** | Deep Obsidian canvas (`#090D16`), liquid frosted glass (`backdrop-blur-xl`), 1px hairline boundary strokes, and Emerald (`#10B981`) kinetic energy. | Flat, borderless white screens or muddy 2012 drop shadows. |
 | **Local-First Privacy** | All inputs are stored client-side in encrypted browser/device storage. | Forcing email/password authentication or OAuth upfront before calibration. |
 
@@ -52,7 +52,7 @@ flowchart TD
 ---
 
 ### Stage 1: The Burnout Audit (Confronting Streak Failure)
-- **Objective**: Expose the fatal flaw of conventional streak apps and validate the user's past frustration. Creates immediate resonance and positions TIS as an adult, math-driven system.
+- **Objective**: Expose the fatal flaw of conventional streak apps and validate the user's past frustration. Creates immediate resonance and positions Kinetic as an adult, math-driven system.
 - **Question Screen**:
   - **Eyebrow**: `DIAGNOSTIC • STEP 1 OF 7`
   - **Heading**: *"What usually causes your self-improvement routines to break?"*
@@ -64,7 +64,7 @@ flowchart TD
   3. **"Vague Ambition"**: *Had general goals without a deterministic mathematical trajectory.*
   4. **"Rigid Schedules"**: *Life disruptions (travel, sickness, deadlines) destroyed my routine.*
 - **System Response / Payoff Line**:
-  *(Upon selection)*: A subtle emerald status indicator appears: *"Understood. TIS replaces fragile streaks with a $\pm 10\%$ mathematical buffer cone. Missed days are absorbed, not penalized."*
+  *(Upon selection)*: A subtle emerald status indicator appears: *"Understood. Kinetic replaces fragile streaks with a $\pm 10\%$ mathematical buffer cone. Missed days are absorbed, not penalized."*
 
 ---
 
@@ -92,7 +92,7 @@ flowchart TD
 ---
 
 ### Stage 3: The Radical Focus Filter (The 1 Primary Focus)
-- **Objective**: Enforce the core constraint of TIS: **1 Primary Focus for the next 90 days**.
+- **Objective**: Enforce the core constraint of Kinetic: **1 Primary Focus for the next 90 days**.
 - **Question Screen**:
   - **Eyebrow**: `NORTH STAR • STEP 3 OF 7`
   - **Heading**: *"What is your single non-negotiable focus for the next 90 days?"*
@@ -104,7 +104,7 @@ flowchart TD
   - `Intellectual / Creative`: *"Read, annotate, and synthesize 12 foundational books"*
   - `Financial / Capital`: *"Eliminate all consumer debt and accumulate 6-month buffer"*
 - **The Guardrail Check**: If the user tries to type multiple goals joined by "and" (e.g. *"Get shredded and launch a SaaS and learn French"*), the system provides an inline gentle constraint nudge:
-  > *"TIS Principle: Multi-focus leads to zero velocity. Split them into future 90-day cycles. Pick the lead domino right now."*
+  > *"Kinetic Principle: Multi-focus leads to zero velocity. Split them into future 90-day cycles. Pick the lead domino right now."*
 
 ---
 
@@ -188,7 +188,7 @@ Stage 6 accomplishes four critical psychological objectives that conventional ap
 
 #### 1. The Labor Illusion (Harvard Business School Research)
 - **The Empirical Principle**: In landmark research by Buell & Norton (HBS), users who observe software "working" on their behalf (demonstrating computational effort and calculation) value the resulting output significantly more than when the exact same output is served instantaneously.
-- **In TIS**: An instantaneous jump from questionnaire to dashboard makes the app feel like a toy. The 3.5-second calibration communicates: *"A serious mathematical algorithm is modeling your personal trajectory."*
+- **In Kinetic**: An instantaneous jump from questionnaire to dashboard makes the app feel like a toy. The 3.5-second calibration communicates: *"A serious mathematical algorithm is modeling your personal trajectory."*
 
 #### 2. The IKEA Effect & Idiosyncratic Fit
 - Because the trajectory line and cone are calculated directly from their specific inputs, the user experiences intense psychological ownership. The system is no longer "an app someone else made"; it is **their personal trajectory engine**.
@@ -201,7 +201,7 @@ Stage 6 accomplishes four critical psychological objectives that conventional ap
   - The user understands: *"Even if life disrupts me next week, I am still inside the cone. I am still succeeding."*
 
 #### 4. The Transition from Casual User to Sovereign Operator
-- Most habit apps feel like entertainment or social games. Stage 6 shifts the tone into a calibrated flight instrument or financial terminal. It sets the serious, quiet, focused demeanor of The Improvement System.
+- Most habit apps feel like entertainment or social games. Stage 6 shifts the tone into a calibrated flight instrument or financial terminal. It sets the serious, quiet, focused demeanor of Kinetic.
 
 ---
 
@@ -275,7 +275,7 @@ Stage 6 accomplishes four critical psychological objectives that conventional ap
 
 ---
 
-## 6. Summary Matrix: The Complete 7-Stage TIS Onboarding Funnel
+## 6. Summary Matrix: The Complete 7-Stage Kinetic Onboarding Funnel
 
 | Stage | Step Name | Primary User Action | Psychological Mechanism | UI Component |
 | :---: | :--- | :--- | :--- | :--- |

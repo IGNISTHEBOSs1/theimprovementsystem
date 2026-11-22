@@ -1,6 +1,6 @@
-# Design System – The Improvement System (Full UI/UX Specification)
+# Design System – Kinetic (Full UI/UX Specification)
 
-> **Purpose** – This document defines a single source of truth for the visual language, interaction patterns, and accessibility guidelines of the entire Improvement System application. It is **not** a conceptual overview but a concrete UI/UX specification that can be directly consumed by designers and developers.
+> **Purpose** – This document defines a single source of truth for the visual language, interaction patterns, and accessibility guidelines of the entire Kinetic application. It is **not** a conceptual overview but a concrete UI/UX specification that can be directly consumed by designers and developers.
 
 ---
 
@@ -140,7 +140,7 @@
 
 ### 2.5 Navigation Bar (Floating Island)
 ```tsx
-<header className="fixed top-3 inset-x-3 max-w-5xl mx-auto z-50 tis-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300">
+<header className="fixed top-3 inset-x-3 max-w-5xl mx-auto z-50 kinetic-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300">
   {/* brand, toggles, login button */}
 </header>
 ```

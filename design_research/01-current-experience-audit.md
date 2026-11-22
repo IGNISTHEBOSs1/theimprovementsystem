@@ -1,4 +1,4 @@
-# Kinetic — Current Visual Experience Audit & Systemic Diagnosis
+﻿# Kinetic — Current Visual Experience Audit & Systemic Diagnosis
 **Phase 01: Visual Identity Discovery & Design Research**
 **Date:** November 2026  
 **Scope:** Evaluated against Desktop & Mobile viewports (320px, 375px, 390px, 430px) across Dark and Light themes.  
@@ -22,7 +22,7 @@ Incremental passes continuously refined the *contents* of these containers witho
 ## 2. Multi-Screen Diagnostic Audit (8 Screens)
 
 ### Screen 01: Landing Page (`src/pages/Landing.tsx`)
-*Reference Screenshot: `C:\Users\user\Downloads\TIS_Screenshots\mobile\dark\01_landing.png` & `light\01_landing.png`*
+*Reference Screenshot: `C:\Users\user\Downloads\Kinetic_Screenshots\mobile\dark\01_landing.png` & `light\01_landing.png`*
 
 - **Visual Hierarchy:** Leads with a bold, centered proposition: *"A discipline instrument for individuals committed to meaningful momentum."* The animated canvas wave background (`MonochromaticMeshBackground`) creates an immediate sense of fluid physics and atmospheric gravity.
 - **Composition & Space:** Generous vertical pacing ($64\text{px} - 120\text{px}$ section gaps). The hero gives ample negative space to let the headline breathe before transitioning into the interactive comparison matrix ("Streak Apps vs Kinetic").
@@ -33,7 +33,7 @@ Incremental passes continuously refined the *contents* of these containers witho
 ---
 
 ### Screen 02: Dashboard (`src/pages/Dashboard.tsx`)
-*Reference Screenshot: `C:\Users\user\Downloads\TIS_Screenshots\mobile\dark\03_dashboard.png` & `light\03_dashboard.png`*
+*Reference Screenshot: `C:\Users\user\Downloads\Kinetic_Screenshots\mobile\dark\03_dashboard.png` & `light\03_dashboard.png`*
 
 - **Visual Hierarchy:** Competes heavily for focal priority. In a $390 \times 844\text{px}$ viewport, the user is confronted with four distinct elevated blocks:
   1. Header row with date, greeting, 90-day goal pill, remaining days, and flex buffer badge.
@@ -47,7 +47,7 @@ Incremental passes continuously refined the *contents* of these containers witho
 ---
 
 ### Screen 03: Journey (`src/pages/Journey.tsx`)
-*Reference Screenshot: `C:\Users\user\Downloads\TIS_Screenshots\mobile\dark\04_journey.png` & `light\04_journey.png`*
+*Reference Screenshot: `C:\Users\user\Downloads\Kinetic_Screenshots\mobile\dark\04_journey.png` & `light\04_journey.png`*
 
 - **Visual Hierarchy:** Dominated by the SVG trajectory chart (`TrajectoryVisualizer.tsx`). Below the chart sit multiple secondary metric panels: Pace Status, Buffer Health, Accuracy %, and Active Horizon.
 - **Composition:** The trajectory visualizer attempts to cram an entire aerospace telemetry display into a mobile card. The $\pm 10\%$ buffer cone, target vector line, actual execution plot, and date milestones compete on a single 320–390px canvas.
@@ -57,7 +57,7 @@ Incremental passes continuously refined the *contents* of these containers witho
 ---
 
 ### Screen 04: Quests (`src/pages/Quests.tsx`)
-*Reference Screenshot: `C:\Users\user\Downloads\TIS_Screenshots\mobile\dark\05_quests.png` & `light\05_quests.png`*
+*Reference Screenshot: `C:\Users\user\Downloads\Kinetic_Screenshots\mobile\dark\05_quests.png` & `light\05_quests.png`*
 
 - **Visual Hierarchy:** Header (`Quests` + subhead) $\to$ Today's Commitments list $\to$ Routine Series list.
 - **Composition:** Looks indistinguishable from a generic todo list (Things, Todoist, TickTick). Cards have small drag handles, cadence tags (`DAILY`, `WEEKDAYS`), pause buttons, and pencil edit icons.
@@ -66,7 +66,7 @@ Incremental passes continuously refined the *contents* of these containers witho
 ---
 
 ### Screen 05: Mentor (`src/pages/Mentor.tsx`)
-*Reference Screenshot: `C:\Users\user\Downloads\TIS_Screenshots\mobile\dark\06_mentor.png` & `light\06_mentor.png`*
+*Reference Screenshot: `C:\Users\user\Downloads\Kinetic_Screenshots\mobile\dark\06_mentor.png` & `light\06_mentor.png`*
 
 - **Visual Hierarchy:** Header with Rebalance button $\to$ Surfaced Guidance Cards (Evidence $\to$ Interpretation $\to$ Action) $\to$ Execution Dynamics list.
 - **Composition & Cognitive Load:** Each Mentor card contains a category tag, observation header, evidence string, interpretation narrative, adjustment recommendation, and a full-width action button. On mobile ($390\text{px}$ width), one single card occupies over $380\text{px}$ of vertical height. Reading three recommendations requires extensive scrolling through dense, boxed text.
@@ -75,7 +75,7 @@ Incremental passes continuously refined the *contents* of these containers witho
 ---
 
 ### Screen 06: Profile (`src/pages/Profile.tsx`)
-*Reference Screenshot: `C:\Users\user\Downloads\TIS_Screenshots\mobile\dark\07_profile.png` & `light\07_profile.png`*
+*Reference Screenshot: `C:\Users\user\Downloads\Kinetic_Screenshots\mobile\dark\07_profile.png` & `light\07_profile.png`*
 
 - **Visual Hierarchy:** Avatar disc + Username $\to$ 90-Day North Star Goal card $\to$ Lifetime Execution Metrics (Follow-through %, Total Completed, Active Days) $\to$ History navigation link.
 - **Composition:** Resembles a profile settings form rather than a personal covenant. The 90-Day North Star—the foundational compass for the entire application—is rendered inside a standard input field with a small pencil edit button.
@@ -84,7 +84,7 @@ Incremental passes continuously refined the *contents* of these containers witho
 ---
 
 ### Screen 07: Settings (`src/pages/Settings.tsx`)
-*Reference Screenshot: `C:\Users\user\Downloads\TIS_Screenshots\mobile\dark\08_settings.png` & `light\08_settings.png`*
+*Reference Screenshot: `C:\Users\user\Downloads\Kinetic_Screenshots\mobile\dark\08_settings.png` & `light\08_settings.png`*
 
 - **Visual Hierarchy:** Back button $\to$ Theme Segmented Control $\to$ Sound/Haptics switches $\to$ Timezone selector $\to$ Local-first Encrypted Vault Status $\to$ Data Export / Account Deletion.
 - **Composition:** Standard iOS-style grouped table rows. While functional, it features no brand expression, no architectural tactile depth, and looks like stock shadcn-ui components.
@@ -92,7 +92,7 @@ Incremental passes continuously refined the *contents* of these containers witho
 ---
 
 ### Screen 08: Commitment History (`src/pages/QuestHistory.tsx`)
-*Reference Screenshot: `C:\Users\user\Downloads\TIS_Screenshots\mobile\dark\09_quest_history.png` & `light\09_quest_history.png`*
+*Reference Screenshot: `C:\Users\user\Downloads\Kinetic_Screenshots\mobile\dark\09_quest_history.png` & `light\09_quest_history.png`*
 
 - **Visual Hierarchy:** Filter tabs (All, Completed, Missed) $\to$ Search bar $\to$ Chronological card list.
 - **Composition:** A repetitive vertical feed of small checkmark/X-mark cards with dates and titles.

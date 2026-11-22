@@ -1,4 +1,4 @@
-# Kinetic — Four Fundamentally Different Art Directions
+﻿# Kinetic — Four Fundamentally Different Art Directions
 **Phase 01: Visual Identity Discovery & Design Research**
 **Date:** November 2026  
 **Objective:** Formulate four distinct, comprehensive art directions for Kinetic, each built upon a different visual philosophy, spatial architecture, typographic strategy, and interaction model.
@@ -164,7 +164,7 @@
 
 ```
 ┌──────────────────────────────────────────────┐
-│ // TIS.SYS.01 // HORIZON: 90D   RAD: +0.82   │
+│ // KINETIC.SYS.01 // HORIZON: 90D   RAD: +0.82   │
 │ ───────────────────────────────────────────  │
 │ [FOCUS:01] ────────────────────────────────  │
 │ TARGET: FINISH CORE SPEC                     │

@@ -1,5 +1,5 @@
-# MASTER IMPLEMENTATION SPECIFICATION & CODING PROMPT
-## The Improvement System (TIS) / Kinetic — 7-Stage Onboarding Architecture
+﻿# MASTER IMPLEMENTATION SPECIFICATION & CODING PROMPT
+## Kinetic / Kinetic — 7-Stage Onboarding Architecture
 
 > **Target Role:** Senior Frontend & Motion Systems Engineer  
 > **Project Root:** `c:\Users\user\Documents\My stuff\theimprovementsystem`  
@@ -10,7 +10,7 @@
 
 ## 1. Executive Instructions & System Invariants
 
-You are tasked with implementing the complete **7-Stage Onboarding System** for **The Improvement System (TIS)** (internally referred to as *Kinetic*). This onboarding flow is not an administrative survey—it is a **psychological intervention and commitment mechanism** grounded in empirical behavioral economics (Irrational Labs, Headspace, and Kovalee benchmarks).
+You are tasked with implementing the complete **7-Stage Onboarding System** for **Kinetic** (internally referred to as *Kinetic*). This onboarding flow is not an administrative survey—it is a **psychological intervention and commitment mechanism** grounded in empirical behavioral economics (Irrational Labs, Headspace, and Kovalee benchmarks).
 
 ### 1.1 Non-Negotiable Brand & Architectural Invariants (`AGENTS.md`)
 You must strictly adhere to the project invariants defined in `AGENTS.md`. Any violation of these invariants will result in rejection:
@@ -23,12 +23,12 @@ You must strictly adhere to the project invariants defined in `AGENTS.md`. Any v
    - Kinetic Emerald accents (`#10B981` / Emerald-500) representing focused momentum.
    - Text contrast strictly adheres to WCAG AAA standards.
 3. **The Signature $\pm 10\%$ Mathematical Buffer Cone**:
-   - TIS operates on the **90 / 90 / 9 Framework**: 90-Day Horizon, 90 Daily Steps, and **9 Flexible Buffer Days (10% Tolerance)**.
+   - Kinetic operates on the **90 / 90 / 9 Framework**: 90-Day Horizon, 90 Daily Steps, and **9 Flexible Buffer Days (10% Tolerance)**.
    - The buffer cone absorbs life disruptions. Missing a day is mathematically accounted for, not punished.
 4. **NO RPG Gamification**:
-   - **Never** introduce XP bars, character levels, coins, fantasy hunter ranks, or confetti explosions. TIS is a high-precision personal operating system for serious operators, not a role-playing game.
+   - **Never** introduce XP bars, character levels, coins, fantasy hunter ranks, or confetti explosions. Kinetic is a high-precision personal operating system for serious operators, not a role-playing game.
 5. **NO Streak Counters or Attendance Guilt**:
-   - **Never** introduce streak counters, streak badges, flame meters, or streak-preservation pressure ("Don't break the chain", "Streak preserved"). TIS does not measure unbroken daily attendance. Progress is measured strictly through **deterministic trajectory velocity within the buffer cone** and **commitment follow-through**.
+   - **Never** introduce streak counters, streak badges, flame meters, or streak-preservation pressure ("Don't break the chain", "Streak preserved"). Kinetic does not measure unbroken daily attendance. Progress is measured strictly through **deterministic trajectory velocity within the buffer cone** and **commitment follow-through**.
 6. **Strict Constraint: 1 Primary Focus + 2 Routines**:
    - Onboarding must enforce cognitive bandwidth discipline. The user is strictly limited to **1 Primary 90-Day Goal** and **exactly 2 Supporting Daily Routines**. The UI must physically prevent selecting more.
 7. **Local-First & Client-Side Privacy**:
@@ -585,28 +585,28 @@ const FAILURE_CARDS = [
     title: "The Streak Guilt Trap",
     description: "Missed one day, the streak reset to zero, felt demoralized, and abandoned the goal completely.",
     icon: Flame,
-    payoff: "TIS replaces brittle streaks with a ±10% buffer cone. 9 missed days over 90 days are absorbed, not penalized.",
+    payoff: "Kinetic replaces brittle streaks with a ±10% buffer cone. 9 missed days over 90 days are absorbed, not penalized.",
   },
   {
     id: "cognitive_overload",
     title: "Cognitive Overload",
     description: "Tried to change 5 habits simultaneously and burned out within two weeks.",
     icon: Brain,
-    payoff: "TIS enforces ruthless discipline: Exactly 1 Primary Goal and 2 Supporting Routines. Zero excess.",
+    payoff: "Kinetic enforces ruthless discipline: Exactly 1 Primary Goal and 2 Supporting Routines. Zero excess.",
   },
   {
     id: "vague_ambition",
     title: "Vague Ambition",
     description: "Set general goals without mathematical velocity, target milestones, or follow-through metrics.",
     icon: HelpCircle,
-    payoff: "TIS plots a deterministic trajectory curve with daily velocity checkpoints.",
+    payoff: "Kinetic plots a deterministic trajectory curve with daily velocity checkpoints.",
   },
   {
     id: "rigid_schedules",
     title: "Rigid Schedules",
     description: "Travel, illness, or urgent work obligations shattered an inflexible daily routine.",
     icon: CalendarX2,
-    payoff: "TIS buffers your trajectory against life disruptions with dynamic pace rebalancing.",
+    payoff: "Kinetic buffers your trajectory against life disruptions with dynamic pace rebalancing.",
   },
 ];
 
@@ -628,7 +628,7 @@ export function Stage1BurnoutAudit({ selectedReason, onSelect, onNext }: Stage1P
           What usually breaks your consistency?
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Most habit systems demand unbroken perfection. When life intervenes, you lose your streak and quit. TIS is engineered differently.
+          Most habit systems demand unbroken perfection. When life intervenes, you lose your streak and quit. Kinetic is engineered differently.
         </p>
       </div>
 
@@ -986,7 +986,7 @@ export function Stage3NorthStar({ goal, category, onChange, onNext, onBack }: St
           >
             <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
             <span>
-              <strong>TIS Guardrail:</strong> Splitting focus across multiple goals leads to zero velocity. Choose the single lead domino for these 90 days.
+              <strong>Kinetic Guardrail:</strong> Splitting focus across multiple goals leads to zero velocity. Choose the single lead domino for these 90 days.
             </span>
           </motion.div>
         )}
@@ -1704,7 +1704,7 @@ export function Stage7SovereignPact({ state, onCommit, onBack }: Stage7Props) {
           <div className="flex items-center gap-2">
             <Shield className="h-4 w-4 text-emerald-400" />
             <span className="text-xs font-mono font-bold tracking-wider text-foreground uppercase">
-              TIS Operational Covenant
+              Kinetic Operational Covenant
             </span>
           </div>
           <span className="text-[10px] font-mono text-emerald-400">STATUS: VERIFIED</span>

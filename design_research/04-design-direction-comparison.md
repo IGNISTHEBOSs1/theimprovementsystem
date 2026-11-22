@@ -1,4 +1,4 @@
-# Kinetic — Design Direction Comparison & Evaluation Matrix
+﻿# Kinetic — Design Direction Comparison & Evaluation Matrix
 **Phase 01: Visual Identity Discovery & Design Research**
 **Date:** November 2026  
 **Methodology:** Evaluated against the six weighted criteria specified by the product governance rubric. Every direction is tested against actual mobile captures ($390 \times 844\text{px}$) in both Dark and Light themes.
@@ -51,7 +51,7 @@
 - **Originality & Brand Recognizability (24.0 / 25):** The most visually radical direction. Completely rejects all consumer app conventions in favor of an aerospace flight HUD with corner reticles (`+`), attitude indicator ladders, and coordinate vectors (`+0.82 rad`).
 - **Visual Quality & Craftsmanship (17.0 / 20):** Superb dark-mode precision with phosphor emerald (`#10B981`) and amber warning tokens. However, in light mode, cathode-phosphor lines lose their bloom and the interface can look clinical and cold.
 - **Mobile Usability & Ergonomics (15.0 / 20):** High technical density creates cognitive drag for everyday users. Monospaced 10px coordinates and reticles can feel cluttered on smaller mobile screens ($320\text{px}-375\text{px}$).
-- **Information Hierarchy (13.0 / 15):** Coordinate readouts and status codes (`// TIS.SYS.01`) compete with the user's actual commitment title, diluting the human purpose of the goal.
+- **Information Hierarchy (13.0 / 15):** Coordinate readouts and status codes (`// KINETIC.SYS.01`) compete with the user's actual commitment title, diluting the human purpose of the goal.
 - **Product Personality (8.0 / 10):** Scientific, dispassionate, and analytical. While it eliminates gamified fluff, it risks feeling like developer tooling or avionics software, lacking human empathy.
 - **Scalability Across Screens (8.5 / 10):** Spectacular for Journey (trajectory engine) and Dashboard, but awkward for Mentor where empathetic personal reflection feels artificial when formatted like an aircraft fault log.
 

@@ -1,14 +1,14 @@
-# The Improvement System (TIS): Onboarding Animation Engineering Specification
+﻿# Kinetic: Onboarding Animation Engineering Specification
 *Complete Mathematical Physics, Spring Presets, Easing Curves, and Interactive Choreography for the 7-Stage Onboarding Flow.*
 
 ---
 
 ## 1. Global Motion Design System & Physics Tokens
 
-In strict accordance with TIS brand invariants in `AGENTS.md`:
+In strict accordance with Kinetic brand invariants in `AGENTS.md`:
 > **"Story-Driven Motion: Motion must do real work (guiding the eye, recalculating velocity curves, demonstrating buffer resilience). If the user notices the animation before the product, the motion is too loud."**
 
-All animations in TIS are categorized into three physical regimes:
+All animations in Kinetic are categorized into three physical regimes:
 1. **Tactile Springs**: For direct manipulation, touch feedback, and physical collisions.
 2. **Kinematic Curves**: For linear data tracing, trajectory curves, and mathematical reveals.
 3. **Ambient Rotations & Particulates**: Shader-driven, frame-budgeted WebGL loops running off the main thread.

@@ -1,4 +1,4 @@
-# Agent Rules — The Improvement System
+# Agent Rules — Kinetic
 
 Read this before making any change. These aren't style preferences — the
 two sections below exist because both already happened in this repo.
@@ -69,7 +69,7 @@ quietly fixing or working around it. The person you're working for
 decides what happens next — that's not a formality, it's the actual
 point of asking.
 
-## 4. The Improvement System (TIS) Visual Language & Brand Invariants
+## 4. Kinetic Visual Language & Brand Invariants
 
 - **Neoskeuomorphism over Flatness**: Use tactile depth, specular highlights (`inset 0 1px 1px 0 rgba(...)` on top edges), and liquid frosted glass (`backdrop-blur-xl`, saturation boost) for elevated cards and navigation docks. Every interactive element must provide a tangible press/hover state (`active:scale-[0.98]`).
 - **Intentional Minimalism & 3-Second Clarity**: Strip noise, never character. The app must communicate its purpose in under 3 seconds using 6th-grade clarity (except core branding terms):
@@ -78,7 +78,7 @@ point of asking.
   3. Strict constraint: 1 Primary Focus + 2 Routines.
   4. Local-first encrypted browser storage.
 - **No RPG Gamification**: Never introduce hunter ranks, XP bars, or fantasy game tropes. Frame user growth as deterministic personal trajectory and quiet mathematical velocity.
-- **No Streak Counters or Attendance Gamification**: Never introduce streak counters, streak badges, flame meters, or streak-preservation pressure ("extend your streak", "streak preserved", "don't break the chain"). TIS does not treat unbroken daily attendance as proof of improvement. Daily practice is honored only to the extent that it genuinely serves a chosen Goal. Progress is measured strictly through deterministic trajectory velocity (within the ±10% buffer), commitment follow-through rates, and verified cumulative execution proof.
-- **Side-by-Side Comparative Clarity**: When contrasting TIS with conventional streak apps, use clean side-by-side matrices with responsive segmented controls, never ambiguous sliders.
+- **No Streak Counters or Attendance Gamification**: Never introduce streak counters, streak badges, flame meters, or streak-preservation pressure ("extend your streak", "streak preserved", "don't break the chain"). Kinetic does not treat unbroken daily attendance as proof of progress. Daily practice is honored only to the extent that it genuinely serves a chosen Goal. Progress is measured strictly through deterministic trajectory velocity (within the ±10% buffer), commitment follow-through rates, and verified cumulative execution proof.
+- **Side-by-Side Comparative Clarity**: When contrasting Kinetic with conventional streak apps, use clean side-by-side matrices with responsive segmented controls, never ambiguous sliders.
 - **Story-Driven Motion**: Motion must do real work (guiding the eye, recalculating velocity curves, demonstrating buffer resilience). If the user notices the animation before the product, the motion is too loud.
 
