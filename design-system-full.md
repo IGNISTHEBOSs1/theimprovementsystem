@@ -14,6 +14,7 @@
 | **No RPG Gamification** | Avoid XP bars, rank icons, or fantasy‑style progress meters. Use deterministic personal‑trajectory visuals (buffer cone, focus count). |
 | **Side‑by‑Side Comparative Clarity** | When comparing features, use a clean matrix with tick (`✔`) / cross (`✖`) icons, no ambiguous sliders. |
 | **Story‑Driven Motion** | Motion only when it guides focus, indicates state change, or reinforces the buffer‑cone metaphor. All animations ≤ 350 ms, respect `prefers-reduced-motion`. |
+| **Canonical Brand Mark** | Stylized dynamic 'K' and human in motion. Features an orbital focal circle (`cx: 356.5, cy: 291.5, r: 98.5`), a 45° velocity beam, and dual baseline vertical detents (`216,817` and `812,817`). Pure white on Obsidian dark surfaces (`#FAFAFA`), deep charcoal on Limestone light surfaces (`#1F2937`). |
 
 ### 1.2 Colour Palette (HSL tokens – defined in `src/index.css`)
 | Token | Light (HSL) | Light Hex | Dark (HSL) | Dark Hex |

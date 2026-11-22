@@ -1,17 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-  <rect width="100" height="100" rx="24" fill="#090D16"/>
-  <circle cx="75" cy="25" r="30" fill="#10B981" fill-opacity="0.25"/>
-  <defs>
-    <linearGradient id="fav-em" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#059669"/>
-      <stop offset="100%" stop-color="#34D399"/>
-    </linearGradient>
-    <linearGradient id="fav-ti" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#CBD5E1"/>
-    </linearGradient>
-  </defs>
-  <rect x="22" y="20" width="12" height="60" rx="6" fill="url(#fav-ti)"/>
-  <path d="M41 47 L66 22 C68.5 19.5 73 21.2 73 24.8 L73 34.5 C73 36.6 72 38.6 70.5 40.1 L53 57.6 C50 60.6 45 58.5 45 54.2 L45 49 C45 47.5 43.5 46.5 42 47 Z" fill="url(#fav-em)"/>
-  <path d="M45 51 C45 46.8 50 44.7 53 47.7 L70.5 65.2 C72 66.7 73 68.7 73 70.8 L73 77.5 C73 81.1 68.5 82.8 66 80.3 L41 55.3 C40 54.3 40 52.8 41 51.8 Z" fill="url(#fav-ti)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <style>
+    .bg { fill: #FFFFFF; }
+    .mark { fill: #1F2937; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #090D16; }
+      .mark { fill: #FAFAFA; }
+    }
+  </style>
+  <rect width="1024" height="1024" rx="224" class="bg" />
+  <circle cx="356.5" cy="291.5" r="98.5" class="mark" />
+  <path d="M216 817V732L709 141L812 227L601 479L812 732V817H710L514 584L319 817H216Z" class="mark" />
 </svg>

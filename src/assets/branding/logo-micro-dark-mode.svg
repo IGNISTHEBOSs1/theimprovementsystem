@@ -1,18 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-  <defs>
-    <linearGradient id="k-em" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#059669"/>
-      <stop offset="100%" stop-color="#34D399"/>
-    </linearGradient>
-    <linearGradient id="k-ti" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#CBD5E1"/>
-    </linearGradient>
-  </defs>
-  <!-- Left Anchor Pillar -->
-  <rect x="20" y="18" width="13" height="64" rx="6.5" fill="url(#k-ti)"/>
-  <!-- Top Forward Velocity Blade -->
-  <path d="M41 47 L68 20 C70.5 17.5 75 19.2 75 22.8 L75 32.5 C75 34.6 74 36.6 72.5 38.1 L54 56.6 C51 59.6 46 57.5 46 53.2 L46 48 C46 46.5 44.5 45.5 43 46 Z" fill="url(#k-em)"/>
-  <!-- Bottom Horizon Blade -->
-  <path d="M46 51 C46 46.8 51 44.7 54 47.7 L72.5 66.2 C74 67.7 75 69.7 75 71.8 L75 79.5 C75 83.1 70.5 84.8 68 82.3 L41 55.3 C40 54.3 40 52.8 41 51.8 Z" fill="url(#k-ti)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <!-- Kinetic Dark Mode Mark -->
+  <circle cx="356.5" cy="291.5" r="98.5" fill="#FAFAFA" />
+  <path d="M216 817V732L709 141L812 227L601 479L812 732V817H710L514 584L319 817H216Z" fill="#FAFAFA" />
 </svg>
