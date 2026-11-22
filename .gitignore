@@ -4,5 +4,6 @@ scratch/
 .env
 .env.*
 *.local
+*.apk
 .DS_Store
 Thumbs.db
