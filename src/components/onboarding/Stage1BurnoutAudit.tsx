@@ -1,7 +1,7 @@
 // src/components/onboarding/Stage1BurnoutAudit.tsx
 import React from "react";
 import { motion } from "framer-motion";
-import { Flame, Brain, HelpCircle, CalendarX2, CheckCircle2, ShieldCheck, ArrowRight } from "lucide-react";
+import { RotateCcw, Brain, HelpCircle, CalendarX2, CheckCircle2, ShieldCheck, ArrowRight } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { MOTION_PRESETS } from "@/lib/motion-tokens";
 
@@ -16,7 +16,7 @@ const FAILURE_CARDS = [
     id: "streak_trap",
     title: "Streak Guilt Trap",
     description: "A single missed day reset the counter, killing momentum.",
-    icon: Flame,
+    icon: RotateCcw,
     payoff: "Kinetic absorbs up to 9 missed days within a ±10% mathematical buffer cone.",
   },
   {
@@ -24,7 +24,7 @@ const FAILURE_CARDS = [
     title: "Cognitive Overload",
     description: "Attempting too many habits at once led to rapid burnout.",
     icon: Brain,
-    payoff: "Kinetic enforces strict discipline: 1 Primary Goal and 2 Daily Routines.",
+    payoff: "Kinetic enforces strict discipline: 1 Primary Goal and up to 5 Daily Routines.",
   },
   {
     id: "vague_ambition",
@@ -123,7 +123,7 @@ export function Stage1BurnoutAudit({ selectedReason, onSelect, onNext }: Stage1P
                   exit={{ opacity: 0, y: -6, scale: 0.98 }}
                   transition={MOTION_PRESETS.snappySpring}
                   style={{ boxShadow: "inset 0 1px 1px 0 rgba(16, 185, 129, 0.25)" }}
-                  className="rounded-xl border border-emerald-500/35 bg-emerald-500/10 dark:bg-emerald-950/25 p-3.5 shadow-xs -mt-1 ml-2"
+                  className="rounded-xl border border-emerald-500/35 bg-emerald-500/10 dark:bg-emerald-950/25 p-3.5 shadow-xs mt-1.5"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 mt-0.5">

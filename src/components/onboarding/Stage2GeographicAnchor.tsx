@@ -181,7 +181,7 @@ export function Stage2GeographicAnchor({
           <button
             type="button"
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="absolute right-3 p-1 text-muted-foreground hover:text-foreground cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground rounded"
+            className="absolute right-0 top-0 h-11 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground rounded-r-xl"
             aria-label="Toggle region list"
           >
             <ChevronDown className={`h-4 w-4 transition-transform motion-reduce:transform-none ${dropdownOpen ? "rotate-180" : ""}`} />
@@ -202,7 +202,7 @@ export function Stage2GeographicAnchor({
                     key={`${c.name}-${c.timezone}`}
                     type="button"
                     onClick={() => handleSelectCountry(c)}
-                    className={`w-full flex items-center justify-between rounded-lg px-3 py-2.5 text-left text-xs transition-colors cursor-pointer ${
+                    className={`w-full min-h-[44px] flex items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition-colors cursor-pointer ${
                       isSelected
                         ? "bg-accent text-accent-foreground font-semibold border border-emerald-500/40 shadow-xs"
                         : "border border-transparent text-foreground hover:bg-muted/70"
@@ -246,7 +246,7 @@ export function Stage2GeographicAnchor({
           <span className="text-[11px] text-muted-foreground flex items-center gap-1.5 font-medium">
             <Clock className="h-3 w-3 text-emerald-500" /> Day Rollover
           </span>
-          <p className="font-semibold text-foreground">Midnight (00:00 Local)</p>
+          <p className="font-semibold text-foreground">Midnight (<span className="font-mono tabular-nums">00:00</span> Local)</p>
         </div>
       </div>
 

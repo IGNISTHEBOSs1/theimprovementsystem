@@ -102,9 +102,9 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
               disabled={isDisabled}
               aria-pressed={isSelected}
               onClick={() => handleToggle(routine)}
-              className={`w-full flex items-center justify-between rounded-xl border p-2.5 sm:p-3 text-left text-xs transition-colors active:scale-[0.98] motion-reduce:transform-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground disabled:opacity-40 disabled:cursor-not-allowed ${
+              className={`w-full min-h-[44px] flex items-center justify-between rounded-xl border p-2.5 sm:p-3 text-left text-xs transition-colors active:scale-[0.98] motion-reduce:transform-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground disabled:opacity-40 disabled:cursor-not-allowed ${
                 isSelected
-                  ? "border-foreground/30 bg-accent/60 text-foreground font-semibold shadow-xs"
+                  ? "border-emerald-500/50 bg-accent/60 text-foreground font-semibold shadow-xs ring-1 ring-emerald-500/30"
                   : isDisabled
                   ? "border-border/40 bg-muted/20 text-muted-foreground/50 opacity-40 cursor-not-allowed"
                   : "border-border/80 bg-card text-foreground hover:border-border hover:bg-muted/40 shadow-xs"
@@ -112,16 +112,17 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
             >
               <span className="pr-3 leading-snug text-[11px] sm:text-xs">{routine}</span>
               <div
-                className={`flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-all ${
                   isSelected
                     ? "border-emerald-500 bg-emerald-500 text-white shadow-xs"
                     : isDisabled
                     ? "border-border/40 bg-muted/40 text-muted-foreground/40"
-                    : "border-border/80 bg-background"
+                    : "border-border/90 bg-muted/30 text-muted-foreground/70"
                 }`}
               >
-                {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
-                {isDisabled && <Lock className="h-2 w-2 text-muted-foreground/60" />}
+                {isSelected && <Check className="h-3.5 w-3.5 stroke-[3]" />}
+                {!isSelected && !isDisabled && <Plus className="h-3 w-3 stroke-[2.2] opacity-70" />}
+                {isDisabled && <Lock className="h-2.5 w-2.5 text-muted-foreground/60" />}
               </div>
             </button>
           );
@@ -135,9 +136,10 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
             <button
               type="button"
               onClick={() => setShowCustom(true)}
-              className="text-xs text-foreground/80 hover:text-foreground hover:underline flex items-center gap-1.5 font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground rounded"
+              className="w-full min-h-[44px] rounded-xl border border-dashed border-border/90 hover:border-foreground/30 bg-muted/20 hover:bg-muted/40 px-3.5 text-xs text-muted-foreground hover:text-foreground flex items-center justify-center gap-2 font-medium transition-colors cursor-pointer active:scale-[0.98] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
             >
-              <Plus className="h-3.5 w-3.5 text-emerald-500" /> Define custom routine
+              <Plus className="h-3.5 w-3.5 text-emerald-500" />
+              <span>Define custom routine</span>
             </button>
           ) : (
             <div className="flex gap-2">
@@ -146,12 +148,12 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
                 placeholder="e.g. 20-min vocal warm-up..."
-                className="flex-1 h-10 rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none focus:ring-1 focus:ring-foreground/40 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
+                className="flex-1 h-11 rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none focus:ring-1 focus:ring-foreground/40 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
               />
               <button
                 type="button"
                 onClick={handleAddCustom}
-                className="h-10 px-3.5 rounded-xl bg-primary text-primary-foreground font-semibold text-xs active:scale-[0.96] motion-reduce:transform-none shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
+                className="h-11 px-4 rounded-xl bg-primary text-primary-foreground font-semibold text-xs active:scale-[0.96] motion-reduce:transform-none shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
               >
                 Add
               </button>
@@ -174,7 +176,7 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
           onClick={onNext}
           className="flex-1 min-h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-xs sm:text-sm tracking-wide transition-colors active:scale-[0.98] motion-reduce:transform-none shadow-xs flex items-center justify-center cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
         >
-          <span>Lock Routines ({selectedRoutines.length}/{MAX_ROUTINES})</span>
+          <span>Lock Routines (<span className="font-mono tabular-nums">{selectedRoutines.length}/{MAX_ROUTINES}</span>)</span>
         </button>
       </div>
     </div>

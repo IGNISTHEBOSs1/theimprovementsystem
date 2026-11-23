@@ -106,21 +106,32 @@ export function Stage3NorthStar({ goal, category, onChange, onNext, onBack }: St
           <Compass className="h-3.5 w-3.5 text-emerald-500" /> Or pick a proven baseline:
         </span>
         <div className="grid gap-1.5">
-          {INSPIRATION_CHIPS.map((chip) => (
-            <button
-              key={chip.text}
-              type="button"
-              onClick={() => handleChipClick(chip.text, chip.cat)}
-              className="text-left rounded-xl border border-border/80 bg-card hover:bg-muted/40 hover:border-foreground/20 p-2.5 text-xs text-foreground transition-colors active:scale-[0.98] motion-reduce:transform-none shadow-xs flex items-center justify-between gap-2.5 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
-            >
-              <span className="text-foreground/90 group-hover:text-foreground transition-colors leading-snug flex-1 min-w-0 text-pretty text-[11px] sm:text-xs">
-                "{chip.text}"
-              </span>
-              <span className="text-[10px] font-medium text-muted-foreground shrink-0 px-2 py-0.5 rounded-md bg-muted/60 border border-border/60">
-                {chip.label}
-              </span>
-            </button>
-          ))}
+          {INSPIRATION_CHIPS.map((chip) => {
+            const isSelected = goal === chip.text;
+            return (
+              <button
+                key={chip.text}
+                type="button"
+                onClick={() => handleChipClick(chip.text, chip.cat)}
+                className={`text-left rounded-xl border p-2.5 sm:p-3 min-h-[44px] text-xs transition-colors active:scale-[0.98] motion-reduce:transform-none shadow-xs flex items-center justify-between gap-2.5 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground ${
+                  isSelected
+                    ? "border-emerald-500/50 bg-accent/60 text-foreground ring-1 ring-emerald-500/30 font-semibold"
+                    : "border-border/80 bg-card hover:bg-muted/40 hover:border-foreground/20 text-foreground"
+                }`}
+              >
+                <span className="text-foreground/90 group-hover:text-foreground transition-colors leading-snug flex-1 min-w-0 text-pretty text-[11px] sm:text-xs">
+                  "{chip.text}"
+                </span>
+                <span className={`text-[10px] font-medium shrink-0 px-2 py-0.5 rounded-md border ${
+                  isSelected
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 font-semibold"
+                    : "text-muted-foreground bg-muted/60 border-border/60"
+                }`}>
+                  {chip.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

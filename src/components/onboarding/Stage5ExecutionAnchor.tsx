@@ -97,7 +97,7 @@ export function Stage5ExecutionAnchor({
                 <div className="flex flex-col items-center gap-0.5 min-w-0">
                   <Icon className="h-3.5 w-3.5" />
                   <span className="text-[11px] font-semibold tracking-tight">{window.label}</span>
-                  <span className="text-[9px] opacity-70 font-mono tracking-tight truncate w-full">{window.sub}</span>
+                  <span className="text-[9px] opacity-70 font-mono tabular-nums tracking-tight truncate w-full">{window.sub}</span>
                 </div>
               </button>
             );
@@ -120,9 +120,9 @@ export function Stage5ExecutionAnchor({
                 role="radio"
                 aria-checked={isSelected}
                 onClick={() => handleTriggerSelect(t)}
-                className={`w-full flex items-center justify-between rounded-xl border p-2.5 sm:p-3 text-left text-xs transition-colors active:scale-[0.98] motion-reduce:transform-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground ${
+                className={`w-full min-h-[44px] flex items-center justify-between rounded-xl border p-2.5 sm:p-3 text-left text-xs transition-colors active:scale-[0.98] motion-reduce:transform-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground ${
                   isSelected
-                    ? "border-foreground/30 bg-accent/60 text-foreground font-semibold shadow-xs"
+                    ? "border-emerald-500/50 bg-accent/60 text-foreground font-semibold shadow-xs ring-1 ring-emerald-500/30"
                     : "border-border/80 bg-card hover:border-border hover:bg-muted/40 text-foreground shadow-xs"
                 }`}
               >
@@ -139,9 +139,10 @@ export function Stage5ExecutionAnchor({
             <button
               type="button"
               onClick={() => setShowCustom(true)}
-              className="text-xs text-foreground/80 hover:text-foreground hover:underline flex items-center gap-1.5 font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground rounded"
+              className="w-full min-h-[44px] rounded-xl border border-dashed border-border/90 hover:border-foreground/30 bg-muted/20 hover:bg-muted/40 px-3.5 text-xs text-muted-foreground hover:text-foreground flex items-center justify-center gap-2 font-medium transition-colors cursor-pointer active:scale-[0.98] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
             >
-              <Plus className="h-3.5 w-3.5 text-emerald-500" /> Define custom trigger
+              <Plus className="h-3.5 w-3.5 text-emerald-500" />
+              <span>Define custom trigger</span>
             </button>
           ) : (
             <div className="flex gap-2">
@@ -150,12 +151,12 @@ export function Stage5ExecutionAnchor({
                 value={customTrigger}
                 onChange={(e) => setCustomTrigger(e.target.value)}
                 placeholder="e.g. Immediately after daily standup..."
-                className="flex-1 h-10 rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none focus:ring-1 focus:ring-foreground/40 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
+                className="flex-1 h-11 rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none focus:ring-1 focus:ring-foreground/40 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
               />
               <button
                 type="button"
                 onClick={handleAddCustom}
-                className="h-10 px-3.5 rounded-xl bg-primary text-primary-foreground font-semibold text-xs active:scale-[0.96] motion-reduce:transform-none shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-11 px-4 rounded-xl bg-primary text-primary-foreground font-semibold text-xs active:scale-[0.96] motion-reduce:transform-none shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Set
               </button>

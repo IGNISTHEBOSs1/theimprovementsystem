@@ -157,7 +157,7 @@ export function Stage7SovereignPact({ state, onCommit, onBack }: Stage7Props) {
             <span className="text-foreground font-semibold text-xs truncate text-right">{state.country} ({state.utcOffset})</span>
           </div>
           <div className="py-1 border-b border-border/60 space-y-0.5">
-            <span className="text-muted-foreground text-xs">North Star (90 days)</span>
+            <span className="text-muted-foreground text-xs">North Star (<span className="font-mono tabular-nums">90</span> days)</span>
             <p className="text-foreground font-semibold font-sans text-xs leading-snug">{state.primaryGoal}</p>
           </div>
           <div className="py-1 border-b border-border/60 space-y-0.5">
@@ -187,8 +187,11 @@ export function Stage7SovereignPact({ state, onCommit, onBack }: Stage7Props) {
       <div className="space-y-3 pt-3">
         {/* Status Callout / Beacon */}
         <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
-          <span>Final verification required</span>
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+          </span>
+          <span className="font-medium text-foreground/80">Final verification required</span>
         </div>
 
         <motion.button
