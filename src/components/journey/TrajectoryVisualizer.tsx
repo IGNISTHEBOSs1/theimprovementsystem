@@ -266,7 +266,7 @@ export function TrajectoryVisualizer({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl p-5 sm:p-7 milled-slab transition-all duration-300",
+        "relative overflow-hidden rounded-xl p-5 sm:p-7 milled-slab transition-colors duration-300",
         className,
       )}
     >
@@ -280,13 +280,13 @@ export function TrajectoryVisualizer({
       <div className="relative z-10 flex items-start justify-between gap-4 pb-1">
         <div className="min-w-0">
           {/* Eyebrow: Clearly distinguish recorded history from planned target */}
-          <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground block truncate">
+          <span className="text-xs font-mono font-medium text-muted-foreground block truncate">
             {activeScrubDay !== null
               ? activeScrubDay === safeElapsed
-                ? `Today · Day ${safeElapsed}`
+                ? `Today / Day ${safeElapsed}`
                 : activeScrubDay < safeElapsed
-                ? `Day ${activeScrubDay} · Recorded Velocity`
-                : `Day ${activeScrubDay} · Target Vector`
+                ? `Day ${activeScrubDay} / Recorded Velocity`
+                : `Day ${activeScrubDay} / Target Vector`
               : "Goal Trajectory"}
           </span>
           <div className="mt-0.5 flex items-baseline gap-2">
@@ -724,8 +724,8 @@ export function TrajectoryVisualizer({
             {/* System Constraints */}
             <div className="p-3 rounded-lg border border-border/80 bg-muted/20 text-muted-foreground space-y-1">
               <span className="font-semibold text-foreground block">Daily System Structure</span>
-              <p>• <strong>1 Primary Focus:</strong> Non-negotiable daily progress step.</p>
-              <p>• <strong>Supporting Routines:</strong> Cadence practices protecting consistency.</p>
+              <p><span className="text-primary font-mono mr-1">/</span><strong>1 Primary Focus:</strong> Non-negotiable daily progress step.</p>
+              <p><span className="text-primary font-mono mr-1">/</span><strong>Supporting Routines:</strong> Cadence practices protecting consistency.</p>
             </div>
           </div>
 

@@ -27,14 +27,14 @@ export function CapacityMeter({
     <section
       aria-label="Daily Capacity Status"
       className={cn(
-        "milled-slab rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-[var(--shadow-card)] backdrop-blur-xl transition-all duration-200",
+        "milled-slab rounded-2xl border border-border/80 bg-card/80 p-4 sm:p-5 shadow-[var(--shadow-card)] backdrop-blur-xl transition-colors duration-200",
         className
       )}
     >
       {/* Header Row */}
       <div className="flex items-center justify-between gap-3 pb-3 border-b border-border/50">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-muted/60 text-muted-foreground border border-border/70">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-muted/60 text-muted-foreground border border-border/70">
             {isAllFull ? (
               <>
                 <Lock className="size-3 text-amber-500" aria-hidden="true" />
@@ -49,7 +49,7 @@ export function CapacityMeter({
           </span>
 
           <span className="text-xs font-semibold text-foreground font-sans">
-            {activeFocusCount}/{MAX_FOCUS_SLOTS} Focus · {activeRoutineCount}/{MAX_ROUTINE_SLOTS} Routines
+            {activeFocusCount}/{MAX_FOCUS_SLOTS} Focus / {activeRoutineCount}/{MAX_ROUTINE_SLOTS} Routines
           </span>
         </div>
 
@@ -60,7 +60,7 @@ export function CapacityMeter({
             variant="outline"
             size="sm"
             onClick={onAddPressed}
-            className="size-11 min-w-[44px] sm:min-w-[48px] rounded-xl border-border/80 text-foreground hover:bg-muted/70 active:scale-[0.96] p-0 flex items-center justify-center transition-all duration-150 shrink-0"
+            className="size-11 min-w-[44px] sm:min-w-[48px] rounded-xl border-border/80 text-foreground hover:bg-muted/70 active:scale-[0.96] p-0 flex items-center justify-center transition-colors duration-150 shrink-0"
             aria-label="Add new commitment"
           >
             <Plus className="size-4" aria-hidden="true" />
@@ -82,7 +82,7 @@ export function CapacityMeter({
 
           <div
             className={cn(
-              "h-2.5 w-full rounded-full transition-all duration-300 overflow-hidden border",
+              "h-2.5 w-full rounded-full transition-colors duration-300 overflow-hidden border",
               isFocusLocked
                 ? "bg-emerald-500/20 border-emerald-500/40"
                 : "bg-muted/40 border-border/60 border-dashed"
@@ -114,7 +114,7 @@ export function CapacityMeter({
                 <div
                   key={index}
                   className={cn(
-                    "h-2 rounded-full transition-all duration-300 border",
+                    "h-2 rounded-full transition-colors duration-300 border",
                     isFilled
                       ? "bg-primary border-primary/60 shadow-[0_0_6px_rgba(99,102,241,0.25)]"
                       : "bg-muted/30 border-border/50"

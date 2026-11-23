@@ -332,7 +332,7 @@ export default function Mentor() {
             >
               <div className="flex items-center justify-between gap-4">
                 <span className="text-xs font-mono font-medium text-primary block">
-                  Pattern · Repeating Obstacle
+                  Pattern / Repeating Obstacle
                 </span>
                 <span className="text-xs font-mono font-medium text-muted-foreground">
                   Diagnostic Advisory
@@ -415,7 +415,7 @@ export default function Mentor() {
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-mono font-medium text-primary">
-                  Pattern · Bouncing Back
+                  Pattern / Bouncing Back
                 </span>
                 <span className="text-xs font-mono font-medium text-muted-foreground">
                   Diagnostic Advisory
@@ -479,7 +479,7 @@ export default function Mentor() {
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-mono font-medium text-emerald-700 dark:text-emerald-400">
-                  Pattern · Steady Progress
+                  Pattern / Steady Progress
                 </span>
                 {momentum.comparison && (
                   <span className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-mono font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">

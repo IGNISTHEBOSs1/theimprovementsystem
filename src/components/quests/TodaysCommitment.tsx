@@ -102,7 +102,7 @@ export function TodaysCommitment({
       }}
     >
       <div className="flex items-center justify-between pb-1 border-b border-border/50">
-        <p className="text-[11px] font-mono font-medium uppercase tracking-wider text-primary">New Commitment</p>
+        <p className="text-xs font-mono font-medium text-primary">New Commitment</p>
         {onCancel && (
           <button
             type="button"
@@ -156,7 +156,7 @@ export function TodaysCommitment({
               disabled={committing || (!focusAvailable && role !== "focus")}
               onClick={() => handleRoleChange("focus")}
               className={cn(
-                "flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 active:scale-[0.98]",
+                "flex items-start gap-3 p-4 rounded-xl border text-left transition-colors cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 active:scale-[0.98]",
                 role === "focus"
                   ? "border-emerald-500/80 ring-1 ring-emerald-500/30 bg-background/90 shadow-xs"
                   : "border-border/80 bg-background/50 hover:bg-muted/30",
@@ -193,7 +193,7 @@ export function TodaysCommitment({
               disabled={committing || (!routineAvailable && role !== "routine")}
               onClick={() => handleRoleChange("routine")}
               className={cn(
-                "flex items-start gap-3 p-4 rounded-xl border text-left transition-all cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 active:scale-[0.98]",
+                "flex items-start gap-3 p-4 rounded-xl border text-left transition-colors cursor-pointer relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 active:scale-[0.98]",
                 role === "routine"
                   ? "border-emerald-500/80 ring-1 ring-emerald-500/30 bg-background/90 shadow-xs"
                   : "border-border/80 bg-background/50 hover:bg-muted/30",
@@ -252,7 +252,7 @@ export function TodaysCommitment({
               <div className="mt-2 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 animate-in fade-in duration-200">
                 <Check className="size-3 text-emerald-600 dark:text-emerald-400 shrink-0" aria-hidden="true" />
                 <span className="truncate">
-                  Advances 90-day goal • Step #{completedGoalQuests + 1} of 90
+                  Advances 90-day goal / Step #{completedGoalQuests + 1} of 90
                 </span>
               </div>
             )}
@@ -371,7 +371,7 @@ export function TodaysCommitment({
         <div className="pt-2 flex justify-end border-t border-border/40">
           <Button
             type="submit"
-            className="min-h-11 px-6 font-semibold rounded-xl text-xs sm:text-sm active:scale-[0.98] transition-all"
+            className="min-h-11 px-6 font-semibold rounded-xl text-xs sm:text-sm active:scale-[0.98] transition-colors"
             disabled={committing || !commitment.trim() || cadenceInvalid}
           >
             {committing ? "Committing…" : `Commit to ${role === "focus" ? "Primary Focus" : "Supporting Routine"}`}

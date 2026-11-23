@@ -97,7 +97,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
         layout: { type: "spring", stiffness: 360, damping: 28 },
       }}
       className={cn(
-        "group relative flex flex-col justify-between gap-2.5 rounded-xl border border-border/70 bg-card/70 milled-slab p-4 transition-all duration-200 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4 shadow-xs overflow-hidden",
+        "group relative flex flex-col justify-between gap-2.5 rounded-xl border border-border/70 bg-card/70 milled-slab p-4 transition-colors duration-200 sm:flex-row sm:items-center sm:gap-4 sm:px-5 sm:py-4 shadow-xs overflow-hidden",
         completionStage !== "idle"
           ? "bg-emerald-500/[0.08] border-emerald-500/40 shadow-emerald-500/10"
           : isDone
@@ -119,7 +119,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
                 : `Mark "${quest.title}" as complete`
             }
             className={cn(
-              "relative size-6 shrink-0 rounded-md border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.92] cursor-pointer before:absolute before:-inset-2.5 before:content-['']",
+              "relative size-6 shrink-0 rounded-md border transition-colors duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.92] cursor-pointer before:absolute before:-inset-2.5 before:content-['']",
               isCompleted
                 ? "border-emerald-500 bg-emerald-500 text-white shadow-xs shadow-emerald-500/30 scale-105"
                 : quest.failed
@@ -142,7 +142,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
           <div className="flex items-center gap-2">
             <h3
               className={cn(
-                "text-sm sm:text-base font-semibold tracking-tight text-foreground transition-all line-clamp-2 break-words leading-snug",
+                "text-sm sm:text-base font-semibold tracking-tight text-foreground transition-colors line-clamp-2 break-words leading-snug",
                 isCompleted && "line-through text-muted-foreground font-normal",
                 quest.failed && "text-muted-foreground line-through"
               )}
@@ -176,7 +176,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
                 onCancel!(quest.id);
               }}
               disabled={cancelling || completing}
-              className="size-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="size-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-[0.96] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               title="Cancel commitment"
               aria-label={`Cancel commitment "${quest.title}"`}
             >
@@ -221,7 +221,7 @@ export function QuestCard({ quest, completing, onComplete, onCancel, cancelling 
                 onCancel!(quest.id);
               }}
               disabled={cancelling || completing || isCompleted}
-              className="size-9 flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="size-9 flex items-center justify-center rounded-xl text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-[0.96] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               title="Cancel commitment"
               aria-label={`Cancel commitment "${quest.title}"`}
             >

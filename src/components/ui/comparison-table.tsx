@@ -185,7 +185,7 @@ export default function ComparisonTable({ onSelectPlan }: ComparisonTableProps) 
 
         {/* ── DESKTOP VIEW: CLEAN 3-COLUMN SIDE-BY-SIDE MATRIX (>= 768px) ── */}
         <div className="hidden md:block relative">
-          <div className="overflow-x-auto rounded-2xl md:rounded-3xl border border-border/80 bg-card/80 backdrop-blur-2xl shadow-xl transition-all duration-300">
+          <div className="overflow-x-auto rounded-2xl md:rounded-3xl border border-border/80 bg-card/80 backdrop-blur-2xl shadow-xl transition-colors duration-300">
             <Table className="table-fixed w-full text-xs sm:text-sm">
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-b border-border/60 bg-muted/20">

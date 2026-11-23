@@ -172,7 +172,7 @@ function TactileThemeToggle() {
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       onClick={handleToggle}
       className={cn(
-        "relative flex items-center h-8 sm:h-9 w-[76px] sm:w-[82px] p-1 rounded-full cursor-pointer select-none transition-all duration-300",
+        "relative flex items-center h-8 sm:h-9 w-[76px] sm:w-[82px] p-1 rounded-full cursor-pointer select-none transition-colors duration-300",
         "border border-black/[0.08] dark:border-white/15",
         "bg-zinc-200/95 dark:bg-zinc-900/95",
         "shadow-[inset_0_2px_4px_rgba(0,0,0,0.18),0_1px_2px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_2px_5px_rgba(0,0,0,0.6),0_1px_1px_rgba(255,255,255,0.08)]",
@@ -260,7 +260,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     {
       num: '01',
       title: 'Choose Direction',
-      tag: 'Day 1 · Horizon Baseline',
+      tag: 'Day 1 / Horizon Baseline',
       desc: 'Define the single meaningful objective you want to achieve over the next 90 days. We compute your nominal baseline trajectory.',
       metric: '1.00x Baseline Velocity',
       badge: 'Target Locked',
@@ -269,7 +269,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     {
       num: '02',
       title: "Lock Today's Focus",
-      tag: 'Daily Focus · +35% Thrust',
+      tag: 'Daily Focus / +35% Thrust',
       desc: 'Each morning, select the one decisive needle-mover. Completing it generates +35% thrust, lifting your forward vector above baseline.',
       metric: '+35% Daily Thrust Added',
       badge: 'Needle-Mover Active',
@@ -278,7 +278,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     {
       num: '03',
       title: 'Anchor 5 Routines',
-      tag: 'Cadence Stabilizers · Up to 5 Routines',
+      tag: 'Cadence Stabilizers / Up to 5 Routines',
       desc: 'Lock in lightweight companion routines that stabilize your daily cadence. Together, they compound into peak 1.25x velocity.',
       metric: '1.25x Peak Velocity (+16d Margin)',
       badge: 'Cadence Anchored',
@@ -287,7 +287,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
     {
       num: '04',
       title: 'Trajectory Absorbs the Shock',
-      tag: '±10% Buffer Cone · Shock Absorbed',
+      tag: '±10% Buffer Cone / Shock Absorbed',
       desc: "When life interrupts, you don't lose 60 days. The ±10% mathematical buffer absorbs the deviation. Streaks reset; your trajectory continues.",
       metric: '1.08x Resilient Velocity (Protected)',
       badge: 'Shock Absorbed',
@@ -366,7 +366,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-border/80 mb-3 shadow-xs">
             <span className="size-1.5 rounded-full bg-foreground animate-pulse" />
             <span className="text-xs font-medium text-foreground">
-              System Mechanics • 4-Stage Trajectory Engine
+              System Mechanics / 4-Stage Trajectory Engine
             </span>
           </div>
         </AtmosphericLift>
@@ -395,7 +395,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 <div className="flex items-center gap-2">
                   <span className="size-2 rounded-full bg-foreground animate-pulse" />
                   <span className="font-semibold text-foreground">
-                    Stage <span className="font-mono font-bold">{steps[activeStep].num}</span> · <span className="font-sans font-medium text-muted-foreground">{steps[activeStep].tag}</span>
+                    Stage <span className="font-mono font-bold">{steps[activeStep].num}</span> / <span className="font-sans font-medium text-muted-foreground">{steps[activeStep].tag}</span>
                   </span>
                 </div>
                 <div className="px-2.5 py-0.5 rounded-full bg-muted border border-border text-xs text-foreground font-medium">
@@ -429,7 +429,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
 
                   {/* Step 0: Initializing Horizon */}
                   {activeStep === 0 && (
-                    <g className="transition-all duration-500">
+                    <g className="transition-opacity duration-500">
                       <line x1="30" y1="120" x2="370" y2="45" stroke="currentColor" strokeWidth="2.5" strokeDasharray="6 6" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
                       <circle cx="30" cy="120" r="5" fill="currentColor" />
                       <circle cx="370" cy="45" r="5" fill="currentColor" fillOpacity="0.5" />
@@ -440,7 +440,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
 
                   {/* Step 1: Focus Injection (+35% Thrust) */}
                   {activeStep === 1 && (
-                    <g className="transition-all duration-500">
+                    <g className="transition-opacity duration-500">
                       <path d="M 30,120 Q 180,95 240,65" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
                       <circle cx="240" cy="65" r="6" fill="currentColor" />
                       <line x1="240" y1="65" x2="370" y2="35" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" strokeOpacity="0.5" vectorEffect="non-scaling-stroke" />
@@ -450,7 +450,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
 
                   {/* Step 2: 5 Routines Anchored (Compounding Ascent) */}
                   {activeStep === 2 && (
-                    <g className="transition-all duration-500">
+                    <g className="transition-opacity duration-500">
                       <path d="M 30,120 C 130,110 200,60 370,22" fill="none" stroke="currentColor" strokeWidth="3.5" vectorEffect="non-scaling-stroke" />
                       <circle cx="370" cy="22" r="6" fill="currentColor" />
                       <text x="220" y="20" fill="currentColor" fontSize="11" fontWeight="bold" fontFamily="sans-serif">1.25x Peak Velocity</text>
@@ -459,7 +459,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
 
                   {/* Step 3: Buffer Absorbs The Shock */}
                   {activeStep === 3 && (
-                    <g className="transition-all duration-500">
+                    <g className="transition-opacity duration-500">
                       {/* Buffer Cone Polygon */}
                       <path d="M 180,68 C 240,60 320,30 380,24 L 380,54 C 320,50 240,78 180,82 Z" fill="url(#pinBufferGrad)" />
                       <path d="M 180,68 C 240,60 320,30 380,24" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" strokeOpacity="0.4" vectorEffect="non-scaling-stroke" />
@@ -488,7 +488,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 <span className="text-muted-foreground truncate mr-2">
                   {activeStep === 3
                     ? 'Streak Apps: Reset to 0 | Kinetic: Trajectory Absorbs Drift ✓'
-                    : 'Deterministic Trajectory • 1 Primary Focus + up to 5 Routines'}
+                    : 'Deterministic Trajectory / 1 Primary Focus + up to 5 Routines'}
                 </span>
                 <span className="text-foreground font-semibold shrink-0">
                   Step {activeStep + 1} of 4
@@ -547,7 +547,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                     onClick={() => selectStep(i)}
                     aria-label={`Jump to stage ${i + 1}`}
                     className={cn(
-                      "h-1.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
+                      "h-1.5 rounded-full transition-[width,background-color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer",
                       i === activeStep ? "w-6 bg-foreground" : "w-2 bg-muted hover:bg-muted-foreground/50"
                     )}
                   />
@@ -570,7 +570,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 data-cuelume-press="press"
                 data-cuelume-hover="tick"
                 className={cn(
-                  "relative p-4 sm:p-5 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden",
+                  "relative p-4 sm:p-5 rounded-xl border transition-[background-color,border-color,opacity,transform] duration-300 cursor-pointer overflow-hidden",
                   isActive
                     ? "bg-card/95 border-border scale-[1.01] opacity-100 shadow-sm"
                     : "bg-card/40 border-border/60 opacity-60 hover:opacity-90 hover:bg-card/60 scale-[0.99]"
@@ -579,7 +579,7 @@ function PinAndTransformWorkflow({ isDark }: { isDark: boolean }) {
                 {/* Active Step Cadence Progress Bar */}
                 {isActive && (
                   <div
-                    className="absolute bottom-0 inset-x-0 h-0.5 bg-foreground origin-left transition-all"
+                    className="absolute bottom-0 inset-x-0 h-0.5 bg-foreground origin-left transition-[width] duration-100 ease-linear"
                     style={{ width: `${stepProgress}%` }}
                   />
                 )}
@@ -648,7 +648,7 @@ export default function Landing() {
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-6 md:inset-x-8 max-w-5xl mx-auto z-50 kinetic-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300 border border-border/80"
+        className="fixed top-3 sm:top-5 inset-x-3 sm:inset-x-6 md:inset-x-8 max-w-5xl mx-auto z-50 kinetic-glass-island rounded-2xl md:rounded-full px-3.5 sm:px-5 py-2 sm:py-2.5 transition-[border-color,background-color] duration-300 border border-border/80"
       >
         <div className="flex items-center justify-between gap-3 sm:gap-4">
           {/* Brand Identity */}
@@ -698,8 +698,8 @@ export default function Landing() {
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-card/70 dark:bg-card/50 backdrop-blur-xl border border-border/80 shadow-xs">
             <Compass className="size-3.5 text-foreground shrink-0" />
             <span className="text-xs font-medium text-foreground">
-              <span className="hidden sm:inline">Personal Trajectory Engine • Dynamic Vector, Not Static Streaks</span>
-              <span className="sm:hidden">Dynamic Trajectory • ±10% Buffer</span>
+              <span className="hidden sm:inline">Personal Trajectory Engine / Dynamic Vector, Not Static Streaks</span>
+              <span className="sm:hidden">Dynamic Trajectory / ±10% Buffer</span>
             </span>
           </div>
         </AtmosphericLift>
@@ -763,12 +763,12 @@ export default function Landing() {
               <Check className="size-3.5 text-foreground" />
               Free Forever
             </span>
-            <span>•</span>
+            <span className="text-muted-foreground/40 font-mono">/</span>
             <span className="flex items-center gap-1.5">
               <Lock className="size-3 text-muted-foreground" />
               Local-First & Private (Zero Tracking)
             </span>
-            <span>•</span>
+            <span className="text-muted-foreground/40 font-mono">/</span>
             <span className="hidden sm:inline">No Credit Card Required</span>
           </div>
         </AtmosphericLift>
@@ -796,7 +796,7 @@ export default function Landing() {
                   <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
                   <span className="size-2.5 rounded-full bg-zinc-500/40 border border-zinc-500/50" />
                   <span className="ml-2 text-xs font-sans text-muted-foreground">
-                    Live Product Preview · Trajectory Visualizer
+                    Live Product Preview / Trajectory Visualizer
                   </span>
                 </div>
 
@@ -1072,12 +1072,12 @@ export default function Landing() {
                     <Check className="size-3 text-foreground" />
                     Free Forever (Zero Paywalls)
                   </span>
-                  <span>•</span>
+                  <span className="text-muted-foreground/40 font-mono">/</span>
                   <span className="flex items-center gap-1">
                     <Check className="size-3 text-foreground" />
                     No Credit Card Required
                   </span>
-                  <span>•</span>
+                  <span className="text-muted-foreground/40 font-mono">/</span>
                   <span className="flex items-center gap-1">
                     <Lock className="size-3 text-foreground" />
                     Local-First & Private (Zero Tracking)
@@ -1099,7 +1099,7 @@ export default function Landing() {
                 Kinetic
               </span>
               <p className="text-xs text-muted-foreground">
-                Personal Trajectory Engine • Consistency Without Perfection
+                Personal Trajectory Engine / Consistency Without Perfection
               </p>
             </div>
           </div>

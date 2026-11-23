@@ -112,7 +112,7 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
             >
               <span className="pr-3 leading-snug text-[11px] sm:text-xs">{routine}</span>
               <div
-                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-all ${
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors ${
                   isSelected
                     ? "border-emerald-500 bg-emerald-500 text-white shadow-xs"
                     : isDisabled

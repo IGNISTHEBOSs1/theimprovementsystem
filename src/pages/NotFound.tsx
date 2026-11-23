@@ -20,7 +20,7 @@ const NotFound = () => {
       >
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border/80 bg-muted/60 text-xs font-medium text-muted-foreground">
           <span className="size-2 rounded-full bg-amber-500" aria-hidden="true" />
-          <span>404 · Page Not Found</span>
+          <span>404 / Page Not Found</span>
         </div>
 
         <div className="size-14 mx-auto rounded-2xl border border-border bg-muted/40 flex items-center justify-center text-primary shadow-xs">
@@ -56,14 +56,14 @@ const NotFound = () => {
                     Quests
                   </Link>
                 </Button>
-                <span className="text-border">•</span>
+                <span className="text-border">/</span>
                 <Button variant="ghost" size="sm" asChild className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground">
                   <Link to="/journey">
                     <Compass className="size-3.5 mr-1 text-primary" />
                     Journey
                   </Link>
                 </Button>
-                <span className="text-border">•</span>
+                <span className="text-border">/</span>
                 <Button variant="ghost" size="sm" asChild className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground">
                   <Link to="/profile">
                     <User className="size-3.5 mr-1 text-primary" />

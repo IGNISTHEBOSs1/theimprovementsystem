@@ -64,7 +64,7 @@ export function DirectionCard({ name, goalStats, bufferDaysRemaining = 9, elapse
                 </p>
                 <p className="text-xs font-mono text-muted-foreground">
                   <ShieldCheck className="inline-block size-3.5 text-emerald-500 mr-1 align-text-bottom" aria-hidden="true" />
-                  <strong className="text-foreground tabular-nums">{bufferDaysRemaining}</strong>/9 flex days · Day <span className="tabular-nums">{elapsedDays}</span>
+                  <strong className="text-foreground tabular-nums">{bufferDaysRemaining}</strong>/9 flex days / Day <span className="tabular-nums">{elapsedDays}</span>
                 </p>
                 <span className="text-[11px] text-muted-foreground block mt-0.5">
                   Flexible buffer days absorb off-schedule days without delaying your target milestone.

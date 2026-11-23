@@ -161,7 +161,7 @@ export default function Profile() {
             </div>
             <p className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-2">
               <span>Timezone: {profile?.timezone || "UTC"}</span>
-              <span>•</span>
+              <span className="text-muted-foreground/40 font-mono">/</span>
               <span className="text-emerald-700 dark:text-emerald-400 font-medium">Trajectory Active</span>
             </p>
           </div>
@@ -196,7 +196,7 @@ export default function Profile() {
               id="primary-goal-heading"
               className="text-xs font-sans font-medium text-muted-foreground block truncate"
             >
-              Primary Goal · North Star
+              Primary Goal / North Star
             </span>
           </div>
 
@@ -322,7 +322,7 @@ export default function Profile() {
                     type="button"
                     onClick={() => setDaysFromToday(90)}
                     disabled={saving}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 hover:bg-primary/15 px-3 py-1 font-sans text-xs font-medium text-primary transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 hover:bg-primary/15 px-3 py-1 font-sans text-xs font-medium text-primary transition-colors active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                   >
                     <span>★ Lock 90-Day Horizon (Recommended)</span>
                   </button>
@@ -330,7 +330,7 @@ export default function Profile() {
                     type="button"
                     onClick={() => setDaysFromToday(60)}
                     disabled={saving}
-                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-sans text-xs font-medium text-muted-foreground hover:text-foreground transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-sans text-xs font-medium text-muted-foreground hover:text-foreground transition-colors active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <span>60-Day Sprint</span>
                   </button>
@@ -338,7 +338,7 @@ export default function Profile() {
                     type="button"
                     onClick={() => setDaysFromToday(30)}
                     disabled={saving}
-                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-muted/40 hover:bg-muted px-2.5 py-1 font-mono text-xs text-muted-foreground hover:text-foreground transition-colors active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <span>30-Day Calibration</span>
                   </button>

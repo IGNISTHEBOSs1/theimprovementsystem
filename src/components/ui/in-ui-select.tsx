@@ -1,6 +1,6 @@
 // src/components/ui/in-ui-select.tsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { ChevronDown, Search, Check, Globe, Sparkles } from "lucide-react";
+import { ChevronDown, Search, Check, Globe, Compass } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { triggerHaptic } from "@/lib/haptics";
@@ -119,7 +119,7 @@ export function InUiSelect({
           "w-full min-h-11 px-3.5 py-2.5 rounded-xl border border-input bg-background/60",
           "flex items-center justify-between text-xs sm:text-sm text-foreground",
           "focus:border-foreground/50 focus-visible:ring-1 focus-visible:ring-foreground/20",
-          "shadow-2xs cursor-pointer active:scale-[0.99] transition-all",
+          "shadow-2xs cursor-pointer active:scale-[0.99] transition-colors",
           isOpen && "border-emerald-500/50 ring-1 ring-emerald-500/30",
           disabled && "opacity-50 cursor-not-allowed"
         )}
@@ -182,8 +182,8 @@ export function InUiSelect({
               ) : (
                 groupedOptions.map(([groupName, groupItems]) => (
                   <div key={groupName} className="space-y-0.5">
-                    <div className="px-2 py-1 text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground/80 flex items-center gap-1">
-                      {groupName === "Recommended" && <Sparkles className="h-3 w-3 text-emerald-400" />}
+                    <div className="px-2 py-1 text-xs font-mono font-medium text-muted-foreground/80 flex items-center gap-1">
+                      {groupName === "Recommended" && <Compass className="h-3 w-3 text-emerald-400" />}
                       <span>{groupName}</span>
                     </div>
 

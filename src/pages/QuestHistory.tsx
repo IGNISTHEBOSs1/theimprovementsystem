@@ -51,7 +51,7 @@ function HistoryItem({ quest }: { quest: Quest }) {
             {/* Commitment Role Badge */}
             <span
               className={cn(
-                "inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-mono uppercase tracking-wider border shrink-0",
+                "inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-medium border shrink-0",
                 role === "focus"
                   ? "bg-primary/10 text-primary border-primary/25 font-semibold"
                   : "bg-muted/60 text-muted-foreground border-border/70"
@@ -184,17 +184,17 @@ export default function QuestHistory() {
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="size-14 shrink-0 flex flex-col items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary">
                     <span className="font-mono font-bold text-lg leading-none">{completionRate}%</span>
-                    <span className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest mt-0.5">Rate</span>
+                    <span className="text-[10px] font-mono text-muted-foreground font-medium mt-0.5">Rate</span>
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">Historical Telemetry</p>
+                      <p className="text-xs font-mono font-medium text-muted-foreground">Historical Telemetry</p>
                     </div>
                     <h3 className="text-base sm:text-lg font-semibold tracking-tight text-foreground mt-0.5">
                       {completionRate}% All-Time Follow-Through Rate
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5 font-mono">
-                      {completedCount} honored · {failedCount} missed · {resolved.length} total commitments
+                      {completedCount} honored / {failedCount} missed / {resolved.length} total commitments
                     </p>
                   </div>
                 </div>
@@ -219,7 +219,7 @@ export default function QuestHistory() {
               <div className="space-y-1.5 pt-1">
                 <div className="recessed-track h-2 w-full overflow-hidden rounded-full">
                   <div
-                    className="h-full rounded-full bg-emerald-500 transition-all duration-500 ease-smooth"
+                    className="h-full rounded-full bg-emerald-500 transition-[width] duration-500 ease-smooth"
                     style={{ width: `${Math.min(100, Math.max(0, completionRate))}%` }}
                     role="progressbar"
                     aria-valuenow={completionRate}
@@ -241,19 +241,19 @@ export default function QuestHistory() {
                 <TabsList className="grid w-full grid-cols-3 sm:w-auto p-1 rounded-xl milled-slab">
                   <TabsTrigger
                     value="all"
-                    className="text-xs font-medium rounded-lg text-muted-foreground hover:text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all active:scale-95"
+                    className="text-xs font-medium rounded-lg text-muted-foreground hover:text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-colors active:scale-[0.96]"
                   >
                     All ({resolved.length})
                   </TabsTrigger>
                   <TabsTrigger
                     value="completed"
-                    className="text-xs font-medium rounded-lg text-muted-foreground hover:text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all active:scale-95"
+                    className="text-xs font-medium rounded-lg text-muted-foreground hover:text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-colors active:scale-[0.96]"
                   >
                     Completed ({completedCount})
                   </TabsTrigger>
                   <TabsTrigger
                     value="failed"
-                    className="text-xs font-medium rounded-lg text-muted-foreground hover:text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-all active:scale-95"
+                    className="text-xs font-medium rounded-lg text-muted-foreground hover:text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-xs transition-colors active:scale-[0.96]"
                   >
                     Missed ({failedCount})
                   </TabsTrigger>

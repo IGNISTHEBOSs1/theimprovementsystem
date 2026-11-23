@@ -89,7 +89,7 @@ export default function SystemBar({
               <div className="text-body-md font-display font-bold text-foreground leading-tight truncate">
                 {username}
               </div>
-              <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-0.5">
+              <div className="text-xs font-mono font-medium text-muted-foreground mt-0.5">
                 Kinetic System
               </div>
             </div>
@@ -122,7 +122,7 @@ export default function SystemBar({
                   }
                 }}
                 className={cn(
-                  "relative flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-lg text-sm transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] group",
+                  "relative flex items-center gap-3 pl-4 pr-3 py-2.5 rounded-lg text-sm transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98] group",
                   active
                     ? "text-foreground font-semibold"
                     : "text-foreground/75 hover:text-foreground hover:bg-accent/40 font-medium",
@@ -186,7 +186,7 @@ export default function SystemBar({
             }}
             className={({ isActive: active }) =>
               cn(
-                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]",
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]",
                 active
                   ? "bg-accent text-accent-foreground font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
@@ -204,7 +204,7 @@ export default function SystemBar({
               triggerHaptic("selection");
               window.dispatchEvent(new CustomEvent("kinetic:toggle-command-palette"));
             }}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border/70 bg-card/60 hover:bg-accent hover:text-accent-foreground text-xs text-muted-foreground transition-all group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border/70 bg-card/60 hover:bg-accent hover:text-accent-foreground text-xs text-muted-foreground transition-colors group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
             title="Open Command Palette (⌘K / Ctrl+K)"
             aria-label="Open command palette"
           >

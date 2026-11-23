@@ -308,7 +308,7 @@ export default function Quests() {
                             <CheckSquare className="size-4" aria-hidden="true" />
                           </div>
                           <div className="min-w-0 text-left">
-                            <span className="text-[11px] font-mono uppercase tracking-wider font-semibold text-emerald-700 dark:text-emerald-400 block">
+                            <span className="text-xs font-mono font-medium text-emerald-700 dark:text-emerald-400 block">
                               Primary Focus Completed
                             </span>
                             <p className="text-sm font-semibold text-foreground mt-0.5 truncate">

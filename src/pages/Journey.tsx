@@ -138,7 +138,7 @@ export default function Journey() {
 
         <p className="text-xs sm:text-sm text-muted-foreground">
           Day <span className="font-mono font-medium text-foreground tabular-nums">{pace?.elapsedDays ?? 1}</span> of{" "}
-          <span className="font-mono tabular-nums">{pace?.cycleTotalDays ?? 90}</span> · Target{" "}
+          <span className="font-mono tabular-nums">{pace?.cycleTotalDays ?? 90}</span> / Target{" "}
           {pace?.targetDateFormatted ?? "90-Day Cycle"} (<span className="tabular-nums">{daysLeft}</span>d left)
         </p>
       </header>
@@ -146,7 +146,7 @@ export default function Journey() {
       {/* ── 2. PLAIN-LANGUAGE STATUS & EXPLANATION (RESTRAINED STATUS CARD) ── */}
       <section
         aria-label="Pace status"
-        className="rounded-xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-all milled-slab"
+        className="rounded-xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs transition-colors milled-slab"
       >
         <div className="flex items-center gap-2">
           <Badge
@@ -186,9 +186,9 @@ export default function Journey() {
 
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-mono text-muted-foreground">
           <span>{goalStats.completed} of 90 goal steps completed</span>
-          <span className="text-muted-foreground/40">·</span>
+          <span className="text-muted-foreground/40">/</span>
           <span>{buffer} of 9 flex days intact</span>
-          <span className="text-muted-foreground/40">·</span>
+          <span className="text-muted-foreground/40">/</span>
           <span>{daysLeft === 0 ? "Target date reached (0d left)" : `${daysLeft} days remaining`}</span>
         </div>
       </section>
@@ -257,7 +257,7 @@ export default function Journey() {
               size="sm"
               disabled={completingId === activeGoalQuest.id}
               onClick={() => void handleCompleteAnchor(activeGoalQuest.id)}
-              className="rounded-lg px-5 h-10 font-semibold text-xs shrink-0 active:scale-[0.98] transition-all"
+              className="rounded-lg px-5 h-10 font-semibold text-xs shrink-0 active:scale-[0.98] transition-colors"
             >
               <Check className="size-4 mr-1.5" />
               {completingId === activeGoalQuest.id ? "Recording completion..." : "Complete Today's Focus"}
@@ -276,7 +276,7 @@ export default function Journey() {
             <Button
               asChild
               size="sm"
-              className="rounded-lg px-5 h-10 font-medium text-xs shrink-0 active:scale-[0.98] transition-all"
+              className="rounded-lg px-5 h-10 font-medium text-xs shrink-0 active:scale-[0.98] transition-colors"
             >
               <Link to="/quests">
                 <Plus className="size-4 mr-1.5" />
@@ -306,7 +306,7 @@ export default function Journey() {
                     <div
                       key={i}
                       className={cn(
-                        "h-3 rounded-xs transition-all",
+                        "h-3 rounded-xs transition-colors",
                         isIntact
                           ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.35)]"
                           : "bg-muted-foreground/15 border border-border/40",
@@ -345,7 +345,7 @@ export default function Journey() {
                 Progress by Evidence
               </span>
               <span className="font-mono text-muted-foreground text-[11px]">
-                {goalStats.completed} completed · {goalStats.failed} missed ({accuracyPct}% follow-through)
+                {goalStats.completed} completed / {goalStats.failed} missed ({accuracyPct}% follow-through)
               </span>
             </div>
 
@@ -358,12 +358,12 @@ export default function Journey() {
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-medium text-foreground">{priority}</span>
                         <span className="font-mono text-muted-foreground">
-                          {completed} / {total} · {rate}%
+                          {completed} / {total} — {rate}%
                         </span>
                       </div>
                       <div className="h-2 w-full rounded-full bg-muted/60 overflow-hidden border border-border/40">
                         <div
-                          className="h-full rounded-full bg-primary transition-all duration-500 ease-smooth"
+                          className="h-full rounded-full bg-primary transition-[width] duration-500 ease-smooth"
                           style={{ width: `${rate}%` }}
                         />
                       </div>

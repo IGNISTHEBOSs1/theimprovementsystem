@@ -35,7 +35,7 @@ export function RecoveryState({ onChooseQuest, lastMissedQuest, onRecommit }: Re
       className="rounded-xl border border-border/80 bg-card p-5 sm:p-6 milled-slab"
       aria-labelledby="recovery-heading"
     >
-      <p className="text-[10px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">Deterministic Recovery</p>
+      <p className="text-xs font-mono font-medium text-muted-foreground">Deterministic Recovery</p>
       <h2 id="recovery-heading" className="mt-2 text-lg font-bold text-foreground">You can begin again from here.</h2>
       {lastMissedQuest ? (
         <p className="mt-1 max-w-2xl text-xs sm:text-sm leading-relaxed text-muted-foreground">

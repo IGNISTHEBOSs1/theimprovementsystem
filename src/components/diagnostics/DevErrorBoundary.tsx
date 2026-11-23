@@ -133,14 +133,14 @@ export class DevErrorBoundary extends Component<Props, State> {
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
               onClick={this.handleReload}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm transition-all hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 active:scale-[0.98] shadow-sm"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/40 active:scale-[0.98] shadow-sm"
             >
               Reload System
             </button>
 
             <button
               onClick={this.handleGoHome}
-              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-border/80 bg-background/50 hover:bg-accent text-foreground font-medium text-sm transition-all focus:outline-none focus:ring-2 focus:ring-ring/40 active:scale-[0.98]"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-border/80 bg-background/50 hover:bg-accent text-foreground font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-ring/40 active:scale-[0.98]"
             >
               Return Home
             </button>

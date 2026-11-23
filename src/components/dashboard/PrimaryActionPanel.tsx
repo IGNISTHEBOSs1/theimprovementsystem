@@ -98,10 +98,10 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-xs font-semibold text-primary">
           <CircleDot className="size-3.5 text-primary shrink-0" aria-hidden="true" />
-          <span>Today&apos;s Focus {quest.timeFrame ? `· ${quest.timeFrame}` : ""}</span>
+          <span>Today&apos;s Focus {quest.timeFrame ? `/ ${quest.timeFrame}` : ""}</span>
         </div>
         <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline-block">
-          Primary milestone · Slide to complete
+          Primary milestone / Slide to complete
         </span>
       </div>
 
@@ -110,7 +110,7 @@ export function PrimaryActionPanel({ quest, completing, onComplete, onChooseQues
           <h2
             id="focus-heading"
             className={cn(
-              "text-xl sm:text-2xl font-bold tracking-tight text-foreground transition-all line-clamp-3 break-words leading-snug",
+              "text-xl sm:text-2xl font-bold tracking-tight text-foreground transition-colors line-clamp-3 break-words leading-snug",
               completionStage !== "idle" && "line-through text-muted-foreground",
             )}
           >
@@ -428,7 +428,7 @@ function SwipeToComplete({
       onPointerCancel={handlePointerCancel}
       onLostPointerCapture={handlePointerCancel}
       className={cn(
-        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none select-none transition-all duration-200 border glass-slider-track focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        "relative flex h-12 w-full sm:w-64 sm:shrink-0 items-center overflow-hidden rounded-full px-1 text-left touch-none select-none transition-colors duration-200 border glass-slider-track focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         thresholdMet && !isDone && "glass-slider-track-ready",
         isDone && "border-emerald-500/50 bg-emerald-500/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]"
       )}
@@ -491,7 +491,7 @@ function SwipeToComplete({
       <span
         ref={handleRef}
         className={cn(
-          "pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full transition-all duration-200 active:scale-[0.98]",
+          "pointer-events-none absolute left-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full transition-colors duration-200 active:scale-[0.98]",
           isDone
             ? "glass-slider-handle-done"
             : thresholdMet

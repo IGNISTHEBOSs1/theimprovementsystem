@@ -71,7 +71,7 @@ export function MobileAppRedirectBanner() {
             <button
               type="button"
               onClick={handleOpenApp}
-              className="h-8 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all active:scale-[0.96] shadow-[0_0_12px_rgba(16,185,129,0.4)] flex items-center gap-1 cursor-pointer"
+              className="h-8 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-colors active:scale-[0.96] shadow-[0_0_12px_rgba(16,185,129,0.4)] flex items-center gap-1 cursor-pointer"
             >
               <span>Open</span>
               <ArrowUpRight className="size-3.5" />

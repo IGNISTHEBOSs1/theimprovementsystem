@@ -85,7 +85,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
         layout: TIS_SPRINGS.settle,
       }}
       className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 rounded-xl border border-border/80 bg-card px-3.5 sm:px-4 py-3 sm:py-3.5 text-body-sm transition-all duration-200 overflow-hidden milled-slab",
+        "flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 rounded-xl border border-border/80 bg-card px-3.5 sm:px-4 py-3 sm:py-3.5 text-body-sm transition-colors duration-200 overflow-hidden milled-slab",
         completionStage !== "idle" && "bg-emerald-500/[0.08] border-emerald-500/40",
       )}
     >
@@ -98,7 +98,7 @@ function SecondaryQuestItem({ quest, completing, onComplete }: SecondaryQuestIte
             disabled={completing || isCompleted}
             aria-label={`Mark "${quest.title}" as complete`}
             className={cn(
-              "size-6 shrink-0 rounded-md border transition-all duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer shadow-xs",
+              "size-6 shrink-0 rounded-md border transition-colors duration-200 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-90 cursor-pointer shadow-xs",
               isCompleted
                 ? "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/30 scale-105"
                 : "border-border/80 bg-background/90 text-transparent hover:border-emerald-500/80 hover:text-emerald-500/30",
@@ -339,7 +339,7 @@ export default function Dashboard() {
           </h1>
           <p className="text-xs text-muted-foreground flex items-center gap-1.5 font-mono mt-1">
             <span>{todayDateFormatted}</span>
-            <span className="text-muted-foreground/40" aria-hidden="true">·</span>
+            <span className="text-muted-foreground/40" aria-hidden="true">/</span>
             <span className="tabular-nums">Day {elapsedDays} of 90</span>
           </p>
         </div>
@@ -357,7 +357,7 @@ export default function Dashboard() {
             <span>
               {activeFocus ? "1 Focus" : completedFocusToday ? "1 Focus (Done)" : "0 Focus"}
             </span>
-            <span className="text-muted-foreground/50">·</span>
+            <span className="text-muted-foreground/50">/</span>
             <span className="text-muted-foreground">{activeRoutines.length}/5 Routines</span>
           </div>
         </div>
@@ -472,7 +472,7 @@ export default function Dashboard() {
                 <h2 id="supporting-routines-heading" className="text-xs font-sans font-semibold text-muted-foreground">
                   Supporting Routines ({activeRoutines.length} of 5)
                 </h2>
-                <span className="text-[11px] text-muted-foreground hidden sm:inline">· Tap to complete</span>
+                <span className="text-[11px] text-muted-foreground hidden sm:inline">/ Tap to complete</span>
               </div>
               <Link to="/quests" className="text-xs font-medium text-primary hover:underline">
                 Manage routines →
@@ -540,7 +540,7 @@ export default function Dashboard() {
               {completionRate !== null && (
                 <div className="w-full h-2 rounded-full bg-muted/60 overflow-hidden border border-border/40 mt-2">
                   <div
-                    className="h-full bg-primary rounded-full transition-all duration-500 ease-smooth"
+                    className="h-full bg-primary rounded-full transition-[width] duration-500 ease-smooth"
                     style={{ width: `${Math.min(100, Math.max(0, completionRate))}%` }}
                   />
                 </div>
@@ -569,7 +569,7 @@ export default function Dashboard() {
               </div>
               <div className="w-full h-2 rounded-full bg-muted/60 overflow-hidden border border-border/40 mt-1.5">
                 <div
-                  className="h-full bg-emerald-500 rounded-full transition-all duration-500 ease-smooth"
+                  className="h-full bg-emerald-500 rounded-full transition-[width] duration-500 ease-smooth"
                   style={{ width: `${Math.min(100, (goalStats.completed / 90) * 100)}%` }}
                 />
               </div>
@@ -597,7 +597,7 @@ export default function Dashboard() {
                       <span
                         key={day.dateStr}
                         className={cn(
-                          "size-1.5 rounded-full transition-all",
+                          "size-1.5 rounded-full transition-colors",
                           day.completed ? "bg-emerald-500" : "border border-border/80 bg-transparent",
                         )}
                       />
@@ -613,7 +613,7 @@ export default function Dashboard() {
           {topMentorSignal && (
             <aside
               aria-label="Mentor Advisory Note"
-              className="milled-slab rounded-xl p-4 sm:p-5 hover:bg-muted/10 transition-all shadow-xs"
+              className="milled-slab rounded-xl p-4 sm:p-5 hover:bg-muted/10 transition-colors shadow-xs"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0">
