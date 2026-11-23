@@ -36,11 +36,11 @@ const queryClient = new QueryClient();
 
 import { AtomDemo, CockpitRouteSkeleton } from "@/components/ui/loading-screen";
 
-// Atom-based loading indicator — sleek, responsive, and aligned with Kinetic precision aesthetic
+// Atom-based loading indicator — sleek, responsive, and aligned with Kinetic precision aesthetic (frameless)
 function CenteredSpinner() {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3 text-foreground select-none">
-      <div className="p-4 rounded-2xl bg-card/60 border border-white/10 backdrop-blur-xl shadow-2xl kinetic-specular-box flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <AtomDemo />
       </div>
     </div>

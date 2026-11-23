@@ -153,13 +153,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // supabase.auth.getSession() and supabase.auth.onAuthStateChange().
   useEffect(() => {
     if (isDevPreview) return;
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    }).catch(() => {
-      setUser(null);
-      setLoading(false);
-    });
+
+    // Race getSession with a 1500ms fallback timeout. If offline or on a slow network,
+    // never block initial app launch for 30s. onAuthStateChange continues listening
+    // and will seamlessly update user state if session verification resolves later.
+    const sessionPromise = supabase.auth.getSession();
+    const fallbackTimeout = new Promise<{ data: { session: null } }>((resolve) =>
+      setTimeout(() => resolve({ data: { session: null } }), 1500)
+    );
+
+    Promise.race([sessionPromise, fallbackTimeout])
+      .then((res) => {
+        const session = res?.data?.session;
+        if (session) {
+          setUser(session.user);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setUser(null);
+        setLoading(false);
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);

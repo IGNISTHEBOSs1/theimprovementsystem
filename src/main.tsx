@@ -3,7 +3,12 @@ import App from "./App.tsx";
 import "./index.css";
 import { initGlobalErrorCapture } from "./lib/devDiagnostics";
 import { initPreloadRecovery } from "./lib/preloadRecovery";
+import { notifyBundleHealthy } from "./services/otaUpdateService";
 import { bind } from "cuelume";
+
+// Immediately signal to native container that the web bundle is loaded and healthy.
+// Releases the native Capgo update semaphore instantly (<10ms) instead of waiting for a 30s timeout.
+void notifyBundleHealthy();
 
 // Initialize preload recovery first so window listeners catch any asset loading errors
 initPreloadRecovery();

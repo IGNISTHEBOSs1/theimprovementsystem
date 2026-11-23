@@ -12,6 +12,8 @@ const config: CapacitorConfig = {
     CapacitorUpdater: {
       autoUpdate: false,
       statsUrl: "",
+      appReadyTimeout: 1000,
+      autoSplashscreen: false,
     },
     StatusBar: {
       overlaysWebView: true,
