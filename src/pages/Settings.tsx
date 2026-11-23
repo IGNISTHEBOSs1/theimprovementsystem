@@ -38,6 +38,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/hooks/useAuth";
+import { CancellationPortalView } from "@/components/paywall/CancellationPortalView";
+import { getSubscriptionState, SubscriptionState } from "@/services/monetizationService";
 import { useDashboardDataContext } from "@/providers/DashboardDataProvider";
 import { useThemeContext, type ThemeMode } from "@/providers/ThemeProvider";
 import { useSoundEffects } from "@/hooks/useSoundEffects";
@@ -121,6 +123,9 @@ export default function Settings() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const [subState, setSubState] = useState<SubscriptionState>(() => getSubscriptionState());
+  const [cancellationOpen, setCancellationOpen] = useState(false);
 
   const [exporting, setExporting] = useState(false);
 
@@ -354,21 +359,21 @@ export default function Settings() {
               <TabsList className="grid grid-cols-3 w-full max-w-md h-10 p-1 rounded-xl bg-muted/60 border border-border/80">
                 <TabsTrigger
                   value="light"
-                  className="flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
                 >
                   <Sun className="size-3.5" aria-hidden="true" />
                   <span>Light</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="dark"
-                  className="flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
                 >
                   <Moon className="size-3.5" aria-hidden="true" />
                   <span>Dark</span>
                 </TabsTrigger>
                 <TabsTrigger
                   value="system"
-                  className="flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
+                  className="flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-colors text-muted-foreground hover:text-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm active:scale-[0.98]"
                 >
                   <Monitor className="size-3.5" aria-hidden="true" />
                   <span>Auto</span>
@@ -633,7 +638,99 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* ── 5. DATA RESET & ACCOUNT MANAGEMENT (Differentiated Destructive Actions - P2-44) ── */}
+        {/* ── 5. SUBSCRIPTION & SOVEREIGN COVENANT ── */}
+        <section
+          className="milled-slab rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4"
+          aria-labelledby="subscription-heading"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
+            <div>
+              <h2 id="subscription-heading" className="text-sm sm:text-base font-semibold tracking-tight text-foreground flex items-center gap-2">
+                <ShieldCheck className="size-4 text-emerald-500" />
+                <span>Subscription & Sovereign Covenant</span>
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Active monetization tier, 16-day grace period status, and freeze options.
+              </p>
+            </div>
+            <Badge
+              variant="outline"
+              className={
+                subState.status === "in_grace_period"
+                  ? "border-amber-500/40 text-amber-600 bg-amber-500/10 text-xs font-mono self-start sm:self-auto"
+                  : subState.status === "paused_cryo"
+                  ? "border-blue-500/40 text-blue-500 bg-blue-500/10 text-xs font-mono self-start sm:self-auto"
+                  : "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 text-xs font-mono self-start sm:self-auto"
+              }
+            >
+              {subState.status === "trialing"
+                ? "7-Day Trial Active"
+                : subState.status === "in_grace_period"
+                ? "16-Day Grace Period Active"
+                : subState.status === "paused_cryo"
+                ? "Cryo-Buffer Frozen ($0.00)"
+                : subState.status === "cancelled"
+                ? "Cancelled"
+                : subState.status === "unmonitored_free"
+                ? "Unmonitored Free Tier"
+                : "Active Protected Covenant"}
+            </Badge>
+          </div>
+
+          <div className="space-y-2 text-xs font-mono">
+            <div className="flex justify-between items-center text-muted-foreground">
+              <span>Current plan:</span>
+              <span className="font-semibold text-foreground capitalize">
+                {subState.tier.replace(/_/g, " ")}
+              </span>
+            </div>
+            {subState.paymentMethodSummary && (
+              <div className="flex justify-between items-center text-muted-foreground">
+                <span>Payment method:</span>
+                <span className="font-semibold text-foreground">
+                  {subState.paymentMethodSummary}
+                </span>
+              </div>
+            )}
+            {subState.nextBillingDate && (
+              <div className="flex justify-between items-center text-muted-foreground">
+                <span>Next renewal date:</span>
+                <span className="font-semibold text-foreground tabular-nums">
+                  {new Date(subState.nextBillingDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </span>
+              </div>
+            )}
+            {subState.gracePeriodEndDate && (
+              <div className="flex justify-between items-center text-amber-500">
+                <span>Grace window remaining:</span>
+                <span className="font-bold tabular-nums">
+                  Until {new Date(subState.gracePeriodEndDate).toLocaleDateString()} (100% access)
+                </span>
+              </div>
+            )}
+            {subState.cryoResumeDate && (
+              <div className="flex justify-between items-center text-blue-500">
+                <span>Cryo-freeze resumes on:</span>
+                <span className="font-bold tabular-nums">
+                  {new Date(subState.cryoResumeDate).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 px-4 text-xs font-semibold rounded-xl border-border/80 active:scale-[0.98] cursor-pointer"
+              onClick={() => setCancellationOpen(true)}
+            >
+              <span>Manage, pause, or cancel subscription</span>
+            </Button>
+          </div>
+        </section>
+
+        {/* ── 6. DATA RESET & ACCOUNT MANAGEMENT (Differentiated Destructive Actions - P2-44) ── */}
         <section
           className="milled-slab rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4"
           aria-labelledby="account-management-heading"
@@ -770,6 +867,22 @@ export default function Settings() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Dignified Cancellation & Freeze Portal */}
+      {cancellationOpen && (
+        <CancellationPortalView
+          subscriptionState={subState}
+          onClose={() => setCancellationOpen(false)}
+          onFreezeConfirmed={() => {
+            setCancellationOpen(false);
+            setSubState(getSubscriptionState());
+          }}
+          onCancelConfirmed={() => {
+            setCancellationOpen(false);
+            setSubState(getSubscriptionState());
+          }}
+        />
+      )}
     </div>
   );
 }

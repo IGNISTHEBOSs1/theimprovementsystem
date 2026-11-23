@@ -20,10 +20,34 @@ import { triggerHaptic } from "@/lib/haptics";
 import { useThemeContext } from "@/providers/ThemeProvider";
 import { useAndroidBackNavigation } from "@/hooks/useAndroidBackNavigation";
 import { cn } from "@/lib/utils";
+import {
+  PaywallView,
+  CheckoutView,
+  ThreeDSecureChallengeView,
+  PaymentFailedView,
+  OfflineSyncView,
+} from "@/components/paywall";
+import {
+  PlanPricing,
+  SubscriptionState,
+  startTrialSubscription,
+  triggerGracePeriod,
+  cacheOfflineAuthorization,
+  optIntoFreeTier,
+  getSubscriptionState,
+} from "@/services/monetizationService";
 
 interface OnboardingFlowProps {
   onComplete: (state: OnboardingState) => Promise<void> | void;
 }
+
+type MonetizationScreen =
+  | "none"
+  | "paywall"
+  | "checkout"
+  | "3ds"
+  | "payment_failed"
+  | "offline";
 
 export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const navigate = useNavigate();
@@ -35,6 +59,12 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const initialStep = !isNaN(queryStep) && queryStep >= 1 && queryStep <= 7 ? queryStep : 1;
   const [step, setStep] = useState(initialStep);
   const [direction, setDirection] = useState(1);
+
+  // Monetization flow state
+  const [monetizationScreen, setMonetizationScreen] = useState<MonetizationScreen>("none");
+  const [activePlan, setActivePlan] = useState<PlanPricing | null>(null);
+  const [paymentFailureReason, setPaymentFailureReason] = useState<string>("Card declined");
+  const [subState, setSubState] = useState<SubscriptionState>(() => getSubscriptionState());
 
   // Sync mobile native status bar on theme change
   useEffect(() => {
@@ -52,34 +82,35 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   }, [themeMode]);
 
   const [state, setState] = useState<OnboardingState>(() => {
-    // Check if there is previously pending saved state
     try {
       const saved = localStorage.getItem("kinetic_pending_onboarding");
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === "object") {
           return {
-            failureReason: parsed.failureReason || (initialStep > 1 ? "streak_trap" : null),
-            country: parsed.country || "United States (Eastern)",
-            countryCode: parsed.countryCode || "US",
-            timezone: parsed.timezone || "America/New_York",
-            utcOffset: parsed.utcOffset || "UTC-5",
-            coordinates: parsed.coordinates || [40.71, -74.0],
-            primaryGoal: parsed.primaryGoal || "",
-            goalCategory: parsed.goalCategory || "engineering",
-            supportingRoutines: parsed.supportingRoutines || [],
-            timeWindow: parsed.timeWindow || "dawn",
-            contextualTrigger: parsed.contextualTrigger || "Immediately after morning espresso / tea",
-            horizonDays: parsed.horizonDays || 90,
-            bufferDays: parsed.bufferDays || 9,
+            failureReason: parsed.failureReason ?? null,
+            country: parsed.country ?? "United States (Eastern)",
+            countryCode: parsed.countryCode ?? "US",
+            timezone: parsed.timezone ?? "America/New_York",
+            utcOffset: parsed.utcOffset ?? "UTC-5",
+            coordinates: parsed.coordinates ?? [40.71, -74.0],
+            primaryGoal: parsed.primaryGoal ?? "",
+            goalCategory: parsed.goalCategory ?? "engineering",
+            supportingRoutines: Array.isArray(parsed.supportingRoutines)
+              ? parsed.supportingRoutines
+              : [],
+            timeWindow: parsed.timeWindow ?? "dawn",
+            contextualTrigger: parsed.contextualTrigger ?? "",
+            horizonDays: parsed.horizonDays ?? 90,
+            bufferDays: parsed.bufferDays ?? 9,
           };
         }
       }
     } catch {
-      // Fall through to auto-detection
+      // Fallback to defaults
     }
 
-    // Attempt auto-detect timezone
+    // Auto-detect timezone
     let detectedTz = "America/New_York";
     let detectedCountry = "United States (Eastern)";
     let detectedOffset = "UTC-5";
@@ -151,13 +182,30 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     triggerHaptic.light();
     setDirection(-1);
     setStep((prev) => {
-      if (prev === 7) return 5;
+      if (prev === 7) {
+        setMonetizationScreen("paywall");
+        return 6;
+      }
       return Math.max(1, prev - 1);
     });
   };
 
   const handleBack = () => {
     triggerHaptic.light();
+    if (monetizationScreen === "checkout") {
+      setMonetizationScreen("paywall");
+      return;
+    }
+    if (monetizationScreen === "paywall") {
+      setMonetizationScreen("none");
+      setStep(6);
+      return;
+    }
+    if (monetizationScreen === "3ds" || monetizationScreen === "payment_failed" || monetizationScreen === "offline") {
+      setMonetizationScreen("checkout");
+      return;
+    }
+
     if (step > 1) {
       prevStep();
     } else {
@@ -169,16 +217,76 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     }
   };
 
+  // Stage 6 Calibration completes -> Transition to Tactile Paywall
+  const handleStage6Complete = () => {
+    triggerHaptic.medium();
+    setDirection(1);
+    setMonetizationScreen("paywall");
+  };
+
+  // Paywall actions
+  const handleSelectPlanAndCheckout = (plan: PlanPricing) => {
+    setActivePlan(plan);
+    setMonetizationScreen("checkout");
+  };
+
+  const handleContinueUnmonitored = () => {
+    const updated = optIntoFreeTier();
+    setSubState(updated);
+    setMonetizationScreen("none");
+    setDirection(1);
+    setStep(7);
+  };
+
+  // Checkout actions
+  const handleCheckoutSuccess = (summary: string) => {
+    if (activePlan) {
+      const updated = startTrialSubscription(activePlan, summary);
+      setSubState(updated);
+    }
+    setMonetizationScreen("none");
+    setDirection(1);
+    setStep(7); // Day-0 Cancellation Shield: Handoff to Stage 7 Sovereign Pact
+  };
+
+  const handleRequire3DS = () => {
+    setMonetizationScreen("3ds");
+  };
+
+  const handlePaymentFailed = (reason: string) => {
+    setPaymentFailureReason(reason);
+    const updated = triggerGracePeriod(reason);
+    setSubState(updated);
+    setMonetizationScreen("payment_failed");
+  };
+
+  const handleOfflineDetected = () => {
+    if (activePlan) {
+      cacheOfflineAuthorization(activePlan, "Offline Vault");
+    }
+    setMonetizationScreen("offline");
+  };
+
+  // 3DS actions
+  const handle3DSSuccess = () => {
+    if (activePlan) {
+      const updated = startTrialSubscription(activePlan, "Verified by Bank (3DS)");
+      setSubState(updated);
+    }
+    setMonetizationScreen("none");
+    setDirection(1);
+    setStep(7);
+  };
+
   return (
     <div className="w-full max-w-full min-w-0 mx-auto space-y-4">
       {/* Top Protocol Header */}
       <div className="flex items-center justify-between border-b border-border/80 pb-3">
         <div className="flex items-center gap-2.5">
-          {/* Universal Back Arrow */}
           <button
             type="button"
             data-onboarding-back="true"
-            disabled={step <= 1}
+            disabled={step <= 1 && monetizationScreen === "none"}
             onClick={handleBack}
             className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-xl bg-muted/60 hover:bg-muted border border-border text-foreground transition-colors active:scale-[0.96] motion-reduce:transform-none shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground disabled:opacity-30 disabled:pointer-events-none"
             aria-label="Previous step"
@@ -238,100 +346,159 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         </div>
       </div>
 
-      {/* Discrete 7-Segment Progress */}
-      <OnboardingProgress currentStep={step} totalSteps={7} />
+      {/* Discrete 7-Segment Progress (shown when not on dedicated paywall view) */}
+      {monetizationScreen === "none" && (
+        <OnboardingProgress currentStep={step} totalSteps={7} />
+      )}
 
       <div className="relative overflow-hidden min-w-0 min-h-[460px]">
-        <AnimatePresence initial={false} custom={direction} mode="wait">
-          <motion.div
-            key={step}
-            custom={direction}
-            variants={pageTransitionVariants}
-            initial={false}
-            animate="center"
-            exit="exit"
-            className="w-full min-w-0"
-          >
-            {step === 1 && (
-              <Stage1BurnoutAudit
-                selectedReason={state.failureReason}
-                onSelect={(reason) => setState((s) => ({ ...s, failureReason: reason }))}
-                onNext={nextStep}
-              />
-            )}
+        {/* Interstitial Monetization Views */}
+        {monetizationScreen === "paywall" && (
+          <PaywallView
+            onboardingState={state}
+            onSelectPlanAndCheckout={handleSelectPlanAndCheckout}
+            onContinueUnmonitored={handleContinueUnmonitored}
+          />
+        )}
 
-            {step === 2 && (
-              <Stage2GeographicAnchor
-                country={state.country}
-                countryCode={state.countryCode}
-                timezone={state.timezone}
-                coordinates={state.coordinates}
-                onChange={(geo) => setState((s) => ({ ...s, ...geo }))}
-                onNext={nextStep}
-                onBack={prevStep}
-              />
-            )}
+        {monetizationScreen === "checkout" && activePlan && (
+          <CheckoutView
+            plan={activePlan}
+            onBack={() => setMonetizationScreen("paywall")}
+            onSuccess={handleCheckoutSuccess}
+            onRequire3DS={handleRequire3DS}
+            onPaymentFailed={handlePaymentFailed}
+            onOfflineDetected={handleOfflineDetected}
+          />
+        )}
 
-            {step === 3 && (
-              <Stage3NorthStar
-                goal={state.primaryGoal}
-                category={state.goalCategory}
-                onChange={(primaryGoal, goalCategory) =>
-                  setState((s) => ({
-                    ...s,
-                    primaryGoal,
-                    goalCategory: goalCategory as OnboardingState["goalCategory"],
-                  }))
-                }
-                onNext={nextStep}
-                onBack={prevStep}
-              />
-            )}
+        {monetizationScreen === "3ds" && (
+          <ThreeDSecureChallengeView
+            onSuccess={handle3DSSuccess}
+            onCancel={() => setMonetizationScreen("checkout")}
+          />
+        )}
 
-            {step === 4 && (
-              <Stage4Scaffolding
-                selectedRoutines={state.supportingRoutines}
-                onChange={(routinesOrFn) =>
-                  setState((s) => ({
-                    ...s,
-                    supportingRoutines:
-                      typeof routinesOrFn === "function"
-                        ? routinesOrFn(s.supportingRoutines)
-                        : routinesOrFn,
-                  }))
-                }
-                onNext={nextStep}
-                onBack={prevStep}
-              />
-            )}
+        {monetizationScreen === "payment_failed" && (
+          <PaymentFailedView
+            subscriptionState={subState}
+            onPaymentResolved={(summary) => {
+              handleCheckoutSuccess(summary);
+            }}
+            onContinueUninterrupted={() => {
+              setMonetizationScreen("none");
+              setDirection(1);
+              setStep(7);
+            }}
+          />
+        )}
 
-            {step === 5 && (
-              <Stage5ExecutionAnchor
-                timeWindow={state.timeWindow}
-                trigger={state.contextualTrigger}
-                onChange={(timeWindow, contextualTrigger) =>
-                  setState((s) => ({ ...s, timeWindow, contextualTrigger }))
-                }
-                onNext={nextStep}
-                onBack={prevStep}
-              />
-            )}
+        {monetizationScreen === "offline" && (
+          <OfflineSyncView
+            onProceedToPact={() => {
+              handleCheckoutSuccess("Offline Vault Token");
+            }}
+            onReconnected={() => {
+              setMonetizationScreen("checkout");
+            }}
+          />
+        )}
 
-            {step === 6 && (
-              <Stage6AlgorithmicCalibration onComplete={nextStep} />
-            )}
+        {/* Standard Onboarding Stages 1-7 */}
+        {monetizationScreen === "none" && (
+          <AnimatePresence initial={false} custom={direction} mode="wait">
+            <motion.div
+              key={step}
+              custom={direction}
+              variants={pageTransitionVariants}
+              initial={false}
+              animate="center"
+              exit="exit"
+              className="w-full min-w-0"
+            >
+              {step === 1 && (
+                <Stage1BurnoutAudit
+                  selectedReason={state.failureReason}
+                  onSelect={(reason) => setState((s) => ({ ...s, failureReason: reason }))}
+                  onNext={nextStep}
+                />
+              )}
 
-            {step === 7 && (
-              <Stage7SovereignPact
-                state={state}
-                onCommit={async () => {
-                  await onComplete(state);
-                }}
-                onBack={prevStep}
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
+              {step === 2 && (
+                <Stage2GeographicAnchor
+                  country={state.country}
+                  countryCode={state.countryCode}
+                  timezone={state.timezone}
+                  coordinates={state.coordinates}
+                  onChange={(geo) => setState((s) => ({ ...s, ...geo }))}
+                  onNext={nextStep}
+                  onBack={prevStep}
+                />
+              )}
+
+              {step === 3 && (
+                <Stage3NorthStar
+                  goal={state.primaryGoal}
+                  category={state.goalCategory}
+                  onChange={(primaryGoal, goalCategory) =>
+                    setState((s) => ({
+                      ...s,
+                      primaryGoal,
+                      goalCategory: goalCategory as OnboardingState["goalCategory"],
+                    }))
+                  }
+                  onNext={nextStep}
+                  onBack={prevStep}
+                />
+              )}
+
+              {step === 4 && (
+                <Stage4Scaffolding
+                  selectedRoutines={state.supportingRoutines}
+                  onChange={(routinesOrFn) =>
+                    setState((s) => ({
+                      ...s,
+                      supportingRoutines:
+                        typeof routinesOrFn === "function"
+                          ? routinesOrFn(s.supportingRoutines)
+                          : routinesOrFn,
+                    }))
+                  }
+                  onNext={nextStep}
+                  onBack={prevStep}
+                />
+              )}
+
+              {step === 5 && (
+                <Stage5ExecutionAnchor
+                  timeWindow={state.timeWindow}
+                  trigger={state.contextualTrigger}
+                  onChange={(timeWindow, contextualTrigger) =>
+                    setState((s) => ({ ...s, timeWindow, contextualTrigger }))
+                  }
+                  onNext={nextStep}
+                  onBack={prevStep}
+                />
+              )}
+
+              {step === 6 && (
+                <Stage6AlgorithmicCalibration onComplete={handleStage6Complete} />
+              )}
+
+              {step === 7 && (
+                <Stage7SovereignPact
+                  state={state}
+                  onCommit={async () => {
+                    await onComplete(state);
+                  }}
+                  onBack={() => {
+                    setMonetizationScreen("paywall");
+                  }}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );
