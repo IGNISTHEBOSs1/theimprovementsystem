@@ -159,6 +159,7 @@ export function Stage2GeographicAnchor({
           <Search className="absolute left-3.5 h-4 w-4 text-muted-foreground pointer-events-none" />
           <input
             id="country-search-input"
+            aria-label="Search country or timezone"
             type="text"
             enterKeyHint="done"
             value={searchQuery}

@@ -147,9 +147,17 @@ export function Stage5ExecutionAnchor({
           ) : (
             <div className="flex gap-2">
               <input
+                id="custom-trigger-input"
+                aria-label="Custom anchor trigger"
                 type="text"
                 value={customTrigger}
                 onChange={(e) => setCustomTrigger(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddCustom();
+                  }
+                }}
                 placeholder="e.g. Immediately after daily standup..."
                 className="flex-1 h-11 rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none focus:ring-1 focus:ring-foreground/40 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
               />

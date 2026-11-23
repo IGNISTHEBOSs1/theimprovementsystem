@@ -7,9 +7,9 @@
     <!-- Orbital Anchor Head -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M33.55,39.02 a7.87,7.87 0 1,0 15.74,0 a7.87,7.87 0 1,0 -15.74,0" />
+        android:pathData="M 42.816,33.692 a 6.994,6.994 0 1,0 0,13.988 a 6.994,6.994 0 1,0 0,-13.988 Z" />
     <!-- Dynamic Stride Body -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M30.2,81 L30.2,74.21 L69.58,27 L77.8,33.87 L60.95,54 L77.8,74.21 L77.8,81 L69.66,81 L54,62.39 L38.42,81 Z" />
+        android:pathData="M 32.84,77.99 L 32.84,71.96 L 67.85,30.00 L 75.16,36.10 L 60.18,54.00 L 75.16,71.96 L 75.16,77.99 L 67.92,77.99 L 54.00,61.46 L 40.15,77.99 Z" />
 </vector>

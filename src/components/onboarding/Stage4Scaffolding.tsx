@@ -144,9 +144,17 @@ export function Stage4Scaffolding({ selectedRoutines, onChange, onNext, onBack }
           ) : (
             <div className="flex gap-2">
               <input
+                id="custom-routine-input"
+                aria-label="Custom routine title"
                 type="text"
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddCustom();
+                  }
+                }}
                 placeholder="e.g. 20-min vocal warm-up..."
                 className="flex-1 h-11 rounded-xl border border-border/80 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none focus:ring-1 focus:ring-foreground/40 shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
               />

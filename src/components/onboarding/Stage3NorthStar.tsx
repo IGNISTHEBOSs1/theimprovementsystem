@@ -67,6 +67,7 @@ export function Stage3NorthStar({ goal, category, onChange, onNext, onBack }: St
         </label>
         <textarea
           id="north-star-goal-input"
+          aria-label="Primary 90-day focus objective"
           enterKeyHint="done"
           rows={3}
           value={goal}

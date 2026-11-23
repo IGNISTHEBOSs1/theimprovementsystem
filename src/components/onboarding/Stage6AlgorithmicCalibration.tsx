@@ -179,7 +179,7 @@ export function Stage6AlgorithmicCalibration({ onComplete }: Stage6Props) {
           </span>
         </div>
         <div className="rounded-xl border border-border/80 bg-card p-2.5 text-center shadow-xs">
-          <span className="text-xs text-muted-foreground block font-medium">Streak Guilt</span>
+          <span className="text-xs text-muted-foreground block font-medium">Attendance Pressure</span>
           <span className="text-sm sm:text-base font-bold text-muted-foreground">
             <span className="font-mono tabular-nums">{counters.streakPressure}%</span>
           </span>
